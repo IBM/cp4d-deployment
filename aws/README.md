@@ -56,9 +56,9 @@ ssh-public-key = "xxxxxxxxxxxxxxxxxxxxxxx"
 ```
 * Change the current directory to aws_infra:
 ```
-cd cpd_terraform-master/aws/aws_infra
+cd cp4d-deployment-master/aws/aws_infra
 ```
-* Deploy scripts by executing the following command from the `cpd_terraform-master/aws/aws_infra` directory:
+* Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
 ```bash
 terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
