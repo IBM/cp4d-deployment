@@ -1,0 +1,198 @@
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: ${clusterid}
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: ${clusterid}-workerocs-${region}1
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: ${clusterid}
+      machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: ${clusterid}
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}1
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          image:
+            offer: ""
+            publisher: ""
+            resourceID: /resourceGroups/${clusterid}-rg/providers/Microsoft.Compute/images/${clusterid}
+            sku: ""
+            version: ""
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: ${region}
+          managedIdentity: ${clusterid}-identity
+          metadata:
+            creationTimestamp: null
+          natRule: null
+          networkResourceGroup: ${clusterid}-rg
+          osDisk:
+            diskSizeGB: 512
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: ""
+          resourceGroup: ${clusterid}-rg
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: ${clusterid}-worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: ${instance-type}
+          vnet: ${clusterid}-vnet
+          zone: "1"
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: ${clusterid}
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: ${clusterid}-workerocs-${region}2
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: ${clusterid}
+      machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}2
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: ${clusterid}
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}2
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          image:
+            offer: ""
+            publisher: ""
+            resourceID: /resourceGroups/${clusterid}-rg/providers/Microsoft.Compute/images/${clusterid}
+            sku: ""
+            version: ""
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: ${region}
+          managedIdentity: ${clusterid}-identity
+          metadata:
+            creationTimestamp: null
+          natRule: null
+          networkResourceGroup: ${clusterid}-rg
+          osDisk:
+            diskSizeGB: 512
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: ""
+          resourceGroup: ${clusterid}-rg
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: ${clusterid}-worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: ${instance-type}
+          vnet: ${clusterid}-vnet
+          zone: "2"
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: ${clusterid}
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: ${clusterid}-workerocs-${region}3
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: ${clusterid}
+      machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}3
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: ${clusterid}
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: ${clusterid}-workerocs-${region}3
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          image:
+            offer: ""
+            publisher: ""
+            resourceID: /resourceGroups/${clusterid}-rg/providers/Microsoft.Compute/images/${clusterid}
+            sku: ""
+            version: ""
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: ${region}
+          managedIdentity: ${clusterid}-identity
+          metadata:
+            creationTimestamp: null
+          natRule: null
+          networkResourceGroup: ${clusterid}-rg
+          osDisk:
+            diskSizeGB: 512
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: ""
+          resourceGroup: ${clusterid}-rg
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: ${clusterid}-worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: ${instance-type}
+          vnet: ${clusterid}-vnet
+          zone: "3"

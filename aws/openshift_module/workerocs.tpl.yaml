@@ -1,0 +1,211 @@
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: CLUSTERID
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: CLUSTERID-workerocs1-${az1}
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: CLUSTERID
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az1}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: CLUSTERID
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az1}
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          ami:
+            id: ${ami_id}
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          blockDevices:
+          - ebs:
+              iops: 0
+              volumeSize: 120
+              volumeType: gp2
+          credentialsSecret:
+            name: aws-cloud-credentials
+          deviceIndex: 0
+          iamInstanceProfile:
+            id: CLUSTERID-worker-profile
+          instanceType: ${instance-type}
+          kind: AWSMachineProviderConfig
+          metadata:
+            creationTimestamp: null
+          placement:
+            availabilityZone: ${az1}
+            region: ${region}
+          publicIp: null
+          securityGroups:
+          - filters:
+            - name: tag:Name
+              values:
+              - CLUSTERID-worker-sg
+          subnet:
+            filters:
+            - name: tag:Name
+              values:
+              - ${cluster-name}-private-vpc-${az1}
+          tags:
+          - name: kubernetes.io/cluster/CLUSTERID
+            value: owned
+          userDataSecret:
+            name: worker-user-data
+      versions:
+        kubelet: ""
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: CLUSTERID
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: CLUSTERID-workerocs2-${az2}
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: CLUSTERID
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az2}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: CLUSTERID
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az2}
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          ami:
+            id: ${ami_id}
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          blockDevices:
+          - ebs:
+              iops: 0
+              volumeSize: 120
+              volumeType: gp2
+          credentialsSecret:
+            name: aws-cloud-credentials
+          deviceIndex: 0
+          iamInstanceProfile:
+            id: CLUSTERID-worker-profile
+          instanceType: ${instance-type}
+          kind: AWSMachineProviderConfig
+          metadata:
+            creationTimestamp: null
+          placement:
+            availabilityZone: ${az2}
+            region: ${region}
+          publicIp: null
+          securityGroups:
+          - filters:
+            - name: tag:Name
+              values:
+              - CLUSTERID-worker-sg
+          subnet:
+            filters:
+            - name: tag:Name
+              values:
+              - ${cluster-name}-private-vpc-${az2}
+          tags:
+          - name: kubernetes.io/cluster/CLUSTERID
+            value: owned
+          userDataSecret:
+            name: worker-user-data
+      versions:
+        kubelet: ""
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: CLUSTERID
+    machine.openshift.io/cluster-api-machine-role: workerocs
+    machine.openshift.io/cluster-api-machine-type: workerocs
+  name: CLUSTERID-workerocs3-${az3}
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: CLUSTERID
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az3}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: CLUSTERID
+        machine.openshift.io/cluster-api-machine-role: workerocs
+        machine.openshift.io/cluster-api-machine-type: workerocs
+        machine.openshift.io/cluster-api-machineset: CLUSTERID-workerocs-${az3}
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          role: storage-node
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          ami:
+            id: ${ami_id}
+          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          blockDevices:
+          - ebs:
+              iops: 0
+              volumeSize: 120
+              volumeType: gp2
+          credentialsSecret:
+            name: aws-cloud-credentials
+          deviceIndex: 0
+          iamInstanceProfile:
+            id: CLUSTERID-worker-profile
+          instanceType: ${instance-type}
+          kind: AWSMachineProviderConfig
+          metadata:
+            creationTimestamp: null
+          placement:
+            availabilityZone: ${az3}
+            region: ${region}
+          publicIp: null
+          securityGroups:
+          - filters:
+            - name: tag:Name
+              values:
+              - CLUSTERID-worker-sg
+          subnet:
+            filters:
+            - name: tag:Name
+              values:
+              - ${cluster-name}-private-vpc-${az3}
+          tags:
+          - name: kubernetes.io/cluster/CLUSTERID
+            value: owned
+          userDataSecret:
+            name: worker-user-data
+      versions:
+        kubelet: ""
+---

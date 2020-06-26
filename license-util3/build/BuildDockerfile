@@ -1,0 +1,10 @@
+FROM golang:1.12.1-alpine3.9
+RUN apk update && apk add git protobuf bash && go get -u github.com/golang/dep/cmd/dep
+ENV GOOS=linux
+ENV BUILD_UTILS=<PLACE_HOLDER>
+RUN mkdir -p /go/src/github.ibm.com/license-util3/${BUILD_UTILS}
+COPY ./pkg/Gopkg.* /go/src/github.ibm.com/license-util3/${BUILD_UTILS}/
+RUN cd /go/src/github.ibm.com/license-util3/${BUILD_UTILS} && dep ensure -v -vendor-only
+COPY ./pkg /go/src/github.ibm.com/license-util3/${BUILD_UTILS}
+RUN cd /go/src/github.ibm.com/license-util3/${BUILD_UTILS} && dep ensure
+RUN cd / && CGO_ENABLED=0 go build github.ibm.com/license-util3/${BUILD_UTILS}

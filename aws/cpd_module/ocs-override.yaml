@@ -1,0 +1,46 @@
+global:
+  pullPolicy: Always
+zenCoreMetaDb:
+  storageClass: "ocs-storagecluster-ceph-rbd"
+couchdb:
+  persistentVolume:
+    storageClass: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+elasticsearch:
+  persistence:
+    storageClass: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+wdp-rabbitmq:
+  persistentVolume:
+    storageClass: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+redis-ha:
+  persistentVolume:
+    storageClass: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+solr:
+  volumeClaim:
+    storageClassName: "ocs-storagecluster-cephfs"
+    overrideStorageClass: true
+    accessMode: ReadWriteMany
+shared-services:
+  kafka:
+    volumeClaim:
+      storageClassName: "ocs-storagecluster-ceph-rbd"
+      overrideStorageClass: true
+  cassandra:
+    volumeClaim:
+      storageClassName: "ocs-storagecluster-ceph-rbd"
+      overrideStorageClass: true
+xmetarepoVolumeInfo:
+  support4kDevice: true
+  volumeClaim:
+    storageClassName: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+    accessMode: ReadWriteOnce
+wdp-db2:
+  support4kDevice: true
+  dataVolume:
+    storageClassName: "ocs-storagecluster-ceph-rbd"
+    overrideStorageClass: true
+    

@@ -1,0 +1,8 @@
+access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
+secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
+pull-secret-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
+public_key_path = "xxxxxxxxxxxxxxxxxxxxxxx"
+ssh-private-key-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
+dnszone = "xxxxxxxxxxxxxxxxxxxxxxx"
+entitlementkey = "xxxxxxxxxxxxxxxxxxxxxxx"
+ssh-public-key = "xxxxxxxxxxxxxxxxxxxxxxx"
