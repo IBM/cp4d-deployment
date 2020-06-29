@@ -16,7 +16,7 @@
 | `access_key_id` | Requires input | AWS account access key id for the current user account. |
 | `secret_access_key` | Requires input | AWS account secret access key for the current user account. |
 | `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number. For a development deployment, `1` is sufficient with a single zone deployment; for production deployments, a minimum of `3` is required with multi zone deployment. |
-| `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed, you can use sales configurator to find the resourse requirement. See [here](http://ibm.biz/sales_configurator_cloud) |
+| `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |
 | `master-instance-type` | m5.2xlarge | The EC2 instance type for the OpenShift master instances. |
 | `worker-instance-type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. |
 | `worker-ocs-instance-type` | m4.4xlarge | The EC2 instance type for the OpenShift container storage (OCS) instances. |
