@@ -1,14 +1,14 @@
 | Variables             | Default       | Description          |
 | --------------------- | :-----------: | -------------------- |
-| `azure-subscription-id` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy). The `id` in the json after the `az login` command goes here. |
-| `azure-client-id` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy). The `appId` in the json after the `az ad sp create-for-rbac` command goes here. |
-| `azure-client-secret` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy). The `password` in the json after the `az ad sp create-for-rbac` command goes here. |
-| `azure-tenant-id` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy). The `tenant` in the json after the `az ad sp create-for-rbac` command goes here.  |
+| `azure-subscription-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `id` in the json after the `az login` command goes here. |
+| `azure-client-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `appId` in the json after the `az ad sp create-for-rbac` command goes here. |
+| `azure-client-secret` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `password` in the json after the `az ad sp create-for-rbac` command goes here. |
+| `azure-tenant-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `tenant` in the json after the `az ad sp create-for-rbac` command goes here.  |
 | `region` | eastus | Choose a region that supports availability zones. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region) |
 | `resource-group` | mycpd-rg | Resource Group to contain deployment related resources. |
 | `cluster-name` | mycpd-cluster | All resources created by the Openshift Installer will have this name as prefix |
-| `dnszone-resource-group` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the resource group created. |
-| `dnszone` | - | Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the dnszone name here |
+| `dnszone-resource-group` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the resource group created. |
+| `dnszone` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the dnszone name here |
 | `new-or-existing` | new | Deploy cluster into new or existing network. NOTE: If using existing, you must deploy the cluster into the same region as the network |
 | `existing-vnet-resource-group` | vnet-rg | If existing network is to be used, enter it's resource group here |
 | `virtual-network-name` | ocpfourx-vnet | Name of new or existing virtual network |
@@ -20,7 +20,7 @@
 | `master-subnet-cidr` | 10.0.1.0/24 | Address space to deploy control plane nodes in. |
 | `worker-subnet-name` | worker-subnet | Subnet Name to deploy control plane nodes in. |
 | `worker-subnet-cidr` | 10.0.2.0/24 | Address space to deploy compute nodes in. |
-| `single-or-multi-zone` | multi | Deploy Openshift Cluster into a single zone or a multi-zone. If multi is selected, ensure the region selected supports Availability Zone. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region) |
+| `single-or-multi-zone` | multi | Deploy Openshift Cluster into a single zone or a multi-zone. Ensure the region selected supports Availability Zone. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region). To deploy in a region without Availability Zone support, set variable to `noha` |
 | `zone` | 1 | Zone to deploy nodes in. Applicable only if single zone deployment is selected |
 | `master-node-count` | 3 | Number of control plane nodes |
 | `worker-node-count` | 3 | Number of compute nodes |
@@ -39,11 +39,19 @@
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
-| `apikeyusername` | - | API Key Username. Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy) |
-| `apikey` | - | API Key. Follow steps [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/azure#steps-to-deploy) |
+| `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
 | `watson-ai-openscale` | no | Install Watson AI Openscale Add-On |
 | `watson-machine-learning` | no | Install Watson Machine Learning Add-On |
 | `cognos-dashboard-embedded` | no | Install Cognos Dashboard |
+| `streams` | no | Install the Streams Add-on service. |
+| `streams-flows` | no | Install the Streams Flow Add-on service. |
+| `datastage` | no | Install the datastage Add-on service. |
+| `db2_warehouse` | no | Install the DB2Warehouse Add-on service. |
+| `db2_oltp` | no | Install the db2 advanced edition Add-on service. |
+| `decision-optimization` | no | Install the Decision Optimization Add-on service. |
+| `cognos-analytics` | no | Install the Cognos Analytics Add-on service. |
+| `spss` | no | Install the SPSS Modeler Add-on service. |
+| `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdqSw4 |
