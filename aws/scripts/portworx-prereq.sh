@@ -1,7 +1,4 @@
-#!/bin/bash
-
 VAR=`date '+%F-%H-%M-%S'`
-
 #Install aws CLI
 curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null
 python get-pip.py --user > /dev/null
