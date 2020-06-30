@@ -60,6 +60,7 @@ resource "null_resource" "install_openshift" {
 
     provisioner "remote-exec" {
     inline = [
+        "sed -i -e s/\r$// *.sh",
         "sudo yum -y install wget",
         "curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null",
         "python get-pip.py --user > /dev/null",
