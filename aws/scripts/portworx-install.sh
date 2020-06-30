@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #Adding the Portworx service accounts to the privileged security context
 oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:px-account
 oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:portworx-pvc-controller-account
