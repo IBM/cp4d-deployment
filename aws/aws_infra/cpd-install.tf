@@ -29,6 +29,7 @@ resource "null_resource" "cpd_config" {
           "oc create -f ${local.ocptemplates}/security-limits-mc.yaml",
           "oc create -f ${local.ocptemplates}/crio-mc.yaml",
           "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true,\"replicas\":${lookup(var.image-replica,var.azlist)}}}'",
+          "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
           "echo 'Sleeping for 10mins while MachineConfigs apply and the cluster restarts' ",
           "sleep 12m",
           "mkdir -p ${local.installerhome}",
