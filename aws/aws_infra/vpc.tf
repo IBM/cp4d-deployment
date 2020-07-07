@@ -9,7 +9,7 @@ resource "aws_vpc" "cpdvpc" {
   instance_tenancy     = var.tenancy
 
   tags = {
-    "Name": join("-",[var.cluster-name,"vpc"])
+    Name = "ocp-tf-vpc"
   }
 }
 
