@@ -15,7 +15,6 @@ done
 sleep 30
 aws efs delete-file-system --file-system-id $FILESYSTEMID
 sleep 30
-KEY=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' | awk -F'-' '{print $1}')
-VPD_ID=`aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$KEY-cluster-vpc" --output text --query 'Vpcs[*].VpcId'`
+VPD_ID=`aws ec2 describe-vpcs --filters "Name=tag:Name,Values=ocp-tf-vpc" --output text --query 'Vpcs[*].VpcId'`
 SG_GROUPID=`aws ec2 describe-security-groups --filter Name=vpc-id,Values=$VPD_ID Name=group-name,Values="EFSSecutityGroup" --output text --query 'SecurityGroups[*].GroupId'`
 aws ec2 delete-security-group --group-id $SG_GROUPID
