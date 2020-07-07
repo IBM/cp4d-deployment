@@ -101,6 +101,11 @@ resource "null_resource" "file_copy" {
     destination = "/home/${var.admin-username}/delete-efs-backup.sh"
   }
 
+  provisioner "file" {
+    source      = "../scripts/update-elb-timeout.sh"
+    destination = "/home/${var.admin-username}/update-elb-timeout.sh"
+  }
+
   depends_on = [
     aws_instance.bootnode,
   ]
