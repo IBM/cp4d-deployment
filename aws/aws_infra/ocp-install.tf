@@ -206,7 +206,7 @@ resource "null_resource" "install_efs" {
         "cat > ${local.ocptemplates}/efs-pvc.yaml <<EOL\n${file("../efs_module/efs-pvc.yaml")}\nEOL",
         "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "chmod +x create-efs.sh delete-efs.sh",
-        "./create-efs.sh ${var.region}",
+        "./create-efs.sh ${var.region} ${var.vpc_cidr}",
         "sleep 180",
         "FILESYSTEMID=`aws efs describe-file-systems --query 'FileSystems[*].FileSystemId' --output text`",
         "DNSNAME=$FILESYSTEMID.efs.${var.region}.amazonaws.com",
