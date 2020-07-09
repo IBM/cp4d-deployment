@@ -30,7 +30,6 @@ resource "null_resource" "cpd_config" {
           "oc create -f ${local.ocptemplates}/crio-mc.yaml",
           "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true,\"replicas\":${lookup(var.image-replica,var.azlist)}}}'",
           "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
-          "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
           "oc patch svc/image-registry -p '{\"spec\":{\"sessionAffinity\": \"ClientIP\"}}' -n openshift-image-registry",
           "echo 'Sleeping for 10mins while MachineConfigs apply and the cluster restarts' ",
           "sleep 12m",
@@ -40,12 +39,14 @@ resource "null_resource" "cpd_config" {
           "cat > ${local.installerhome}/ocs-override.yaml <<EOL\n${file("../cpd_module/ocs-override.yaml")}\nEOL",
           "cat > ${local.installerhome}/ca-override.yaml <<EOL\n${file("../cpd_module/ca-override.yaml")}\nEOL",
           "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/cpd-linux -O ${local.installerhome}/cpd-linux",
-          "chmod +x ${local.installerhome}/cpd-linux",
+          "chmod +x ${local.installerhome}/cpd-linux delete-elb-outofservice.sh",
           "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
           "oc new-project ${var.cpd-namespace}",
           "oc create serviceaccount cpdtoken",
           "oc policy add-role-to-user admin system:serviceaccount:${var.cpd-namespace}:cpdtoken",
           "oc apply -f ${local.ocptemplates}/oauth-token.yaml",
+          "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
+          "./delete-elb-outofservice.sh ${var.vpc_cidr}",
       ]
   }
   depends_on = [
