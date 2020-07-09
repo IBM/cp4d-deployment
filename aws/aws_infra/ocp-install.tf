@@ -88,7 +88,7 @@ resource "null_resource" "install_openshift" {
         "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
         "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password)",
         "chmod +x autoscaler-prereq.sh delete-policy.sh px-volume-permission.sh update-elb-timeout.sh",
-        "./update-elb-timeout.sh 2> /dev/null",
+        "./update-elb-timeout.sh ${var.vpc_cidr}",
         "./autoscaler-prereq.sh",
         "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
         "oc create -f ${local.ocptemplates}/machine-health-check.yaml",
