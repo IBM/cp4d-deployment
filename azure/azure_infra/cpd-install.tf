@@ -62,8 +62,8 @@ resource "null_resource" "install_cpd_lite" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.cp-storageclass} -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace} --accept-all-licenses --silent-install --apply",
+            "cpd-linux -c ${local.cp-storageclass} -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace}  --silent-install --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
