@@ -1,5 +1,7 @@
 access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
 secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
+openshift-username = "xxxxxxxxxxxxxxxxxxxxxxx"
+openshift-password = "xxxxxxxxxxxxxxxxxxxxxxx"
 pull-secret-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
 public_key_path = "xxxxxxxxxxxxxxxxxxxxxxx"
 ssh-private-key-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
