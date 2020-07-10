@@ -17,12 +17,19 @@ resource "null_resource" "cpd_config" {
   }
   provisioner "remote-exec" {
       inline = [
+          #Create identity provider.
+          "htpasswd -c -B -b /tmp/.htpasswd '${var.openshift-username}' '${var.openshift-password}'",
+          "sleep 3",
+          "oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config",
+          "cat > ${local.ocptemplates}/auth-htpasswd.yaml <<EOL\n${file("../openshift_module/auth-htpasswd.yaml")}\nEOL",
+          "oc apply -f ${local.ocptemplates}/auth-htpasswd.yaml",
+          "oc adm policy add-cluster-role-to-user cluster-admin '${var.openshift-username}'",
+
           "cat > ${local.ocptemplates}/insecure-registry-mc.yaml <<EOL\n${data.template_file.registry-mc.rendered}\nEOL",
           "cat > ${local.ocptemplates}/sysctl-machineconfig.yaml <<EOL\n${data.template_file.sysctl-machineconfig.rendered}\nEOL",
           "cat > ${local.ocptemplates}/security-limits-mc.yaml <<EOL\n${data.template_file.security-limits-mc.rendered}\nEOL",
           "cat > ${local.ocptemplates}/crio-mc.yaml <<EOL\n${data.template_file.crio-mc.rendered}\nEOL",
           "cat > ${local.ocptemplates}/registries.conf <<EOL\n${data.template_file.registry-conf.rendered}\nEOL",
-          "cat > ${local.ocptemplates}/oauth-token.yaml <<EOL\n${file("../openshift_module/oauth-token.yaml")}\nEOL",
           "oc create -f ${local.ocptemplates}/machine-autoscaler.yaml 2> /dev/null",
           "oc create -f ${local.ocptemplates}/insecure-registry-mc.yaml",
           "oc create -f ${local.ocptemplates}/sysctl-machineconfig.yaml",
@@ -33,6 +40,7 @@ resource "null_resource" "cpd_config" {
           "oc patch svc/image-registry -p '{\"spec\":{\"sessionAffinity\": \"ClientIP\"}}' -n openshift-image-registry",
           "echo 'Sleeping for 10mins while MachineConfigs apply and the cluster restarts' ",
           "sleep 12m",
+
           "mkdir -p ${local.installerhome}",
           "cat > ${local.installerhome}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
           "cat > ${local.installerhome}/portworx-override.yaml <<EOL\n${data.template_file.portworx-override.rendered}\nEOL",
@@ -44,7 +52,6 @@ resource "null_resource" "cpd_config" {
           "oc new-project ${var.cpd-namespace}",
           "oc create serviceaccount cpdtoken",
           "oc policy add-role-to-user admin system:serviceaccount:${var.cpd-namespace}:cpdtoken",
-          "oc apply -f ${local.ocptemplates}/oauth-token.yaml",
           "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
           "./delete-elb-outofservice.sh ${var.vpc_cidr}",
       ]
