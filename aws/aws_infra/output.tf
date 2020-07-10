@@ -20,12 +20,12 @@ output "openshift_console_url" {
 
 output "openshift_console_username" {
   description = "username for OpenShift web console"
-  value       = "kubeadmin"
+  value       = "${var.openshift-username}"
 }
 
 output "openshift_console_password" {
   description = "password for OpenShift web console"
-  value       = "Execute 'cat kubeadmin-password' in your current directory"
+  value       = "${var.openshift-password}"
 }
 
 output "cpd_url" {

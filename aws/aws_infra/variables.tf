@@ -112,6 +112,12 @@ variable "admin-username" {
   default = "ec2-user"
 }
 
+variable "openshift-username" {
+}
+
+variable "openshift-password" {
+}
+
 variable "pull-secret-file-path" {
 }
 
