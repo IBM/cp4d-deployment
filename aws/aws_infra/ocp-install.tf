@@ -165,7 +165,7 @@ resource "null_resource" "install_ocs" {
         "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "chmod +x ocs-prereq.sh delete-noobaa-buckets.sh",
         "oc create -f ${local.ocptemplates}/machineset-worker-ocs.yaml",
-        "sleep 300",
+        "sleep 420",
         "./ocs-prereq.sh",
         "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
         "sleep 300",
