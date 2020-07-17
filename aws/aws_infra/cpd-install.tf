@@ -565,6 +565,7 @@ resource "null_resource" "install_dods" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_datagate,
     ]
 }
 
@@ -603,6 +604,7 @@ resource "null_resource" "install_ca" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_datagate,
         null_resource.install_dods,
     ]
 }
@@ -642,6 +644,7 @@ resource "null_resource" "install_spss" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
     ]
