@@ -135,6 +135,22 @@ data "template_file" "cpd-override" {
     }
 }
 
+data "template_file" "watson-asst-override" {
+    template = file("../cpd_module/watson-asst-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-asst-storageclass
+    }
+}
+
+data "template_file" "watson-discovery-override" {
+    template = file("../cpd_module/watson-discovery-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-discovery-storageclass
+        hostname = "bootnode"
+        host_ip = azurerm_public_ip.bootnode.ip_address
+    }
+}
+
 data "template_file" "registry-conf" {
     template = file("../openshift_module/registries.tpl.conf")
     vars = {
