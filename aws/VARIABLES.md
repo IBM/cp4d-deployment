@@ -49,6 +49,7 @@
 | `datastage` | no | Enter `yes` to install the datastage Add-on service. |
 | `db2_warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. |
 | `db2_advanced_edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. |
+| `datagate` | no | Enter `yes` to install the Data Gate Add-on service. |
 | `decision_optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos_analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss_modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
