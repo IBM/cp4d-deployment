@@ -75,6 +75,7 @@ The table lists the resource requirements for each of the services, that will de
 |Db2 Advanced Edition|	5|	14 |
 |Decision Optimization|	0.9|	1.5 |
 |SPSS Modeler|	11|	84 |
+|Db2 Data Gate|	4|	12 |
 
 
 ## How to Deploy
@@ -127,6 +128,7 @@ As part of the deployment, the following services can be enabled.
   - Db2 Advanced Edition
   - Decision Optimization
   - SPSS Modeler
+  - Db2 Data Gate
  
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).
