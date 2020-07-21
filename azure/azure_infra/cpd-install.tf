@@ -9,8 +9,8 @@ locals {
     storageclass = var.storage == "portworx" ? "portworx-shared-gp" : "nfs"
     dv-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
-    watson-asst-storageclass = "portworx-assistant"
-    watson-discovery-storageclass = "portworx-db-gp3"
+    watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
+    watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
 }
 
 resource "null_resource" "cpd_config" {
@@ -607,8 +607,9 @@ resource "null_resource" "install_cpd_watson_assistant" {
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-asst-override.yaml",
             "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
+            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
             "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
-            "cpd-linux -r ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${self.triggers.namespace}  --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$(oc whoami -t) --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify --verbose"
+            "cpd-linux -r ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${self.triggers.namespace} -c ${local.watson-asst-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify --verbose"
         ]
     }
     depends_on = [
@@ -647,14 +648,13 @@ resource "null_resource" "install_cpd_watson_discovery" {
     }
     provisioner "remote-exec" {
         inline = [
-            "cat > ${local.installerhome}/elasticsearch-mc.yaml <<EOL\n${file("../openshift_module/elasticsearch-machineconfig.yaml")}\nEOL",
-            "oc create -f ${local.installerhome}/elasticsearch-mc.yaml",
             "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
+            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
             "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
             "cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} -c ${local.watson-discovery-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$(oc whoami -t) --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify --verbose"
+            "cpd-linux -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} -c ${local.watson-discovery-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify --verbose"
         ]
     }
     depends_on = [
