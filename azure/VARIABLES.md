@@ -54,4 +54,6 @@
 | `decision-optimization` | no | Install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Install the Cognos Analytics Add-on service. |
 | `spss` | no | Install the SPSS Modeler Add-on service. |
+| `watson-assistant` | no | Install the Watson Assistant Add-on service. On selecting 'nfs' as storage, it installs on azure-disk storageclass.|
+| `watson-discovery` | no | Install the Watson Discovery Add-on service. On selecting 'nfs' as storage, it installs on azure-disk storageclass. |
 | `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdqSw4 |
