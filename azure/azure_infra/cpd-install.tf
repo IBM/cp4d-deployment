@@ -651,6 +651,8 @@ resource "null_resource" "install_cpd_watson_discovery" {
             "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
+            "host_ip=$(oc get svc -A | grep LoadBalancer | awk '{print $5}')",
+            "sed -i s/k8_host_ip/$host_ip/g ${local.installerhome}/watson-discovery-override.yaml",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
             "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
             "cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} --accept-all-licenses --apply",

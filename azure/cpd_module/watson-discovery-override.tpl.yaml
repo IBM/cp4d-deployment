@@ -10,8 +10,8 @@ core:
     mount:
       storageClassName: ${storageclass}
 wire:
-  kubernetesHost: ${hostname}
-  kubernetesIP: ${host_ip}
+  kubernetesHost: ${k8_host}
+  kubernetesIP: k8_host_ip
 elastic:
   persistence:
     storageClassName: ${storageclass}

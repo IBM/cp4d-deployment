@@ -146,8 +146,7 @@ data "template_file" "watson-discovery-override" {
     template = file("../cpd_module/watson-discovery-override.tpl.yaml")
     vars = {
         storageclass = local.watson-discovery-storageclass
-        hostname = "bootnode"
-        host_ip = azurerm_public_ip.bootnode.ip_address
+        k8_host = "https://api.${var.cluster-name}.${var.dnszone}:6443"
     }
 }
 
