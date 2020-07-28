@@ -15,7 +15,7 @@ resource "aws_instance" "bootnode" {
   ]
 
   root_block_device {
-    volume_size = 50
+    volume_size = 500
     volume_type = "gp2"
   }
 
