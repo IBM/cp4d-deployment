@@ -146,7 +146,7 @@ data "template_file" "watson-discovery-override" {
     template = file("../cpd_module/watson-discovery-override.tpl.yaml")
     vars = {
         storageclass = local.watson-discovery-storageclass
-        k8_host = "https://api.${var.cluster-name}.${var.dnszone}:6443"
+        k8_host = "api.${var.cluster-name}.${var.dnszone}"
     }
 }
 
