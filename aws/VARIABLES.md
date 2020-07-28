@@ -16,15 +16,17 @@
 | `access_key_id` | Requires input | AWS account access key id for the current user account. |
 | `secret_access_key` | Requires input | AWS account secret access key for the current user account. |
 | `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number. For a development deployment, `1` is sufficient with a single zone deployment; for production deployments, a minimum of `3` is required with multi zone deployment. |
-| `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed, you can use sales configurator to find the resourse requirement. See [here](http://ibm.biz/sales_configurator_cloud) |
-| `master-instance-type` | m5.2xlarge | The EC2 instance type for the OpenShift master instances. |
-| `worker-instance-type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. |
-| `worker-ocs-instance-type` | m4.4xlarge | The EC2 instance type for the OpenShift container storage (OCS) instances. |
+| `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |
+| `master-instance-type` | m5.2xlarge | The EC2 instance type for the OpenShift master instances. Make sure your region supports the selected instance type. Supported master instance types [here](./INSTANCE-TYPES.md) |
+| `worker-instance-type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
+| `worker-ocs-instance-type` | m4.4xlarge | The EC2 instance type for the OpenShift container storage (OCS) instances. Make sure your region supports the selected instance type. Supported ocs instance types [here](./INSTANCE-TYPES.md) |
 | `bootnode-instance-type` | m5.xlarge | The EC2 instance type for the bootnode instances. |
 | `cluster-name` | Requires input  | All resources created by the Openshift Installer will have this name as prefix. |
 | `private-or-public-cluster` | public | Public or Private. Set `public` to `private` to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_aws/installing-aws-private.html) for more details. |
 | `fips-enable` | true | If FIPS mode is enabled, the Red Hat Enterprise Linux CoreOS (RHCOS) machines that OpenShift Container Platform runs on bypass the default Kubernetes cryptography suite and use the cryptography modules that are provided with RHCOS instead. Allowed values `true / false` |
 | `admin-username` | ec2-user | Admin username for the bootnode. |
+| `openshift-username` | Requires input | Desired Openshift username. |
+| `openshift-password` | Requires input | Desired Openshift password. |
 | `pull-secret-file-path` | Requires input | The pull secret that you obtained from the [Pull Secret](https://cloud.redhat.com/openshift/install/pull-secret) page on the Red Hat OpenShift Cluster Manager site. You use this pull secret to authenticate with the services that are provided by the included authorities, including Quay.io, which serves the container images for OpenShift Container Platform components. |
 | `public_key_path` | Requires input | Path to the ssh public key file to allow terraform run commands remotely. Example: "~/.ssh/id_rsa.pub" |
 | `ssh-public-key` | Requires input | ssh Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
@@ -50,4 +52,3 @@
 | `decision_optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos_analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss_modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
-

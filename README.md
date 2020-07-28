@@ -60,12 +60,21 @@ The table lists the resource requirements for each of the services, that will de
 | Service Name             | CPU cores (vCPUs)       | Memory  (in GB) |
 | ---------------------    |   -----------           | ----------------|
 |Watson Studio Local (non-HA)|	12|	48 |
-|Watson Knowledge Catalog (Small, non-HA)|	26|	104 |
+|Watson Knowledge Catalog (Small, non-HA)|	27|	104 |
 |Watson Machine Learning (Small)|	16|	64 |
 |Data Virtualization (Small)|	16|	64 |
 |Watson OpenScale (Small,includes WML)|	30	|120 |
 |Spark Engine|	7	| 28 |
-|Cognos Dashboards Engine|	4|	16|
+|Cognos Dashboards Engine|	4|	16 |
+|Streams|	0.8|	17 |
+|Streams Flows|	0.3|	0.384 |
+|Db2 Warehouse (SMP)|	9|	102 |
+|Db2 Warehouse (MPP)|	41|	614 |
+|DataStage Enterprise Plus|	6|	24 |
+|Cognos Analytics|	11|	29 |
+|Db2 Advanced Edition|	5|	14 |
+|Decision Optimization|	0.9|	1.5 |
+|SPSS Modeler|	11|	84 |
 
 
 ## How to Deploy
@@ -110,6 +119,14 @@ As part of the deployment, the following services can be enabled.
   - Watson OpenScale
   - Apache Spark
   - Cognos Dashboards
+  - Streams
+  - Streams Flows
+  - Db2 Warehouse
+  - DataStage Enterprise Plus
+  - Cognos Analytics
+  - Db2 Advanced Edition
+  - Decision Optimization
+  - SPSS Modeler
  
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).

@@ -120,7 +120,7 @@ resource "null_resource" "openshift_post_install" {
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
             "echo 'Sleeping for 12mins while MCs apply and the cluster restarts' ",
             "sleep 12m",
-            "oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u '${var.openshift-username}' -p '${var.openshift-password}'",
+            "sudo oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u '${var.openshift-username}' -p '${var.openshift-password}' --insecure-skip-tls-verify=true"
         ]
     }
     depends_on = [

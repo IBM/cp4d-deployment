@@ -3,6 +3,7 @@ locals {
   ocptemplates = "ocpfourxtemplates"
 }
 
+#Install config for Multi Zone installation.
 resource "null_resource" "install_config" {
     count    = var.azlist == "multi_zone" ? 1 : 0
     triggers = {
@@ -24,6 +25,7 @@ resource "null_resource" "install_config" {
   }
 }
 
+#Install config for Single Zone installation.
 resource "null_resource" "install_config-1AZ" {
     count    = var.azlist == "single_zone" ? 1 : 0
     triggers = {
@@ -60,12 +62,16 @@ resource "null_resource" "install_openshift" {
 
     provisioner "remote-exec" {
     inline = [
+        #install awscli on bootnode.
+        "sed -i -e s/\r$// *.sh",
         "sudo yum -y install wget",
         "curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null",
         "python get-pip.py --user > /dev/null",
         "export PATH=\"~/.local/bin:$PATH\"",
         "source ~/.bash_profile > /dev/null",
         "pip install awscli --upgrade --user > /dev/null",
+         
+        #Create OpenShift Cluster.
         "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/openshift-install",
         "sudo wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/oc -O /usr/local/bin/oc",
         "sudo wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/kubectl -O /usr/local/bin/kubectl",
@@ -76,7 +82,9 @@ resource "null_resource" "install_openshift" {
         "chmod +x openshift-install",
         "sudo chmod +x /usr/local/bin/oc",
         "sudo chmod +x /usr/local/bin/kubectl",
+        "sudo yum install -y httpd-tools",
         "./openshift-install create cluster --dir=${local.ocpdir} --log-level=debug",
+
         "mkdir -p /home/${var.admin-username}/.kube",
         "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
         "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
@@ -86,24 +94,20 @@ resource "null_resource" "install_openshift" {
         "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file("${var.ssh-private-key-file-path}")}\nEOL",
         "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
         "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password)",
-        "chmod +x autoscaler-prereq.sh delete-policy.sh px-volume-permission.sh",
+        "chmod +x autoscaler-prereq.sh delete-policy.sh px-volume-permission.sh update-elb-timeout.sh",
+        "./update-elb-timeout.sh ${var.vpc_cidr}",
         "./autoscaler-prereq.sh",
         "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
         "oc create -f ${local.ocptemplates}/machine-health-check.yaml",
     ]
   }
-
-  # Copy kubeadmin password to local machine
-  provisioner "local-exec" {
-      command = "scp -i ${self.triggers.private-key-file-path}  -o \"StrictHostKeyChecking=no\" ${var.admin-username}@${self.triggers.bootnode_public_ip}:/home/${var.admin-username}/${local.ocpdir}/auth/kubeadmin-password ."
-  }
-
   depends_on = [
     null_resource.install_config,
     null_resource.install_config-1AZ,
   ]
 }
 
+#Install Portoworx as storage type.
 resource "null_resource" "install_portworx" {
   count    = var.storage-type == "portworx" ? 1 : 0
   triggers = {
@@ -138,6 +142,7 @@ resource "null_resource" "install_portworx" {
   ]
 }
 
+#Install OCS as storage type.
 resource "null_resource" "install_ocs" {
   count    = var.storage-type == "ocs" ? 1 : 0
   triggers = {
@@ -160,7 +165,7 @@ resource "null_resource" "install_ocs" {
         "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "chmod +x ocs-prereq.sh delete-noobaa-buckets.sh",
         "oc create -f ${local.ocptemplates}/machineset-worker-ocs.yaml",
-        "sleep 300",
+        "sleep 420",
         "./ocs-prereq.sh",
         "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
         "sleep 300",
@@ -176,6 +181,7 @@ resource "null_resource" "install_ocs" {
     ]
 }
 
+#Install EFS as storage type.
 resource "null_resource" "install_efs" {
   count    = var.storage-type == "efs" ? 1 : 0
   triggers = {
@@ -204,8 +210,9 @@ resource "null_resource" "install_efs" {
         "cat > ${local.ocptemplates}/efs-pvc.yaml <<EOL\n${file("../efs_module/efs-pvc.yaml")}\nEOL",
         "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "chmod +x create-efs.sh delete-efs.sh",
-        "./create-efs.sh ${var.region}",
+        "./create-efs.sh ${var.region} ${var.vpc_cidr}",
         "sleep 180",
+
         "FILESYSTEMID=`aws efs describe-file-systems --query 'FileSystems[*].FileSystemId' --output text`",
         "DNSNAME=$FILESYSTEMID.efs.${var.region}.amazonaws.com",
         "sed -i s/FILESYSTEMID/$FILESYSTEMID/g ${local.ocptemplates}/efs-configmap.yaml",

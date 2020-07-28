@@ -27,7 +27,7 @@ resource "null_resource" "cpd_config" {
     provisioner "remote-exec" {
         inline = [
             #CPD Config
-            "sudo wget ${var.artifacts-location}/cpdinstaller/cpd-linux\"${var.artifacts-token}\" -O /usr/local/bin/cpd-linux",
+            "sudo wget https://raw.githubusercontent.com/IBM/cp4d-deployment/master/azure/cpd_module/cpd-linux -O /usr/local/bin/cpd-linux",
             "sudo chmod +x /usr/local/bin/cpd-linux",
             "mkdir -p ${local.installerhome}",
             "cat > ${local.installerhome}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
@@ -62,8 +62,8 @@ resource "null_resource" "install_cpd_lite" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.cp-storageclass} -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace} --accept-all-licenses --silent-install --apply",
+            "cpd-linux -c ${local.cp-storageclass} -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace}  --silent-install --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
