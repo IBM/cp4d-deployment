@@ -35,7 +35,7 @@
 | `ssh-public-key` | - | SSH Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `ssh-private-key-file-path` | - | Path to the private key file of the corresponding SSH public key used to allow terraform run commands remotely. Example: "/path/to/file/" |
 | `private-or-public-cluster` | public | Public or Private. Set publish to Private to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_azure/installing-azure-private.html#private-clusters-default_installing-azure-private) for more details. |
-| `storage` | portworx | nfs or portworx. Storage option do use. |
+| `storage` | portworx | nfs or portworx. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
@@ -54,4 +54,6 @@
 | `decision-optimization` | no | Install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Install the Cognos Analytics Add-on service. |
 | `spss` | no | Install the SPSS Modeler Add-on service. |
+| `watson-assistant` | no | Install the Watson Assistant Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
+| `watson-discovery` | no | Install the Watson Discovery Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
 | `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdqSw4 |

@@ -135,6 +135,21 @@ data "template_file" "cpd-override" {
     }
 }
 
+data "template_file" "watson-asst-override" {
+    template = file("../cpd_module/watson-asst-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-asst-storageclass
+    }
+}
+
+data "template_file" "watson-discovery-override" {
+    template = file("../cpd_module/watson-discovery-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-discovery-storageclass
+        k8_host = "api.${var.cluster-name}.${var.dnszone}"
+    }
+}
+
 data "template_file" "registry-conf" {
     template = file("../openshift_module/registries.tpl.conf")
     vars = {

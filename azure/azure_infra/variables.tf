@@ -220,6 +220,14 @@ variable "spss"{
   default = "no"
 }
 
+variable "watson-assistant"{
+  default = "no"
+}
+
+variable "watson-discovery"{
+  default = "no"
+}
+
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default = "reject"
