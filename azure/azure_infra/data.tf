@@ -150,6 +150,21 @@ data "template_file" "watson-discovery-override" {
     }
 }
 
+data "template_file" "watson-language-translator-override" {
+    template = file("../cpd_module/watson-language-translator-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-lt-storageclass
+        namespace = var.cpd-namespace
+    }
+}
+
+data "template_file" "watson-speech-override" {
+    template = file("../cpd_module/watson-speech-override.tpl.yaml")
+    vars = {
+        namespace = var.cpd-namespace
+    }
+}
+
 data "template_file" "registry-conf" {
     template = file("../openshift_module/registries.tpl.conf")
     vars = {

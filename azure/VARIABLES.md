@@ -55,5 +55,8 @@
 | `cognos-analytics` | no | Install the Cognos Analytics Add-on service. |
 | `spss` | no | Install the SPSS Modeler Add-on service. |
 | `watson-assistant` | no | Install the Watson Assistant Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
-| `watson-discovery` | no | Install the Watson Discovery Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
+| `watson-discovery` | no | Install the Watson Discovery Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx. Identify if Content Intelligence needs to be enabled for installation. |
+| `watson-knowledge-studio` | no | Install the Watson Knowledge Studio Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
+| `watson-language-translator` | no | Install the Watson Language Translator Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx. Identify the translation models required before installing.|
+| `watson-speech-to-text` | no | Install the Watson Speech to Text Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
 | `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdqSw4 |

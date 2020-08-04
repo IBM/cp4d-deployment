@@ -228,6 +228,18 @@ variable "watson-discovery"{
   default = "no"
 }
 
+variable "watson-knowledge-studio"{
+  default = "no"
+}
+
+variable "watson-language-translator"{
+  default = "no"
+}
+
+variable "watson-speech"{
+  default = "no"
+}
+
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default = "reject"
