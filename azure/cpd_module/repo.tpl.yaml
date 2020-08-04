@@ -13,5 +13,20 @@ registry:
     apikey: ${apikey}
     namespace: "cp/watson-discovery"
     name: watson-discovery-registry
+  - url: cp.icr.io
+    username: cp
+    apikey: ${apikey}
+    namespace: cp/knowledge-studio
+    name: wks-registry
+  - url: cp.icr.io
+    username: cp
+    apikey: ${apikey}
+    namespace: cp/watson-lt
+    name: lt-registry
+  - url: cp.icr.io
+    username: cp
+    apikey: ${apikey}
+    namespace: cp/watson-speech
+    name: spch-registry  
 fileservers:
   - url: https://raw.github.com/IBM/cloud-pak/master/repo/cpd3

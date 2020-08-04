@@ -11,6 +11,9 @@ locals {
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
+    watson-ks-storageclass = var.storage == "portworx" ? "portworx-wks" : "managed-premium"
+    watson-lt-storageclass = var.storage == "portworx" ? "portworx-sc" : "managed-premium"
+    watson-speech-storageclass = var.storage == "portworx" ? "portworx-sc" : "managed-premium"
 }
 
 resource "null_resource" "cpd_config" {
@@ -677,5 +680,157 @@ resource "null_resource" "install_cpd_watson_discovery" {
         null_resource.install_cpd_ca,
         null_resource.install_cpd_spss,
         null_resource.install_cpd_watson_assistant
+    ]
+}
+
+resource "null_resource" "install_cpd_watson_knowledge_studio" {
+    count = var.watson-knowledge-studio == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type = "ssh"
+        host = azurerm_public_ip.bootnode.ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.installerhome}/watson-ks-override.yaml <<EOL\n${file("../cpd_module/watson-knowledge-studio-override.yaml")}\nEOL",
+            "oc project ${self.triggers.namespace}",
+            "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
+            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
+            "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
+            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-ks -n ${self.triggers.namespace} --accept-all-licenses --apply",
+            "cpd-linux -r ${local.installerhome}/repo.yaml -a watson-ks -n ${self.triggers.namespace} -c ${local.watson-ks-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-ks-override.yaml --insecure-skip-tls-verify --verbose"
+        ]
+    }
+    depends_on = [
+        null_resource.install_cpd_lite,
+        null_resource.install_cpd_dv,
+        null_resource.install_cpd_openscale,
+        null_resource.install_cpd_wsl,
+        null_resource.install_cpd_wkc,
+        null_resource.install_cpd_wml,
+        null_resource.install_cpd_spark,
+        null_resource.install_cpd_cde,
+        null_resource.install_cpd_streams,
+        null_resource.install_cpd_streams_flows,
+        null_resource.install_cpd_ds,
+        null_resource.install_cpd_db2wh,
+        null_resource.install_cpd_db2oltp,
+        null_resource.install_cpd_dods,
+        null_resource.install_cpd_ca,
+        null_resource.install_cpd_spss,
+        null_resource.install_cpd_watson_assistant,
+        null_resource.install_cpd_watson_discovery
+    ]
+}
+
+resource "null_resource" "install_cpd_watson_language_translator" {
+    count = var.watson-language-translator == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type = "ssh"
+        host = azurerm_public_ip.bootnode.ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.installerhome}/watson-lt-override.yaml <<EOL\n${data.template_file.watson-language-translator-override.rendered}\nEOL",
+            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-lt-override.yaml",
+            "oc project ${self.triggers.namespace}",
+            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${self.triggers.namespace}",
+            "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
+            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
+            "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
+            "cpd-linux -r ${local.installerhome}/repo.yaml --assembly watson-language-translator --version 1.1.2 --optional-modules watson-language-pak-1 -n ${self.triggers.namespace} -c ${local.watson-lt-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-lt-override.yaml --insecure-skip-tls-verify --verbose"
+        ]
+    }
+    depends_on = [
+        null_resource.install_cpd_lite,
+        null_resource.install_cpd_dv,
+        null_resource.install_cpd_openscale,
+        null_resource.install_cpd_wsl,
+        null_resource.install_cpd_wkc,
+        null_resource.install_cpd_wml,
+        null_resource.install_cpd_spark,
+        null_resource.install_cpd_cde,
+        null_resource.install_cpd_streams,
+        null_resource.install_cpd_streams_flows,
+        null_resource.install_cpd_ds,
+        null_resource.install_cpd_db2wh,
+        null_resource.install_cpd_db2oltp,
+        null_resource.install_cpd_dods,
+        null_resource.install_cpd_ca,
+        null_resource.install_cpd_spss,
+        null_resource.install_cpd_watson_assistant,
+        null_resource.install_cpd_watson_discovery,
+        null_resource.install_cpd_watson_knowledge_studio
+    ]
+}
+
+resource "null_resource" "install_cpd_watson_speech" {
+    count = var.watson-speech == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type = "ssh"
+        host = azurerm_public_ip.bootnode.ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.installerhome}/watson-speech-override.yaml <<EOL\n${data.template_file.watson-speech-override.rendered}\nEOL",
+            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-speech-override.yaml",
+            "oc project ${self.triggers.namespace}",
+            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${self.triggers.namespace}",
+            "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
+            "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${file("../cpd_module/minio-secret.yaml")}\nEOL",
+            "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${file("../cpd_module/postgre-secret.yaml")}\nEOL",
+            "oc apply -f ${local.installerhome}/minio-secret.yaml",
+            "oc apply -f ${local.installerhome}/postgre-secret.yaml",
+            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
+            "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
+            "cpd-linux -r ${local.installerhome}/repo.yaml -a watson-speech --version 1.1.4 -n ${self.triggers.namespace} -c ${local.watson-speech-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-speech-override.yaml --insecure-skip-tls-verify --verbose"
+        ]
+    }
+    depends_on = [
+        null_resource.install_cpd_lite,
+        null_resource.install_cpd_dv,
+        null_resource.install_cpd_openscale,
+        null_resource.install_cpd_wsl,
+        null_resource.install_cpd_wkc,
+        null_resource.install_cpd_wml,
+        null_resource.install_cpd_spark,
+        null_resource.install_cpd_cde,
+        null_resource.install_cpd_streams,
+        null_resource.install_cpd_streams_flows,
+        null_resource.install_cpd_ds,
+        null_resource.install_cpd_db2wh,
+        null_resource.install_cpd_db2oltp,
+        null_resource.install_cpd_dods,
+        null_resource.install_cpd_ca,
+        null_resource.install_cpd_spss,
+        null_resource.install_cpd_watson_assistant,
+        null_resource.install_cpd_watson_discovery,
+        null_resource.install_cpd_watson_knowledge_studio,
+        null_resource.install_cpd_watson_language_translator
     ]
 }
