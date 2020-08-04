@@ -48,6 +48,8 @@ provisioner: kubernetes.io/portworx-volume
 parameters:
     repl: "3"
     priority_io: "high"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -60,6 +62,8 @@ provisioner: kubernetes.io/portworx-volume
 parameters:
     repl: "3"
     priority_io: "high"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -72,6 +76,8 @@ provisioner: kubernetes.io/portworx-volume
 parameters:
     repl: "3"
     priority_io: "high"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -82,8 +88,9 @@ metadata:
     name: portworx-metastoredb-sc
 parameters:
     priority_io: high
-    io_profile: db
     repl: "3"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -97,6 +104,8 @@ parameters:
     priority_io: high
     repl: "1"
     sharedv4: "true"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -110,6 +119,8 @@ parameters:
     priority_io: high
     repl: "2"
     sharedv4: "true"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -123,7 +134,8 @@ parameters:
     priority_io: high
     repl: "3"
     sharedv4: "true"
-    io_profile: db
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -134,8 +146,9 @@ kind: StorageClass
 metadata:
     name: portworx-db-gp
 parameters:
-    io_profile: "db"
     repl: "1"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -146,8 +159,9 @@ kind: StorageClass
 metadata:
     name: portworx-db-gp3
 parameters:
-    io_profile: "db"
     repl: "3"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -160,6 +174,8 @@ metadata:
 parameters:
     priority_io: high
     repl: "1"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -172,6 +188,8 @@ metadata:
 parameters:
     priority_io: high
     repl: "2"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -185,6 +203,7 @@ parameters:
     priority_io: high
     repl: "3"
     io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -197,7 +216,7 @@ metadata:
     name: portworx-shared-gp-allow
 parameters:
     priority_io: high
-    repl: "1"
+    repl: "2"
     sharedv4: "true"
     io_profile: "cms"
 provisioner: kubernetes.io/portworx-volume
@@ -223,11 +242,11 @@ kind: StorageClass
 metadata:
     name: portworx-db2-rwo-sc
 parameters:
-    block_size: 4096b
-    io_profile: db
     priority_io: high
     repl: "3"
     sharedv4: "false"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -238,7 +257,6 @@ kind: StorageClass
 metadata:
     name: portworx-dv-shared-gp
 parameters:
-    block_size: 4096b
     priority_io: high 
     repl: "1"
     shared: "true"
@@ -253,8 +271,9 @@ metadata:
 parameters:
     repl: "3"
     priority_io: "high"
-    io_profile: "db"
     block_size: "64k"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -270,7 +289,8 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 parameters:
     block_size: 512b
-    io_profile: db
     priority_io: high
     repl: "3"
     sharedv4: "false"
+    io_profile: "db_remote"
+    disable_io_profile_protection: "1"
