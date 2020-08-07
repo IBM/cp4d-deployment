@@ -132,7 +132,7 @@ resource "null_resource" "install_portworx" {
         "./portworx-install.sh",
         "oc apply -f ${local.ocptemplates}/px-install.yaml",
         "sleep 180",
-        "oc apply -f \"${var.portwrox-spec-url}\"",
+        "oc apply -f \"${var.portworx-spec-url}\"",
         "sleep 360",
         "oc create -f ${local.ocptemplates}/px-storageclasses.yaml",
     ]
