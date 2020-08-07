@@ -2,12 +2,12 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-shared-sc
+  name: portworx-shared-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "1"
- priority_io: "high"
- sharedv4: "true"
+  repl: "1"
+  priority_io: "high"
+  sharedv4: "true"
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
@@ -15,13 +15,13 @@ reclaimPolicy: Retain
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-couchdb-sc
+  name: portworx-couchdb-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "3"
- priority_io: "high"
- io_profile: "db_remote"
- disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -29,13 +29,13 @@ volumeBindingMode: Immediate
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-elastic-sc
+  name: portworx-elastic-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "3"
- priority_io: "high"
- io_profile: "db_remote"
- disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -43,13 +43,13 @@ volumeBindingMode: Immediate
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-solr-sc
+  name: portworx-solr-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "3"
- priority_io: "high"
- io_profile: "db_remote"
- disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -57,13 +57,13 @@ volumeBindingMode: Immediate
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-cassandra-sc
+  name: portworx-cassandra-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "3"
- priority_io: "high"
- io_profile: "db_remote"
- disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -71,13 +71,13 @@ volumeBindingMode: Immediate
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
- name: portworx-kafka-sc
+  name: portworx-kafka-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "3"
- priority_io: "high"
- io_profile: "db_remote"
- disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -269,11 +269,11 @@ kind: StorageClass
 metadata:
   name: portworx-assistant
 parameters:
-   repl: "3"
-   priority_io: "high"
-   block_size: "64k"
-   io_profile: "db_remote"
-   disable_io_profile_protection: "1"
+  repl: "3"
+  priority_io: "high"
+  block_size: "64k"
+  io_profile: "db_remote"
+  disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
@@ -294,4 +294,3 @@ parameters:
   sharedv4: "false"
   io_profile: "db_remote"
   disable_io_profile_protection: "1"
-
