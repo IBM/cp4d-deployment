@@ -141,8 +141,8 @@ variable "storage-type" {
   default     = "portworx"
 }
 
-variable "portwrox-spec-url" {
-  description = "URL for generated portwrox spec"
+variable "portworx-spec-url" {
+  description = "URL for generated portworx spec"
   default = ""
 }
 

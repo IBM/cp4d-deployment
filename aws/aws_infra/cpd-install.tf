@@ -53,7 +53,6 @@ resource "null_resource" "cpd_config" {
           "oc create serviceaccount cpdtoken",
           "oc policy add-role-to-user admin system:serviceaccount:${var.cpd-namespace}:cpdtoken",
           "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
-          "./delete-elb-outofservice.sh ${var.vpc_cidr} 2> /dev/null",
       ]
   }
   depends_on = [
