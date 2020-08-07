@@ -787,10 +787,6 @@ resource "null_resource" "install_cpd_watson_speech" {
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
-        msecobj1 = base64encode(var.openshift-username)
-        msecobj2 = base64encode(var.openshift-password)
-        pgsecobj1 = base64encode(var.openshift-username)
-        pgsecobj2 = base64encode(var.openshift-password)
     }
     connection {
         type = "ssh"
@@ -806,12 +802,8 @@ resource "null_resource" "install_cpd_watson_speech" {
             "oc project ${self.triggers.namespace}",
             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${self.triggers.namespace}",
             "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
-            "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${file("../cpd_module/minio-secret.yaml")}\nEOL",
-            "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${file("../cpd_module/postgre-secret.yaml")}\nEOL",
-            "sed -i s/minio-sec-obj1/${self.triggers.msecobj1}/g ${local.installerhome}/minio-secret.yaml",
-            "sed -i s/minio-sec-obj2/${self.triggers.msecobj2}/g ${local.installerhome}/minio-secret.yaml",
-            "sed -i s/pg-sec-obj1/${self.triggers.pgsecobj1}/g ${local.installerhome}/postgre-secret.yaml",
-            "sed -i s/pg-sec-obj2/${self.triggers.pgsecobj2}/g ${local.installerhome}/postgre-secret.yaml",
+            "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${data.template_file.minio-secret.rendered}\nEOL",
+            "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${data.template_file.postgre-secret.rendered}\nEOL",
             "oc apply -f ${local.installerhome}/minio-secret.yaml",
             "oc apply -f ${local.installerhome}/postgre-secret.yaml",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",

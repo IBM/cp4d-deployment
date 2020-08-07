@@ -165,6 +165,22 @@ data "template_file" "watson-speech-override" {
     }
 }
 
+data "template_file" "minio-secret" {
+    template = file("../cpd_module/minio-secret.tpl.yaml")
+    vars = {
+        minio-sec-obj1 = base64encode(var.openshift-username)
+        minio-sec-obj2 = base64encode(var.openshift-password)
+    }
+}
+
+data "template_file" "postgre-secret" {
+    template = file("../cpd_module/postgre-secret.tpl.yaml")
+    vars = {
+        pg-sec-obj1 = base64encode(var.openshift-username)
+        pg-sec-obj2 = base64encode(var.openshift-password)
+    }
+}
+
 data "template_file" "registry-conf" {
     template = file("../openshift_module/registries.tpl.conf")
     vars = {
