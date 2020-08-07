@@ -26,6 +26,7 @@ data "template_file" "installconfig" {
         worker-instance-type        = var.worker-instance-type
         master-instance-type        = var.master-instance-type
         clustername                 = var.cluster-name
+        vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
         az1                         = local.avzone[0]
         az2                         = local.avzone[1]
@@ -53,6 +54,7 @@ data "template_file" "installconfig-1AZ" {
         worker-instance-type        = var.worker-instance-type
         master-instance-type        = var.master-instance-type
         clustername                 = var.cluster-name
+        vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
         az1                         = local.avzone[0]
         subnet-1                    = aws_subnet.public1.id
