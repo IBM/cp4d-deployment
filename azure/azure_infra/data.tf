@@ -168,16 +168,16 @@ data "template_file" "watson-speech-override" {
 data "template_file" "minio-secret" {
     template = file("../cpd_module/minio-secret.tpl.yaml")
     vars = {
-        minio-sec-obj1 = base64encode(var.openshift-username)
-        minio-sec-obj2 = base64encode(var.openshift-password)
+        minio-access-key = base64encode(var.openshift-username)
+        minio-secret-key = base64encode(var.openshift-password)
     }
 }
 
 data "template_file" "postgre-secret" {
     template = file("../cpd_module/postgre-secret.tpl.yaml")
     vars = {
-        pg-sec-obj1 = base64encode(var.openshift-username)
-        pg-sec-obj2 = base64encode(var.openshift-password)
+        pg-repl-passwd = base64encode(var.openshift-username)
+        pg-su-passwd = base64encode(var.openshift-password)
     }
 }
 
