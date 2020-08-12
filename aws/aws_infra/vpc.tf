@@ -22,6 +22,7 @@ locals{
   }
 
   avzone             = "${local.zonelist[var.azlist]}"
+  vpcid              = coalesce(var.vpc-existing, join("",aws_vpc.cpdvpc[*].id))
 }
 
 ########################
