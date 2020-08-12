@@ -8,8 +8,7 @@ source ~/.bash_profile > /dev/null
 pip install awscli --upgrade --user > /dev/null
 pip install pssh > /dev/null
 
-VPD_ID=`aws ec2 describe-vpcs --filters "Name=cidr,Values=$1" --query 'Vpcs[*].VpcId' --output text | xargs`
-LOAD_BALANCER=`aws elb describe-load-balancers --output text | grep $VPD_ID | awk '{ print $5 }' | cut -d- -f1 | xargs`
+LOAD_BALANCER=`aws elb describe-load-balancers --output text | grep $1 | awk '{ print $5 }' | cut -d- -f1 | xargs`
 for lbs in ${LOAD_BALANCER[@]}; do
 aws elb modify-load-balancer-attributes --load-balancer-name $lbs --load-balancer-attributes "{\"ConnectionSettings\":{\"IdleTimeout\":600}}"
 done
