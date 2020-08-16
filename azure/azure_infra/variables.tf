@@ -220,15 +220,15 @@ variable "spss"{
   default = "no"
 }
 
+variable "watson-assistant"{
+  default = "no"
+}
+
+variable "watson-discovery"{
+  default = "no"
+}
+
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default = "reject"
-}
-
-variable "artifacts-location" {
-  default = "https://cpdthree.blob.core.windows.net"
-}
-
-variable "artifacts-token" {
-  default = "?se=2020-12-31T23%3A59%3A00Z&sp=r&sv=2018-03-28&ss=b&srt=sco&sig=Z99xvqpTlfrxLGGKShZ3Hv3hw6XkVGi4RnGRoajf5r0%3D"
 }
