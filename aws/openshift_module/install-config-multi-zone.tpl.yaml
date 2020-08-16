@@ -44,12 +44,12 @@ platform:
   aws:
     region: ${region}
     subnets:
-    - ${subnet-1}
-    - ${subnet-2}
-    - ${subnet-3}
-    - ${subnet-4}
-    - ${subnet-5}
-    - ${subnet-6}
+    - ${public-subnet-1}
+    - ${public-subnet-2}
+    - ${public-subnet-3}
+    - ${private-subnet-1}
+    - ${private-subnet-2}
+    - ${private-subnet-3}
 pullSecret: '${pullSecret}'
 fips: ${fips-enable}
 sshKey: ${sshKey}
