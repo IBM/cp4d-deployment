@@ -44,9 +44,9 @@ variable "private-subnet-cidr3" {
   default = "10.0.160.0/20"
 }
 
-#####################################################################################
-# For Existing VPC and SUBNETS provide the values here, otherwise leave it as it is #
-#####################################################################################
+######################################################################################
+# For Existing VPC and SUBNETS, provide the values here, otherwise leave it as it is #
+######################################################################################
 
 # Make sure to enable DNS hostnames in existing VPC
 variable "vpcid-existing" {
@@ -83,7 +83,7 @@ variable "subnetid-private3" {
   description = "Private Subnet in ZONE c"
   default = ""
 }
-#####################################################################################
+######################################################################################
 
 
 ##### AWS Configuration #####
@@ -171,8 +171,8 @@ variable "ssh-private-key-file-path" {
 variable "dnszone" {
 }
 
-# To use EBS storage for Watson AI Services, select "efs" as "storage-type"
 ##### Portworx / OCS / EFS Configuration #####
+# To use EBS storage for Watson AI Services, select "efs" as "storage-type"
 variable "storage-type" {
   description = "portworx / ocs / efs"
   default     = "portworx"
