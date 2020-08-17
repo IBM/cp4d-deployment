@@ -616,7 +616,7 @@ resource "null_resource" "install_spss" {
 }
 
 resource "null_resource" "install_watson_assistant" {
-  count = var.watson-assistant == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  count = var.watson-assistant == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0 
   triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
@@ -662,7 +662,7 @@ resource "null_resource" "install_watson_assistant" {
 }
 
 resource "null_resource" "install_watson_discovery" {
-  count = var.watson-discovery == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  count = var.watson-discovery == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
@@ -709,7 +709,7 @@ resource "null_resource" "install_watson_discovery" {
 }
 
 resource "null_resource" "install_watson_knowledge_studio" {
-  count = var.watson-knowledge-studio == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  count = var.watson-knowledge-studio == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
@@ -754,7 +754,7 @@ resource "null_resource" "install_watson_knowledge_studio" {
 }
 
 resource "null_resource" "install_watson_language_translator" {
-  count = var.watson-language-translator == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  count = var.watson-language-translator == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
@@ -803,7 +803,7 @@ resource "null_resource" "install_watson_language_translator" {
 }
 
 resource "null_resource" "install_watson_speech" {
-  count = var.watson-speech == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  count = var.watson-speech == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
@@ -855,4 +855,6 @@ resource "null_resource" "install_watson_speech" {
         null_resource.install_watson_language_translator,
     ]
 }
+
+
 
