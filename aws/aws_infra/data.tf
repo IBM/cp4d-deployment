@@ -31,12 +31,12 @@ data "template_file" "installconfig" {
         az1                         = local.avzone[0]
         az2                         = local.avzone[1]
         az3                         = local.avzone[2]
-        subnet-1                    = aws_subnet.public1.id
-        subnet-2                    = aws_subnet.public2.id
-        subnet-3                    = aws_subnet.public3.id
-        subnet-4                    = aws_subnet.private1.id
-        subnet-5                    = aws_subnet.private2.id
-        subnet-6                    = aws_subnet.private3.id
+        public-subnet-1             = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
+        public-subnet-2             = coalesce(var.subnetid-public2,join("",aws_subnet.public2[*].id))
+        public-subnet-3             = coalesce(var.subnetid-public3,join("",aws_subnet.public3[*].id))
+        private-subnet-1            = coalesce(var.subnetid-private1,join("",aws_subnet.private1[*].id))
+        private-subnet-2            = coalesce(var.subnetid-private2,join("",aws_subnet.private2[*].id))
+        private-subnet-3            = coalesce(var.subnetid-private3,join("",aws_subnet.private3[*].id))
         private-public              = var.private-or-public-cluster == "public" ? "External" : "Internal"
     }
 }
@@ -57,8 +57,8 @@ data "template_file" "installconfig-1AZ" {
         vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
         az1                         = local.avzone[0]
-        subnet-1                    = aws_subnet.public1.id
-        subnet-2                    = aws_subnet.private1.id
+        public-subnet-1             = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
+        private-subnet-1            = coalesce(var.subnetid-private1,join("",aws_subnet.private1[*].id))
         private-public              = var.private-or-public-cluster == "public" ? "External" : "Internal"
     }
 }
@@ -124,6 +124,52 @@ data "template_file" "portworx-override" {
     template = file("../cpd_module/portworx-override.yaml")
     vars = {
         fips = var.fips-enable,
+    }
+}
+
+data "template_file" "watson-asst-override" {
+    template = file("../cpd_module/watson-asst-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-asst-storageclass
+    }
+}
+
+data "template_file" "watson-discovery-override" {
+    template = file("../cpd_module/watson-discovery-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-discovery-storageclass
+        k8_host = "api.${var.cluster-name}.${var.dnszone}"
+    }
+}
+
+data "template_file" "watson-language-translator-override" {
+    template = file("../cpd_module/watson-language-translator-override.tpl.yaml")
+    vars = {
+        storageclass = local.watson-lt-storageclass
+        namespace = var.cpd-namespace
+    }
+}
+
+data "template_file" "watson-speech-override" {
+    template = file("../cpd_module/watson-speech-override.tpl.yaml")
+    vars = {
+        namespace = var.cpd-namespace
+    }
+}
+
+data "template_file" "minio-secret" {
+    template = file("../cpd_module/minio-secret.tpl.yaml")
+    vars = {
+        minio-access-key = base64encode(var.openshift-username)
+        minio-secret-key = base64encode(var.openshift-password)
+    }
+}
+
+data "template_file" "postgre-secret" {
+    template = file("../cpd_module/postgre-secret.tpl.yaml")
+    vars = {
+        pg-repl-passwd = base64encode(var.openshift-username)
+        pg-su-passwd = base64encode(var.openshift-password)
     }
 }
 

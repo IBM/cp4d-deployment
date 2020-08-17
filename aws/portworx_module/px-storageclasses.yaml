@@ -294,3 +294,32 @@ parameters:
   sharedv4: "false"
   io_profile: "db_remote"
   disable_io_profile_protection: "1"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-wks
+parameters:
+  block_size: 64k
+  io_profile: db
+  priority_io: high
+  repl: "3"
+  sharedv4: "true"
+  snap_interval: "0"
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata: 
+  name: portworx-sc
+parameters: 
+  block_size: 64k
+  io_profile: db
+  priority_io: high
+  repl: "3"
+  snap_interval: "0"
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

@@ -10,15 +10,9 @@ variable "azlist" {
   default     = "multi_zone"
 }
 
-variable "new-or-existing" {
-  description = "For existing VPC use 'exist' otherwise use 'new' to create new vpc, default is 'new' "
+variable "new-or-existing-vpc-subnet" {
+  description = "For existing VPC and SUBNETS use 'exist' otherwise use 'new' to create new VPC and SUBNETS, default is 'new' "
   default     = "new"
-}
-
-# Make sure to enable DNS hostnames in existing VPC
-variable "vpc-existing" {
-  description = "For existing VPC provide the existing vpc id otherwise keep it blank for new vpc."
-  default     = ""
 }
 
 variable "vpc_cidr" {
@@ -26,29 +20,71 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "subnet-cidr1" {
+variable "public-subnet-cidr1" {
   default = "10.0.0.0/20"
 }
 
-variable "subnet-cidr2" {
+variable "public-subnet-cidr2" {
   default = "10.0.16.0/20"
 }
 
-variable "subnet-cidr3" {
+variable "public-subnet-cidr3" {
   default = "10.0.32.0/20"
 }
 
-variable "subnet-cidr4" {
+variable "private-subnet-cidr1" {
   default = "10.0.128.0/20"
 }
 
-variable "subnet-cidr5" {
+variable "private-subnet-cidr2" {
   default = "10.0.144.0/20"
 }
 
-variable "subnet-cidr6" {
+variable "private-subnet-cidr3" {
   default = "10.0.160.0/20"
 }
+
+######################################################################################
+# For Existing VPC and SUBNETS, provide the values here, otherwise leave it as it is #
+######################################################################################
+
+# Make sure to enable DNS hostnames in existing VPC
+variable "vpcid-existing" {
+  description = "For existing VPC provide the existing VPC id otherwise leave it blank for new vpc."
+  default     = ""
+}
+
+variable "subnetid-public1" {
+  description = "Public Subnet in ZONE a"
+  default = ""
+}
+
+variable "subnetid-public2" {
+  description = "Public Subnet in ZONE b"
+  default = ""
+}
+
+variable "subnetid-public3" {
+  description = "Public Subnet in ZONE c"
+  default = ""
+}
+
+variable "subnetid-private1" {
+  description = "Private Subnet in ZONE a"
+  default = ""
+}
+
+variable "subnetid-private2" {
+  description = "Private Subnet in ZONE b"
+  default = ""
+}
+
+variable "subnetid-private3" {
+  description = "Private Subnet in ZONE c"
+  default = ""
+}
+######################################################################################
+
 
 ##### AWS Configuration #####
 variable "key_name" {
@@ -136,6 +172,7 @@ variable "dnszone" {
 }
 
 ##### Portworx / OCS / EFS Configuration #####
+# To use EBS storage for Watson AI Services, select "efs" as "storage-type"
 variable "storage-type" {
   description = "portworx / ocs / efs"
   default     = "portworx"
@@ -199,25 +236,49 @@ variable "datastage" {
   default = "no"
 }
 
-variable "db2_warehouse" {
+variable "db2-warehouse" {
   default = "no"
 }
 
-variable "db2_advanced_edition" {
+variable "db2-advanced-edition" {
   default = "no"
 }
 
-variable "decision_optimization" {
+variable "decision-optimization" {
   default = "no"
 }
 
-variable "cognos_analytics" {
+variable "cognos-analytics" {
   default = "no"
 }
 
-variable "spss_modeler" {
+variable "spss-modeler" {
   default = "no"
 }
+
+##############################
+#     Watson AI Services     #
+##############################
+variable "watson-assistant" {
+  default = "no"
+}
+
+variable "watson-discovery" {
+  default = "no"
+}
+
+variable "watson-knowledge-studio" {
+  default = "no"
+}
+
+variable "watson-language-translator" {
+  default = "no"
+}
+
+variable "watson-speech" {
+  default = "no"
+}
+##############################
 
 ##### Other Parameters , Don't modfify any values here#####
 variable "s3-bucket" {
@@ -272,8 +333,8 @@ variable "cpd-override" {
   }
 }
 
-# StorageClass Lite, DV, Spark, wkc, wsl, wml, AI-Openscale, cde,
-#              Streams Flows, Datastage, Db2Wh, Db2oltp, dods, ca, SPSS
+# StorageClass Lite, DV, Spark, wkc, wsl, wml, AI-Openscale, cde, Streams Flows,
+#              Datastage, Db2Wh, Db2oltp, dods, ca, SPSS
 variable "cpd-storageclass" {
   type        = map
 

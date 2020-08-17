@@ -1,16 +1,22 @@
 | Variables             | Default       | Description          |
 | --------------------- | :-----------: | -------------------- |
-| `region` | us-west-2 | Region where cluster would be deployed. RHCOS AMIs required for AWS infrastructure is not present in `ap-east-1`, `af-south-1` and `eu-south-1` regions.  |
+| `region` | us-west-2 | Region where cluster would be deployed. RHCOS AMIs required for AWS infrastructure is not present in `ap-east-1`, `af-south-1` and `eu-south-1` regions. Also `us-west-1` is not supported as minimum of 3 AZs are required to deploy the cluster. |
 | `azlist` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
-| `new-or-existing` | new | For existing VPC use `exist` otherwise use `new` to create a new VPC, default is `new`. |
-| `vpc-existing` | "" | If existing VPC is to be used and selected `exist` as input parameter for `new-or-exist` variable, then provide a VPC id otherwise if creating a new VPC and selected `new` for `new-or-exist` then keep it blank as `“”`. |
+| `new-or-existing-vpc-subnet` | new | For existing VPC and SUBNETS use `exist` otherwise use `new` to create a new VPC and SUBNETS, default is `new`. |
 | `vpc_cidr` | 10.0.0.0/16 | The CIDR block for the VPC to be created. |
-| `subnet-cidr1` | 10.0.0.0/20 | The CIDR block for the public subnet located in Availability Zone 1. |
-| `subnet-cidr2` | 10.0.16.0/20 | The CIDR block for the public subnet located in Availability Zone 2. |
-| `subnet-cidr3` | 10.0.32.0/20 | The CIDR block for the public subnet located in Availability Zone 3. |
-| `subnet-cidr4` | 10.0.128.0/20 | The CIDR block for the private subnet located in Availability Zone 1. |
-| `subnet-cidr5` | 10.0.144.0/20 | The CIDR block for the private subnet located in Availability Zone 2. |
-| `subnet-cidr6` | 10.0.160.0/20 | The CIDR block for the private subnet located in Availability Zone 3. |
+| `public-subnet-cidr1` | 10.0.0.0/20 | The CIDR block for the public subnet located in Availability Zone a. |
+| `public-subnet-cidr2` | 10.0.16.0/20 | The CIDR block for the public subnet located in Availability Zone b. |
+| `public-subnet-cidr3` | 10.0.32.0/20 | The CIDR block for the public subnet located in Availability Zone c. |
+| `private-subnet-cidr1` | 10.0.128.0/20 | The CIDR block for the private subnet located in Availability Zone a. |
+| `private-subnet-cidr2` | 10.0.144.0/20 | The CIDR block for the private subnet located in Availability Zone b. |
+| `private-subnet-cidr3` | 10.0.160.0/20 | The CIDR block for the private subnet located in Availability Zone c. |
+| `vpcid-existing` | "" | If existing VPC is to be used and selected `exist` as input parameter for `new-or-exist` variable, then provide a VPC id otherwise if creating a new VPC and selected `new` for `new-or-exist` then keep it blank as `“”`. Enable DNS hostnames in existing VPC |
+| `subnetid-public1` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone a. |
+| `subnetid-public2` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone b. |
+| `subnetid-public3` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone c. |
+| `subnetid-private1` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone a. |
+| `subnetid-private2` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone b. |
+| `subnetid-private3` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone c. |
 | `key_name` | Requires input | The name of a key pair, which allows you to securely connect to your instance after it launches. |
 | `tenancy` | default | Amazon EC2 instances tenancy type, `default / dedicated`. See [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html) |
 | `access_key_id` | Requires input | AWS account access key id for the current user account. |
@@ -47,8 +53,14 @@
 | `streams` | no | Enter `yes` to install the Streams Add-on service. |
 | `streams-flows` | no | Enter `yes` to install the Streams Flow Add-on service. |
 | `datastage` | no | Enter `yes` to install the datastage Add-on service. |
-| `db2_warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. |
-| `db2_advanced_edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. |
-| `decision_optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
-| `cognos_analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
-| `spss_modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
+| `db2-warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. |
+| `db2-advanced-edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. |
+| `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
+| `cognos-analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
+| `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
+| `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
+| `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
+| `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
+| `watson-language-translator` | no | Enter `yes` to install the Watson Language Translator Add-on service. |
+| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. |
+

@@ -7,7 +7,7 @@ resource "aws_key_pair" "keypair" {
 resource "aws_instance" "bootnode" {
   ami                  = data.aws_ami.rhel.id
   instance_type        = var.bootnode-instance-type
-  subnet_id            = aws_subnet.public1.id
+  subnet_id            = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
 
   vpc_security_group_ids = [
     aws_security_group.openshift-vpc.id,
@@ -141,6 +141,5 @@ resource "null_resource" "destroy_cluster" {
         }
         depends_on = [
           aws_instance.bootnode,
-          aws_subnet.public1,
       ]
 }

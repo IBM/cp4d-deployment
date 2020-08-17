@@ -65,6 +65,7 @@ resource "null_resource" "install_openshift" {
         #install awscli on bootnode.
         "sed -i -e s/\r$// *.sh",
         "sudo yum -y install wget",
+        "sudo yum -y install bind-utils",
         "curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null",
         "python get-pip.py --user > /dev/null",
         "export PATH=\"~/.local/bin:$PATH\"",
