@@ -215,7 +215,7 @@ resource "null_resource" "install_efs" {
         "sleep 180",
 
         "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine.openshift.io/cluster-api-cluster}')",
-        "FILESYSTEMID=`aws efs describe-file-systems --query FileSystems[?Name=='$CLUSTERID-efs'].FileSystemId --output text`",
+        "FILESYSTEMID=`aws efs describe-file-systems --query FileSystems[?Name==$CLUSTERID-efs].FileSystemId --output text`",
         "DNSNAME=$FILESYSTEMID.efs.${var.region}.amazonaws.com",
         "sed -i s/FILESYSTEMID/$FILESYSTEMID/g ${local.ocptemplates}/efs-configmap.yaml",
         "sed -i s/DNSNAME/$DNSNAME/g ${local.ocptemplates}/efs-configmap.yaml",
