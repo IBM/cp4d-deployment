@@ -7,7 +7,8 @@ export PATH="~/.local/bin:$PATH"
 source ~/.bash_profile > /dev/null
 pip install awscli --upgrade --user > /dev/null
 
-FILESYSTEMID=`aws efs describe-file-systems --query 'FileSystems[*].FileSystemId' --output text`
+CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}')
+FILESYSTEMID=`aws efs describe-file-systems --query FileSystems[?Name==\'$CLUSTERID-efs\'].FileSystemId --output text`
 MOUNT_TARGETID=`aws efs describe-mount-targets --file-system-id $FILESYSTEMID --query 'MountTargets[*].MountTargetId' --output text`
 for ids in ${MOUNT_TARGETID[@]}; do
 aws efs delete-mount-target --mount-target-id $ids
