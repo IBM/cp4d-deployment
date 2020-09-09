@@ -20,10 +20,10 @@ resource "null_resource" "install_openshift" {
     }
     provisioner "remote-exec" {
         inline = [
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.3.18/openshift-install-linux-4.3.18.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.3.18/openshift-client-linux-4.3.18.tar.gz",
-            "tar -xvf openshift-install-linux-4.3.18.tar.gz",
-            "sudo tar -xvf openshift-client-linux-4.3.18.tar.gz -C /usr/bin",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.8/openshift-install-linux-4.5.8.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.8/openshift-client-linux-4.5.8.tar.gz",
+            "tar -xvf openshift-install-linux-4.5.8.tar.gz",
+            "sudo tar -xvf openshift-client-linux-4.5.8.tar.gz -C /usr/bin",
             "mkdir -p ${local.ocpdir}",
             "mkdir -p ${local.ocptemplates}",
             "cat > ${local.ocpdir}/install-config.yaml <<EOL\n${data.template_file.installconfig.rendered}\nEOL",
