@@ -103,7 +103,12 @@ variable "access_key_id" {
 variable "secret_access_key" {
 }
 
-##### OpenShift Hosts Configuration #####
+##### OpenShift Configuration #####
+variable "ocp_version" {
+  description = "Red Hat OpenShift Container Platform version to be installed"
+  default     = "4.5.9"
+}
+
 variable "master_replica_count" {
   description = "Replica count of master machines in the cluster"
   default     = 3
@@ -281,14 +286,6 @@ variable "watson-speech" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-variable "s3-bucket" {
-  default = "ibm-cloud-private-data"
-}
-
-variable "inst_version" {
-  default = "3.0"
-}
-
 variable "images-rcos" {
   type = map
 
