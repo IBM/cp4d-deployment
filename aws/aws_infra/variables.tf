@@ -103,12 +103,7 @@ variable "access_key_id" {
 variable "secret_access_key" {
 }
 
-##### OpenShift Configuration #####
-variable "ocp_version" {
-  description = "Red Hat OpenShift Container Platform version to be installed"
-  default     = "4.5.9"
-}
-
+##### OpenShift Hosts Configuration #####
 variable "master_replica_count" {
   description = "Replica count of master machines in the cluster"
   default     = 3

@@ -1,6 +1,7 @@
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
+    ocp_version = "4.5.10"
 }
 
 #Install config for Multi Zone installation.
@@ -73,8 +74,8 @@ resource "null_resource" "install_openshift" {
             "pip install awscli --upgrade --user > /dev/null",
 
             #Create OpenShift Cluster.
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-install-linux.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-client-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-install-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-client-linux.tar.gz",
             "tar -xvf openshift-install-linux.tar.gz",
             "sudo tar -xvf openshift-client-linux.tar.gz -C /usr/bin",
             "mkdir -p ${local.ocptemplates}",
