@@ -111,8 +111,8 @@ resource "null_resource" "install_lite" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace} --accept-all-licenses --silent-install --apply",
+            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify --silent-install"
         ]
     }
     depends_on = [
