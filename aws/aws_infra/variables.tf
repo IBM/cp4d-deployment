@@ -281,14 +281,6 @@ variable "watson-speech" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-variable "s3-bucket" {
-  default = "ibm-cloud-private-data"
-}
-
-variable "inst_version" {
-  default = "3.0"
-}
-
 variable "images-rcos" {
   type = map
 
