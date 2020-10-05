@@ -26,6 +26,7 @@ data "template_file" "installconfig" {
         worker-instance-type        = var.worker-instance-type
         master-instance-type        = var.master-instance-type
         clustername                 = var.cluster-name
+        clusternetworkcidr          = var.cluster_network_cidr
         vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
         az1                         = local.avzone[0]
@@ -54,6 +55,7 @@ data "template_file" "installconfig-1AZ" {
         worker-instance-type        = var.worker-instance-type
         master-instance-type        = var.master-instance-type
         clustername                 = var.cluster-name
+        clusternetworkcidr          = var.cluster_network_cidr
         vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
         az1                         = local.avzone[0]
