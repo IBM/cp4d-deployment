@@ -29,6 +29,12 @@ The deployment sets up the following as shown in the diagram.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
 * [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
+* Since the infrastructure to be build is described by terraform files which are specific to that infrasturcture, it is recommented to copy the cloned repository to a separate folder.
+   Name the new folder differently in case you plan to build multiple infrastructures.
+* Change the current directory to aws_infra:
+```
+cd cp4d-deployment-<your infrastructure name>/aws/aws_infra
+```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 * Read the license at https://ibm.biz/BdqyB2 and accept it by setting variable `accept-cpd-license` to `accept`.
 * If you want to hide sensitive data such as access_key_id or secret_access_key, remove the `default     = " " ` from `variables.tf` file against that variable.
@@ -55,9 +61,10 @@ dnszone = "xxxxxxxxxxxxxxxxxxxxxxx"
 entitlementkey = "xxxxxxxxxxxxxxxxxxxxxxx"
 ssh-public-key = "xxxxxxxxxxxxxxxxxxxxxxx"
 ```
-* Change the current directory to aws_infra:
+* Before deploying the infrastructure, run the script `aws_resource_quota_validation.sh` to verify if there are enough resources available in the used AWS account.
+   See the [AWS Resource Quota Validation documentation](AWS-RESOURCE-QUOTA-VALIDATION.md) for more details.
 ```
-cd cp4d-deployment-master/aws/aws_infra
+./aws_resource_quota_validation.sh
 ```
 * Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
 ```bash
