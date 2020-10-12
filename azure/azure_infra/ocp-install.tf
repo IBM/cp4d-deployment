@@ -148,10 +148,13 @@ resource "null_resource" "install_portworx" {
         inline = [
             "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
             "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
-            "oc create -f ${local.ocptemplates}/px-install.yaml",
+            "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
             "sleep 30",
-            "oc apply -f \"${var.portworx-spec-url}\"",
-            "oc create -f ${local.ocptemplates}/px-storageclasses.yaml"
+            "echo $result",
+            "result=$(oc apply -f \"${var.portworx-spec-url}\")",
+            "echo $result",
+            "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+            "echo $result"
         ]
     }
     depends_on = [
