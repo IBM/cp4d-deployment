@@ -244,6 +244,10 @@ variable "db2-advanced-edition" {
   default = "no"
 }
 
+variable "datagate" {
+  default = "no"
+}
+
 variable "decision-optimization" {
   default = "no"
 }
