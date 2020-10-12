@@ -1,0 +1,10 @@
+registry:
+  - url: hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    username: ${entitlementkey-username}
+    apikey: ${entitlementkey}
+    namespace: ""
+    name: base-registry
+fileservers:
+  - url: http://158.85.173.111/repos/zen/cp4d-builds/3.5.0/dev/components/lite/${lite-build}/caserepo
+helmservers:
+  - url: http://158.85.173.111/repos/zen/cp4d-builds/3.5.0/dev/components/lite/${lite-build}/helmrepo

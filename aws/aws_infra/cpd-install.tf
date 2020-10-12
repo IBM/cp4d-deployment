@@ -1,6 +1,7 @@
 locals {
     #General
     installerhome = "/home/${var.admin-username}/ibm"
+    userbinhome = "/home/${var.admin-username}/bin"
 	
     #Watson AI Services Storage Classes
     watson-asst-storageclass      = var.storage-type == "portworx" ? "portworx-assistant" : "gp2"
@@ -49,13 +50,15 @@ resource "null_resource" "cpd_config" {
             "sleep 12m",
 
             "mkdir -p ${local.installerhome}",
-            "cat > ${local.installerhome}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
+            "mkdir -p ${local.userbinhome}",
+            "cat > ${local.installerhome}/caserepo.yaml <<EOL\n${data.template_file.caserepo.rendered}\nEOL",
             "cat > ${local.installerhome}/portworx-override.yaml <<EOL\n${data.template_file.portworx-override.rendered}\nEOL",
             "cat > ${local.installerhome}/ocs-override.yaml <<EOL\n${file("../cpd_module/ocs-override.yaml")}\nEOL",
             "cat > ${local.installerhome}/ca-override.yaml <<EOL\n${file("../cpd_module/ca-override.yaml")}\nEOL",
-            # "wget https://raw.githubusercontent.com/IBM/cp4d-deployment/master/common/cpd_module/cpd-linux -O ${local.installerhome}/cpd-linux",
-            "wget https://raw.githubusercontent.com/IBM/cp4d-deployment/CPD3.5/common/cpd_module/cpd-linux -O ${local.installerhome}/cpd-linux",
-            "chmod +x ${local.installerhome}/cpd-linux delete-elb-outofservice.sh",
+            # "wget https://raw.githubusercontent.com/IBM/cp4d-deployment/master/common/cpd_module/cpd-cli-linux-EE-3.5.0.tgz -O ${local.installerhome}/cpd-cli-linux-EE-3.5.0.tgz",
+            "wget http://158.85.173.111/repos/zen/cp4d-builds/3.5.0/promoted/cpd-cli/latest/cpd-cli-linux-EE-3.5.0.tgz -O ${local.installerhome}/cpd-cli-linux-EE-3.5.0.tgz",
+            "tar -xzf ${local.installerhome}/cpd-cli-linux-EE-3.5.0.tgz --strip-components=1 -C ${local.userbinhome}",
+            "chmod +x delete-elb-outofservice.sh",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "oc new-project ${var.cpd-namespace}",
             "oc create serviceaccount cpdtoken",
@@ -111,8 +114,8 @@ resource "null_resource" "install_lite" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace} --accept-all-licenses --silent-install --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a lite -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify --silent-install"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a lite -n ${var.cpd-namespace} --accept-all-licenses --silent-install --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a lite -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --insecure-skip-tls-verify --silent-install"
         ]
     }
     depends_on = [
@@ -138,8 +141,8 @@ resource "null_resource" "install_dv" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a dv -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a dv -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a dv -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a dv -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -164,8 +167,8 @@ resource "null_resource" "install_spark" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a spark -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a spark -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a spark -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a spark -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -191,8 +194,8 @@ resource "null_resource" "install_wkc" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a wkc -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a wkc -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a wkc -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a wkc -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -219,8 +222,8 @@ resource "null_resource" "install_wsl" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a wsl -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a wsl -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a wsl -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a wsl -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -248,8 +251,8 @@ resource "null_resource" "install_wml" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a wml -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a wml -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a wml -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a wml -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -278,8 +281,8 @@ resource "null_resource" "install_aiopenscale" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a aiopenscale -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a aiopenscale -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a aiopenscale -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a aiopenscale -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -309,8 +312,8 @@ resource "null_resource" "install_cde" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a cde -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux  --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a cde -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a cde -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli  --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a cde -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -341,8 +344,8 @@ resource "null_resource" "install_streams" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a streams -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.streams-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a streams -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a streams -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.streams-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a streams -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -374,8 +377,8 @@ resource "null_resource" "install_streams_flows" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a streams-flows -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux  --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a streams-flows -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a streams-flows -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli  --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a streams-flows -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -408,8 +411,8 @@ resource "null_resource" "install_ds" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a ds -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a ds -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a ds -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a ds -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -443,8 +446,8 @@ resource "null_resource" "install_db2wh" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a db2wh -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a db2wh -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a db2wh -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a db2wh -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -479,8 +482,8 @@ resource "null_resource" "install_db2oltp" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a db2oltp -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a db2oltp -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a db2oltp -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a db2oltp -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -516,8 +519,8 @@ resource "null_resource" "install_dods" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a dods -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a dods -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a dods -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a dods -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -554,8 +557,8 @@ resource "null_resource" "install_ca" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a ca -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a ca -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses -o ${local.installerhome}/ca-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a ca -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a ca -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses -o ${local.installerhome}/ca-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -593,8 +596,8 @@ resource "null_resource" "install_spss" {
         inline = [
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a spss-modeler -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a spss-modeler -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a spss-modeler -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --case-repo ${local.installerhome}/caserepo.yaml -a spss-modeler -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -638,8 +641,8 @@ resource "null_resource" "install_watson_assistant" {
             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a ibm-watson-assistant -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${local.watson-asst-storageclass} -r ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a ibm-watson-assistant -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-asst-storageclass} --case-repo ${local.installerhome}/caserepo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -684,8 +687,8 @@ resource "null_resource" "install_watson_discovery" {
             "sed -i s/k8_host_ip/$host_ip/g ${local.installerhome}/watson-discovery-override.yaml",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${local.watson-discovery-storageclass} -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a watson-discovery -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-discovery-storageclass} --case-repo ${local.installerhome}/caserepo.yaml -a watson-discovery -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -728,8 +731,8 @@ resource "null_resource" "install_watson_knowledge_studio" {
             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${local.watson-ks-storageclass} -r ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-ks-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a watson-ks -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-ks-storageclass} --case-repo ${local.installerhome}/caserepo.yaml -a watson-ks -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-ks-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -776,8 +779,8 @@ resource "null_resource" "install_watson_language_translator" {
             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-language-translator -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${local.watson-lt-storageclass} -r ${local.installerhome}/repo.yaml -a watson-language-translator --version 1.1.2 --optional-modules watson-language-pak-1 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-lt-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a watson-language-translator -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-lt-storageclass} --case-repo ${local.installerhome}/caserepo.yaml -a watson-language-translator --version 1.1.2 --optional-modules watson-language-pak-1 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-lt-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
@@ -829,8 +832,8 @@ resource "null_resource" "install_watson_speech" {
             "oc apply -f ${local.installerhome}/postgre-secret.yaml",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-speech -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.installerhome}/cpd-linux --storageclass ${local.watson-speech-storageclass} -r ${local.installerhome}/repo.yaml -a watson-speech --version 1.1.4 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-speech-override.yaml --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli adm --case-repo ${local.installerhome}/caserepo.yaml -a watson-speech -n ${var.cpd-namespace} --accept-all-licenses --apply",
+            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-speech-storageclass} --case-repo ${local.installerhome}/caserepo.yaml -a watson-speech --version 1.1.4 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-speech-override.yaml --insecure-skip-tls-verify"
         ]
     }
     depends_on = [

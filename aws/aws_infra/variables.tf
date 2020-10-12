@@ -193,6 +193,15 @@ variable "cpd-namespace" {
   default = "zen"
 }
 
+# added temporary only for development phase - will be removed before release
+variable "lite-build" {
+  default = "264"
+}
+
+# added temporary only for development phase - will be removed before release
+variable "entitlementkey-username" {
+}
+
 variable "entitlementkey" {
 }
 
