@@ -3,6 +3,9 @@ locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
     install-config-file = "install-config-${var.single-or-multi-zone}.tpl.yaml"
+    machine-autoscaler-file = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
+    machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
+    ocp_version = "4.5.10"
 }
 
 resource "null_resource" "install_openshift" {
@@ -20,10 +23,10 @@ resource "null_resource" "install_openshift" {
     }
     provisioner "remote-exec" {
         inline = [
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.3.18/openshift-install-linux-4.3.18.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.3.18/openshift-client-linux-4.3.18.tar.gz",
-            "tar -xvf openshift-install-linux-4.3.18.tar.gz",
-            "sudo tar -xvf openshift-client-linux-4.3.18.tar.gz -C /usr/bin",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-install-linux-${local.ocp_version}.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-client-linux-${local.ocp_version}.tar.gz",
+            "tar -xvf openshift-install-linux-${local.ocp_version}.tar.gz",
+            "sudo tar -xvf openshift-client-linux-${local.ocp_version}.tar.gz -C /usr/bin",
             "mkdir -p ${local.ocpdir}",
             "mkdir -p ${local.ocptemplates}",
             "cat > ${local.ocpdir}/install-config.yaml <<EOL\n${data.template_file.installconfig.rendered}\nEOL",
@@ -38,20 +41,17 @@ resource "null_resource" "install_openshift" {
             "mkdir -p /home/${var.admin-username}/.kube",
             "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
             "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machine-autoscaler.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/master-machineset.yaml <<EOL\n${data.template_file.master-machineset.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machine-health-check.yaml <<EOL\n${data.template_file.machine-health-check.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machine-health-check.rendered}\nEOL",
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
             "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler.yaml",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/master-machineset.yaml",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check.yaml",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
             "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
-            "oc create -f ${local.ocptemplates}/machine-autoscaler.yaml",
-            "oc create -f ${local.ocptemplates}/master-machineset.yaml",
-            "oc create -f ${local.ocptemplates}/machine-health-check.yaml"
+            "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+            "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
         ]
     }
 
@@ -148,10 +148,13 @@ resource "null_resource" "install_portworx" {
         inline = [
             "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
             "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
-            "oc create -f ${local.ocptemplates}/px-install.yaml",
+            "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
             "sleep 30",
-            "oc apply -f \"${var.portworx-spec-url}\"",
-            "oc create -f ${local.ocptemplates}/px-storageclasses.yaml"
+            "echo $result",
+            "result=$(oc apply -f \"${var.portworx-spec-url}\")",
+            "echo $result",
+            "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+            "echo $result"
         ]
     }
     depends_on = [

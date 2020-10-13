@@ -37,42 +37,4 @@ spec:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
     name: "${clusterid}-worker-${region}3"
----
-kind: MachineAutoscaler
-apiVersion: "autoscaling.openshift.io/v1beta1"
-metadata:
-  name: "${clusterid}-master-${region}1"
-  namespace: "openshift-machine-api"
-spec:
-  minReplicas: 0
-  maxReplicas: 12
-  scaleTargetRef:
-    apiVersion: machine.openshift.io/v1beta1
-    kind: MachineSet
-    name: "${clusterid}-master-${region}1"
----
-kind: MachineAutoscaler
-apiVersion: "autoscaling.openshift.io/v1beta1"
-metadata:
-  name: "${clusterid}-master-${region}2"
-  namespace: "openshift-machine-api"
-spec:
-  minReplicas: 0
-  maxReplicas: 12
-  scaleTargetRef:
-    apiVersion: machine.openshift.io/v1beta1
-    kind: MachineSet
-    name: "${clusterid}-master-${region}2"
----
-kind: MachineAutoscaler
-apiVersion: "autoscaling.openshift.io/v1beta1"
-metadata:
-  name: "${clusterid}-master-${region}3"
-  namespace: "openshift-machine-api"
-spec:
-  minReplicas: 0
-  maxReplicas: 12
-  scaleTargetRef:
-    apiVersion: machine.openshift.io/v1beta1
-    kind: MachineSet
-    name: "${clusterid}-master-${region}3"
+

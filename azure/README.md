@@ -26,20 +26,20 @@ The template sets up the following:
 
 ### Steps to Deploy
 
-* Create [App Service Domain](https://portal.azure.com/#create/Microsoft.Domain).
+* Create an [App Service Domain](https://portal.azure.com/#create/Microsoft.Domain).
   * This will also create a DNS Zone needed for this deployment.
   * Note the DNS Zone name.
-* Create Azure Service Principal with `Contributor` and `User Access Administrator` roles.
-  * Create Service Principal, using your Azure Subscription ID, and save the returned json:
+* Create an Azure Service Principal with `Contributor` and `User Access Administrator` roles.
+  * Create a Service Principal, using your Azure Subscription ID, named with a valid URL (e.g. http://john.doe.SP) and save the returned json:
     ```bash
     az login
-    az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscription_id>"
+    az ad sp create-for-rbac --role="Contributor" --name="<URL>" --scopes="/subscriptions/<subscription_id>"
     ```
-  * Get `Object ID`, using the AppId from the Service Principal just created:
+  * Get an `Object ID`, using the AppId from the Service Principal just created:
     ```bash
     az ad sp list --filter "appId eq '<app_id>'"
     ```
-  * Assign `User Access Administrator` roles, using the `Object Id`:
+  * Assign the `User Access Administrator` role, using the `Object Id`:
     ```bash
     az role assignment create --role "User Access Administrator" --assignee-object-id "<object_id>"
     ```
@@ -53,6 +53,7 @@ The template sets up the following:
 
 * Change to `azure_infra` folder:
 
+* Check that the roles are correctly assigned by executing the script `./validate_azure_subscription.sh`.
 * Enter configuration variables in `variables.tf` file. See the [Variables documentation](VARIABLES.md) for more details:
 * Deploy:
   ```bash

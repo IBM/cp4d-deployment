@@ -48,10 +48,10 @@ data "template_file" "clusterautoscaler" {
     vars = {
         max-total-nodes = 24
         pod-priority = -10
-        min-cores = 48
-        max-cores = 128
-        min-memory = 128
-        max-memory = 512
+        min-cores = 47    # valid per cluster
+        max-cores = 128   # valid per cluster
+        min-memory = 64   # valid per node
+        max-memory = 256  # valid per node
         scaledown-enabled = true 
         delay-after-add = "3m"
         delay-after-delete = "2m" 
@@ -61,30 +61,21 @@ data "template_file" "clusterautoscaler" {
 }
 
 data "template_file" "machineautoscaler" {
-    template = file("../openshift_module/machine-autoscaler.tpl.yaml")
+    template = file("../openshift_module/${local.machine-autoscaler-file}")
     vars = {
         clusterid = random_id.randomId.hex
         region = var.region
+        zone = var.zone
+        nodeCount=var.worker-node-count
     }
 }
 
 data "template_file" "machine-health-check" {
-    template = file("../openshift_module/machine-health-check.tpl.yaml")
+    template = file("../openshift_module/${local.machine-health-check-file}")
     vars = {
         clusterid = random_id.randomId.hex
         region = var.region
-    }
-}
-
-data "template_file" "master-machineset" {
-    template = file("../openshift_module/master-machineset.tpl.yaml")
-    vars = {
-        clusterid = random_id.randomId.hex
-        region = var.region
-        instance-type = var.master-instance-type
-        vnet = var.virtual-network-name
-        subnet = var.master-subnet-name
-        networkResourceGroupName = local.resource-group
+        zone = var.zone
     }
 }
 
