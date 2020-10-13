@@ -2,7 +2,7 @@
 
 The script `./aws_permission_validation.sh` checks whether a user has all the required permissions to create an OCP cluster on AWS.
 
-The permissions to be checked need to be listed in a file >actions.txt< which has to be in the same folder. The file content 
+The permissions to be checked need to be listed in the `resource_actions.txt` file which has to be in the same folder. The file content 
 looks like:
 
 ```
