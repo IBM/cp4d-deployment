@@ -2,9 +2,8 @@
 Resource quota validation for AWS accounts
 '''
 
-import hcl
-
 from libs_aws.aws_configuration_helper import AWSConfigurationHelper
+from libs_aws.aws_generic_helper import AWSGenericHelper
 from libs_aws.ec2_helper import EC2Helper
 from libs_aws.elb_helper import ELBHelper
 from libs_aws.elb_v2_helper import ELBv2Helper
@@ -53,16 +52,17 @@ def get_terraform_configuration():
 
     print("\nCluster configuration")
     print("=====================")
-    print("  The cluster configuration will be derived from terraform configuration: 'variables.tf'\n")
 
     tf_var_file = os.path.dirname(os.path.abspath(__file__)) + '/variables.tf'
+    print("  The cluster configuration will be derived from terraform " +
+          f"configuration: '{tf_var_file}'\n")
+
     tf_config = {}
     tf_config['replica_count'] = {}
     tf_config['instance_type'] = {}
     instance_type_count = {}
 
-    with open(tf_var_file, 'r') as f:
-        tf_config_json = hcl.load(f)
+    tf_config_json = AWSGenericHelper.get_terraform_config_json(tf_var_file)
 
     tf_config['region'] = tf_config_json['variable']['region']['default']
     tf_config['deploy_type'] = tf_config_json['variable']['azlist']['default']

@@ -3,6 +3,7 @@ import boto3.session
 
 from botocore.exceptions import ClientError
 
+import hcl
 import logging
 
 
@@ -32,3 +33,16 @@ class AWSGenericHelper():
             print('  * Please, try again.')
             exit(1)
 
+    # parse terraform config
+    @staticmethod
+    def get_terraform_config_json(terraform_var_file):
+
+        try:
+            with open(terraform_var_file, 'r') as f:
+                tf_config_json = hcl.load(f)
+            return tf_config_json
+        except IOError as e:
+            # print(e)
+            print("ERROR: The terraform variables file " +
+                  f"'{terraform_var_file}' was not found.")
+            exit(1)
