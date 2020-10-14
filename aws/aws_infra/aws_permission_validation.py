@@ -2,8 +2,6 @@
 Resource quota validation for AWS accounts
 '''
 
-import hcl
-
 from libs_aws.aws_configuration_helper import AWSConfigurationHelper
 from libs_aws.aws_generic_helper import AWSGenericHelper
 from libs_aws.iam_helper import IAMHelper
@@ -75,6 +73,7 @@ def main():
         sys.exit(1)
 
     resource_actions = list(filter(None, resource_actions))
+    resource_actions = list(filter(lambda name : name.strip(), resource_actions))
     resource_actions = list(filter(lambda x : "#" not in x, resource_actions))
     print("Going to verify the permissions for the following resource actions:")
     print(*resource_actions, sep='\n')

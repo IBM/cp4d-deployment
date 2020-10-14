@@ -1,6 +1,7 @@
 import re
 import boto3
 from botocore.exceptions import ClientError
+from botocore.exceptions import ParamValidationError
 import logging
 from pprint import pprint
 
@@ -120,31 +121,12 @@ class IAMHelper():
             print(e)
             exit(1)
 
-    def get_list_users(self):
-        resource = []
-        paginator = self.__iam_session.get_paginator('list_users')
-        page_iterator = paginator.paginate()
-
-        myArn = self.__iam_resource.CurrentUser().arn
-        print("Me is: : ")
-        print(myArn)
-
-        myUser = myArn.split('/')[-1]
-        print(myUser)
-
-        PolicySourceArn=boto3.resource('iam').CurrentUser().arn
-        print("Script executing: ")
-        print(PolicySourceArn)
-
-        return resource
-
     def get_user_name(self):
         resource = []
 
         try:
             targetArn = self.__iam_resource.CurrentUser().arn
             targetUser = targetArn.split('/')[-1]
-            print(targetUser)
             return targetUser
         except ClientError as e:
             # logging.error(e)
@@ -172,4 +154,9 @@ class IAMHelper():
             print("  * To run this check the user needs the >iam:SimulatePrincipalPolicy< permissiom.")
             print(e)
             exit(1)
-
+        except ParamValidationError as e:
+            # logging.error(e)
+            print("  * Permission validation aborted.")
+            print("  * Check your permision_actions.txt file.")
+            print(e)
+            exit(1)
