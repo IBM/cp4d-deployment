@@ -502,6 +502,44 @@ resource "null_resource" "install_db2oltp" {
     ]
 }
 
+resource "null_resource" "install_datagate" {
+  count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_public_ip      = aws_instance.bootnode.public_ip
+      username                = var.admin-username
+      private-key-file-path   = var.ssh-private-key-file-path
+  }
+  connection {
+      type        = "ssh"
+      host        = self.triggers.bootnode_public_ip
+      user        = self.triggers.username
+      private_key = file(self.triggers.private-key-file-path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+          "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+          "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
+          "${local.installerhome}/cpd-linux adm -r ${local.installerhome}/repo.yaml -a datagate -n ${var.cpd-namespace} --accept-all-licenses --apply",
+          "${local.installerhome}/cpd-linux --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} -r ${local.installerhome}/repo.yaml -a datagate -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+      ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+    ]
+}
+
 resource "null_resource" "install_dods" {
     count = var.decision-optimization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
@@ -537,6 +575,7 @@ resource "null_resource" "install_dods" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+	null_resource.install_datagate,
     ]
 }
 
@@ -575,6 +614,7 @@ resource "null_resource" "install_ca" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
     ]
 }
@@ -614,6 +654,7 @@ resource "null_resource" "install_spss" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
     ]
@@ -659,6 +700,7 @@ resource "null_resource" "install_watson_assistant" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
@@ -705,6 +747,7 @@ resource "null_resource" "install_watson_discovery" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
@@ -749,6 +792,7 @@ resource "null_resource" "install_watson_knowledge_studio" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
@@ -797,6 +841,7 @@ resource "null_resource" "install_watson_language_translator" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
@@ -850,6 +895,7 @@ resource "null_resource" "install_watson_speech" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+    	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
