@@ -11,20 +11,6 @@ spec:
   targetNamespaces:
   - kube-system
 ---
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: certified-operators
-  namespace: openshift-marketplace
-spec:
-  displayName: Certified Operators
-  icon:
-    base64data: ''
-    mediatype: ''
-  image: portworx/oci-monitor:2.5.1
-  publisher: Red Hat
-  sourceType: grpc
----
   apiVersion: operators.coreos.com/v1alpha1
   kind: Subscription
   metadata:
@@ -37,4 +23,4 @@ spec:
     name: portworx-certified
     source: certified-operators
     sourceNamespace: openshift-marketplace
-    startingCSV:  portworx-operator.v1.2.0
+    startingCSV:  portworx-operator.v1.4.0

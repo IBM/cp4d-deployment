@@ -127,17 +127,17 @@ resource "null_resource" "install_portworx" {
     provisioner "remote-exec" {
         inline = [
             "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${file("../portworx_module/px-install.yaml")}\nEOL",
-            "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${file("../portworx_module/px-storageclasses.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/px-storageclasses.sh <<EOL\n${file("../portworx_module/px-storageclasses.sh")}\nEOL",
             "cat > /home/${var.admin-username}/policy.json <<EOL\n${file("../portworx_module/policy.json")}\nEOL",
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "chmod +x portworx-prereq.sh portworx-install.sh",
+            "chmod +x portworx-prereq.sh portworx-install.sh ${local.ocptemplates}/px-storageclasses.sh",
             "./portworx-prereq.sh",
             "./portworx-install.sh",
-            "oc apply -f ${local.ocptemplates}/px-install.yaml",
+            "oc create -f ${local.ocptemplates}/px-install.yaml",
             "sleep 180",
             "oc apply -f \"${var.portworx-spec-url}\"",
             "sleep 360",
-            "oc create -f ${local.ocptemplates}/px-storageclasses.yaml",
+            "./${local.ocptemplates}/px-storageclasses.sh",
         ]
     }
     depends_on = [
