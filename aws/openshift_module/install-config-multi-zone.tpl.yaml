@@ -34,7 +34,7 @@ metadata:
   name: ${clustername}
 networking:
   clusterNetwork:
-  - cidr: 10.128.0.0/14
+  - cidr: ${clusternetworkcidr}
     hostPrefix: 23
   machineCIDR: ${vpccidr}
   networkType: OpenShiftSDN

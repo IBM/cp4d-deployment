@@ -20,6 +20,10 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "cluster_network_cidr" {
+  default     = "10.128.0.0/14"
+}
+
 variable "public-subnet-cidr1" {
   default = "10.0.0.0/20"
 }

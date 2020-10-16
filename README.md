@@ -42,6 +42,8 @@ Note: You also have the option to select NFS for Azure or Elastic File System fo
 
 When you select [Portworx](https://portworx.com/products/features/) as the persistent storage layer, you will need to specify the install spec from your [Portworx account](https://central.portworx.com/specGen/list). You can generate a new spec using the [Spec Generator](https://central.portworx.com/specGen/wizard). Note that the Portworx trial edition expires in 30 days after which you need to upgrade to an Enterprise Edition. 
 
+Cloud Pak for Data supports an [entitled Portworx instance](https://www.ibm.com/support/knowledgecenter/SSQNUZ_current/cpd/install/portworx-install.html) which you can install manually once your cluster is provisioned.
+
 ####	OpenShift Container Storage (OCS) Subscription
 
 The Red Hat [OCS](https://www.openshift.com/products/container-storage/) license is linked as a separate entitlement to your RedHat subscription. If you do not have a separate subscription for OCS, a 60-day trial version is installed. Note that OCS v4.x is only available for AWS.

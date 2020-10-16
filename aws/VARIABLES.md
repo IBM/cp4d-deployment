@@ -4,6 +4,7 @@
 | `azlist` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
 | `new-or-existing-vpc-subnet` | new | For existing VPC and SUBNETS use `exist` otherwise use `new` to create a new VPC and SUBNETS, default is `new`. |
 | `vpc_cidr` | 10.0.0.0/16 | The CIDR block for the VPC to be created. |
+| `cluster_network_cidr` | 10.128.0.0/14 | The CIDR block for the network cidr to be created. |
 | `public-subnet-cidr1` | 10.0.0.0/20 | The CIDR block for the public subnet located in Availability Zone a. |
 | `public-subnet-cidr2` | 10.0.16.0/20 | The CIDR block for the public subnet located in Availability Zone b. |
 | `public-subnet-cidr3` | 10.0.32.0/20 | The CIDR block for the public subnet located in Availability Zone c. |
