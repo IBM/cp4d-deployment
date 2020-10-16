@@ -37,4 +37,4 @@ spec:
     name: portworx-certified
     source: certified-operators
     sourceNamespace: openshift-marketplace
-    startingCSV:  portworx-operator.v1.2.0
+    startingCSV:  portworx-operator.v1.4.0
