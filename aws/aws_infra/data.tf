@@ -115,12 +115,14 @@ data "template_file" "machinehealthcheck" {
     }
 }
 
-data "template_file" "caserepo" {
-    template = file("../../common/cpd_module/caserepo.tpl.yaml")
+data "template_file" "repo" {
+    template = file("../cpd_module/repo.tpl.yaml")
     vars = {
         entitlementkey-username = var.entitlementkey-username
         entitlementkey = var.entitlementkey
-        lite-build = var.lite-build
+        artifactory-username = var.artifactory-username
+        artifactory-apikey = var.artifactory-apikey
+        promoted-build = var.promoted-build
     }
 }
 

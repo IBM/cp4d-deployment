@@ -198,15 +198,24 @@ variable "cpd-namespace" {
 }
 
 # added temporary only for development phase - will be removed before release
-variable "lite-build" {
-  default = "264"
+variable "promoted-build" {
+  default = "RC2"
 }
 
 # added temporary only for development phase - will be removed before release
 variable "entitlementkey-username" {
+  default = "iamapikey"
 }
 
 variable "entitlementkey" {
+}
+
+# added temporary only for development phase - will be removed before release
+variable "artifactory-username" {
+}
+
+# added temporary only for development phase - will be removed before release
+variable "artifactory-apikey" {
 }
 
 variable "data-virtualization" {
@@ -336,8 +345,8 @@ variable "cpd-override" {
   type        = map
 
   default     = {
-    "portworx"   = "--override $HOME/ibm/portworx-override.yaml"
-    "ocs"        = "--override $HOME/ibm/ocs-override.yaml"
+    "portworx"   = "--override-config portworx"
+    "ocs"        = "--override-config ocs"
     "efs"        = ""
   }
 }
