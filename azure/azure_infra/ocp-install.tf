@@ -5,7 +5,7 @@ locals {
     install-config-file = "install-config-${var.single-or-multi-zone}.tpl.yaml"
     machine-autoscaler-file = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
     machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
-    ocp_version = "4.5.10"
+    ocp_version = "stable-4.5"
 }
 
 resource "null_resource" "install_openshift" {
@@ -23,10 +23,10 @@ resource "null_resource" "install_openshift" {
     }
     provisioner "remote-exec" {
         inline = [
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-install-linux-${local.ocp_version}.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-client-linux-${local.ocp_version}.tar.gz",
-            "tar -xvf openshift-install-linux-${local.ocp_version}.tar.gz",
-            "sudo tar -xvf openshift-client-linux-${local.ocp_version}.tar.gz -C /usr/bin",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-install-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-client-linux.tar.gz",
+            "tar -xvf openshift-install-linux.tar.gz",
+            "sudo tar -xvf openshift-client-linux.tar.gz -C /usr/bin",
             "mkdir -p ${local.ocpdir}",
             "mkdir -p ${local.ocptemplates}",
             "cat > ${local.ocpdir}/install-config.yaml <<EOL\n${data.template_file.installconfig.rendered}\nEOL",
@@ -118,15 +118,17 @@ resource "null_resource" "openshift_post_install" {
 
             # Create Registry Route
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
-            "echo 'Sleeping for 12mins while MCs apply and the cluster restarts' ",
-            "sleep 12m",
+            "echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' ",
+            "sleep 15m",
+            "result=$(oc wait machineconfigpool/worker --for condition=updated --timeout=15m)",
+            "echo $result",
             "sudo oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u '${var.openshift-username}' -p '${var.openshift-password}' --insecure-skip-tls-verify=true"
         ]
     }
     depends_on = [
-        null_resource.install_portworx,
-        null_resource.install-nfs-server,
-        null_resource.install_nfs_client,
+#        null_resource.install_portworx,
+#        null_resource.install-nfs-server,
+#        null_resource.install_nfs_client,
         null_resource.install_openshift
     ]
 }
@@ -149,16 +151,19 @@ resource "null_resource" "install_portworx" {
             "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
             "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
             "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
-            "sleep 30",
+            "sleep 60",
             "echo $result",
             "result=$(oc apply -f \"${var.portworx-spec-url}\")",
             "echo $result",
+            "echo 'Sleeping for 5 mins to get portworx storage cluster up' ",
+            "sleep 5m",
             "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
             "echo $result"
         ]
     }
     depends_on = [
         null_resource.install_openshift,
+        null_resource.openshift_post_install
     ]
 }
 
@@ -185,6 +190,7 @@ resource "null_resource" "install-nfs-server" {
     }
     depends_on = [
         null_resource.install_openshift,
+        null_resource.openshift_post_install
     ]
 }
 
@@ -210,6 +216,7 @@ resource "null_resource" "install_nfs_client" {
     }
     depends_on = [
         null_resource.install_openshift,
+        null_resource.openshift_post_install,
         null_resource.install-nfs-server
     ]
 }
