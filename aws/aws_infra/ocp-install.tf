@@ -1,7 +1,7 @@
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
-    ocp_version = "4.5.10"
+    ocp_version = "latest-4.5"
 }
 
 #Install config for Multi Zone installation.
