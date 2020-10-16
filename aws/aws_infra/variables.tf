@@ -351,13 +351,24 @@ variable "cpd-override" {
   }
 }
 
-# StorageClass Lite, DV, Spark, wkc, wsl, wml, AI-Openscale, cde, Streams Flows,
+# StorageClass Lite, Spark, wkc, wsl, wml, AI-Openscale, cde, Streams Flows,
 #              Datastage, Db2Wh, Db2oltp, dods, ca, SPSS
 variable "cpd-storageclass" {
   type        = map
 
   default     = {
     "portworx"   = "portworx-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "efs"        = "aws-efs"
+  }
+}
+
+# StorageClass DV
+variable "dv-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-dv-shared-gp3"
     "ocs"        = "ocs-storagecluster-cephfs"
     "efs"        = "aws-efs"
   }

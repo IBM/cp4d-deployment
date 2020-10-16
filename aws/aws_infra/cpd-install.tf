@@ -142,7 +142,7 @@ resource "null_resource" "install_dv" {
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
             "TOKEN=$(oc serviceaccounts get-token cpdtoken)",
             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a dv -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.cpd-storageclass,var.storage-type)} --repo ${local.installerhome}/repo.yaml -a dv -n ${var.cpd-namespace}  --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --insecure-skip-tls-verify"
+            "${local.userbinhome}/cpd-cli install --storageclass ${lookup(var.dv-storageclass,var.storage-type)} --repo ${local.installerhome}/repo.yaml -a dv -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses ${lookup(var.cpd-override,var.storage-type)} --latest-dependency --insecure-skip-tls-verify"
         ]
     }
     depends_on = [
