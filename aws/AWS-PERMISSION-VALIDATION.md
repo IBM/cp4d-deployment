@@ -58,5 +58,5 @@ In case of unsuccessful permission test the script list the permissions the user
 
 ### Return code
 
-In case of required permissions not granteed to the user the script returns 
+In case of required permissions not granted to the user the script returns 
 with return code 1.
