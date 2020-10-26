@@ -52,7 +52,7 @@ class AWSConfigurationHelper():
         print("  Validation passed.\n")
 
     @staticmethod
-    def get_aws_credentials():
+    def get_aws_credentials(credentials_from_file = False, profile = ''):
         aws_config = {}
 
         aws_config_path_name = os.environ.get('HOME') + "/.aws"
@@ -65,6 +65,13 @@ class AWSConfigurationHelper():
         answer_matched = False
         answer_default = 'file'
         answer = ''
+
+        if credentials_from_file:
+            print(f"\n  Credentials taken from file.")
+            credentials_source = 'file'
+            answer = answer_default
+            answer_matched = True
+
         while not answer_matched:
             print("  AWS credentials to be read from "
                    + "user input or credentials file ?")
@@ -83,20 +90,25 @@ class AWSConfigurationHelper():
                 config.read(aws_credentials_file_name)
 
                 profiles = config.sections()
-                profile = ''
-                if len(profiles) == 1:
-                    profile = profiles[0]
-                else:
-                    print(f"\n  Profiles in AWS credentials file: {profiles}")
-                    profile_matched = False
+                if profile == '':
+                    if len(profiles) == 1:
+                        profile = profiles[0]
+                    else:
+                        print(f"\n  Profiles in AWS credentials file: {profiles}")
+                        profile_matched = False
 
-                    while not profile_matched:
-                        profile = input("  Which AWS Profile to be used: ")
-                        if profile in profiles:
-                            profile_matched = True
-                        else:
-                            print("  * Profile does not exist.")
-                            print("  * Please, try again.")
+                        while not profile_matched:
+                            profile = input("  Which AWS Profile to be used: ")
+                            if profile in profiles:
+                                profile_matched = True
+                            else:
+                                print("  * Profile does not exist.")
+                                print("  * Please, try again.")
+                else:
+                    if profile not in profiles:
+                        print(f"  * Profile '{profile}' does not exist.")
+                        print("  * Please, try again with an existing profile.")
+                        exit ()
 
                 aws_access_key = config[profile]['aws_access_key_id']
                 aws_secret_access_key = config[profile]['aws_secret_access_key']
@@ -168,8 +180,8 @@ class AWSConfigurationHelper():
         return aws_config
 
     @staticmethod
-    def get_config(region = None):
-        aws_config = dict(AWSConfigurationHelper.get_aws_credentials() )
+    def get_config(region = None, credentials_from_file = False, profile = ''):    
+        aws_config = dict(AWSConfigurationHelper.get_aws_credentials(credentials_from_file, profile) )
         if region:
             aws_config['region'] = region
         else:
