@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ $# -ge 1 && "-h" == $1 ]] ; then
+	echo
+	echo "USAGE: `basename $0` [<user_profile_name>]" 
+	echo 
+	exit 0;
+fi
+
 DEPLOY_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 VENV="$HOME/.aws_python_venv"
 
@@ -33,7 +40,13 @@ else
 fi
 
 # Run the python program itself
-python $DEPLOY_HOME/aws_permission_validation.py -f ./resource_actions.txt
+if [ $# -gt 0 ]; then
+	USER_PARAM="-p $1"
+else
+	USER_PARAM=""
+fi 
+
+python $DEPLOY_HOME/aws_permission_validation.py -f ./resource_actions.txt -c $USER_PARAM
 
 if [ $? -ne 0 ]; 
 then 
@@ -42,3 +55,6 @@ then
     echo 
     exit 1
 fi
+
+echo ' * Permission verification passed.'
+echo

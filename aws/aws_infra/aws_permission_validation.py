@@ -16,8 +16,9 @@ import sys
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    permissions_file = parser.add_argument_group('required arguments')
-    permissions_file.add_argument('--file', '-f', required=True, help='Name of the file containing the permissions to be tested.')
+    parser.add_argument('--file', '-f', required=True, help='Name of the file containing the permissions to be tested.')
+    parser.add_argument('--credentials_from_file', '-c', required=False, action='store_true', help='If set, the credentials will be taken from file.')
+    parser.add_argument('--profile', '-p', required=False, default='', help='Profile to be used from the AWS credentials file.')
     return parser.parse_args()
 
 def get_terraform_configuration():
@@ -41,12 +42,14 @@ def get_terraform_configuration():
 def main():
     args = _parse_args()
     actions_file = args.file
+    cred = args.credentials_from_file
+    profile = args.profile
 
     # Get resource related values from terraform config variables file
     tf_config = get_terraform_configuration()
 
     # Get the AWS configuration (credentials, region)
-    aws_config = AWSConfigurationHelper.get_config(tf_config['region'])
+    aws_config = AWSConfigurationHelper.get_config(tf_config['region'], cred, profile)
 
     iam_helper = IAMHelper(aws_config)
 
