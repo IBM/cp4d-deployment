@@ -68,7 +68,6 @@ class AWSConfigurationHelper():
 
         if credentials_from_file:
             print(f"\n  Credentials taken from file.")
-            credentials_source = 'file'
             answer = answer_default
             answer_matched = True
 

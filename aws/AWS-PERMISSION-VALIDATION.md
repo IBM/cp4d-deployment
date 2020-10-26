@@ -26,7 +26,7 @@ The tool is able to read the credentials from the default location at `~/.aws/cr
 
 
 ## Usage
-For interacrive use execute:  
+For interactive use execute:  
 `./aws_permission_validation.sh`  
 
 You can add the user profile name of a user in `$HOME/.aws/credentials` as a parameter. The script then uses that profile without any interactive action:   
@@ -58,5 +58,5 @@ In case of unsuccessful permission test the script list the permissions the user
 
 ### Return code
 
-In case of required permissions not applied to the user the script returns 
+In case of required permissions not granted to the user the script returns 
 with return code 1.
