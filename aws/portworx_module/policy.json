@@ -2,6 +2,7 @@
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "12345",
             "Effect": "Allow",
             "Action": [
                 "ec2:AttachVolume",
@@ -16,7 +17,8 @@
                 "ec2:DescribeVolumesModifications",
                 "ec2:DescribeVolumeStatus",
                 "ec2:DescribeVolumes",
-                "ec2:DescribeInstances"
+                "ec2:DescribeInstances",
+                "autoscaling:DescribeAutoScalingGroups"
             ],
             "Resource": [
                 "*"
