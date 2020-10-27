@@ -14,6 +14,7 @@ data "template_file" "awsregion" {
 }
 
 data "template_file" "installconfig" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/install-config-multi-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -42,6 +43,7 @@ data "template_file" "installconfig" {
 }
 
 data "template_file" "installconfig-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/install-config-single-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -112,6 +114,17 @@ data "template_file" "machinehealthcheck" {
         az3           = local.avzone[2]
     }
 }
+
+# data "template_file" "repo" {
+#     template = file("../cpd_module/repo.tpl.yaml")
+#     vars = {
+#         entitlementkey-username = var.entitlementkey-username
+#         entitlementkey = var.entitlementkey
+#         artifactory-username = var.artifactory-username
+#         artifactory-apikey = var.artifactory-apikey
+#         promoted-build = var.promoted-build
+#     }
+# }
 
 data "template_file" "cpd-service" {
     template = file("../cpd_module/cpd-service.tpl.yaml")
