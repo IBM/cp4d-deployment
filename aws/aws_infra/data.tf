@@ -115,21 +115,10 @@ data "template_file" "machinehealthcheck" {
     }
 }
 
-# data "template_file" "repo" {
-#     template = file("../cpd_module/repo.tpl.yaml")
-#     vars = {
-#         entitlementkey-username = var.entitlementkey-username
-#         entitlementkey = var.entitlementkey
-#         artifactory-username = var.artifactory-username
-#         artifactory-apikey = var.artifactory-apikey
-#         promoted-build = var.promoted-build
-#     }
-# }
-
 data "template_file" "cpd-service" {
     template = file("../cpd_module/cpd-service.tpl.yaml")
     vars = {
-        cpd-version         = var.cpd-vsrsion         
+        cpd-version         = var.cpd-version         
         override            = local.override-file
         autopatch           = "false"
         license-accept      = "true"
@@ -139,7 +128,7 @@ data "template_file" "cpd-service" {
 data "template_file" "cpd-service-ca" {
     template = file("../cpd_module/cpd-service-ca.tpl.yaml")
     vars = {
-        cpd-version         = var.cpd-vsrsion         
+        cpd-version         = var.cpd-version         
         override            = base64encode(file("../cpd_module/ca-override.yaml"))
         autopatch           = "false"
         license-accept      = "true"
