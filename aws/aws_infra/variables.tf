@@ -295,7 +295,7 @@ variable "watson-speech" {
 #   default     = "4.5.13"
 # }
 
-variable "cpd-vsrsion" {
+variable "cpd-version" {
   default = "latest"
 }
 
