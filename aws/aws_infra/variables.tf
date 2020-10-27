@@ -194,10 +194,11 @@ variable "accept-cpd-license" {
 }
 
 variable "cpd-namespace" {
-  default = "zen"
+  default = "cpd-tenant"
 }
 
-variable "entitlementkey" {
+variable "api-key" {
+  default = ""
 }
 
 variable "data-virtualization" {
@@ -248,6 +249,10 @@ variable "db2-advanced-edition" {
   default = "no"
 }
 
+variable "datagate" {
+  default = "no"
+}
+
 variable "decision-optimization" {
   default = "no"
 }
@@ -285,35 +290,36 @@ variable "watson-speech" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-variable "s3-bucket" {
-  default = "ibm-cloud-private-data"
-}
+# variable "ocp-version" {
+#   description = "Red Hat OpenShift Container Platform version to be installed"
+#   default     = "4.5.13"
+# }
 
-variable "inst_version" {
-  default = "3.0"
+variable "cpd-vsrsion" {
+  default = "latest"
 }
 
 variable "images-rcos" {
   type = map
 
   default = {
-    "ap-northeast-1"  = "ami-023d0452866845125"
-    "ap-northeast-2"  = "ami-0ba4f9a0358bcb44a"
-    "ap-south-1"      = "ami-0bf62e963a473068e"
-    "ap-southeast-1"  = "ami-086b93722336bd1d9"
-    "ap-southeast-2"  = "ami-08929f33bfab49b83"
-    "ca-central-1"    = "ami-0f6d943a1fa9172fd"
-    "eu-central-1"    = "ami-0ceea534b63224411"
-    "eu-north-1"      = "ami-06b7087b2768f644a"
-    "eu-west-1"       = "ami-0e95125b57fa63b0d"
-    "eu-west-2"       = "ami-0eef98c447b85ffcd"
-    "eu-west-3"       = "ami-0049e16104f360df6"
-    "me-south-1"      = "ami-0b03ea038629fd02e"
-    "sa-east-1"       = "ami-0c80d785b30eef121"
-    "us-east-1"       = "ami-06f85a7940faa3217"
-    "us-east-2"       = "ami-04a79d8d7cfa540cc"
-    "us-west-1"       = "ami-0633b392e8eff25e7"
-    "us-west-2"       = "ami-0d231993dddc5cd2e"
+    "ap-northeast-1"  = "ami-0530d04240177f118"
+    "ap-northeast-2"  = "ami-09e4cd700276785d2"
+    "ap-south-1"      = "ami-0754b15d212830477"
+    "ap-southeast-1"  = "ami-03b46cc4b1518c5a8"
+    "ap-southeast-2"  = "ami-0a5b99ab2234a4e6a"
+    "ca-central-1"    = "ami-012bc4ee3b6c673bc"
+    "eu-central-1"    = "ami-02e08df1201f1c2f8"
+    "eu-north-1"      = "ami-0309c9d2fadcb2d5a"
+    "eu-west-1"       = "ami-0bdd69d8e7cd18188"
+    "eu-west-2"       = "ami-0e610e967a62dbdfa"
+    "eu-west-3"       = "ami-0e817e26f638a71ac"
+    "me-south-1"      = "ami-024117d7c87b7ff08"
+    "sa-east-1"       = "ami-08e62f746b94950c1"
+    "us-east-1"       = "ami-077ede5bed2e431ea"
+    "us-east-2"       = "ami-0f4ecf819275850dd"
+    "us-west-1"       = "ami-0c4990e435bc6c5fe"
+    "us-west-2"       = "ami-000d6e92357ac605c"
   }
 }
 
@@ -331,9 +337,8 @@ variable "cpd-override" {
   type        = map
 
   default     = {
-    "portworx"   = "--override $HOME/ibm/portworx-override.yaml"
-    "ocs"        = "--override $HOME/ibm/ocs-override.yaml"
-    "efs"        = ""
+    "portworx"   = "portworx-override.yaml"
+    "ocs"        = "ocs-override.yaml"
   }
 }
 
