@@ -44,7 +44,7 @@ resource "aws_subnet" "public1" {
   }
 }
 resource "aws_subnet" "public2" {
-  count                   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id                  = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block              = var.public-subnet-cidr2
   availability_zone       = local.avzone[1]
@@ -56,7 +56,7 @@ resource "aws_subnet" "public2" {
   }
 }
 resource "aws_subnet" "public3" {
-  count                   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id                  = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block              = var.public-subnet-cidr3
   availability_zone       = local.avzone[2]
@@ -81,12 +81,12 @@ resource "aws_route_table_association" "route1" {
   route_table_id = aws_route_table.public[0].id
 }
 resource "aws_route_table_association" "route2" {
-  count          = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.public2[0].id
   route_table_id = aws_route_table.public[0].id
 }
 resource "aws_route_table_association" "route3" {
-  count          = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.public3[0].id
   route_table_id = aws_route_table.public[0].id
 }
@@ -98,12 +98,12 @@ resource "aws_eip" "eip1" {
   associate_with_private_ip = "10.0.5.226"
 }
 resource "aws_eip" "eip2" {
-  count   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc     = true
   associate_with_private_ip = "10.0.16.45"
 }
 resource "aws_eip" "eip3" {
-  count   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc     = true
   associate_with_private_ip = "10.0.44.224"
 }
@@ -113,12 +113,12 @@ resource "aws_nat_gateway" "nat1" {
   subnet_id     = aws_subnet.public1[0].id
 }
 resource "aws_nat_gateway" "nat2" {
-  count         = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   allocation_id = aws_eip.eip2[0].id
   subnet_id     = aws_subnet.public2[0].id
 }
 resource "aws_nat_gateway" "nat3" {
-  count         = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   allocation_id = aws_eip.eip3[0].id
   subnet_id     = aws_subnet.public3[0].id
 }
@@ -134,7 +134,7 @@ resource "aws_subnet" "private1" {
   }
 }
 resource "aws_subnet" "private2" {
-  count                = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id               = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block           = var.private-subnet-cidr2
   availability_zone    = local.avzone[1]
@@ -145,7 +145,7 @@ resource "aws_subnet" "private2" {
   }
 }
 resource "aws_subnet" "private3" {
-  count                = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count                = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id               = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block           = var.private-subnet-cidr3
   availability_zone    = local.avzone[2]
@@ -164,7 +164,7 @@ resource "aws_route_table" "private1" {
   }
 }
 resource "aws_route_table" "private2" {
-  count  = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count  = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   route {
     cidr_block = "0.0.0.0/0"
@@ -172,7 +172,7 @@ resource "aws_route_table" "private2" {
   }
 }
 resource "aws_route_table" "private3" {
-  count  = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count  = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   route {
     cidr_block = "0.0.0.0/0"
@@ -185,12 +185,12 @@ resource "aws_route_table_association" "privateroute1" {
   route_table_id = aws_route_table.private1[0].id
 }
 resource "aws_route_table_association" "privateroute2" {
-  count          = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count          = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.private2[0].id
   route_table_id = aws_route_table.private2[0].id
 }
 resource "aws_route_table_association" "privateroute3" {
-  count          = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
+  count          = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.private3[0].id
   route_table_id = aws_route_table.private3[0].id
 }
