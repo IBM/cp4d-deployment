@@ -14,7 +14,6 @@ data "template_file" "awsregion" {
 }
 
 data "template_file" "installconfig" {
-    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/install-config-multi-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -43,7 +42,6 @@ data "template_file" "installconfig" {
 }
 
 data "template_file" "installconfig-1AZ" {
-    count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/install-config-single-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -115,10 +113,23 @@ data "template_file" "machinehealthcheck" {
     }
 }
 
-data "template_file" "repo" {
-    template = file("../cpd_module/repo.tpl.yaml")
+data "template_file" "cpd-service" {
+    template = file("../cpd_module/cpd-service.tpl.yaml")
     vars = {
-        entitlementkey = var.entitlementkey,
+        cpd-version         = var.cpd-vsrsion         
+        override            = local.override-file
+        autopatch           = "false"
+        license-accept      = "true"
+    }
+}
+
+data "template_file" "cpd-service-ca" {
+    template = file("../cpd_module/cpd-service-ca.tpl.yaml")
+    vars = {
+        cpd-version         = var.cpd-vsrsion         
+        override            = base64encode(file("../cpd_module/ca-override.yaml"))
+        autopatch           = "false"
+        license-accept      = "true"
     }
 }
 
