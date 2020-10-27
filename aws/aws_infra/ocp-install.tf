@@ -3,7 +3,7 @@ locals {
     ocptemplates = "ocpfourxtemplates"
     ocp_version = "4.5.13"
 
-    install-config = var.azlist == "multi_zone" ? "${data.template_file.installconfig.rendered}" : "${data.template_file.installconfig-1AZ.rendered}"
+    install-config = var.azlist == "multi_zone" ? "${data.template_file.installconfig[0].rendered}" : "${data.template_file.installconfig-1AZ[0].rendered}"
 }
 
 resource "null_resource" "install_openshift" {
