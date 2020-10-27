@@ -110,6 +110,18 @@ resource "null_resource" "file_copy" {
     source      = "../scripts/delete-elb-outofservice.sh"
     destination = "/home/${var.admin-username}/delete-elb-outofservice.sh"
   }
+  provisioner "file" {
+    source      = "../cpd_module/install-cpd-operator.sh"
+    destination = "/home/${var.admin-username}/install-cpd-operator.sh"
+  }
+  provisioner "file" {
+    source      = "../cpd_module/wait-for-service-install.sh"
+    destination = "/home/${var.admin-username}/wait-for-service-install.sh"
+  }
+  provisioner "file" {
+    source      = "../portworx_module/px-storageclasses.sh"
+    destination = "/home/${var.admin-username}/px-storageclasses.sh"
+  }
 
   depends_on = [
     aws_instance.bootnode,
