@@ -58,7 +58,6 @@ resource "null_resource" "install_openshift" {
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file("${var.ssh-private-key-file-path}")}\nEOL",
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password)",
-            "./update-elb-timeout.sh ${local.vpcid}",
             "./autoscaler-prereq.sh",
             "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
             "oc create -f ${local.ocptemplates}/machine-health-check.yaml",
