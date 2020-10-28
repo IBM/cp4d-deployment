@@ -69,6 +69,7 @@ resource "null_resource" "cpd_config" {
             "sleep 3m",
             "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
             "sleep 2m",
+	    "./update-elb-timeout.sh ${local.vpcid}",
         ]
     }
     depends_on = [
