@@ -72,3 +72,7 @@ terraform apply -var-file="Path To osaws_var.tfvars file"
   terraform destroy -target null_resource.destroy_cluster -var-file="Path To osaws_var.tfvars file"
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
+### Note:
+Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
+[Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)
