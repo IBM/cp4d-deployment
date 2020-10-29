@@ -187,6 +187,12 @@ variable "portworx-spec-url" {
   default = ""
 }
 
+# If storage-type is selected as efs, select one of the performance mode, default is generalPurpose
+variable "efs-performance-mode" {
+  description = "generalPurpose / maxIO"
+  default = "generalPurpose"
+}
+
 ##### IBM Cloud Pak for Data Configuration #####
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4, (accept / reject)"
