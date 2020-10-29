@@ -12,7 +12,7 @@ CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].m
 EFS_SG_GROUPID=`aws ec2 create-security-group --group-name EFSSecutityGroup --description "EFS security group" --vpc-id $3 | awk -F':' '{print $2}' | awk '{print $1}' | xargs | tr -d '"'`
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 2049 --cidr $2
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 22 --cidr $2
-FILESYSTEM_ID=`aws efs create-file-system --tags "Key=Name,Value=$CLUSTERID-efs" --region $1 --query 'FileSystemId' | tr -d '"'`
+FILESYSTEM_ID=`aws efs create-file-system --performance-mode $4 --tags "Key=Name,Value=$CLUSTERID-efs" --region $1 --query 'FileSystemId' | tr -d '"'`
 sleep 30
 aws efs put-lifecycle-configuration --file-system-id $FILESYSTEM_ID --lifecycle-policies "TransitionToIA=AFTER_30_DAYS" --region $1
 SUBNET_IDS=`aws ec2 describe-subnets --filters "Name=vpc-id,Values=$3" "Name=tag:Name,Values=*private*" --query 'Subnets[*].SubnetId' --output text`
