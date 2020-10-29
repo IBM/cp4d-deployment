@@ -69,30 +69,6 @@ resource "null_resource" "cpd_config" {
   ]
 }
 
-resource "null_resource" "provisioner" {
-  count = var.storage-type == "efs" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "oc create serviceaccount efs-provisioner -n default 2> /dev/null",
-        "oc apply -f ${local.ocptemplates}/efs-provisioner.yaml -n default 2> /dev/null",
-      ]
-    }
-    depends_on = [
-        null_resource.cpd_config,
-    ]
-}
-
 resource "null_resource" "install_lite" {
   count = var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
@@ -116,7 +92,6 @@ resource "null_resource" "install_lite" {
     }
     depends_on = [
         null_resource.cpd_config,
-        null_resource.provisioner,
     ]
 }
 
@@ -855,6 +830,3 @@ resource "null_resource" "install_watson_speech" {
         null_resource.install_watson_language_translator,
     ]
 }
-
-
-
