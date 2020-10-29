@@ -830,6 +830,3 @@ resource "null_resource" "install_watson_speech" {
         null_resource.install_watson_language_translator,
     ]
 }
-
-
-
