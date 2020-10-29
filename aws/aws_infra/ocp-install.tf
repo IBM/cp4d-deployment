@@ -211,7 +211,7 @@ resource "null_resource" "install_efs" {
         "cat > ${local.ocptemplates}/efs-pvc.yaml <<EOL\n${file("../efs_module/efs-pvc.yaml")}\nEOL",
         "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "chmod +x create-efs.sh delete-efs.sh",
-        "./create-efs.sh ${var.region} ${var.vpc_cidr} ${local.vpcid}",
+        "./create-efs.sh ${var.region} ${var.vpc_cidr} ${local.vpcid} ${var.efs-performance-mode}",
         "sleep 180",
 
         "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
