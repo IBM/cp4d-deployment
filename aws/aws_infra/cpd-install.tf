@@ -69,7 +69,7 @@ resource "null_resource" "cpd_config" {
             "sleep 3m",
             "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
             "sleep 2m",
-	    "./update-elb-timeout.sh ${local.vpcid}",
+            "./update-elb-timeout.sh ${local.vpcid}",
         ]
     }
     depends_on = [
@@ -104,26 +104,27 @@ resource "null_resource" "provisioner" {
 }
 
 resource "null_resource" "install_lite" {
-  count = var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
+    count = var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
       bootnode_public_ip      = aws_instance.bootnode.public_ip
       username                = var.admin-username
       private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
   provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-lite.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#lite#g ${local.installerhome}/cpd-lite.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-lite.yaml",
-        "oc create -f ${local.installerhome}/cpd-lite.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh lite ${var.cpd-namespace}",
-      ]
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-lite.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#lite#g ${local.installerhome}/cpd-lite.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-lite.yaml",
+            "oc create -f ${local.installerhome}/cpd-lite.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh lite ${var.cpd-namespace}",
+        ]
     }
     depends_on = [
         null_resource.cpd_config,
@@ -132,26 +133,27 @@ resource "null_resource" "install_lite" {
 }
 
 resource "null_resource" "install_dv" {
-  count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-dv.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#dv#g ${local.installerhome}/cpd-dv.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dv.yaml",
-        "oc create -f ${local.installerhome}/cpd-dv.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh dv ${var.cpd-namespace}",
-      ]
+    count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dv.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dv#g ${local.installerhome}/cpd-dv.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dv.yaml",
+            "oc create -f ${local.installerhome}/cpd-dv.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dv ${var.cpd-namespace}",
+        ]
     }
     depends_on = [
         null_resource.install_lite,
@@ -159,25 +161,26 @@ resource "null_resource" "install_dv" {
 }
 
 resource "null_resource" "install_spark" {
-  count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-spark.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#spark#g ${local.installerhome}/cpd-spark.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-spark.yaml",
-        "oc create -f ${local.installerhome}/cpd-spark.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh spark ${var.cpd-namespace}",      
+    count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-spark.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#spark#g ${local.installerhome}/cpd-spark.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-spark.yaml",
+            "oc create -f ${local.installerhome}/cpd-spark.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh spark ${var.cpd-namespace}",      
         ]
     }
     depends_on = [
@@ -187,25 +190,26 @@ resource "null_resource" "install_spark" {
 }
 
 resource "null_resource" "install_wkc" {
-  count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-wkc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#wkc#g ${local.installerhome}/cpd-wkc.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wkc.yaml",
-        "oc create -f ${local.installerhome}/cpd-wkc.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh wkc ${var.cpd-namespace}",          
+    count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-wkc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#wkc#g ${local.installerhome}/cpd-wkc.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wkc.yaml",
+            "oc create -f ${local.installerhome}/cpd-wkc.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh wkc ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
@@ -216,25 +220,26 @@ resource "null_resource" "install_wkc" {
 }
 
 resource "null_resource" "install_wsl" {
-  count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-wsl.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#wsl#g ${local.installerhome}/cpd-wsl.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wsl.yaml",
-        "oc create -f ${local.installerhome}/cpd-wsl.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh wsl ${var.cpd-namespace}",          
+    count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-wsl.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#wsl#g ${local.installerhome}/cpd-wsl.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wsl.yaml",
+            "oc create -f ${local.installerhome}/cpd-wsl.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh wsl ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
@@ -246,25 +251,26 @@ resource "null_resource" "install_wsl" {
 }
 
 resource "null_resource" "install_wml" {
-  count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-wml.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#wml#g ${local.installerhome}/cpd-wml.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wml.yaml",
-        "oc create -f ${local.installerhome}/cpd-wml.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh wml ${var.cpd-namespace}",         
+    count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-wml.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#wml#g ${local.installerhome}/cpd-wml.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wml.yaml",
+            "oc create -f ${local.installerhome}/cpd-wml.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh wml ${var.cpd-namespace}",         
         ]
     }
     depends_on = [
@@ -277,25 +283,26 @@ resource "null_resource" "install_wml" {
 }
 
 resource "null_resource" "install_aiopenscale" {
-  count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-aiopenscale.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#aiopenscale#g ${local.installerhome}/cpd-aiopenscale.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-aiopenscale.yaml",
-        "oc create -f ${local.installerhome}/cpd-aiopenscale.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh aiopenscale ${var.cpd-namespace}",          
+    count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-aiopenscale.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#aiopenscale#g ${local.installerhome}/cpd-aiopenscale.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-aiopenscale.yaml",
+            "oc create -f ${local.installerhome}/cpd-aiopenscale.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh aiopenscale ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
@@ -309,25 +316,26 @@ resource "null_resource" "install_aiopenscale" {
 }
 
 resource "null_resource" "install_cde" {
-  count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-cde.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#cde#g ${local.installerhome}/cpd-cde.yaml",
-        "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-cde.yaml",
-        "oc create -f ${local.installerhome}/cpd-cde.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh cde ${var.cpd-namespace}",           
+    count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+        }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-cde.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#cde#g ${local.installerhome}/cpd-cde.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-cde.yaml",
+            "oc create -f ${local.installerhome}/cpd-cde.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh cde ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
@@ -356,6 +364,7 @@ resource "null_resource" "install_streams" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-streams.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#streams#g ${local.installerhome}/cpd-streams.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.streams-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-streams.yaml",
@@ -390,6 +399,7 @@ resource "null_resource" "install_streams_flows" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#streams-flows#g ${local.installerhome}/cpd-streams-flows.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-streams-flows.yaml",
@@ -425,6 +435,7 @@ resource "null_resource" "install_ds" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-ds.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#ds#g ${local.installerhome}/cpd-ds.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ds.yaml",
@@ -461,6 +472,7 @@ resource "null_resource" "install_db2wh" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2wh.yaml",
@@ -498,6 +510,7 @@ resource "null_resource" "install_db2oltp" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2oltp.yaml",
@@ -522,20 +535,21 @@ resource "null_resource" "install_db2oltp" {
 }
 
 resource "null_resource" "install_datagate" {
-  count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
-      username                = var.admin-username
-      private-key-file-path   = var.ssh-private-key-file-path
-  }
-  connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_public_ip
-      user        = self.triggers.username
-      private_key = file(self.triggers.private-key-file-path)
-  }
-  provisioner "remote-exec" {
-      inline = [
+    count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-datagate.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#datagate#g ${local.installerhome}/cpd-datagate.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-datagate.yaml",
@@ -575,6 +589,7 @@ resource "null_resource" "install_dods" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-dods.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#dods#g ${local.installerhome}/cpd-dods.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dods.yaml",
@@ -615,6 +630,7 @@ resource "null_resource" "install_ca" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service-ca.rendered}\nEOL",
             "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ca.yaml",
@@ -656,6 +672,7 @@ resource "null_resource" "install_spss" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-spss-modeler.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#spss-modeler#g ${local.installerhome}/cpd-spss-modeler.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-spss-modeler.yaml",
@@ -698,6 +715,7 @@ resource "null_resource" "install_watson_assistant" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/watson-asst-override.yaml <<EOL\n${data.template_file.watson-asst-override.rendered}\nEOL",
             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
@@ -745,6 +763,7 @@ resource "null_resource" "install_watson_discovery" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
@@ -793,6 +812,7 @@ resource "null_resource" "install_watson_knowledge_studio" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/watson-ks-override.yaml <<EOL\n${file("../cpd_module/watson-knowledge-studio-override.yaml")}\nEOL",
             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
@@ -839,6 +859,7 @@ resource "null_resource" "install_watson_language_translator" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/watson-lt-override.yaml <<EOL\n${data.template_file.watson-language-translator-override.rendered}\nEOL",
             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
@@ -889,6 +910,7 @@ resource "null_resource" "install_watson_speech" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/watson-speech-override.yaml <<EOL\n${data.template_file.watson-speech-override.rendered}\nEOL",
             "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${data.template_file.minio-secret.rendered}\nEOL",
             "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${data.template_file.postgre-secret.rendered}\nEOL",
