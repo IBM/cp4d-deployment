@@ -41,6 +41,7 @@
 | `dnszone` | Requires input | The domain name configured for the cluster. |
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |
+| `efs-performance-mode` | Requires input | If storage-type is selected as `efs`, select one of the performance mode, default is `generalPurpose`. Allowed values are `generalPurpose / maxIO`. To read more about efs performance mode see [efs performance modes](https://docs.aws.amazon.com/efs/latest/ug/performance.html#performancemodes) |
 | `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/BdqSw4. Allowed values `accept / reject`. |
 | `cpd-namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `entitlementkey` | Requires input | Enter the Entitlement Key. To generate Entitlement Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |
