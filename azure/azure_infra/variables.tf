@@ -156,6 +156,15 @@ variable "cpd-namespace" {
   default = "zen"
 }
 
+variable "ocp-version" {
+  description = "Red Hat OpenShift Container Platform version to be installed"
+  default     = "4.5.13"
+}
+
+variable "cpd-version" {
+  default = "latest"
+}
+
 variable "apikey" {
 }
 
