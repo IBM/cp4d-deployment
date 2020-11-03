@@ -439,7 +439,7 @@ resource "null_resource" "install_ds" {
 }
 
 resource "null_resource" "install_db2wh" {
-    count = var.db2-warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
         username = var.admin-username
@@ -478,7 +478,7 @@ resource "null_resource" "install_db2wh" {
 }
 
 resource "null_resource" "install_db2oltp" {
-    count = var.db2-advanced-edition == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    count = var.db2_oltp == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
         username = var.admin-username
@@ -644,7 +644,7 @@ resource "null_resource" "install_ca" {
 }
 
 resource "null_resource" "install_spss" {
-    count = var.spss-modeler == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    count = var.spss == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
         username = var.admin-username

@@ -136,6 +136,17 @@ data "template_file" "portworx-override" {
     }
 }
 
+data "template_file" "cpd-service-ca" {
+    template = file("../cpd_module/cpd-service-ca.tpl.yaml")
+    vars = {
+        cpd-version         = var.cpd-version         
+        override            = base64encode(file("../cpd_module/ca-override.yaml"))
+        autopatch           = "false"
+        license-accept      = "true"
+    }
+}
+
+
 data "template_file" "watson-asst-override" {
     template = file("../cpd_module/watson-asst-override.tpl.yaml")
     vars = {

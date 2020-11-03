@@ -217,6 +217,11 @@ variable "db2_oltp" {
   default = "no"
 }
 
+variable "datagate" {
+  default = "no"
+}
+
+
 variable "decision-optimization" {
   default = "no"
 }
