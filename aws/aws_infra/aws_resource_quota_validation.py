@@ -48,14 +48,13 @@ ocp = {
 }
 
 
-def get_terraform_configuration():
+def get_terraform_configuration(tf_var_file):
 
     print("\nCluster configuration")
     print("=====================")
 
-    tf_var_file = os.path.dirname(os.path.abspath(__file__)) + '/variables.tf'
-    print("  The cluster configuration will be derived from terraform " +
-          f"configuration: '{tf_var_file}'\n")
+    print("  The cluster configuration will be derived from the terraform configuration:\n" +
+          f"  {tf_var_file}\n")
 
     tf_config = {}
     tf_config['replica_count'] = {}
@@ -69,13 +68,11 @@ def get_terraform_configuration():
     tf_config['storage-type'] = tf_config_json['variable']['storage-type']['default']
     tf_config['replica_count']['master'] = tf_config_json['variable']['master_replica_count']['default']
     tf_config['replica_count']['worker'] = tf_config_json['variable']['worker_replica_count']['default']
-    tf_config['replica_count']['bootstrap'] = 1
     tf_config['replica_count']['bootnode'] = 1
     tf_config['instance_type']['master'] = tf_config_json['variable']['master-instance-type']['default']
     tf_config['instance_type']['worker'] = tf_config_json['variable']['worker-instance-type']['default']
     if tf_config['storage-type'] == 'ocs':
         tf_config['instance_type']['worker'] = tf_config_json['variable']['worker-ocs-instance-type']['default']
-    tf_config['instance_type']['bootstrap'] = 'm4.large'
     tf_config['instance_type']['bootnode'] = tf_config_json['variable']['bootnode-instance-type']['default']
 
     # Summing up the number of required number of instance types
@@ -112,7 +109,8 @@ def resource_validation_check(service_quotas, service_code, quota_code,
 def main():
     
     # Get resource related values from terraform config variables file
-    tf_config = get_terraform_configuration()
+    tf_var_file = os.path.dirname(os.path.abspath(__file__)) + '/variables.tf'
+    tf_config = get_terraform_configuration(tf_var_file)
 
     # Get the AWS configuration (credentials, region)
     aws_config = AWSConfigurationHelper.get_config(tf_config['region'])
@@ -130,6 +128,9 @@ def main():
     ha_config = AWSConfigurationHelper.get_ha_config(num_az,
                                                      aws_config['region'],
                                                      ha_config = tf_config['deploy_type'])
+
+    # Validate if selected AWS instance types are available in selected AWS region
+    ec2_helper.validate_aws_instance_type_availability(tf_var_file)
 
     ####################
     #
@@ -325,7 +326,7 @@ def main():
     width_column_5 = 15
     width_column_6 = 20
     width_column_7 = 19
-    width_column_8 = 18
+    width_column_8 = 12
 
     # Tabel header format
     table_header_format = (
@@ -372,7 +373,7 @@ def main():
         col_5="Service Quotas", col_5_width=width_column_5,
         col_6="Resources available", col_6_width=width_column_6,
         col_7="Resources required", col_7_width=width_column_7,
-        col_8="Validation check", col_8_width=width_column_8)
+        col_8="Validation", col_8_width=width_column_8)
     )
 
     # Table row separator
@@ -409,15 +410,15 @@ def main():
 
     print("\n")
     print("Comments")
-    print("========")
+    print("--------")
     if print_validation_check_failed_comment:
-        print("  * Validation check = 'FAILED'")
+        print("  * Validation = 'FAILED'")
         print("    There are not enough resources available to create the desired infrastructure in that region.")
         print("    Recommendation:")
         print("      - Cleanup resources in that region.")
         print("      - Specify a different region.")
     else:
-        print("\n  * Validation check = 'PASSED'")
+        print("\n  * Validation = 'PASSED'")
         print("    Cluster can be created in that region.")
     print("")
 

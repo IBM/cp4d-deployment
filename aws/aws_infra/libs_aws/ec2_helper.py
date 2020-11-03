@@ -87,12 +87,16 @@ class EC2Helper():
 
         return instance_type_count
 
-    def get_vcpus_per_instance_type(self):
-        instance_type_vcpu_count = {}
-
+    def get_instance_types(self):
         instance_types = self.describe_resource(
                             'describe_instance_types',
                             'InstanceTypes')
+        return instance_types
+
+    def get_vcpus_per_instance_type(self):
+        instance_type_vcpu_count = {}
+
+        instance_types = self.get_instance_types()
 
         for item in instance_types:
             instance_type = item['InstanceType']
@@ -103,7 +107,7 @@ class EC2Helper():
 
     def get_instances_num_vcpus(self, instance_type_count):
         '''
-        Get the number of vCPUs per instance group for the 
+        Get the number of vCPUs per instance type group for the
         specified 'instance_type_count'.
         (e.g.: per F instance, G instance, Standard instance, etc.)
 
@@ -181,3 +185,119 @@ class EC2Helper():
         az = self.describe_availability_zones()
         return len(az)
 
+    # validate if selected AWS instance types are available in selected AWS region
+    def validate_aws_instance_type_availability(self, terraform_var_file):
+
+        section_name = "Validate availability of selected AWS instance types in selected AWS region"
+        print(f"\n{section_name}")
+        print("="*len(section_name))
+        print("")
+
+        tf_config = {}
+        tf_config['node_type'] = {}
+        tf_config['node_type']['master'] = {}
+        tf_config['node_type']['worker'] = {}
+        tf_config['node_type']['bootnode'] = {}
+
+        tf_config_json = AWSGenericHelper.get_terraform_config_json(terraform_var_file)
+
+        # get specified instance types from terraform config
+        tf_config['region'] = tf_config_json['variable']['region']['default']
+        tf_config['storage-type'] = tf_config_json['variable']['storage-type']['default']
+        tf_config['node_type']['master']['instance_type'] = tf_config_json['variable']['master-instance-type']['default']
+        tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker-instance-type']['default']
+        if tf_config['storage-type'] == 'ocs':
+            tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker-ocs-instance-type']['default']
+        tf_config['node_type']['bootnode']['instance_type'] = tf_config_json['variable']['bootnode-instance-type']['default']
+
+        # pprint(tf_config)
+
+        # get available instance types
+        instance_type_list = []
+        instance_types = self.get_instance_types()
+        for instance_type in instance_types:
+            instance_type_list.append(instance_type['InstanceType'])
+
+        # print(f"InstanceType: {instance_type_list}")
+
+        # validate availability of selected instance types
+        for node_type in tf_config['node_type']:
+            tf_config['node_type'][node_type]['availability'] = "FAILED"
+            if tf_config['node_type'][node_type]['instance_type'] in instance_type_list:
+                tf_config['node_type'][node_type]['availability'] = "PASSED"
+
+        # Table column width
+        width_column_1 = 11
+        width_column_2 = 17
+        width_column_3 = 12
+
+        # Tabel header format
+        table_header_format = (
+            "  {col_1:<{col_1_width}}|" +
+            " {col_2:<{col_2_width}} |" +
+            " {col_3:<{col_3_width}}"
+        )
+
+        # Tabel header separator format
+        table_header_separator_format = (
+            "  {col_1:{col_1_width}}|" +
+            "{col_2:{col_2_width}}|" +
+            "{col_3:{col_3_width}}"
+        )
+
+        # Table row format
+        table_row_format = (
+            "   {col_1:<{col_1_width}}|" +
+            "  {col_2:<{col_2_width}}|" +
+            "  {col_3:{col_3_width}}"
+        )
+
+        # Table header
+        table_header = (table_header_format.format(
+            col_1="Node type", col_1_width=width_column_1,
+            col_2="Instance type", col_2_width=width_column_2,
+            col_3="Validation", col_3_width=width_column_3)
+        )
+
+        # Table header separator
+        table_header_separator = (table_header_separator_format.format(
+            col_1="-"*width_column_1, col_1_width=width_column_1,
+            col_2="-"*(width_column_2 + 2), col_2_width=width_column_2 + 2,
+            col_3="-"*width_column_3, col_3_width=width_column_3)
+        )
+
+        # Table - print out
+        print(f"  Selected AWS Region  :  {tf_config['region']}")
+        print(f"  Selected Storage type:  {tf_config['storage-type'].upper()}\n")
+        print(table_header)
+        print(table_header_separator)
+
+        print_validation_check_failed_comment = False
+        for node_type in tf_config['node_type']:
+            instance_type = tf_config['node_type'][node_type]['instance_type']
+            availability = tf_config['node_type'][node_type]['availability']
+            if availability == "FAILED":
+                print_validation_check_failed_comment = True
+            print(table_row_format.format(
+                col_1=node_type, col_1_width=width_column_1 - 1,
+                col_2=instance_type, col_2_width=width_column_2,
+                col_3=availability, col_3_width=width_column_3)
+            )
+
+        print("\n")
+        print("Comments")
+        print("--------")
+        if print_validation_check_failed_comment:
+            print("  * Validation = 'FAILED'")
+            print("    There are some selected AWS instance types not available/supported in that region.")
+            print("    ==> A change in the specified terraform configuration is needed !")
+            print("")
+            print("    Recommendation:")
+            print("      - Specify different AWS instance types for that region.")
+            print("      - Specify a different region.")
+            print("")
+            exit(1)
+        else:
+            print("\n  * Validation = 'PASSED'")
+            print("    All specified AWS instance types are available in that region.")
+        print("")

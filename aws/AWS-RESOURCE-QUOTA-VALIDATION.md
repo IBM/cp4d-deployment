@@ -25,7 +25,7 @@ The tool provides 2 ways to authenticate the user against the AWS account.
 1. User provided AWS credentials: 
    The user can enter the AWS credentials via the command line.
 1. AWS credentials derived from `$HOME/.aws/credentials`: 
-   The tool is able to read the credentials from the default location at `~/.aws/credentials` which the user has created it by e.g. executing `aws configure` in case he/she has installed the AWS CLI. 
+   The tool is able to read the credentials from the default location at `~/.aws/credentials` which the user has created by e.g. executing `aws configure` in case he/she has installed the AWS CLI.
 
 ### Infrastructure resource calculation
 For the calculation of the required resources the following information are derived from the terraform configuration specified in `variables.tf`:
@@ -37,6 +37,8 @@ For the calculation of the required resources the following information are deri
 - master node instance type
 - worker node instance type
 - bootnode type
+
+Before the infrastructure resource calculation is executed the script validates if the specified AWS instance types are available/supported in the specified AWS region.
 
 ### Summary output
 There is a table printed out showing:
