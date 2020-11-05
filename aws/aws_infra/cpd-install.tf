@@ -675,253 +675,253 @@ resource "null_resource" "install_spss" {
     ]
 }
 
-resource "null_resource" "install_watson_assistant" {
-    count = var.watson-assistant == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0 
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/watson-asst-override.yaml <<EOL\n${data.template_file.watson-asst-override.rendered}\nEOL",
-            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-asst-override.yaml",
-            "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a ibm-watson-assistant -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-asst-storageclass} --repo ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify"
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_dv,
-        null_resource.install_spark,
-        null_resource.install_wkc,
-        null_resource.install_wsl,
-        null_resource.install_wml,
-        null_resource.install_aiopenscale,
-        null_resource.install_cde,
-        null_resource.install_streams,
-        null_resource.install_streams_flows,
-        null_resource.install_ds,
-        null_resource.install_db2wh,
-        null_resource.install_db2oltp,
-    	null_resource.install_datagate,
-        null_resource.install_dods,
-        null_resource.install_ca,
-        null_resource.install_spss,
-    ]
-}
+# resource "null_resource" "install_watson_assistant" {
+#     count = var.watson-assistant == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0 
+#     triggers = {
+#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         username                = var.admin-username
+#         private-key-file-path   = var.ssh-private-key-file-path
+#     }
+#     connection {
+#         type        = "ssh"
+#         host        = self.triggers.bootnode_public_ip
+#         user        = self.triggers.username
+#         private_key = file(self.triggers.private-key-file-path)
+#     }
+#     provisioner "remote-exec" {
+#         inline = [
+#             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+#             "cat > ${local.installerhome}/watson-asst-override.yaml <<EOL\n${data.template_file.watson-asst-override.rendered}\nEOL",
+#             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
+#             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+#             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-asst-override.yaml",
+#             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
+#             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+#             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
+#             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a ibm-watson-assistant -n ${var.cpd-namespace} --accept-all-licenses --apply",
+#             "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-asst-storageclass} --repo ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify"
+#         ]
+#     }
+#     depends_on = [
+#         null_resource.install_lite,
+#         null_resource.install_dv,
+#         null_resource.install_spark,
+#         null_resource.install_wkc,
+#         null_resource.install_wsl,
+#         null_resource.install_wml,
+#         null_resource.install_aiopenscale,
+#         null_resource.install_cde,
+#         null_resource.install_streams,
+#         null_resource.install_streams_flows,
+#         null_resource.install_ds,
+#         null_resource.install_db2wh,
+#         null_resource.install_db2oltp,
+#     	null_resource.install_datagate,
+#         null_resource.install_dods,
+#         null_resource.install_ca,
+#         null_resource.install_spss,
+#     ]
+# }
 
-resource "null_resource" "install_watson_discovery" {
-    count = var.watson-discovery == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
-            "host_ip=$(dig +short api.${var.cluster-name}.${var.dnszone} | awk 'NR==1{print $1}')",
-            "sed -i s/k8_host_ip/$host_ip/g ${local.installerhome}/watson-discovery-override.yaml",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-discovery-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify"
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_dv,
-        null_resource.install_spark,
-        null_resource.install_wkc,
-        null_resource.install_wsl,
-        null_resource.install_wml,
-        null_resource.install_aiopenscale,
-        null_resource.install_cde,
-        null_resource.install_streams,
-        null_resource.install_streams_flows,
-        null_resource.install_ds,
-        null_resource.install_db2wh,
-        null_resource.install_db2oltp,
-    	null_resource.install_datagate,
-        null_resource.install_dods,
-        null_resource.install_ca,
-        null_resource.install_spss,
-        null_resource.install_watson_assistant,
-    ]
-}
+# resource "null_resource" "install_watson_discovery" {
+#     count = var.watson-discovery == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
+#     triggers = {
+#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         username                = var.admin-username
+#         private-key-file-path   = var.ssh-private-key-file-path
+#     }
+#     connection {
+#         type        = "ssh"
+#         host        = self.triggers.bootnode_public_ip
+#         user        = self.triggers.username
+#         private_key = file(self.triggers.private-key-file-path)
+#     }
+#     provisioner "remote-exec" {
+#         inline = [
+#             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+#             "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
+#             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+#             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
+#             "host_ip=$(dig +short api.${var.cluster-name}.${var.dnszone} | awk 'NR==1{print $1}')",
+#             "sed -i s/k8_host_ip/$host_ip/g ${local.installerhome}/watson-discovery-override.yaml",
+#             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+#             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
+#             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --accept-all-licenses --apply",
+#             "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-discovery-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-discovery -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify"
+#         ]
+#     }
+#     depends_on = [
+#         null_resource.install_lite,
+#         null_resource.install_dv,
+#         null_resource.install_spark,
+#         null_resource.install_wkc,
+#         null_resource.install_wsl,
+#         null_resource.install_wml,
+#         null_resource.install_aiopenscale,
+#         null_resource.install_cde,
+#         null_resource.install_streams,
+#         null_resource.install_streams_flows,
+#         null_resource.install_ds,
+#         null_resource.install_db2wh,
+#         null_resource.install_db2oltp,
+#     	null_resource.install_datagate,
+#         null_resource.install_dods,
+#         null_resource.install_ca,
+#         null_resource.install_spss,
+#         null_resource.install_watson_assistant,
+#     ]
+# }
 
-resource "null_resource" "install_watson_knowledge_studio" {
-    count = var.watson-knowledge-studio == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/watson-ks-override.yaml <<EOL\n${file("../cpd_module/watson-knowledge-studio-override.yaml")}\nEOL",
-            "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-ks-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-ks-override.yaml --insecure-skip-tls-verify"
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_dv,
-        null_resource.install_spark,
-        null_resource.install_wkc,
-        null_resource.install_wsl,
-        null_resource.install_wml,
-        null_resource.install_aiopenscale,
-        null_resource.install_cde,
-        null_resource.install_streams,
-        null_resource.install_streams_flows,
-        null_resource.install_ds,
-        null_resource.install_db2wh,
-        null_resource.install_db2oltp,
-    	null_resource.install_datagate,
-        null_resource.install_dods,
-        null_resource.install_ca,
-        null_resource.install_spss,
-        null_resource.install_watson_assistant,
-        null_resource.install_watson_discovery,
-    ]
-}
+# resource "null_resource" "install_watson_knowledge_studio" {
+#     count = var.watson-knowledge-studio == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
+#     triggers = {
+#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         username                = var.admin-username
+#         private-key-file-path   = var.ssh-private-key-file-path
+#     }
+#     connection {
+#         type        = "ssh"
+#         host        = self.triggers.bootnode_public_ip
+#         user        = self.triggers.username
+#         private_key = file(self.triggers.private-key-file-path)
+#     }
+#     provisioner "remote-exec" {
+#         inline = [
+#             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+#             "cat > ${local.installerhome}/watson-ks-override.yaml <<EOL\n${file("../cpd_module/watson-knowledge-studio-override.yaml")}\nEOL",
+#             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
+#             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+#             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
+#             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --accept-all-licenses --apply",
+#             "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-ks-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-ks -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-ks-override.yaml --insecure-skip-tls-verify"
+#         ]
+#     }
+#     depends_on = [
+#         null_resource.install_lite,
+#         null_resource.install_dv,
+#         null_resource.install_spark,
+#         null_resource.install_wkc,
+#         null_resource.install_wsl,
+#         null_resource.install_wml,
+#         null_resource.install_aiopenscale,
+#         null_resource.install_cde,
+#         null_resource.install_streams,
+#         null_resource.install_streams_flows,
+#         null_resource.install_ds,
+#         null_resource.install_db2wh,
+#         null_resource.install_db2oltp,
+#     	null_resource.install_datagate,
+#         null_resource.install_dods,
+#         null_resource.install_ca,
+#         null_resource.install_spss,
+#         null_resource.install_watson_assistant,
+#         null_resource.install_watson_discovery,
+#     ]
+# }
 
-resource "null_resource" "install_watson_language_translator" {
-    count = var.watson-language-translator == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/watson-lt-override.yaml <<EOL\n${data.template_file.watson-language-translator-override.rendered}\nEOL",
-            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-lt-override.yaml",
-            "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-language-translator -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-lt-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-language-translator --version 1.1.2 --optional-modules watson-language-pak-1 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-lt-override.yaml --insecure-skip-tls-verify"
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_dv,
-        null_resource.install_spark,
-        null_resource.install_wkc,
-        null_resource.install_wsl,
-        null_resource.install_wml,
-        null_resource.install_aiopenscale,
-        null_resource.install_cde,
-        null_resource.install_streams,
-        null_resource.install_streams_flows,
-        null_resource.install_ds,
-        null_resource.install_db2wh,
-        null_resource.install_db2oltp,
-    	null_resource.install_datagate,
-        null_resource.install_dods,
-        null_resource.install_ca,
-        null_resource.install_spss,
-        null_resource.install_watson_assistant,
-        null_resource.install_watson_discovery,
-        null_resource.install_watson_knowledge_studio,
-    ]
-}
+# resource "null_resource" "install_watson_language_translator" {
+#     count = var.watson-language-translator == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
+#     triggers = {
+#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         username                = var.admin-username
+#         private-key-file-path   = var.ssh-private-key-file-path
+#     }
+#     connection {
+#         type        = "ssh"
+#         host        = self.triggers.bootnode_public_ip
+#         user        = self.triggers.username
+#         private_key = file(self.triggers.private-key-file-path)
+#     }
+#     provisioner "remote-exec" {
+#         inline = [
+#             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+#             "cat > ${local.installerhome}/watson-lt-override.yaml <<EOL\n${data.template_file.watson-language-translator-override.rendered}\nEOL",
+#             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
+#             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+#             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-lt-override.yaml",
+#             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
+#             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+#             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
+#             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-language-translator -n ${var.cpd-namespace} --accept-all-licenses --apply",
+#             "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-lt-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-language-translator --version 1.1.2 --optional-modules watson-language-pak-1 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-lt-override.yaml --insecure-skip-tls-verify"
+#         ]
+#     }
+#     depends_on = [
+#         null_resource.install_lite,
+#         null_resource.install_dv,
+#         null_resource.install_spark,
+#         null_resource.install_wkc,
+#         null_resource.install_wsl,
+#         null_resource.install_wml,
+#         null_resource.install_aiopenscale,
+#         null_resource.install_cde,
+#         null_resource.install_streams,
+#         null_resource.install_streams_flows,
+#         null_resource.install_ds,
+#         null_resource.install_db2wh,
+#         null_resource.install_db2oltp,
+#     	null_resource.install_datagate,
+#         null_resource.install_dods,
+#         null_resource.install_ca,
+#         null_resource.install_spss,
+#         null_resource.install_watson_assistant,
+#         null_resource.install_watson_discovery,
+#         null_resource.install_watson_knowledge_studio,
+#     ]
+# }
 
-resource "null_resource" "install_watson_speech" {
-    count = var.watson-speech == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/watson-speech-override.yaml <<EOL\n${data.template_file.watson-speech-override.rendered}\nEOL",
-            "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${data.template_file.minio-secret.rendered}\nEOL",
-            "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${data.template_file.postgre-secret.rendered}\nEOL",
-            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-speech-override.yaml",
-            "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
-            "oc apply -f ${local.installerhome}/minio-secret.yaml",
-            "oc apply -f ${local.installerhome}/postgre-secret.yaml",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
-            "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-speech -n ${var.cpd-namespace} --accept-all-licenses --apply",
-            "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-speech-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-speech --version 1.1.4 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-speech-override.yaml --insecure-skip-tls-verify"
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_dv,
-        null_resource.install_spark,
-        null_resource.install_wkc,
-        null_resource.install_wsl,
-        null_resource.install_wml,
-        null_resource.install_aiopenscale,
-        null_resource.install_cde,
-        null_resource.install_streams,
-        null_resource.install_streams_flows,
-        null_resource.install_ds,
-        null_resource.install_db2wh,
-        null_resource.install_db2oltp,
-    	null_resource.install_datagate,
-        null_resource.install_dods,
-        null_resource.install_ca,
-        null_resource.install_spss,
-        null_resource.install_watson_assistant,
-        null_resource.install_watson_discovery,
-        null_resource.install_watson_knowledge_studio,
-        null_resource.install_watson_language_translator,
-    ]
-}
+# resource "null_resource" "install_watson_speech" {
+#     count = var.watson-speech == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
+#     triggers = {
+#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         username                = var.admin-username
+#         private-key-file-path   = var.ssh-private-key-file-path
+#     }
+#     connection {
+#         type        = "ssh"
+#         host        = self.triggers.bootnode_public_ip
+#         user        = self.triggers.username
+#         private_key = file(self.triggers.private-key-file-path)
+#     }
+#     provisioner "remote-exec" {
+#         inline = [
+#             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+#             "cat > ${local.installerhome}/watson-speech-override.yaml <<EOL\n${data.template_file.watson-speech-override.rendered}\nEOL",
+#             "cat > ${local.installerhome}/minio-secret.yaml <<EOL\n${data.template_file.minio-secret.rendered}\nEOL",
+#             "cat > ${local.installerhome}/postgre-secret.yaml <<EOL\n${data.template_file.postgre-secret.rendered}\nEOL",
+#             "oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd-namespace}",
+#             "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
+#             "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-speech-override.yaml",
+#             "oc label --overwrite namespace ${var.cpd-namespace} ns=${var.cpd-namespace}",
+#             "oc apply -f ${local.installerhome}/minio-secret.yaml",
+#             "oc apply -f ${local.installerhome}/postgre-secret.yaml",
+#             "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
+#             "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${var.cpd-namespace})",
+#             "${local.userbinhome}/cpd-cli adm --repo ${local.installerhome}/repo.yaml -a watson-speech -n ${var.cpd-namespace} --accept-all-licenses --apply",
+#             "${local.userbinhome}/cpd-cli install --storageclass ${local.watson-speech-storageclass} --repo ${local.installerhome}/repo.yaml -a watson-speech --version 1.1.4 -n ${var.cpd-namespace} --transfer-image-to $REGISTRY/${var.cpd-namespace} --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${var.cpd-namespace} --target-registry-username kubeadmin --target-registry-password $TOKEN --accept-all-licenses --override ${local.installerhome}/watson-speech-override.yaml --insecure-skip-tls-verify"
+#         ]
+#     }
+#     depends_on = [
+#         null_resource.install_lite,
+#         null_resource.install_dv,
+#         null_resource.install_spark,
+#         null_resource.install_wkc,
+#         null_resource.install_wsl,
+#         null_resource.install_wml,
+#         null_resource.install_aiopenscale,
+#         null_resource.install_cde,
+#         null_resource.install_streams,
+#         null_resource.install_streams_flows,
+#         null_resource.install_ds,
+#         null_resource.install_db2wh,
+#         null_resource.install_db2oltp,
+#     	null_resource.install_datagate,
+#         null_resource.install_dods,
+#         null_resource.install_ca,
+#         null_resource.install_spss,
+#         null_resource.install_watson_assistant,
+#         null_resource.install_watson_discovery,
+#         null_resource.install_watson_knowledge_studio,
+#         null_resource.install_watson_language_translator,
+#     ]
+# }
