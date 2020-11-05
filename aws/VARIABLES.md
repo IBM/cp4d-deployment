@@ -41,7 +41,7 @@
 | `dnszone` | Requires input | The domain name configured for the cluster. |
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |
-| `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/BdqSw4. Allowed values `accept / reject`. |
+| `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
 | `cpd-namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `entitlementkey` | Requires input | Enter the Entitlement Key. To generate Entitlement Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |
 | `data-virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. |
