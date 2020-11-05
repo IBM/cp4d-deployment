@@ -60,9 +60,9 @@
 | `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
-| `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
+<!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
 | `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
 | `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
 | `watson-language-translator` | no | Enter `yes` to install the Watson Language Translator Add-on service. |
-| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. |
+| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. | -->
 
