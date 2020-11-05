@@ -274,25 +274,25 @@ variable "spss-modeler" {
 ##############################
 #     Watson AI Services     #
 ##############################
-variable "watson-assistant" {
-  default = "no"
-}
+# variable "watson-assistant" {
+#   default = "no"
+# }
 
-variable "watson-discovery" {
-  default = "no"
-}
+# variable "watson-discovery" {
+#   default = "no"
+# }
 
-variable "watson-knowledge-studio" {
-  default = "no"
-}
+# variable "watson-knowledge-studio" {
+#   default = "no"
+# }
 
-variable "watson-language-translator" {
-  default = "no"
-}
+# variable "watson-language-translator" {
+#   default = "no"
+# }
 
-variable "watson-speech" {
-  default = "no"
-}
+# variable "watson-speech" {
+#   default = "no"
+# }
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
