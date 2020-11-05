@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 3.0 on AWS
+# Cloud Pak for Data 3.5 on OCP 4.5 on AWS
 
 ## Deployment Topology
 
@@ -27,7 +27,7 @@ The deployment sets up the following as shown in the diagram.
 
 * Create a Route 53 domain.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
-* [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
+* [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 * Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
