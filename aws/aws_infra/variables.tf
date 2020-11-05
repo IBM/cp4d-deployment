@@ -195,7 +195,7 @@ variable "efs-performance-mode" {
 
 ##### IBM Cloud Pak for Data Configuration #####
 variable "accept-cpd-license" {
-  description = "Read and accept license at https://ibm.biz/BdqSw4, (accept / reject)"
+  description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
   default = "reject"
 }
 
