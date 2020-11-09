@@ -56,7 +56,7 @@ cd cp4d-deployment-master/aws/aws_infra
 terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
 ```
-
+* After openshift cluster installation is finished and cloud pak for data installation has started, you can check the service installation logs as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
 ### Destroying the cluster
 * Run:
