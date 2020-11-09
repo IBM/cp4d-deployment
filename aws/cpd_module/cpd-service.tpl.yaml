@@ -10,7 +10,7 @@ spec:
   serviceName: SERVICE
   version: ${cpd-version}
   storageClass: STORAGECLASS
-  customOverride: ${override-storage}
+  overrideConfig: ${override-storage}
   flags: ""
   autoPatch: ${autopatch}
   scale: ""
