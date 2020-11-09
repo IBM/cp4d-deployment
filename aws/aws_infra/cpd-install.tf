@@ -11,7 +11,8 @@ locals {
     watson-lt-storageclass        = var.storage-type == "portworx" ? "portworx-sc" : "gp2"
     watson-speech-storageclass    = var.storage-type == "portworx" ? "portworx-sc" : "gp2"
 
-    override-file = var.storage-type == "efs" ? "\"\"" : base64encode(file("../cpd_module/${lookup(var.cpd-override,var.storage-type)}"))
+    # override-file = var.storage-type == "efs" ? "\"\"" : base64encode(file("../cpd_module/${lookup(var.cpd-override,var.storage-type)}"))
+    override-value = var.storage-type == "efs" ? "\"\"" : var.storage-type
 }
 
 resource "null_resource" "cpd_config" {
@@ -51,10 +52,9 @@ resource "null_resource" "cpd_config" {
 
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "wget https://aws-quickstart-icpd.s3.amazonaws.com/operator/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
-            "wget https://aws-quickstart-icpd.s3.amazonaws.com/operator/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
-            "wget https://aws-quickstart-icpd.s3.amazonaws.com/operator/ibm-cp-datacore-3.5.0.tgz -O /home/${var.admin-username}/ibm-cp-datacore-3.5.0.tgz",
-            "wget https://aws-quickstart-icpd.s3.amazonaws.com/operator/ibm-cp-datacore-3.5.0-images.csv -O /home/${var.admin-username}/ibm-cp-datacore-3.5.0-images.csv",
+            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
+            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
+            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/ibm-cp-datacore-3.5.0.tgz -O ${local.operator}/ibm-cp-datacore-3.5.0.tgz",
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
             "tar -xf /home/${var.admin-username}/ibm-cp-datacore-3.5.0.tgz",
             "oc new-project cpd-meta-ops",
@@ -606,7 +606,8 @@ resource "null_resource" "install_ca" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service-ca.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            # "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service-ca.rendered}\nEOL",
             "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ca.yaml",
             "oc create -f ${local.installerhome}/cpd-ca.yaml -n ${var.cpd-namespace}",
