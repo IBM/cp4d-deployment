@@ -296,10 +296,13 @@ variable "spss-modeler" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-# variable "ocp-version" {
-#   description = "Red Hat OpenShift Container Platform version to be installed"
-#   default     = "4.5.13"
-# }
+variable "s3-bucket" {
+  default = "ibm-cloud-private-data"
+}
+
+variable "inst_version" {
+  default = "3.5"
+}
 
 variable "cpd-version" {
   default = "latest"
