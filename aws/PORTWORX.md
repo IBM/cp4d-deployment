@@ -12,6 +12,6 @@ Enter value for `Size(GB)` as `1000` and then press Next.
 * Select Openshift 4+ as Openshift version, go to `Advanced Settings`:
 ![Alt text](images/openshift-version.png)
 * In the `Advanced Settings` tab select CSI and Monitoring and press Finish:
-![Alt text](images/advance-setting.png)
+![Alt text](images/Advanced_settings.png)
 * Copy Spec URL:
 ![Alt text](images/spec-url.png)
