@@ -9,8 +9,6 @@ locals {
     override-file = var.storage == "nfs" ? "\"\"" : base64encode(file("../cpd_module/portworx-override.yaml"))
     
     #Storage Classes
-    storageclass = var.storage == "portworx" ? "portworx-shared-gp" : "nfs"
-    dv-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
     watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
@@ -31,10 +29,21 @@ resource "null_resource" "cpd_files" {
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "file" {
-    source      = "../cpd_module/cpd-req-files.zip"
-    destination = "/home/${var.admin-username}/cpd-req-files.zip"
-  }
-  depends_on = [
+    source      = "../cpd_module/cloudctl-linux-amd64.tar"
+    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar"
+    }
+
+    provisioner "file" {
+    source      = "../cpd_module/cloudctl-linux-amd64.tar.gz.sig"
+    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar.gz.sig"
+    }
+
+    provisioner "file" {
+    source      = "../cpd_module/ibm-cp-datacore-3.5.0.tar"
+    destination = "/home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar"
+    }
+
+    depends_on = [
         null_resource.openshift_post_install,
     ]
 }
@@ -57,8 +66,6 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "unzip /home/${var.admin-username}/cpd-req-files.zip",
-            "sleep 5",
             "sudo mv cloudctl-linux-amd64.tar ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             "sudo mv ibm-cp-datacore-3.5.0.tar /home/${var.admin-username}/",
@@ -337,9 +344,9 @@ resource "null_resource" "install_streams" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -373,9 +380,9 @@ resource "null_resource" "install_streams_flows" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -410,9 +417,9 @@ resource "null_resource" "install_ds" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -448,9 +455,9 @@ resource "null_resource" "install_db2wh" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -477,6 +484,35 @@ resource "null_resource" "install_db2wh" {
     ]
 }
 
+resource "null_resource" "install_dmc" {
+  count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc.yaml",
+        "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+      ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_db2wh,
+    ]
+}
+
 resource "null_resource" "install_db2oltp" {
     count = var.db2_oltp == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
@@ -487,9 +523,9 @@ resource "null_resource" "install_db2oltp" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -527,9 +563,9 @@ resource "null_resource" "install_datagate" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -568,9 +604,9 @@ resource "null_resource" "install_dods" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -610,9 +646,9 @@ resource "null_resource" "install_ca" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
@@ -653,9 +689,9 @@ resource "null_resource" "install_spss" {
     }
     connection {
         type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
+        host        = self.triggers.bootnode_ip_address
         user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
+        private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
