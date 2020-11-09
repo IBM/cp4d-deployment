@@ -118,22 +118,22 @@ data "template_file" "machinehealthcheck" {
 data "template_file" "cpd-service" {
     template = file("../cpd_module/cpd-service.tpl.yaml")
     vars = {
-        cpd-version         = var.cpd-version         
-        override            = local.override-file
+        cpd-version         = var.cpd-version
+        override-storage    = local.override-value 
         autopatch           = "false"
         license-accept      = "true"
     }
 }
 
-data "template_file" "cpd-service-ca" {
-    template = file("../cpd_module/cpd-service-ca.tpl.yaml")
-    vars = {
-        cpd-version         = var.cpd-version         
-        override            = base64encode(file("../cpd_module/ca-override.yaml"))
-        autopatch           = "false"
-        license-accept      = "true"
-    }
-}
+# data "template_file" "cpd-service-ca" {
+#     template = file("../cpd_module/cpd-service-ca.tpl.yaml")
+#     vars = {
+#         cpd-version         = var.cpd-version
+#         override            = base64encode(file("../cpd_module/ca-override.yaml"))
+#         autopatch           = "false"
+#         license-accept      = "true"
+#     }
+# }
 
 data "template_file" "portworx-override" {
     template = file("../cpd_module/portworx-override.yaml")
