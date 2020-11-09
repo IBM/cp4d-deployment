@@ -10,8 +10,8 @@ spec:
   serviceName: SERVICE
   version: ${cpd-version} 
   storageClass: STORAGECLASS
-  #customOverride: ${override}
-  overrideConfig: portworx
+  customOverride: ${override}
+  #overrideConfig: portworx
   flags: ""
   autoPatch: ${autopatch}
   scale: ""
