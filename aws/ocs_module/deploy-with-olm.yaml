@@ -27,4 +27,4 @@ spec:
   name: ocs-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: ocs-operator.v4.5.1
+  startingCSV: ocs-operator.v4.5.2
