@@ -57,7 +57,7 @@ terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
 ```
 #### cp4d installation logs:
-After openshift cluster installation is finished and cloud pak for data installation has started, you can check the service installation logs as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
+After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
 ### Destroying the cluster:
 * Run:
