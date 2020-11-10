@@ -11,7 +11,6 @@ locals {
     watson-lt-storageclass        = var.storage-type == "portworx" ? "portworx-sc" : "gp2"
     watson-speech-storageclass    = var.storage-type == "portworx" ? "portworx-sc" : "gp2"
 
-    # override-file = var.storage-type == "efs" ? "\"\"" : base64encode(file("../cpd_module/${lookup(var.cpd-override,var.storage-type)}"))
     override-value = var.storage-type == "efs" ? "\"\"" : var.storage-type
 }
 
@@ -375,7 +374,7 @@ resource "null_resource" "install_streams_flows" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#streams-flows#g ${local.installerhome}/cpd-streams-flows.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-streams-flows.yaml",
             "oc create -f ${local.installerhome}/cpd-streams-flows.yaml -n ${var.cpd-namespace}",
