@@ -125,8 +125,8 @@ data "template_file" "cpd-service" {
     }
 }
 
-data "template_file" "cpd-service-db2wh" {
-    template = file("../cpd_module/cpd-service-db2wh.tpl.yaml")
+data "template_file" "cpd-service-no-override" {
+    template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
     vars = {
         cpd-version         = var.cpd-version
         autopatch           = "false"
