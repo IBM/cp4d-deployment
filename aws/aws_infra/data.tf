@@ -125,6 +125,15 @@ data "template_file" "cpd-service" {
     }
 }
 
+data "template_file" "cpd-service-db2wh" {
+    template = file("../cpd_module/cpd-service-db2wh.tpl.yaml")
+    vars = {
+        cpd-version         = var.cpd-version
+        autopatch           = "false"
+        license-accept      = "true"
+    }
+}
+
 data "template_file" "portworx-override" {
     template = file("../cpd_module/portworx-override.yaml")
     vars = {
