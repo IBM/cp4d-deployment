@@ -1,7 +1,7 @@
 
 # Cloud Pak for Data 3.5 on OCP 4.5 on AWS
 
-## Deployment Topology
+## Deployment Topology:
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
@@ -23,7 +23,7 @@ The deployment sets up the following as shown in the diagram.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 
-### Steps to Deploy
+### Steps to Deploy:
 
 * Create a Route 53 domain.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
@@ -56,9 +56,10 @@ cd cp4d-deployment-master/aws/aws_infra
 terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
 ```
-* After openshift cluster installation is finished and cloud pak for data installation has started, you can check the service installation logs as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
+#### cp4d installation logs:
+After openshift cluster installation is finished and cloud pak for data installation has started, you can check the service installation logs as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
-### Destroying the cluster
+### Destroying the cluster:
 * Run:
   ```bash
   terraform destroy -target null_resource.destroy_cluster -var-file="Path To osaws_var.tfvars file"
