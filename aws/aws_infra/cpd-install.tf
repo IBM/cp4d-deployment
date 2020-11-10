@@ -607,7 +607,6 @@ resource "null_resource" "install_ca" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-            # "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service-ca.rendered}\nEOL",
             "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ca.yaml",
             "oc create -f ${local.installerhome}/cpd-ca.yaml -n ${var.cpd-namespace}",
