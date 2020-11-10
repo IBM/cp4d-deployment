@@ -125,16 +125,6 @@ data "template_file" "cpd-service" {
     }
 }
 
-# data "template_file" "cpd-service-ca" {
-#     template = file("../cpd_module/cpd-service-ca.tpl.yaml")
-#     vars = {
-#         cpd-version         = var.cpd-version
-#         override            = base64encode(file("../cpd_module/ca-override.yaml"))
-#         autopatch           = "false"
-#         license-accept      = "true"
-#     }
-# }
-
 data "template_file" "portworx-override" {
     template = file("../cpd_module/portworx-override.yaml")
     vars = {
