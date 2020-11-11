@@ -34,20 +34,3 @@ fi
 
 # Run the python program itself
 python $DEPLOY_HOME/aws_resource_quota_validation.py
-
-if [ $? -ne 0 ]
-then
-    echo 
-    echo "********************************"
-    echo "Resource Quota Validation Failed"
-    echo "********************************"
-    echo 
-    exit 1
-fi 
-
-echo
-echo "********************************"
-echo "Resource Quota Validation Passed"
-echo "********************************"
-echo 
-exit
