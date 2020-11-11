@@ -59,6 +59,8 @@ resource "null_resource" "cpd_config" {
             "oc new-project cpd-meta-ops",
             "./install-cpd-operator.sh ${var.api-key} cpd-meta-ops",
             "sleep 5m",
+            "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
+            "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
             "oc new-project ${var.cpd-namespace}",
 
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true,\"replicas\":${lookup(var.image-replica,var.azlist)}}}' -n openshift-image-registry",
