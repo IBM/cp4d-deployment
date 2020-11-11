@@ -6,13 +6,12 @@ locals {
     operator = "/home/${var.admin-username}/operator"
 
     # Override
-    override-file = var.storage == "nfs" ? "\"\"" : base64encode(file("../cpd_module/portworx-override.yaml"))
-    
+    override-value = var.storage == "nfs" ? "\"\"" : "portworx"
     #Storage Classes
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
-    watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
+    //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
+    //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
 }
 
 resource "null_resource" "cpd_files" {
@@ -77,6 +76,8 @@ resource "null_resource" "cpd_config" {
             "sudo chmod +x install-cpd-operator.sh",
             "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops",
             "sleep 5m",
+            "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
+            "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
             "oc new-project ${var.cpd-namespace}",
             "cat > wait-for-service-install.sh <<EOL\n${file("../cpd_module/wait-for-service-install.sh")}\nEOL",
             "sudo chmod +x wait-for-service-install.sh",
@@ -106,6 +107,7 @@ resource "null_resource" "install_lite" {
     }
     provisioner "remote-exec" {
         inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-lite.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#lite#g ${local.installerhome}/cpd-lite.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-lite.yaml",
@@ -134,6 +136,7 @@ resource "null_resource" "install_dv" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-dv.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#dv#g ${local.installerhome}/cpd-dv.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dv.yaml",
@@ -162,6 +165,7 @@ resource "null_resource" "install_spark" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-spark.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#spark#g ${local.installerhome}/cpd-spark.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-spark.yaml",
@@ -191,6 +195,7 @@ resource "null_resource" "install_wkc" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-wkc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#wkc#g ${local.installerhome}/cpd-wkc.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wkc.yaml",
@@ -221,6 +226,7 @@ resource "null_resource" "install_wsl" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-wsl.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#wsl#g ${local.installerhome}/cpd-wsl.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wsl.yaml",
@@ -252,6 +258,7 @@ resource "null_resource" "install_wml" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-wml.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#wml#g ${local.installerhome}/cpd-wml.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wml.yaml",
@@ -284,6 +291,7 @@ resource "null_resource" "install_aiopenscale" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-aiopenscale.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#aiopenscale#g ${local.installerhome}/cpd-aiopenscale.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-aiopenscale.yaml",
@@ -317,6 +325,7 @@ resource "null_resource" "install_cde" {
   }
   provisioner "remote-exec" {
       inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
         "cat > ${local.installerhome}/cpd-cde.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
         "sed -i -e s#SERVICE#cde#g ${local.installerhome}/cpd-cde.yaml",
         "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-cde.yaml",
@@ -387,7 +396,7 @@ resource "null_resource" "install_streams_flows" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#streams-flows#g ${local.installerhome}/cpd-streams-flows.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-streams-flows.yaml",
             "oc create -f ${local.installerhome}/cpd-streams-flows.yaml -n ${var.cpd-namespace}",
@@ -462,7 +471,12 @@ resource "null_resource" "install_db2wh" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+            "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2wh.yaml",
             "oc create -f ${local.installerhome}/cpd-db2wh.yaml -n ${var.cpd-namespace}",
@@ -484,35 +498,6 @@ resource "null_resource" "install_db2wh" {
     ]
 }
 
-resource "null_resource" "install_dmc" {
-  count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-  triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-      username = var.admin-username
-      private_key_file_path = var.ssh-private-key-file-path
-      namespace = var.cpd-namespace
-  }
-  connection {
-      type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
-      user = var.admin-username
-      private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-      inline = [
-        "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-        "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
-        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc.yaml",
-        "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
-        "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
-      ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_db2wh,
-    ]
-}
-
 resource "null_resource" "install_db2oltp" {
     count = var.db2_oltp == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
@@ -530,11 +515,16 @@ resource "null_resource" "install_db2oltp" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+            "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2oltp.yaml",
             "oc create -f ${local.installerhome}/cpd-db2oltp.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",     
         ]
     }
     depends_on = [
@@ -653,7 +643,7 @@ resource "null_resource" "install_ca" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service-ca.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-ca.yaml",
             "oc create -f ${local.installerhome}/cpd-ca.yaml -n ${var.cpd-namespace}",
