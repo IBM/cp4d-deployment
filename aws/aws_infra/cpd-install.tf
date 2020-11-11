@@ -469,6 +469,35 @@ resource "null_resource" "install_db2wh" {
     ]
 }
 
+resource "null_resource" "install_dmc" {
+    count = var.db2-warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        username                = var.admin-username
+        private-key-file-path   = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_public_ip
+        user        = self.triggers.username
+        private_key = file(self.triggers.private-key-file-path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dmc.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",           
+        ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_db2wh,
+    ]
+}
+
 resource "null_resource" "install_db2oltp" {
     count = var.db2-advanced-edition == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
