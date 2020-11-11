@@ -22,7 +22,7 @@
 | `tenancy` | default | Amazon EC2 instances tenancy type, `default / dedicated`. See [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html) |
 | `access_key_id` | Requires input | AWS account access key id for the current user account. |
 | `secret_access_key` | Requires input | AWS account secret access key for the current user account. |
-| `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number. For a development deployment, `1` is sufficient with a single zone deployment; for production deployments, a minimum of `3` is required with multi zone deployment. |
+| `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number, a minimum of `3` replica is required for both single and multi zone deployment. |
 | `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |
 | `master-instance-type` | m5.2xlarge | The EC2 instance type for the OpenShift master instances. Make sure your region supports the selected instance type. Supported master instance types [here](./INSTANCE-TYPES.md) |
 | `worker-instance-type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
