@@ -47,20 +47,3 @@ else
 fi 
 
 python $DEPLOY_HOME/aws_permission_validation.py -f ./resource_actions.txt -c $USER_PARAM
-
-if [ $? -ne 0 ]
-then
-    echo 
-    echo "*******************************"
-    echo "Permission Verification Failed"
-    echo "*******************************"
-    echo 
-    exit 1
-fi 
-
-echo
-echo "*******************************"
-echo "Permission Verification Passed"
-echo "*******************************"
-echo 
-exit
