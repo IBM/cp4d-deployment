@@ -35,8 +35,8 @@ resource "null_resource" "install_openshift" {
             "mkdir -p /home/${var.admin-username}/.aws",
             "cat > /home/${var.admin-username}/.aws/credentials <<EOL\n${data.template_file.awscreds.rendered}\nEOL",
             "cat > /home/${var.admin-username}/.aws/config <<EOL\n${data.template_file.awsregion.rendered}\nEOL",
-            "./aws_permission_validation.sh",
-            "echo file | ./aws_resource_quota_validation.sh",
+            "./aws_permission_validation.sh ; if [ $? -ne 0 ] ; then echo \"Permission Verification Failed\" ; exit 1 ; fi",
+            "echo file | ./aws_resource_quota_validation.sh ; if [ $? -ne 0 ] ; then echo \"Resource Quota Validation Failed\" ; exit 1 ; fi",
 
             #Create OpenShift Cluster.
             "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/openshift-install",
