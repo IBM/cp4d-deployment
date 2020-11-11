@@ -130,6 +130,10 @@ resource "null_resource" "file_copy" {
     destination = "/home/${var.admin-username}/resource_actions.txt"
   }
   provisioner "file" {
+    source      = "./aws_resource_quota"
+    destination = "/home/${var.admin-username}/aws_resource_quota"
+  }
+  provisioner "file" {
     source      = "./variables.tf"
     destination = "/home/${var.admin-username}/variables.tf"
   }
