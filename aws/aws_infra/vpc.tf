@@ -81,12 +81,12 @@ resource "aws_route_table_association" "route1" {
   route_table_id = aws_route_table.public[0].id
 }
 resource "aws_route_table_association" "route2" {
-  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
+  count          = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.public2[0].id
   route_table_id = aws_route_table.public[0].id
 }
 resource "aws_route_table_association" "route3" {
-  count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
+  count          = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   subnet_id      = aws_subnet.public3[0].id
   route_table_id = aws_route_table.public[0].id
 }
@@ -113,12 +113,12 @@ resource "aws_nat_gateway" "nat1" {
   subnet_id     = aws_subnet.public1[0].id
 }
 resource "aws_nat_gateway" "nat2" {
-  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
+  count         = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   allocation_id = aws_eip.eip2[0].id
   subnet_id     = aws_subnet.public2[0].id
 }
 resource "aws_nat_gateway" "nat3" {
-  count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
+  count         = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   allocation_id = aws_eip.eip3[0].id
   subnet_id     = aws_subnet.public3[0].id
 }
