@@ -14,6 +14,7 @@ import os
 
 from pprint import pprint
 
+import re
 import sys
 
 
@@ -106,6 +107,15 @@ def resource_validation_check(service_quotas, service_code, quota_code,
     if resources_available < resources_required:
         service_quotas[service_code][quota_code]['ValidationCheck'] = 'FAILED'
 
+def get_quota_code_by_name_pattern(service_code, quota_name_pattern,
+                                   service_quota_to_be_validated):
+    qc = ''
+    for quota_code in service_quota_to_be_validated[service_code]:
+        if re.search(quota_name_pattern,
+                     service_quota_to_be_validated[service_code][quota_code]):
+            qc = quota_code
+    return qc
+
 def main():
     
     # Get resource related values from terraform config variables file
@@ -129,98 +139,62 @@ def main():
                                                      aws_config['region'],
                                                      ha_config = tf_config['deploy_type'])
 
-    # Validate if selected AWS instance types are available in selected AWS region
-    ec2_helper.validate_aws_instance_type_availability(tf_var_file)
+    # Validate selected AWS instance types in selected AWS region
+    ec2_helper.validate_aws_instance_types(tf_var_file)
 
-    ####################
-    #
-    # Get service quotas
-    #
-    ####################
-
+    # Get / Validate AWS service quotas
+    service_quota_file = os.path.dirname(os.path.abspath(__file__)) + '/aws_resource_quota'
+    service_quotas_to_be_validated = ServiceQuotasHelper.get_aws_service_quota_to_be_validated(
+                                                                                service_quota_file)
     # Service Quota dictionary used to hold all collected data
-    sq = {}
+    sq = service_quota_helper.validate_aws_service_quotas(service_quotas_to_be_validated,
+                                                          num_az = num_az)
 
-    # VPC service quotas
-    ## "L-FE5A380F" - "NAT gateways per Availability Zone"
-    ## "L-E79EC296" - "VPC security groups per Region"
-    ## "L-DF5E4CA3" - "Network interfaces per Region"
-    ## "L-F678F1CE" - "VPCs per Region"
-    vpc_quota_code_nat_gateways = 'L-FE5A380F'
-    vpc_quota_code_security_groups = 'L-E79EC296'
-    vpc_quota_code_network_interfaces = 'L-DF5E4CA3'
-    vpc_quota_code_vpcs = 'L-F678F1CE'
-    vpc_quota_codes = [vpc_quota_code_nat_gateways,
-                       vpc_quota_code_security_groups,
-                       vpc_quota_code_network_interfaces,
-                       vpc_quota_code_vpcs]
-    sq_vpc = service_quota_helper.get_quota('vpc', vpc_quota_codes, num_az = num_az)
-    sq_vpc['vpc'][vpc_quota_code_nat_gateways]['Scope'] = 'Availability Zone'
-    sq_vpc['vpc'][vpc_quota_code_security_groups]['Scope'] = 'Region'
-    sq_vpc['vpc'][vpc_quota_code_network_interfaces]['Scope'] = 'Region'
-    sq_vpc['vpc'][vpc_quota_code_vpcs]['Scope'] = 'Region'
-    for quota_code in vpc_quota_codes:
-        sq_vpc['vpc'][quota_code]['DisplayServiceCode'] = 'VPC'
+    # enrich VPC service quotas
+    vpc_quota_code_nat_gateways = get_quota_code_by_name_pattern(
+                                            'vpc',
+                                            'NAT gateways',
+                                            service_quotas_to_be_validated)
+    vpc_quota_code_security_groups = get_quota_code_by_name_pattern(
+                                            'vpc',
+                                            'VPC security groups',
+                                            service_quotas_to_be_validated)
+    vpc_quota_code_network_interfaces = get_quota_code_by_name_pattern(
+                                            'vpc',
+                                            'Network interfaces',
+                                            service_quotas_to_be_validated)
+    vpc_quota_code_vpcs = get_quota_code_by_name_pattern(
+                                            'vpc',
+                                            'VPCs per Region',
+                                            service_quotas_to_be_validated)
+    sq['vpc'][vpc_quota_code_nat_gateways]['Scope'] = 'Availability Zone'
+    sq['vpc'][vpc_quota_code_security_groups]['Scope'] = 'Region'
+    sq['vpc'][vpc_quota_code_network_interfaces]['Scope'] = 'Region'
+    sq['vpc'][vpc_quota_code_vpcs]['Scope'] = 'Region'
+    for quota_code in sq['vpc']:
+        sq['vpc'][quota_code]['DisplayServiceCode'] = 'VPC'
 
-    sq.update(sq_vpc)
 
-    # EC2 service quotas
-    ## "L-0263D0A3" - "EC2-VPC Elastic IPs"
-    ## "L-74FC7D96" - "Running On-Demand F instances"
-    ## "L-DB2E81BA" - "Running On-Demand G instances"
-    ## "L-1945791B" - "Running On-Demand Inf instances"
-    ## "L-417A185B" - "Running On-Demand P instances"
-    ## "L-1216C47A" - "Running On-Demand Standard (A, C, D, H, I, M, R, T, Z) instances"
-    ## "L-7295265B" - "Running On-Demand X instances"
-    ec2_quota_code_elastic_ips = 'L-0263D0A3'
-    ec2_quota_code_instances_f = 'L-74FC7D96'
-    ec2_quota_code_instances_g = 'L-DB2E81BA'
-    ec2_quota_code_instances_inf = 'L-1945791B'
-    ec2_quota_code_instances_p = 'L-417A185B'
-    ec2_quota_code_instances_standard = 'L-1216C47A'
-    ec2_quota_code_instances_x = 'L-7295265B'
-    ec2_quota_codes = [ec2_quota_code_elastic_ips,
-                       ec2_quota_code_instances_f,
-                       ec2_quota_code_instances_g,
-                       ec2_quota_code_instances_inf,
-                       ec2_quota_code_instances_p,
-                       ec2_quota_code_instances_standard,
-                       ec2_quota_code_instances_x]
-    sq_ec2 = service_quota_helper.get_quota('ec2', ec2_quota_codes)
-    for quota_code in ec2_quota_codes:
-        sq_ec2['ec2'][quota_code]['Scope'] = 'Region'
-    for quota_code in ec2_quota_codes:
-        sq_ec2['ec2'][quota_code]['DisplayServiceCode'] = 'EC2'
+    # enrich EC2 service quotas
+    for quota_code in sq['ec2']:
+        sq['ec2'][quota_code]['Scope'] = 'Region'
+        sq['ec2'][quota_code]['DisplayServiceCode'] = 'EC2'
 
-    sq.update(sq_ec2)
+    # enrich Elastic Load Balancing service quotas
+    for quota_code in sq['elasticloadbalancing']:
+        sq['elasticloadbalancing'][quota_code]['Scope'] = 'Region'
+        sq['elasticloadbalancing'][quota_code]['DisplayServiceCode'] = 'ELB'
 
-    # Elastic Load Balancing service quotas
-    ## "L-53DA6B97" - "Application Load Balancers per Region"
-    ## "L-E9E9831D" - "Classic Load Balancers per Region"
-    elb_quota_code_application_load_balancers = 'L-53DA6B97'
-    elb_quota_code_classic_load_balancers = 'L-E9E9831D'
-    elb_quota_codes = [elb_quota_code_application_load_balancers,
-                       elb_quota_code_classic_load_balancers]
-    sq_elb = service_quota_helper.get_quota('elasticloadbalancing', elb_quota_codes)
-    for quota_code in elb_quota_codes:
-        sq_elb['elasticloadbalancing'][quota_code]['Scope'] = 'Region'
-    for quota_code in elb_quota_codes:
-        sq_elb['elasticloadbalancing'][quota_code]['DisplayServiceCode'] = 'ELB'
-
-    sq.update(sq_elb)
-
-    # S3 service quotas
-    ## "L-DC2B2D3D" - "Buckets"
-    s3_quota_code_buckets = 'L-DC2B2D3D'
-    s3_quota_codes = [s3_quota_code_buckets]
-    sq_s3 = service_quota_helper.get_quota('s3', s3_quota_codes)
-    sq_s3['s3'][s3_quota_code_buckets]['Scope'] = 'Account'
+    # enrich S3 service quotas
+    s3_quota_code_buckets = get_quota_code_by_name_pattern(
+                                            's3',
+                                            'Buckets',
+                                            service_quotas_to_be_validated)
+    sq['s3'][s3_quota_code_buckets]['Scope'] = 'Account'
     # Since Buckets are tied to the Account - need to unset 'RegionValue'
-    sq_s3['s3'][s3_quota_code_buckets]['RegionValue'] = ''
-    for quota_code in s3_quota_codes:
-        sq_s3['s3'][quota_code]['DisplayServiceCode'] = 'S3'
-
-    sq.update(sq_s3)
+    sq['s3'][s3_quota_code_buckets]['RegionValue'] = ''
+    for quota_code in  sq['s3']:
+        sq['s3'][quota_code]['DisplayServiceCode'] = 'S3'
 
     # VPC Gateway - service quotas
     ## To be done
@@ -242,6 +216,10 @@ def main():
     ### Elastic IPs
     eip_used = ec2_helper.get_num_elastic_ips()
     eip_required = ocp[ocp_version][ha_config]['elastic-ips']
+    ec2_quota_code_elastic_ips = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Elastic IPs',
+                                            service_quotas_to_be_validated)
     resource_validation_check(sq, 'ec2', ec2_quota_code_elastic_ips,
                               eip_used, eip_required)
 
@@ -267,6 +245,30 @@ def main():
     ### Instances
     instances_vcpus_used = ec2_helper.get_instances_num_vcpus_used()
     instances_vcpus_required = ec2_helper.get_instances_num_vcpus(tf_config['instances'])
+    ec2_quota_code_instances_f = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand F',
+                                            service_quotas_to_be_validated)
+    ec2_quota_code_instances_g = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand G',
+                                            service_quotas_to_be_validated)
+    ec2_quota_code_instances_inf = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand Inf',
+                                            service_quotas_to_be_validated)
+    ec2_quota_code_instances_p = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand P',
+                                            service_quotas_to_be_validated)
+    ec2_quota_code_instances_standard = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand Standard',
+                                            service_quotas_to_be_validated)
+    ec2_quota_code_instances_x = get_quota_code_by_name_pattern(
+                                            'ec2',
+                                            'Running On-Demand X',
+                                            service_quotas_to_be_validated)
     resource_validation_check(sq, 'ec2', ec2_quota_code_instances_f,
                               instances_vcpus_used['f'],
                               instances_vcpus_required['f'])
@@ -290,14 +292,22 @@ def main():
     ### Elastic Load Balancers v2 (ELB/NLB) - type: network
     elb_v2_used = elb_v2_helper.get_num_elb_v2()
     elb_v2_required = ocp[ocp_version][ha_config]['application-load-ballancer']
+    elb_v2_quota_code_application_load_balancers = get_quota_code_by_name_pattern(
+                                            'elasticloadbalancing',
+                                            'Application Load Balancers',
+                                            service_quotas_to_be_validated)
     resource_validation_check(sq, 'elasticloadbalancing',
-                              elb_quota_code_application_load_balancers,
+                              elb_v2_quota_code_application_load_balancers,
                               elb_v2_used, elb_v2_required)
 
     ## ELB (classic) resouces usage counts
     ### Elastic Load Balancers (ELB/NLB) - type: classic
     elb_used = elb_helper.get_num_elb()
     elb_required = ocp[ocp_version][ha_config]['classic-load-ballancer']
+    elb_quota_code_classic_load_balancers = get_quota_code_by_name_pattern(
+                                            'elasticloadbalancing',
+                                            'Classic Load Balancers',
+                                            service_quotas_to_be_validated)
     resource_validation_check(sq, 'elasticloadbalancing',
                               elb_quota_code_classic_load_balancers,
                               elb_used, elb_required)
@@ -326,7 +336,7 @@ def main():
     width_column_5 = 15
     width_column_6 = 20
     width_column_7 = 19
-    width_column_8 = 12
+    width_column_8 = 11
 
     # Tabel header format
     table_header_format = (
