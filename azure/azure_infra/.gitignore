@@ -4,3 +4,4 @@ terraform.tfstate*
 pull-secret
 azure.tfvars
 cpd.license
+az_*

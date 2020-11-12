@@ -11,3 +11,6 @@ inventory.cfg
 .private.env
 cpd.license
 kubeadmin-password
+
+# python
+libs_aws/__pycache__
