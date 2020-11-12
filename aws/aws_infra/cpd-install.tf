@@ -450,10 +450,16 @@ resource "null_resource" "install_db2wh" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-dmc-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2wh.yaml",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
             "oc create -f ${local.installerhome}/cpd-db2wh.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh db2wh ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh db2wh ${var.cpd-namespace}", 
+            "oc create -f ${local.installerhome}/cpd-dmc-db2wh.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+
         ]
     }
     depends_on = [
@@ -468,35 +474,6 @@ resource "null_resource" "install_db2wh" {
         null_resource.install_streams,
         null_resource.install_streams_flows,
         null_resource.install_ds,
-    ]
-}
-
-resource "null_resource" "install_dmc" {
-    count = var.db2-warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
-        username                = var.admin-username
-        private-key-file-path   = var.ssh-private-key-file-path
-    }
-    connection {
-        type        = "ssh"
-        host        = self.triggers.bootnode_public_ip
-        user        = self.triggers.username
-        private_key = file(self.triggers.private-key-file-path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
-            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
-            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dmc.yaml",
-            "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",           
-        ]
-    }
-    depends_on = [
-        null_resource.install_lite,
-        null_resource.install_db2wh,
     ]
 }
 
@@ -517,10 +494,15 @@ resource "null_resource" "install_db2oltp" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "cat > ${local.installerhome}/cpd-dmc-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2oltp.yaml",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
             "oc create -f ${local.installerhome}/cpd-db2oltp.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",  
+            "oc create -f ${local.installerhome}/cpd-dmc-db2oltp.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",             
         ]
     }
     depends_on = [
@@ -536,7 +518,6 @@ resource "null_resource" "install_db2oltp" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
-        null_resource.install_dmc,
     ]
 }
 
@@ -576,7 +557,6 @@ resource "null_resource" "install_datagate" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
-        null_resource.install_dmc,
         null_resource.install_db2oltp,
     ]
 }
@@ -617,7 +597,6 @@ resource "null_resource" "install_dods" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
-        null_resource.install_dmc,
         null_resource.install_db2oltp,
 	    null_resource.install_datagate,
     ]
@@ -659,7 +638,6 @@ resource "null_resource" "install_ca" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
-        null_resource.install_dmc,
         null_resource.install_db2oltp,
     	null_resource.install_datagate,
         null_resource.install_dods,
@@ -702,7 +680,6 @@ resource "null_resource" "install_spss" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
-        null_resource.install_dmc,
         null_resource.install_db2oltp,
     	null_resource.install_datagate,
         null_resource.install_dods,
@@ -750,7 +727,6 @@ resource "null_resource" "install_spss" {
 #         null_resource.install_streams_flows,
 #         null_resource.install_ds,
 #         null_resource.install_db2wh,
-#         null_resource.install_dmc,
 #         null_resource.install_db2oltp,
 #     	  null_resource.install_datagate,
 #         null_resource.install_dods,
@@ -799,7 +775,6 @@ resource "null_resource" "install_spss" {
 #         null_resource.install_streams_flows,
 #         null_resource.install_ds,
 #         null_resource.install_db2wh,
-#         null_resource.install_dmc,
 #         null_resource.install_db2oltp,
 #     	  null_resource.install_datagate,
 #         null_resource.install_dods,
@@ -846,7 +821,6 @@ resource "null_resource" "install_spss" {
 #         null_resource.install_streams_flows,
 #         null_resource.install_ds,
 #         null_resource.install_db2wh,
-#         null_resource.install_dmc,
 #         null_resource.install_db2oltp,
 #     	  null_resource.install_datagate,
 #         null_resource.install_dods,
@@ -897,7 +871,6 @@ resource "null_resource" "install_spss" {
 #         null_resource.install_streams_flows,
 #         null_resource.install_ds,
 #         null_resource.install_db2wh,
-#         null_resource.install_dmc,
 #         null_resource.install_db2oltp,
 #     	  null_resource.install_datagate,
 #         null_resource.install_dods,
@@ -953,7 +926,6 @@ resource "null_resource" "install_spss" {
 #         null_resource.install_streams_flows,
 #         null_resource.install_ds,
 #         null_resource.install_db2wh,
-#         null_resource.install_dmc,
 #         null_resource.install_db2oltp,
 #     	  null_resource.install_datagate,
 #         null_resource.install_dods,
