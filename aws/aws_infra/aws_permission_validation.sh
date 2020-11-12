@@ -35,8 +35,8 @@ if [[ ${exit_code} -eq 0 ]] ; then
 else
     # Install python modules
     echo "Install required python modules in the virtual python environment"
-    python3 -m pip install --upgrade pip
-    python3 -m pip install -r $DEPLOY_HOME/libs_aws/requirements.txt
+    python3 -m pip install --upgrade pip > /dev/null
+    python3 -m pip install -r $DEPLOY_HOME/libs_aws/requirements.txt > /dev/null
 fi
 
 # Run the python program itself
@@ -47,14 +47,3 @@ else
 fi 
 
 python $DEPLOY_HOME/aws_permission_validation.py -f ./resource_actions.txt -c $USER_PARAM
-
-if [ $? -ne 0 ]; 
-then 
-    echo
-    echo " * Permission verification failed."
-    echo 
-    exit 1
-fi
-
-echo ' * Permission verification passed.'
-echo
