@@ -1,7 +1,7 @@
 
-# Cloud Pak for Data 3.0 on AWS
+# Cloud Pak for Data 3.5 on OCP 4.5 on AWS
 
-## Deployment Topology
+## Deployment Topology:
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
@@ -23,11 +23,11 @@ The deployment sets up the following as shown in the diagram.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 
-### Steps to Deploy
+### Steps to Deploy:
 
 * Create a Route 53 domain.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
-* [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
+* [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
 * Since the infrastructure to be build is described by terraform files which are specific to that infrasturcture, it is recommented to copy the cloned repository to a separate folder.
    Name the new folder differently in case you plan to build multiple infrastructures.
@@ -36,7 +36,7 @@ The deployment sets up the following as shown in the diagram.
 cd cp4d-deployment-<your infrastructure name>/aws/aws_infra
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* Read the license at https://ibm.biz/BdqyB2 and accept it by setting variable `accept-cpd-license` to `accept`.
+* Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
 * If you want to hide sensitive data such as access_key_id or secret_access_key, remove the `default     = " " ` from `variables.tf` file against that variable.
 ```
 Example:
@@ -52,14 +52,6 @@ cat osaws_var.tfvars
 
 access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
 secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
-openshift-username = "xxxxxxxxxxxxxxxxxxxxxxx"
-openshift-password = "xxxxxxxxxxxxxxxxxxxxxxx"
-pull-secret-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
-public_key_path = "xxxxxxxxxxxxxxxxxxxxxxx"
-ssh-private-key-file-path = "xxxxxxxxxxxxxxxxxxxxxxx"
-dnszone = "xxxxxxxxxxxxxxxxxxxxxxx"
-entitlementkey = "xxxxxxxxxxxxxxxxxxxxxxx"
-ssh-public-key = "xxxxxxxxxxxxxxxxxxxxxxx"
 ```
 * Before deploying the infrastructure, run the script `aws_resource_quota_validation.sh` to verify if there are enough resources available in the used AWS account.
    See the [AWS Resource Quota Validation documentation](AWS-RESOURCE-QUOTA-VALIDATION.md) for more details.
@@ -71,11 +63,16 @@ ssh-public-key = "xxxxxxxxxxxxxxxxxxxxxxx"
 terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
 ```
+#### cp4d installation logs:
+After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
-
-### Destroying the cluster
+### Destroying the cluster:
 * Run:
   ```bash
   terraform destroy -target null_resource.destroy_cluster -var-file="Path To osaws_var.tfvars file"
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
+### Note:
+Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
+[Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)

@@ -185,13 +185,8 @@ class EC2Helper():
         az = self.describe_availability_zones()
         return len(az)
 
-    # validate if selected AWS instance types are available in selected AWS region
-    def validate_aws_instance_type_availability(self, terraform_var_file):
-
-        section_name = "Validate availability of selected AWS instance types in selected AWS region"
-        print(f"\n{section_name}")
-        print("="*len(section_name))
-        print("")
+    # validate selected AWS instance types in selected AWS region
+    def validate_aws_instance_types(self, terraform_var_file):
 
         tf_config = {}
         tf_config['node_type'] = {}
@@ -213,6 +208,7 @@ class EC2Helper():
         # pprint(tf_config)
 
         # get available instance types
+        not_supported_instance_types = False
         instance_type_list = []
         instance_types = self.get_instance_types()
         for instance_type in instance_types:
@@ -222,9 +218,22 @@ class EC2Helper():
 
         # validate availability of selected instance types
         for node_type in tf_config['node_type']:
-            tf_config['node_type'][node_type]['availability'] = "FAILED"
-            if tf_config['node_type'][node_type]['instance_type'] in instance_type_list:
-                tf_config['node_type'][node_type]['availability'] = "PASSED"
+            tf_config['node_type'][node_type]['availability'] = "PASSED"
+            if tf_config['node_type'][node_type]['instance_type'] not in instance_type_list:
+                tf_config['node_type'][node_type]['availability'] = "FAILED"
+                not_supported_instance_types = True
+
+        if not_supported_instance_types:
+            EC2Helper.print_out_instance_types(tf_config)
+            exit(1)
+
+    @staticmethod
+    def print_out_instance_types(tf_config):
+
+        section_name = "Validate AWS instance types in selected AWS region"
+        print(f"\n{section_name}")
+        print("="*len(section_name))
+        print("")
 
         # Table column width
         width_column_1 = 11
@@ -276,8 +285,6 @@ class EC2Helper():
         for node_type in tf_config['node_type']:
             instance_type = tf_config['node_type'][node_type]['instance_type']
             availability = tf_config['node_type'][node_type]['availability']
-            if availability == "FAILED":
-                print_validation_check_failed_comment = True
             print(table_row_format.format(
                 col_1=node_type, col_1_width=width_column_1 - 1,
                 col_2=instance_type, col_2_width=width_column_2,
@@ -287,17 +294,11 @@ class EC2Helper():
         print("\n")
         print("Comments")
         print("--------")
-        if print_validation_check_failed_comment:
-            print("  * Validation = 'FAILED'")
-            print("    There are some selected AWS instance types not available/supported in that region.")
-            print("    ==> A change in the specified terraform configuration is needed !")
-            print("")
-            print("    Recommendation:")
-            print("      - Specify different AWS instance types for that region.")
-            print("      - Specify a different region.")
-            print("")
-            exit(1)
-        else:
-            print("\n  * Validation = 'PASSED'")
-            print("    All specified AWS instance types are available in that region.")
+        print("  * Validation = 'FAILED'")
+        print("    There are some selected AWS instance types not available/supported in that region.")
+        print("    ==> A change in the specified terraform configuration is needed !")
+        print("")
+        print("    Recommendation:")
+        print("      - Specify different AWS instance types for that region.")
+        print("      - Specify a different region.")
         print("")

@@ -187,35 +187,24 @@ variable "portworx-spec-url" {
   default = ""
 }
 
+# If storage-type is selected as efs, select one of the performance mode, default is generalPurpose
+variable "efs-performance-mode" {
+  description = "generalPurpose / maxIO"
+  default = "generalPurpose"
+}
+
 ##### IBM Cloud Pak for Data Configuration #####
 variable "accept-cpd-license" {
-  description = "Read and accept license at https://ibm.biz/BdqSw4, (accept / reject)"
+  description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
   default = "reject"
 }
 
 variable "cpd-namespace" {
-  default = "zen"
+  default = "cpd-tenant"
 }
 
-# added temporary only for development phase - will be removed before release
-variable "promoted-build" {
-  default = "RC2"
-}
-
-# added temporary only for development phase - will be removed before release
-variable "entitlementkey-username" {
-  default = "iamapikey"
-}
-
-variable "entitlementkey" {
-}
-
-# added temporary only for development phase - will be removed before release
-variable "artifactory-username" {
-}
-
-# added temporary only for development phase - will be removed before release
-variable "artifactory-apikey" {
+variable "api-key" {
+  default = ""
 }
 
 variable "data-virtualization" {
@@ -285,49 +274,61 @@ variable "spss-modeler" {
 ##############################
 #     Watson AI Services     #
 ##############################
-variable "watson-assistant" {
-  default = "no"
-}
+# variable "watson-assistant" {
+#   default = "no"
+# }
 
-variable "watson-discovery" {
-  default = "no"
-}
+# variable "watson-discovery" {
+#   default = "no"
+# }
 
-variable "watson-knowledge-studio" {
-  default = "no"
-}
+# variable "watson-knowledge-studio" {
+#   default = "no"
+# }
 
-variable "watson-language-translator" {
-  default = "no"
-}
+# variable "watson-language-translator" {
+#   default = "no"
+# }
 
-variable "watson-speech" {
-  default = "no"
-}
+# variable "watson-speech" {
+#   default = "no"
+# }
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
+variable "s3-bucket" {
+  default = "ibm-cloud-private-data"
+}
+
+variable "inst_version" {
+  default = "3.5"
+}
+
+variable "cpd-version" {
+  default = "latest"
+}
+
 variable "images-rcos" {
   type = map
 
   default = {
-    "ap-northeast-1"  = "ami-023d0452866845125"
-    "ap-northeast-2"  = "ami-0ba4f9a0358bcb44a"
-    "ap-south-1"      = "ami-0bf62e963a473068e"
-    "ap-southeast-1"  = "ami-086b93722336bd1d9"
-    "ap-southeast-2"  = "ami-08929f33bfab49b83"
-    "ca-central-1"    = "ami-0f6d943a1fa9172fd"
-    "eu-central-1"    = "ami-0ceea534b63224411"
-    "eu-north-1"      = "ami-06b7087b2768f644a"
-    "eu-west-1"       = "ami-0e95125b57fa63b0d"
-    "eu-west-2"       = "ami-0eef98c447b85ffcd"
-    "eu-west-3"       = "ami-0049e16104f360df6"
-    "me-south-1"      = "ami-0b03ea038629fd02e"
-    "sa-east-1"       = "ami-0c80d785b30eef121"
-    "us-east-1"       = "ami-06f85a7940faa3217"
-    "us-east-2"       = "ami-04a79d8d7cfa540cc"
-    "us-west-1"       = "ami-0633b392e8eff25e7"
-    "us-west-2"       = "ami-0d231993dddc5cd2e"
+    "ap-northeast-1"  = "ami-0530d04240177f118"
+    "ap-northeast-2"  = "ami-09e4cd700276785d2"
+    "ap-south-1"      = "ami-0754b15d212830477"
+    "ap-southeast-1"  = "ami-03b46cc4b1518c5a8"
+    "ap-southeast-2"  = "ami-0a5b99ab2234a4e6a"
+    "ca-central-1"    = "ami-012bc4ee3b6c673bc"
+    "eu-central-1"    = "ami-02e08df1201f1c2f8"
+    "eu-north-1"      = "ami-0309c9d2fadcb2d5a"
+    "eu-west-1"       = "ami-0bdd69d8e7cd18188"
+    "eu-west-2"       = "ami-0e610e967a62dbdfa"
+    "eu-west-3"       = "ami-0e817e26f638a71ac"
+    "me-south-1"      = "ami-024117d7c87b7ff08"
+    "sa-east-1"       = "ami-08e62f746b94950c1"
+    "us-east-1"       = "ami-077ede5bed2e431ea"
+    "us-east-2"       = "ami-0f4ecf819275850dd"
+    "us-west-1"       = "ami-0c4990e435bc6c5fe"
+    "us-west-2"       = "ami-000d6e92357ac605c"
   }
 }
 
@@ -345,30 +346,18 @@ variable "cpd-override" {
   type        = map
 
   default     = {
-    "portworx"   = "--override-config portworx"
-    "ocs"        = "--override-config ocs"
-    "efs"        = ""
+    "portworx"   = "portworx-override.yaml"
+    "ocs"        = "ocs-override.yaml"
   }
 }
 
-# StorageClass Lite, Spark, wkc, wsl, wml, AI-Openscale, cde, Streams Flows,
+# StorageClass Lite, DV, Spark, wkc, wsl, wml, AI-Openscale, cde, Streams Flows,
 #              Datastage, Db2Wh, Db2oltp, dods, ca, SPSS
 variable "cpd-storageclass" {
   type        = map
 
   default     = {
     "portworx"   = "portworx-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "efs"        = "aws-efs"
-  }
-}
-
-# StorageClass DV
-variable "dv-storageclass" {
-  type        = map
-
-  default     = {
-    "portworx"   = "portworx-dv-shared-gp3"
     "ocs"        = "ocs-storagecluster-cephfs"
     "efs"        = "aws-efs"
   }

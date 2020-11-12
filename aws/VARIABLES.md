@@ -22,7 +22,7 @@
 | `tenancy` | default | Amazon EC2 instances tenancy type, `default / dedicated`. See [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html) |
 | `access_key_id` | Requires input | AWS account access key id for the current user account. |
 | `secret_access_key` | Requires input | AWS account secret access key for the current user account. |
-| `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number. For a development deployment, `1` is sufficient with a single zone deployment; for production deployments, a minimum of `3` is required with multi zone deployment. |
+| `master_replica_count` | 3 | The desired capacity for the OpenShift master instances. Must be an odd number, a minimum of `3` replica is required for both single and multi zone deployment. |
 | `worker_replica_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |
 | `master-instance-type` | m5.2xlarge | The EC2 instance type for the OpenShift master instances. Make sure your region supports the selected instance type. Supported master instance types [here](./INSTANCE-TYPES.md) |
 | `worker-instance-type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
@@ -41,9 +41,10 @@
 | `dnszone` | Requires input | The domain name configured for the cluster. |
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |
-| `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/BdqSw4. Allowed values `accept / reject`. |
-| `cpd-namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
-| `entitlementkey` | Requires input | Enter the Entitlement Key. To generate Entitlement Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |
+| `efs-performance-mode` | Requires input | If storage-type is selected as `efs`, select one of the performance mode, default is `generalPurpose`. Allowed values are `generalPurpose / maxIO`. To read more about efs performance mode see [efs performance modes](https://docs.aws.amazon.com/efs/latest/ug/performance.html#performancemodes) |
+| `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
+| `cpd-namespace` | cpd-tenant | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
+| `api-key` | Requires input | Enter the API Key. To generate API Key select [API Key](https://test.cloud.ibm.com/iam/apikeys) |
 | `data-virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. |
 | `apache-spark` | no | Enter `yes` to install the Apache Spark Add-on service. |
 | `watson-knowledge-catalog` | no | Enter `yes` to install the Watson Knowledge Catalog Add-on service. |
@@ -60,9 +61,9 @@
 | `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
-| `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
+<!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
 | `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
 | `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
 | `watson-language-translator` | no | Enter `yes` to install the Watson Language Translator Add-on service. |
-| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. |
+| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. | -->
 
