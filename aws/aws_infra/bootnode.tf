@@ -45,70 +45,101 @@ resource "null_resource" "file_copy" {
       user        = self.triggers.username
       private_key = file(self.triggers.private-key-file-path)
   }
-
   provisioner "file" {
     source      = "../scripts/autoscaler-prereq.sh"
     destination = "/home/${var.admin-username}/autoscaler-prereq.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/delete-policy.sh"
     destination = "/home/${var.admin-username}/delete-policy.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/px-volume-permission.sh"
     destination = "/home/${var.admin-username}/px-volume-permission.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/portworx-prereq.sh"
     destination = "/home/${var.admin-username}/portworx-prereq.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/portworx-install.sh"
     destination = "/home/${var.admin-username}/portworx-install.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/ocs-prereq.sh"
     destination = "/home/${var.admin-username}/ocs-prereq.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/delete-noobaa-buckets.sh"
     destination = "/home/${var.admin-username}/delete-noobaa-buckets.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/create-efs.sh"
     destination = "/home/${var.admin-username}/create-efs.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/delete-efs.sh"
     destination = "/home/${var.admin-username}/delete-efs.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/efs-backup.sh"
     destination = "/home/${var.admin-username}/efs-backup.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/delete-efs-backup.sh"
     destination = "/home/${var.admin-username}/delete-efs-backup.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/update-elb-timeout.sh"
     destination = "/home/${var.admin-username}/update-elb-timeout.sh"
   }
-
   provisioner "file" {
     source      = "../scripts/delete-elb-outofservice.sh"
     destination = "/home/${var.admin-username}/delete-elb-outofservice.sh"
+  }
+  provisioner "file" {
+    source      = "../cpd_module/install-cpd-operator.sh"
+    destination = "/home/${var.admin-username}/install-cpd-operator.sh"
+  }
+  provisioner "file" {
+    source      = "../cpd_module/wait-for-service-install.sh"
+    destination = "/home/${var.admin-username}/wait-for-service-install.sh"
+  }
+  provisioner "file" {
+    source      = "../portworx_module/px-storageclasses.sh"
+    destination = "/home/${var.admin-username}/px-storageclasses.sh"
+  }
+  provisioner "file" {
+    source      = "./aws_permission_validation.py"
+    destination = "/home/${var.admin-username}/aws_permission_validation.py"
+  }
+  provisioner "file" {
+    source      = "./aws_permission_validation.sh"
+    destination = "/home/${var.admin-username}/aws_permission_validation.sh"
+  }
+  provisioner "file" {
+    source      = "./aws_resource_quota_validation.py"
+    destination = "/home/${var.admin-username}/aws_resource_quota_validation.py"
+  }
+  provisioner "file" {
+    source      = "./aws_resource_quota_validation.sh"
+    destination = "/home/${var.admin-username}/aws_resource_quota_validation.sh"
+  }
+  provisioner "file" {
+    source      = "./resource_actions.txt"
+    destination = "/home/${var.admin-username}/resource_actions.txt"
+  }
+  provisioner "file" {
+    source      = "./aws_resource_quota"
+    destination = "/home/${var.admin-username}/aws_resource_quota"
+  }
+  provisioner "file" {
+    source      = "./variables.tf"
+    destination = "/home/${var.admin-username}/variables.tf"
+  }
+  provisioner "file" {
+    source      = "./libs_aws"
+    destination = "/home/${var.admin-username}"
   }
 
   depends_on = [

@@ -115,10 +115,22 @@ data "template_file" "machinehealthcheck" {
     }
 }
 
-data "template_file" "repo" {
-    template = file("../cpd_module/repo.tpl.yaml")
+data "template_file" "cpd-service" {
+    template = file("../cpd_module/cpd-service.tpl.yaml")
     vars = {
-        entitlementkey = var.entitlementkey,
+        cpd-version         = var.cpd-version
+        override-storage    = local.override-value 
+        autopatch           = "false"
+        license-accept      = "true"
+    }
+}
+
+data "template_file" "cpd-service-no-override" {
+    template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
+    vars = {
+        cpd-version         = var.cpd-version
+        autopatch           = "false"
+        license-accept      = "true"
     }
 }
 
