@@ -110,34 +110,30 @@ data "template_file" "nfs-template" {
         nfspath = "/exports/home"
     }
 }
-    
-data "template_file" "repo" {
-    template = file("../cpd_module/repo.tpl.yaml")
+
+data "template_file" "cpd-service" {
+    template = file("../cpd_module/cpd-service.tpl.yaml")
     vars = {
-        apikeyusername = "cp"
-        apikey = var.apikey
+        cpd-version         = var.cpd-version         
+        overrideValue       = local.override-value
+        autopatch           = "false"
+        license-accept      = "true"
     }
 }
 
-data "template_file" "cpd-override" {
-    template = file("../cpd_module/cpd-override.yaml")
+data "template_file" "cpd-service-no-override" {
+    template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
+    vars = {
+        cpd-version         = var.cpd-version
+        autopatch           = "false"
+        license-accept      = "true"
+    }
+}
+
+data "template_file" "portworx-override" {
+    template = file("../cpd_module/portworx-override.yaml")
     vars = {
         fips = var.fips
-    }
-}
-
-data "template_file" "watson-asst-override" {
-    template = file("../cpd_module/watson-asst-override.tpl.yaml")
-    vars = {
-        storageclass = local.watson-asst-storageclass
-    }
-}
-
-data "template_file" "watson-discovery-override" {
-    template = file("../cpd_module/watson-discovery-override.tpl.yaml")
-    vars = {
-        storageclass = local.watson-discovery-storageclass
-        k8_host = "api.${var.cluster-name}.${var.dnszone}"
     }
 }
 
