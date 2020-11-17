@@ -113,38 +113,7 @@ resource "null_resource" "file_copy" {
     source      = "../portworx_module/px-storageclasses.sh"
     destination = "/home/${var.admin-username}/px-storageclasses.sh"
   }
-  provisioner "file" {
-    source      = "./aws_permission_validation.py"
-    destination = "/home/${var.admin-username}/aws_permission_validation.py"
-  }
-  provisioner "file" {
-    source      = "./aws_permission_validation.sh"
-    destination = "/home/${var.admin-username}/aws_permission_validation.sh"
-  }
-  provisioner "file" {
-    source      = "./aws_resource_quota_validation.py"
-    destination = "/home/${var.admin-username}/aws_resource_quota_validation.py"
-  }
-  provisioner "file" {
-    source      = "./aws_resource_quota_validation.sh"
-    destination = "/home/${var.admin-username}/aws_resource_quota_validation.sh"
-  }
-  provisioner "file" {
-    source      = "./resource_actions.txt"
-    destination = "/home/${var.admin-username}/resource_actions.txt"
-  }
-  provisioner "file" {
-    source      = "./aws_resource_quota"
-    destination = "/home/${var.admin-username}/aws_resource_quota"
-  }
-  provisioner "file" {
-    source      = "./variables.tf"
-    destination = "/home/${var.admin-username}/variables.tf"
-  }
-  provisioner "file" {
-    source      = "./libs_aws"
-    destination = "/home/${var.admin-username}"
-  }
+
 
   depends_on = [
     aws_instance.bootnode,
