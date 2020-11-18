@@ -44,7 +44,7 @@
 | `efs-performance-mode` | Requires input | If storage-type is selected as `efs`, select one of the performance mode, default is `generalPurpose`. Allowed values are `generalPurpose / maxIO`. To read more about efs performance mode see [efs performance modes](https://docs.aws.amazon.com/efs/latest/ug/performance.html#performancemodes) |
 | `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
 | `cpd-namespace` | cpd-tenant | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
-| `api-key` | Requires input | Enter the API Key. To generate API Key select [API Key](https://test.cloud.ibm.com/iam/apikeys) |
+| `api-key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |
 | `data-virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. |
 | `apache-spark` | no | Enter `yes` to install the Apache Spark Add-on service. |
 | `watson-knowledge-catalog` | no | Enter `yes` to install the Watson Knowledge Catalog Add-on service. |
