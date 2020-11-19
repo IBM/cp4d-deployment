@@ -45,7 +45,7 @@
 | `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
 | `cpd-namespace` | cpd-tenant | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `api-key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |
-| `data-virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. |
+| `data-virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. If you installing this service, you need to install `data-management-console` service as well. |
 | `apache-spark` | no | Enter `yes` to install the Apache Spark Add-on service. |
 | `watson-knowledge-catalog` | no | Enter `yes` to install the Watson Knowledge Catalog Add-on service. |
 | `watson-studio-library` | no | Enter `yes` to install the Watson Studio Add-on service. |
@@ -55,8 +55,9 @@
 | `streams` | no | Enter `yes` to install the Streams Add-on service. |
 | `streams-flows` | no | Enter `yes` to install the Streams Flow Add-on service. |
 | `datastage` | no | Enter `yes` to install the datastage Add-on service. |
-| `db2-warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. |
-| `db2-advanced-edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. |
+| `db2-warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. If you installing this service, you need to install `data-management-console` service as well.  |
+| `db2-advanced-edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. If you installing this service, you need to install `data-management-console` service as well. |
+| `data-management-console` | no | Enter `yes` to install the data management console Add-on service. |
 | `datagate` | no | Enter `yes` to install the Data Gate Add-on service. |
 | `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
