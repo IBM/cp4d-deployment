@@ -2,7 +2,7 @@
 kind: MachineAutoscaler
 apiVersion: "autoscaling.openshift.io/v1beta1"
 metadata:
-  name: "${clusterid}-worker-${region}${zone}"
+  name: "${clusterid}-worker-${region}"
   namespace: "openshift-machine-api"
 spec:
   minReplicas: ${workerNodeCount}
@@ -10,4 +10,5 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: "${clusterid}-worker-${region}${zone}"
+    name: "${clusterid}-worker-${region}"
+
