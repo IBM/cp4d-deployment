@@ -427,6 +427,7 @@ def main():
         print("    Recommendation:")
         print("      - Cleanup resources in that region.")
         print("      - Specify a different region.")
+        sys.exit(1)
     else:
         print("\n  * Validation = 'PASSED'")
         print("    Cluster can be created in that region.")

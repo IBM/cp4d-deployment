@@ -1,16 +1,50 @@
 locals {
     #General
     installerhome = "/home/${var.admin-username}/ibm"
+    
+    # Operator
+    operator = "/home/${var.admin-username}/operator"
 
     # Override
-    override-file = var.storage == "portworx" ? "--override ${local.installerhome}/cpd-px-override.yaml" : ""
-    
+    override-value = var.storage == "nfs" ? "\"\"" : "portworx"
     #Storage Classes
-    storageclass = var.storage == "portworx" ? "portworx-shared-gp" : "nfs"
-    dv-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
-    watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
-    watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
+    streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
+    //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
+    //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
+}
+
+resource "null_resource" "cpd_files" {
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type = "ssh"
+        host = self.triggers.bootnode_ip_address
+        user = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "file" {
+    source      = "../cpd_module/cloudctl-linux-amd64.tar"
+    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar"
+    }
+
+    provisioner "file" {
+    source      = "../cpd_module/cloudctl-linux-amd64.tar.gz.sig"
+    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar.gz.sig"
+    }
+
+    provisioner "file" {
+    source      = "../cpd_module/ibm-cp-datacore-3.5.0.tar"
+    destination = "/home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar"
+    }
+
+    depends_on = [
+        null_resource.openshift_post_install,
+    ]
 }
 
 resource "null_resource" "cpd_config" {
@@ -29,24 +63,35 @@ resource "null_resource" "cpd_config" {
     provisioner "remote-exec" {
         inline = [
             #CPD Config
-            "sudo wget https://raw.githubusercontent.com/IBM/cp4d-deployment/master/azure/cpd_module/cpd-linux -O /usr/local/bin/cpd-linux",
-            "sudo chmod +x /usr/local/bin/cpd-linux",
             "mkdir -p ${local.installerhome}",
-            "cat > ${local.installerhome}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "sudo podman login $REGISTRY -u kubeadmin -p $(oc whoami -t)",
-            "oc new-project ${self.triggers.namespace}",
-            "oc create serviceaccount cpdtoken",
-            "oc policy add-role-to-user admin system:serviceaccount:${self.triggers.namespace}:cpdtoken",
-            "cat > ${local.installerhome}/cpd-px-override.yaml <<EOL\n${data.template_file.cpd-override.rendered}\nEOL"
+            "mkdir -p ${local.operator}",
+            "sudo mv cloudctl-linux-amd64.tar ${local.operator}",
+            "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
+            "sudo mv ibm-cp-datacore-3.5.0.tar /home/${var.admin-username}/",
+            
+            "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar -C /usr/local/bin",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar",
+            "oc new-project cpd-meta-ops",
+            "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
+            "sudo chmod +x install-cpd-operator.sh",
+            "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops",
+            "sleep 5m",
+            "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
+            "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
+            "oc new-project ${var.cpd-namespace}",
+            "cat > wait-for-service-install.sh <<EOL\n${file("../cpd_module/wait-for-service-install.sh")}\nEOL",
+            "sudo chmod +x wait-for-service-install.sh",
         ]
     }
     depends_on = [
         null_resource.openshift_post_install,
+        null_resource.cpd_files,
+        null_resource.install_portworx,
+        null_resource.install_nfs_client,
     ]
 }
 
-resource "null_resource" "install_cpd_lite" {
+resource "null_resource" "install_lite" {
     count = var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -62,10 +107,12 @@ resource "null_resource" "install_cpd_lite" {
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace} --accept-all-licenses --silent-install --apply",
-            "cpd-linux -c ${local.cp-storageclass} -r ${local.installerhome}/repo.yaml -a lite -n ${self.triggers.namespace}  --silent-install --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-lite.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#lite#g ${local.installerhome}/cpd-lite.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-lite.yaml",
+            "oc create -f ${local.installerhome}/cpd-lite.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh lite ${var.cpd-namespace}"
         ]
     }
     depends_on = [
@@ -73,251 +120,266 @@ resource "null_resource" "install_cpd_lite" {
     ]
 }
 
-resource "null_resource" "install_cpd_dv" {
-    count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a dv -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.dv-storageclass} -r ${local.installerhome}/repo.yaml -a dv -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
-        ]
+resource "null_resource" "install_dv" {
+  count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-dv.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#dv#g ${local.installerhome}/cpd-dv.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dv.yaml",
+        "oc create -f ${local.installerhome}/cpd-dv.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh dv ${var.cpd-namespace}",
+      ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
+        null_resource.install_lite,
     ]
 }
 
-resource "null_resource" "install_cpd_openscale" {
-    count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a aiopenscale -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a aiopenscale -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+resource "null_resource" "install_spark" {
+  count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-spark.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#spark#g ${local.installerhome}/cpd-spark.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-spark.yaml",
+        "oc create -f ${local.installerhome}/cpd-spark.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh spark ${var.cpd-namespace}",
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
+        null_resource.install_lite,
+        null_resource.install_dv,
     ]
 }
 
-resource "null_resource" "install_cpd_spark" {
-    count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = self.triggers.bootnode_ip_address
-        user = self.triggers.username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a spark -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a spark -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+resource "null_resource" "install_wkc" {
+  count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-wkc.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#wkc#g ${local.installerhome}/cpd-wkc.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wkc.yaml",
+        "oc create -f ${local.installerhome}/cpd-wkc.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh wkc ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
     ]
 }
 
-resource "null_resource" "install_cpd_wkc" {
-    count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a wkc -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a wkc -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+resource "null_resource" "install_wsl" {
+  count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-wsl.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#wsl#g ${local.installerhome}/cpd-wsl.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wsl.yaml",
+        "oc create -f ${local.installerhome}/cpd-wsl.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh wsl ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_spark
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
     ]
 }
 
-resource "null_resource" "install_cpd_wsl" {
-    count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a wsl -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a wsl -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+resource "null_resource" "install_wml" {
+  count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-wml.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#wml#g ${local.installerhome}/cpd-wml.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-wml.yaml",
+        "oc create -f ${local.installerhome}/cpd-wml.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh wml ${var.cpd-namespace}",         
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_spark
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
     ]
 }
 
-resource "null_resource" "install_cpd_wml" {
-    count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a wml -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a wml -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+resource "null_resource" "install_aiopenscale" {
+  count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-aiopenscale.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#aiopenscale#g ${local.installerhome}/cpd-aiopenscale.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-aiopenscale.yaml",
+        "oc create -f ${local.installerhome}/cpd-aiopenscale.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh aiopenscale ${var.cpd-namespace}",          
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_spark
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
     ]
 }
 
-resource "null_resource" "install_cpd_cde" {
-    count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a cde -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a cde -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
-        ]
+resource "null_resource" "install_cde" {
+  count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+  triggers = {
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
+  }
+  connection {
+      type = "ssh"
+      host = azurerm_public_ip.bootnode.ip_address
+      user = var.admin-username
+      private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+      inline = [
+        "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+        "cat > ${local.installerhome}/cpd-cde.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+        "sed -i -e s#SERVICE#cde#g ${local.installerhome}/cpd-cde.yaml",
+        "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-cde.yaml",
+        "oc create -f ${local.installerhome}/cpd-cde.yaml -n ${var.cpd-namespace}",
+        "./wait-for-service-install.sh cde ${var.cpd-namespace}",           ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
     ]
 }
 
-resource "null_resource" "install_cpd_streams" {
+resource "null_resource" "install_streams" {
     count = var.streams == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
+      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      username = var.admin-username
+      private_key_file_path = var.ssh-private-key-file-path
+      namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a streams -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a streams -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-streams.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#streams#g ${local.installerhome}/cpd-streams.yaml",
+            "sed -i -e s#STORAGECLASS#${local.streams-storageclass}#g ${local.installerhome}/cpd-streams.yaml",
+            "oc create -f ${local.installerhome}/cpd-streams.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh streams ${var.cpd-namespace}",
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
     ]
 }
 
-resource "null_resource" "install_cpd_streams_flows" {
+resource "null_resource" "install_streams_flows" {
     count = var.streams-flows == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -326,34 +388,35 @@ resource "null_resource" "install_cpd_streams_flows" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a streams-flows -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a streams-flows -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-streams-flows.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#streams-flows#g ${local.installerhome}/cpd-streams-flows.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-streams-flows.yaml",
+            "oc create -f ${local.installerhome}/cpd-streams-flows.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh streams-flows ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
     ]
 }
 
-resource "null_resource" "install_cpd_ds" {
+resource "null_resource" "install_ds" {
     count = var.datastage == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -362,34 +425,36 @@ resource "null_resource" "install_cpd_ds" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a ds -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a ds -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-ds.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#ds#g ${local.installerhome}/cpd-ds.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-ds.yaml",
+            "oc create -f ${local.installerhome}/cpd-ds.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh ds ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
     ]
 }
 
-resource "null_resource" "install_cpd_db2wh" {
+resource "null_resource" "install_db2wh" {
     count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -398,35 +463,42 @@ resource "null_resource" "install_cpd_db2wh" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a db2wh -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a db2wh -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dmc-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc-db2wh.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+            "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2wh.yaml",
+            "oc create -f ${local.installerhome}/cpd-db2wh.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh db2wh ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
     ]
 }
 
-resource "null_resource" "install_cpd_db2oltp" {
+resource "null_resource" "install_db2oltp" {
     count = var.db2_oltp == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -435,36 +507,84 @@ resource "null_resource" "install_cpd_db2oltp" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a db2oltp -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a db2oltp -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dmc-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc-db2oltp.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
+            "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2oltp.yaml",
+            "oc create -f ${local.installerhome}/cpd-db2oltp.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",     
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
     ]
 }
 
-resource "null_resource" "install_cpd_dods" {
+resource "null_resource" "install_datagate" {
+    count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-datagate.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#datagate#g ${local.installerhome}/cpd-datagate.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-datagate.yaml",
+            "oc create -f ${local.installerhome}/cpd-datagate.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh datagate ${var.cpd-namespace}",           
+      ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+    ]
+}
+
+resource "null_resource" "install_dods" {
     count = var.decision-optimization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -473,37 +593,40 @@ resource "null_resource" "install_cpd_dods" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a dods -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a dods -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dods.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dods#g ${local.installerhome}/cpd-dods.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dods.yaml",
+            "oc create -f ${local.installerhome}/cpd-dods.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dods ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh,
-        null_resource.install_cpd_db2oltp
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+	null_resource.install_datagate,
     ]
 }
 
-resource "null_resource" "install_cpd_ca" {
+resource "null_resource" "install_ca" {
     count = var.cognos-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -512,39 +635,41 @@ resource "null_resource" "install_cpd_ca" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cat > ${local.installerhome}/ca-override.yaml <<EOL\n${file("../cpd_module/cognos-override.yaml")}\nEOL",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a ca -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a ca -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses --override ${local.installerhome}/ca-override.yaml --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-ca.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-ca.yaml",
+            "oc create -f ${local.installerhome}/cpd-ca.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh ca ${var.cpd-namespace}",           
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh,
-        null_resource.install_cpd_db2oltp,
-        null_resource.install_cpd_dods
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+    	null_resource.install_datagate,
+        null_resource.install_dods,
     ]
 }
 
-resource "null_resource" "install_cpd_spss" {
+resource "null_resource" "install_spss" {
     count = var.spss == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
@@ -553,129 +678,37 @@ resource "null_resource" "install_cpd_spss" {
         namespace = var.cpd-namespace
     }
     connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
     }
     provisioner "remote-exec" {
         inline = [
-            "REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a spss-modeler -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -c ${local.storageclass} -r ${local.installerhome}/repo.yaml -a spss-modeler -n ${self.triggers.namespace}  --transfer-image-to=$REGISTRY/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --accept-all-licenses ${local.override-file} --insecure-skip-tls-verify"
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-spss-modeler.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#spss-modeler#g ${local.installerhome}/cpd-spss-modeler.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-spss-modeler.yaml",
+            "oc create -f ${local.installerhome}/cpd-spss-modeler.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh spss-modeler ${var.cpd-namespace}",
         ]
     }
     depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh,
-        null_resource.install_cpd_db2oltp,
-        null_resource.install_cpd_dods,
-        null_resource.install_cpd_ca
-    ]
-}
-
-resource "null_resource" "install_cpd_watson_assistant" {
-    count = var.watson-assistant == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "cat > ${local.installerhome}/watson-asst-override.yaml <<EOL\n${data.template_file.watson-asst-override.rendered}\nEOL",
-            "oc project ${self.triggers.namespace}",
-            "oc adm policy add-scc-to-group restricted system:serviceaccounts:${self.triggers.namespace}",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-asst-override.yaml",
-            "oc label --overwrite namespace ${self.triggers.namespace} ns=${self.triggers.namespace}",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
-            "cpd-linux -r ${local.installerhome}/repo.yaml -a ibm-watson-assistant --version 1.4.2 -n ${self.triggers.namespace} -c ${local.watson-asst-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-asst-override.yaml --insecure-skip-tls-verify --verbose"
-        ]
-    }
-    depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh,
-        null_resource.install_cpd_db2oltp,
-        null_resource.install_cpd_dods,
-        null_resource.install_cpd_ca,
-        null_resource.install_cpd_spss
-    ]
-}
-
-resource "null_resource" "install_cpd_watson_discovery" {
-    count = var.watson-discovery == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
-        user = var.admin-username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "remote-exec" {
-        inline = [
-            "cat > ${local.installerhome}/watson-discovery-override.yaml <<EOL\n${data.template_file.watson-discovery-override.rendered}\nEOL",
-            "docker_secret=$(oc get secrets | grep default-dockercfg | awk '{print $1}')",
-            "sed -i s/default-dockercfg-xxxxx/$docker_secret/g ${local.installerhome}/watson-discovery-override.yaml",
-            "host_ip=$(oc get svc -A | grep LoadBalancer | awk '{print $5}')",
-            "sed -i s/k8_host_ip/$host_ip/g ${local.installerhome}/watson-discovery-override.yaml",
-            "TOKEN=$(oc serviceaccounts get-token cpdtoken -n ${self.triggers.namespace})",
-            "image_registry_route=$(oc get route -n  openshift-image-registry | grep image-registry | awk '{print $2}')",
-            "cpd-linux adm -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} --accept-all-licenses --apply",
-            "cpd-linux -r ${local.installerhome}/repo.yaml -a watson-discovery -n ${self.triggers.namespace} -c ${local.watson-discovery-storageclass} --transfer-image-to $image_registry_route/${self.triggers.namespace} --target-registry-username=kubeadmin --target-registry-password=$TOKEN --cluster-pull-prefix image-registry.openshift-image-registry.svc:5000/${self.triggers.namespace} --accept-all-licenses --override ${local.installerhome}/watson-discovery-override.yaml --insecure-skip-tls-verify --verbose"
-        ]
-    }
-    depends_on = [
-        null_resource.install_cpd_lite,
-        null_resource.install_cpd_dv,
-        null_resource.install_cpd_openscale,
-        null_resource.install_cpd_wsl,
-        null_resource.install_cpd_wkc,
-        null_resource.install_cpd_wml,
-        null_resource.install_cpd_spark,
-        null_resource.install_cpd_cde,
-        null_resource.install_cpd_streams,
-        null_resource.install_cpd_streams_flows,
-        null_resource.install_cpd_ds,
-        null_resource.install_cpd_db2wh,
-        null_resource.install_cpd_db2oltp,
-        null_resource.install_cpd_dods,
-        null_resource.install_cpd_ca,
-        null_resource.install_cpd_spss,
-        null_resource.install_cpd_watson_assistant
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+    	null_resource.install_datagate,
+        null_resource.install_dods,
+        null_resource.install_ca,
     ]
 }
