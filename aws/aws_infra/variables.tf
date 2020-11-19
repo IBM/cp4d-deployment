@@ -255,6 +255,10 @@ variable "db2-advanced-edition" {
   default = "no"
 }
 
+variable "data-management-console" {
+  default = "yes"
+}
+
 variable "datagate" {
   default = "no"
 }
@@ -268,6 +272,14 @@ variable "cognos-analytics" {
 }
 
 variable "spss-modeler" {
+  default = "no"
+}
+
+variable "db2-bigsql" {
+  default = "no"
+}
+
+variable "planning-analytics" {
   default = "no"
 }
 
