@@ -38,7 +38,7 @@ resource "null_resource" "cpd_files" {
     }
 
     provisioner "file" {
-    source      = "../cpd_module/ibm-cp-datacore-3.5.0.tar"
+    source      = "../cpd_module/ibm-cp-datacore-1.3.0.tar"
     destination = "/home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar"
     }
 
@@ -710,5 +710,50 @@ resource "null_resource" "install_spss" {
     	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
+    ]
+}
+
+resource "null_resource" "install_bigsql" {
+    count = var.bigsql == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-bigsql.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#bigsql#g ${local.installerhome}/cpd-bigsql.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-bigsql.yaml",
+            "oc create -f ${local.installerhome}/cpd-bigsql.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh bigsql ${var.cpd-namespace}",
+        ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+    	null_resource.install_datagate,
+        null_resource.install_dods,
+        null_resource.install_ca,
+        null_resource.install_spss,
     ]
 }
