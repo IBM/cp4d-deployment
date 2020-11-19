@@ -256,7 +256,7 @@ variable "db2-advanced-edition" {
 }
 
 variable "data-management-console" {
-  default = "yes"
+  default = "no"
 }
 
 variable "datagate" {
