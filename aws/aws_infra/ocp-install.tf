@@ -20,7 +20,7 @@ resource "null_resource" "install_openshift" {
     provisioner "remote-exec" {
         inline = [
             #install awscli on bootnode.
-            "sed -i -e s/\r$// *.sh *.py",
+            "sed -i -e s/\r$// *.sh",
             "sudo yum -y install python3",
             "sudo yum -y install wget",
             "sudo yum -y install bind-utils",
