@@ -78,8 +78,11 @@ The table lists the resource requirements for each of the services, that will de
 |Db2 Data Gate|	4|	12 |
 |Decision Optimization|	0.9|	1.5 |
 |SPSS Modeler|	11|	84 |
-|Watson Assistant|	10|	150 |
-|Watson Discovery|	26|	150 |
+|Db2 Big SQL|	48|	269 |
+|Planning Analytics|	13|	46 |
+
+<!-- |Watson Assistant|	10|	150 |
+|Watson Discovery|	26|	150 | -->
 
 
 ## How to Deploy
