@@ -62,6 +62,9 @@
 | `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. |
 | `cognos-analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
+| `db2-bigsql` | no | Enter `yes` to install the Db2 bigaql Add-on service. |
+| `planning-analytics` | no | Enter `yes` to install the Planning Analytics Add-on service. |
+
 <!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
 | `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
 | `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
