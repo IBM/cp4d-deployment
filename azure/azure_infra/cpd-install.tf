@@ -64,7 +64,7 @@ resource "null_resource" "cpd_config" {
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             "sudo mv ibm-cp-datacore-3.5.0.tar /home/${var.admin-username}/",
             
-            "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar -C /usr/local/bin",
+            "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
             "tar -xf /home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
