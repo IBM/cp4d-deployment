@@ -18,7 +18,7 @@ export WSL=12
 export WKC=27
 export WML=16
 export DV=16
-export WOS=20
+export WOS=30
 export SPARK=7
 export CDE=4
 export STREAMS=1
@@ -29,8 +29,10 @@ export CA=11
 export DB2OLTP=5
 export DODS=1
 export SPSS=11
-export WA=10
-export WD=26
+#export WA=10
+#export WD=26
+export BIGSQL=48
+export PA=13
 export DEFAULT_VPC_COUNT=40 # For a openshift cluster with 1 master and 3 workers.
 
 ## Default values
@@ -52,6 +54,8 @@ INCLUDE_DODS="no"
 INCLUDE_SPSS="no"
 INCLUDE_WA="no"
 INCLUDE_WD="no"
+INCLUDE_BIGSQL="no"
+INCLUDE_PA="no"
 INCLUDE_DEFAULT_VPC_COUNT="yes"
 
 export vCPU_check="false"
@@ -288,21 +292,36 @@ calculate_total_vcpus_required() {
         SPSS_VCPU_REQ=0
     fi
 
+
     # WA
-    if [[ $INCLUDE_WA == "yes" ]]; then
-        WA_VCPU_REQ=$WA
-    else
-        WA_VCPU_REQ=0
-    fi
+#    if [[ $INCLUDE_WA == "yes" ]]; then
+#        WA_VCPU_REQ=$WA
+#    else
+#        WA_VCPU_REQ=0
+#    fi
 
     # WD
-    if [[ $INCLUDE_WD == "yes" ]]; then
-        WD_VCPU_REQ=$WD
+#    if [[ $INCLUDE_WD == "yes" ]]; then
+#        WD_VCPU_REQ=$WD
+#    else
+#        WD_VCPU_REQ=0
+#    fi
+
+    # BIGSQL
+    if [[ $INCLUDE_BIGSQL == "yes" ]]; then
+        BIGSQL_VCPU_REQ=$BIGSQL
     else
-        WD_VCPU_REQ=0
+        BIGSQL_VCPU_REQ=0
     fi
 
-    total_vcpu_required=$((DEFAULT_VPC_COUNT + WSL_VCPU_REQ + WKC_VCPU_REQ + WML_VCPU_REQ + DV_VCPU_REQ + WOS_VCPU_REQ + SPARK_VCPU_REQ + CDE_VCPU_REQ + STREAMS_VCPU_REQ + STREAMS_FLOWS_VCPU_REQ + DB2WH_VCPU_REQ + DS_VCPU_REQ + CA_VCPU_REQ + DB2OLTP_VCPU_REQ + DODS_VCPU_REQ + SPSS_VCPU_REQ + WA_VCPU_REQ + WD_VCPU_REQ))
+    # PA
+    if [[ $INCLUDE_PA == "yes" ]]; then
+        PA_VCPU_REQ=$PA
+    else
+        PA_VCPU_REQ=0
+    fi
+    
+    total_vcpu_required=$((DEFAULT_VPC_COUNT + WSL_VCPU_REQ + WKC_VCPU_REQ + WML_VCPU_REQ + DV_VCPU_REQ + WOS_VCPU_REQ + SPARK_VCPU_REQ + CDE_VCPU_REQ + STREAMS_VCPU_REQ + STREAMS_FLOWS_VCPU_REQ + DB2WH_VCPU_REQ + DS_VCPU_REQ + CA_VCPU_REQ + DB2OLTP_VCPU_REQ + DODS_VCPU_REQ + SPSS_VCPU_REQ + BIGSQL_VCPU_REQ + PA_VCPU_REQ))
 
     echo " the total vcpu rquired is $total_vcpu_required "
 
