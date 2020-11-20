@@ -322,9 +322,11 @@ calculate_total_vcpus_required() {
     fi
     
     total_vcpu_required=$((DEFAULT_VPC_COUNT + WSL_VCPU_REQ + WKC_VCPU_REQ + WML_VCPU_REQ + DV_VCPU_REQ + WOS_VCPU_REQ + SPARK_VCPU_REQ + CDE_VCPU_REQ + STREAMS_VCPU_REQ + STREAMS_FLOWS_VCPU_REQ + DB2WH_VCPU_REQ + DS_VCPU_REQ + CA_VCPU_REQ + DB2OLTP_VCPU_REQ + DODS_VCPU_REQ + SPSS_VCPU_REQ + BIGSQL_VCPU_REQ + PA_VCPU_REQ))
-
-    echo " the total vcpu rquired is $total_vcpu_required "
-
+    
+    if [[ $log_output_display == "true" ]]; then
+    echo "Total vcpu rquired is $total_vcpu_required "
+    fi
+    
     az_vcpu_quota_required=$total_vcpu_required
 
 }
@@ -426,9 +428,9 @@ calculate_available_resource_quota() {
     printf "\n"
 
     if [ $condition_met == "PASSED" ]; then
-        exit 0
+        return 0
     else
-        exit 1
+        return 1
     fi
 }
 
