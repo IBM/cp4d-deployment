@@ -169,12 +169,12 @@ while [ $# -gt 0 ]; do
         INCLUDE_SPSS="$2"
         shift
         ;;
-    -is_wa)
-        INCLUDE_WA="$2"
+    -is_bigsql)
+        INCLUDE_BIGSQL="$2"
         shift
         ;;
-    -is_wd)
-        INCLUDE_WD="$2"
+    -is_pa)
+        INCLUDE_PA="$2"
         shift
         ;;
     *)
