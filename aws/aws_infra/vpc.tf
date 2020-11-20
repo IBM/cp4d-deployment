@@ -4,6 +4,28 @@ provider "aws" {
         access_key = var.access_key_id
         secret_key = var.secret_access_key
 }
+
+resource "null_resource" "permission-resource-validation" {
+    provisioner "local-exec" {
+        command = "mkdir -p $HOME/.aws"
+    }
+    provisioner "local-exec" {
+        command = "cat > $HOME/.aws/credentials <<EOL\n${data.template_file.awscreds.rendered}\nEOL"
+    }
+    provisioner "local-exec" {
+        command = "cat > $HOME/.aws/config <<EOL\n${data.template_file.awsregion.rendered}\nEOL"
+    }
+    provisioner "local-exec" {
+        command = "chmod +x ./*.sh ./*.py"
+    }
+    provisioner "local-exec" {
+        command = "./aws_permission_validation.sh ; if [ $? -ne 0 ] ; then echo \"Permission Verification Failed\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "echo file | ./aws_resource_quota_validation.sh ; if [ $? -ne 0 ] ; then echo \"Resource Quota Validation Failed\" ; exit 1 ; fi"
+    }
+}
+
 resource "aws_vpc" "cpdvpc" {
   count                = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
   cidr_block           = var.vpc_cidr
@@ -13,6 +35,10 @@ resource "aws_vpc" "cpdvpc" {
   tags = {
     Name = "ocp-tf-vpc"
   }
+
+  depends_on = [
+      null_resource.permission-resource-validation,
+  ]
 }
 
 locals{
@@ -96,16 +122,28 @@ resource "aws_eip" "eip1" {
   count   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
   vpc     = true
   associate_with_private_ip = "10.0.5.226"
+  
+  depends_on = [
+      aws_vpc.cpdvpc,
+  ]
 }
 resource "aws_eip" "eip2" {
   count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc     = true
   associate_with_private_ip = "10.0.16.45"
+
+  depends_on = [
+      aws_vpc.cpdvpc,
+  ]
 }
 resource "aws_eip" "eip3" {
   count   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc     = true
   associate_with_private_ip = "10.0.44.224"
+
+  depends_on = [
+      aws_vpc.cpdvpc,
+  ]
 }
 resource "aws_nat_gateway" "nat1" {
   count         = var.new-or-existing-vpc-subnet == "new" ? 1 : 0

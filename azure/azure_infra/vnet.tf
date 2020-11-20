@@ -2,9 +2,20 @@ locals {
     resource-group = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
 }
 
+resource "null_resource" "az_validation_check" {
+    provisioner "local-exec" {
+        command = "chmod +x ./*.sh"
+    }
+    provisioner "local-exec" {
+       command = "./az_resource_quota_validation.sh -appId ${var.azure-client-id} -password ${var.azure-client-secret} -tenantId ${var.azure-tenant-id} -subscriptionId ${var.azure-subscription-id} -region ${var.region} -printlog false -is_wsl ${var.watson-studio-library} -is_wkc ${var.watson-knowledge-catalog} -is_wml ${var.watson-machine-learning} -is_dv ${var.data-virtualization} -is_wos ${var.watson-ai-openscale} -is_spark ${var.apache-spark} -is_cde ${var.cognos-dashboard-embedded} -is_streams ${var.streams} -is_streams_flows ${var.streams-flows} -is_db2wh ${var.db2_warehouse} -is_ds ${var.datastage} -is_db2oltp ${var.db2_oltp} -is_dods ${var.decision-optimization} -is_spss ${var.spss} -is_wa ${var.watson-assistant} -is_wd ${var.watson-discovery} -is_ca ${var.cognos-analytics} ; if [ $? -ne 0 ] ; then echo \"Resource quota validation Failed\" ; exit 1 ; fi"
+    }
+}
 resource "azurerm_resource_group" "cpdrg" {
     name = var.resource-group
     location = var.region
+    depends_on = [
+        null_resource.az_validation_check,
+    ]
 }
 resource "azurerm_virtual_network" "cpdvirtualnetwork" {
     count = var.new-or-existing == "new" ? 1 : 0

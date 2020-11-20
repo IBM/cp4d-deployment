@@ -1,4 +1,3 @@
-
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"

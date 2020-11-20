@@ -24,7 +24,8 @@ The deployment sets up the following as shown in the diagram.
 
 
 ### Steps to Deploy:
-
+* AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
+* Before deploying the infrastructure make sure you have `python3` installed in your local machine.
 * Create a Route 53 domain.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
 * [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
@@ -52,11 +53,6 @@ cat osaws_var.tfvars
 
 access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
 secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
-```
-* Before deploying the infrastructure, run the script `aws_resource_quota_validation.sh` to verify if there are enough resources available in the used AWS account.
-   See the [AWS Resource Quota Validation documentation](AWS-RESOURCE-QUOTA-VALIDATION.md) for more details.
-```
-./aws_resource_quota_validation.sh
 ```
 * Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
 ```bash

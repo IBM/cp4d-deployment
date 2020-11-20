@@ -255,6 +255,10 @@ variable "db2-advanced-edition" {
   default = "no"
 }
 
+variable "data-management-console" {
+  default = "no"
+}
+
 variable "datagate" {
   default = "no"
 }
@@ -268,6 +272,14 @@ variable "cognos-analytics" {
 }
 
 variable "spss-modeler" {
+  default = "no"
+}
+
+variable "db2-bigsql" {
+  default = "no"
+}
+
+variable "planning-analytics" {
   default = "no"
 }
 
@@ -296,12 +308,12 @@ variable "spss-modeler" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-variable "s3-bucket" {
-  default = "ibm-cloud-private-data"
+variable "ocp_version" {
+  default = "4.5.18"
 }
 
-variable "inst_version" {
-  default = "3.5"
+variable "cloudctl_version" {
+  default = "v3.6.0"
 }
 
 variable "cpd-version" {
