@@ -3,9 +3,8 @@ locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
     install-config-file = "install-config-${var.single-or-multi-zone}.tpl.yaml"
-    machine-autoscaler-file = "machine-autoscaler.tpl.yaml"
-    machine-health-check-file = "machine-health-check.tpl.yaml"
-    ocp_version = "4.5.15"
+    machine-autoscaler-file = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
+    machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
 }
 
 resource "null_resource" "install_openshift" {
@@ -23,8 +22,8 @@ resource "null_resource" "install_openshift" {
     }
     provisioner "remote-exec" {
         inline = [
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-install-linux.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${local.ocp_version}/openshift-client-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-install-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-client-linux.tar.gz",
             "tar -xvf openshift-install-linux.tar.gz",
             "sudo tar -xvf openshift-client-linux.tar.gz -C /usr/bin",
             "mkdir -p ${local.ocpdir}",

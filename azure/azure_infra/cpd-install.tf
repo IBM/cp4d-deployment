@@ -10,6 +10,8 @@ locals {
     #Storage Classes
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
+    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
+
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
 }
@@ -26,15 +28,6 @@ resource "null_resource" "cpd_files" {
         host = self.triggers.bootnode_ip_address
         user = self.triggers.username
         private_key = file(self.triggers.private_key_file_path)
-    }
-    provisioner "file" {
-    source      = "../cpd_module/cloudctl-linux-amd64.tar"
-    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar"
-    }
-
-    provisioner "file" {
-    source      = "../cpd_module/cloudctl-linux-amd64.tar.gz.sig"
-    destination = "/home/${var.admin-username}/cloudctl-linux-amd64.tar.gz.sig"
     }
 
     provisioner "file" {
@@ -65,7 +58,9 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "sudo mv cloudctl-linux-amd64.tar ${local.operator}",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
+            "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             "sudo mv ibm-cp-datacore-3.5.0.tar /home/${var.admin-username}/",
             
@@ -471,11 +466,6 @@ resource "null_resource" "install_db2wh" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-dmc-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
-            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
-            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc-db2wh.yaml",
-            "oc create -f ${local.installerhome}/cpd-dmc-db2wh.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
             "cat > ${local.installerhome}/cpd-db2wh.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2wh.yaml",
@@ -515,11 +505,6 @@ resource "null_resource" "install_db2oltp" {
     provisioner "remote-exec" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-            "cat > ${local.installerhome}/cpd-dmc-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
-            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
-            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc-db2oltp.yaml",
-            "oc create -f ${local.installerhome}/cpd-dmc-db2oltp.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",
             "cat > ${local.installerhome}/cpd-db2oltp.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
             "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
             "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-db2oltp.yaml",
@@ -540,6 +525,47 @@ resource "null_resource" "install_db2oltp" {
         null_resource.install_streams_flows,
         null_resource.install_ds,
         null_resource.install_db2wh,
+    ]
+}
+
+resource "null_resource" "install_dmc" {
+    count = var.data-management-console == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-dmc.yaml <<EOL\n${data.template_file.cpd-service-no-override.rendered}\nEOL",
+            "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-dmc.yaml",
+            "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",        
+      ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
     ]
 }
 
@@ -581,6 +607,7 @@ resource "null_resource" "install_datagate" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_dmc,
     ]
 }
 
@@ -622,7 +649,8 @@ resource "null_resource" "install_dods" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
-	null_resource.install_datagate,
+        null_resource.install_dmc,
+	    null_resource.install_datagate,
     ]
 }
 
@@ -664,6 +692,7 @@ resource "null_resource" "install_ca" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_dmc,
     	null_resource.install_datagate,
         null_resource.install_dods,
     ]
@@ -707,6 +736,7 @@ resource "null_resource" "install_spss" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_dmc,
     	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
@@ -731,8 +761,8 @@ resource "null_resource" "install_bigsql" {
         inline = [
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-bigsql.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
-            "sed -i -e s#SERVICE#bigsql#g ${local.installerhome}/cpd-bigsql.yaml",
-            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-bigsql.yaml",
+            "sed -i -e s#SERVICE#big-sql#g ${local.installerhome}/cpd-bigsql.yaml",
+            "sed -i -e s#STORAGECLASS#${local.bigsql-storageclass}#g ${local.installerhome}/cpd-bigsql.yaml",
             "oc create -f ${local.installerhome}/cpd-bigsql.yaml -n ${var.cpd-namespace}",
             "./wait-for-service-install.sh bigsql ${var.cpd-namespace}",
         ]
@@ -751,9 +781,57 @@ resource "null_resource" "install_bigsql" {
         null_resource.install_ds,
         null_resource.install_db2wh,
         null_resource.install_db2oltp,
+        null_resource.install_dmc,
     	null_resource.install_datagate,
         null_resource.install_dods,
         null_resource.install_ca,
         null_resource.install_spss,
+    ]
+}
+
+resource "null_resource" "install_pa" {
+    count = var.planning-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+        namespace = var.cpd-namespace
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+            "cat > ${local.installerhome}/cpd-pa.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
+            "sed -i -e s#SERVICE#pa#g ${local.installerhome}/cpd-pa.yaml",
+            "sed -i -e s#STORAGECLASS#${local.cp-storageclass}#g ${local.installerhome}/cpd-pa.yaml",
+            "oc create -f ${local.installerhome}/cpd-pa.yaml -n ${var.cpd-namespace}",
+            "./wait-for-service-install.sh pa ${var.cpd-namespace}",
+        ]
+    }
+    depends_on = [
+        null_resource.install_lite,
+        null_resource.install_dv,
+        null_resource.install_spark,
+        null_resource.install_wkc,
+        null_resource.install_wsl,
+        null_resource.install_wml,
+        null_resource.install_aiopenscale,
+        null_resource.install_cde,
+        null_resource.install_streams,
+        null_resource.install_streams_flows,
+        null_resource.install_ds,
+        null_resource.install_db2wh,
+        null_resource.install_db2oltp,
+        null_resource.install_dmc,
+    	null_resource.install_datagate,
+        null_resource.install_dods,
+        null_resource.install_ca,
+        null_resource.install_spss,
+        null_resource.install_bigsql,
     ]
 }
