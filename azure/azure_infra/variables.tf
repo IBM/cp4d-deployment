@@ -156,13 +156,16 @@ variable "cpd-namespace" {
   default = "zen"
 }
 
-variable "ocp-version" {
-  description = "Red Hat OpenShift Container Platform version to be installed"
-  default     = "4.5.13"
+variable "ocp_version" {
+  default = "4.5.18"
 }
 
 variable "cpd-version" {
   default = "latest"
+}
+
+variable "cloudctl_version" {
+  default = "v3.6.0"
 }
 
 variable "apikey" {
@@ -217,10 +220,13 @@ variable "db2_oltp" {
   default = "no"
 }
 
-variable "datagate" {
+variable "data-management-console" {
   default = "no"
 }
 
+variable "datagate" {
+  default = "no"
+}
 
 variable "decision-optimization" {
   default = "no"
@@ -238,13 +244,17 @@ variable "bigsql"{
   default = "no"
 }
 
-variable "watson-assistant"{
+variable "planning-analytics"{
   default = "no"
 }
 
-variable "watson-discovery"{
-  default = "no"
-}
+# variable "watson-assistant"{
+#   default = "no"
+# }
+
+# variable "watson-discovery"{
+#   default = "no"
+# }
 
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
