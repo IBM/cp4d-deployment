@@ -1,6 +1,0 @@
-.env.sh
-.terraform*
-terraform.tfstate*
-pull-secret
-azure.tfvars
-cpd.license
