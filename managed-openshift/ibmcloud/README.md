@@ -71,13 +71,11 @@ This directory on the host will be bind-mounted to `~/templates` in the containe
 
 1. Copy `terraform.tfvars.template` to `terraform.tfvars` and enter the values. This file can also be used to override the defaults in `vars.tf`.
 
-2. Download ibm-cp-datacore-1.3.0.tgz (direct download link coming soon) and move it to the directory containing this README.
+2. Log in to your container with `docker exec -it my-container bash`.
 
-4. Log in to your container with `docker exec -it my-container bash`.
+3. Run `terraform init`.
 
-5. Run `terraform init`.
-
-6. Run `terraform apply`.
+4. Run `terraform apply`.
 
 
 ### Securing your VPC and cluster
