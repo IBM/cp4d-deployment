@@ -51,9 +51,9 @@ resource "null_resource" "cpd_config" {
 
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
-            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
-            "wget https://${var.s3-bucket}-${var.region}.s3.${var.region}.amazonaws.com/${var.inst_version}/ibm-cp-datacore-1.3.0.tgz -O /home/${var.admin-username}/ibm-cp-datacore-1.3.0.tgz",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
+            
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
             "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.0.tgz",
             "oc new-project cpd-meta-ops",
