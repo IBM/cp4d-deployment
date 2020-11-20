@@ -5,7 +5,7 @@ metadata:
   name: "${clusterid}-worker-${region}${zone}"
   namespace: "openshift-machine-api"
 spec:
-  minReplicas: ${nodeCount}
+  minReplicas: ${workerNodeCount}
   maxReplicas: 12
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1

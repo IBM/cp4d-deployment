@@ -1,11 +1,10 @@
-
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
     install-config-file = "install-config-${var.single-or-multi-zone}.tpl.yaml"
-    machine-autoscaler-file = "machine-autoscaler.tpl.yaml"
-    machine-health-check-file = "machine-health-check.tpl.yaml"
-    ocp_version = "4.5.15"
+    machine-autoscaler-file = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
+    machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
+    ocp_version = "stable-4.5"
 }
 
 resource "null_resource" "install_openshift" {

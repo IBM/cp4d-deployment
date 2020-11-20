@@ -37,4 +37,3 @@ spec:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
     name: "${clusterid}-worker-${region}3"
-

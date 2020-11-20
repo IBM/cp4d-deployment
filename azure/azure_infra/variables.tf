@@ -234,6 +234,10 @@ variable "spss"{
   default = "no"
 }
 
+variable "bigsql"{
+  default = "no"
+}
+
 variable "watson-assistant"{
   default = "no"
 }
