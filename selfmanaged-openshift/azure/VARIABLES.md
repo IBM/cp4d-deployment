@@ -38,22 +38,35 @@
 | `storage` | portworx | nfs or portworx. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
+| `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
+| `ocp_version` | stable-4.5 | Openshift Container Platform version to install |
+| `cpd-version` | latest | CPD version to install |
+| `cloudctl_version` | v3.6.0 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
 | `watson-ai-openscale` | no | Install Watson AI Openscale Add-On |
 | `watson-machine-learning` | no | Install Watson Machine Learning Add-On |
+| `spark` | no | Install the Spark Add-on |
 | `cognos-dashboard-embedded` | no | Install Cognos Dashboard |
-| `streams` | no | Install the Streams Add-on service. |
-| `streams-flows` | no | Install the Streams Flow Add-on service. |
-| `datastage` | no | Install the datastage Add-on service. |
-| `db2_warehouse` | no | Install the DB2Warehouse Add-on service. |
-| `db2_oltp` | no | Install the db2 advanced edition Add-on service. |
-| `decision-optimization` | no | Install the Decision Optimization Add-on service. |
-| `cognos-analytics` | no | Install the Cognos Analytics Add-on service. |
-| `spss` | no | Install the SPSS Modeler Add-on service. |
-| `watson-assistant` | no | Install the Watson Assistant Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
-| `watson-discovery` | no | Install the Watson Discovery Add-on service. On selecting 'nfs' storage, it installs on azure-disk storageclass. Supports default behavior for portworx.|
-| `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdqSw4 |
+| `streams` | no | Install the Streams Add-on |
+| `streams-flows` | no | Install the Streams Flow Add-on  |
+| `datastage` | no | Install the datastage Add-on |
+| `db2_warehouse` | no | Install the DB2Warehouse Add-on  |
+| `db2_oltp` | no | Install the db2 advanced edition Add-on |
+| `data-management-console` | no | Install the data management console Add-on  |
+| `decision-optimization` | no | Install the Decision Optimization Add-on  |
+| `cognos-analytics` | no | Install the Cognos Analytics Add-on  |
+| `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/Bdq6KP |
+| `datagate` | no | Install the Datagate Add-on |
+| `spss-modeler` | no | Install the SPSS Modeler Add-on |
+| `db2-bigsql` | no | Install the Db2 BigSQL Add-on |
+| `planning-analytics` | no | Install the Planning Analytics Add-on |
+
+<!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
+| `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
+| `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
+| `watson-language-translator` | no | Enter `yes` to install the Watson Language Translator Add-on service. |
+| `watson-speech` | no | Enter `yes` to install the Watson Speech Add-on service. | -->
