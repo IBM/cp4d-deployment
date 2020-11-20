@@ -32,7 +32,7 @@ resource "null_resource" "cpd_files" {
 
     provisioner "file" {
     source      = "../cpd_module/ibm-cp-datacore-1.3.0.tar"
-    destination = "/home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar"
+    destination = "/home/${var.admin-username}/ibm-cp-datacore-1.3.0.tar"
     }
 
     depends_on = [
@@ -62,10 +62,10 @@ resource "null_resource" "cpd_config" {
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
             "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
-            "sudo mv ibm-cp-datacore-3.5.0.tar /home/${var.admin-username}/",
+            "sudo mv ibm-cp-datacore-1.3.0.tar /home/${var.admin-username}/",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-3.5.0.tar",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.0.tar",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",
