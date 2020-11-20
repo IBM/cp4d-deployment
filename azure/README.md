@@ -1,11 +1,10 @@
-# Cloud Pak for Data 3.0 on Azure
+# Cloud Pak for Data 3.5 on OCP 4.5 on Azure
 
 ## Deployment Topology
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
-![Alt text](images/azure-single-zone.jpg)
-![Alt text](images/azure-multi-zone.jpg)
+![Alt text](images/AzureCPD-Arch.png)
 
 The template sets up the following:
 - A highly available architecture that spans up to three Availability Zones.
@@ -49,7 +48,7 @@ The template sets up the following:
 
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`. 
 
-* Read and agree to the [license terms](https://ibm.biz/BdqyB2).
+* Read and agree to the [license terms](https://ibm.biz/Bdq6KP).
 
 * Change to `azure_infra` folder:
 
