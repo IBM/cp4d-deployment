@@ -113,6 +113,10 @@ resource "null_resource" "file_copy" {
     source      = "../portworx_module/px-storageclasses.sh"
     destination = "/home/${var.admin-username}/px-storageclasses.sh"
   }
+  provisioner "file" {
+    source      = "../cpd_module/ibm-cp-datacore-1.3.0.tgz"
+    destination = "/home/${var.admin-username}/ibm-cp-datacore-1.3.0.tgz"
+  }
 
 
   depends_on = [
