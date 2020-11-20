@@ -66,7 +66,7 @@ data "template_file" "machineautoscaler" {
         clusterid = random_id.randomId.hex
         region = var.region
         zone = var.zone
-        nodeCount=var.worker-node-count
+        workerNodeCount = var.worker-node-count
     }
 }
 
