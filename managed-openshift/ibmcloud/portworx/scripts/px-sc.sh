@@ -203,7 +203,7 @@ metadata:
  name: portworx-shared-gp-allow
 parameters:
  priority_io: high
- repl: "3"
+ repl: "2"
  io_profile: "cms"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Delete
@@ -317,7 +317,6 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
-
 # DB2 RWX shared volumes for System Storage, backup storage, future load storage, and future diagnostic logs storage
 cat <<EOF | oc create -f -
 allowVolumeExpansion: true
@@ -326,6 +325,8 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwx-sc
 parameters:
+  io_profile: cms
+  block_size: 4096b
   repl: "3"
   sharedv4: "true"
   priority_io: high
@@ -342,9 +343,11 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwo-sc
 parameters:
+  block_size: 4096b
   io_profile: db_remote
   priority_io: high
   repl: "3"
+  sharedv4: "false"
   disable_io_profile_protection: "1"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain

@@ -19,7 +19,7 @@ if [ "$ID" == "" ] || [ "$ID" == "null" ]; then
     echo "No attachment found, skipping"
 else
     echo "Deleting volume attachment $ID"
-    if ! curl -X DELETE -H "Authorization: $TOKEN" \
+    if ! curl -s -X DELETE -H "Authorization: $TOKEN" \
         "https://$REGION.containers.cloud.ibm.com/v2/storage/vpc/deleteAttachment?cluster=$CLUSTER_ID&worker=$WORKER_ID&volumeAttachmentID=$ID"; then
       echo 'Delete failed'
       exit 1

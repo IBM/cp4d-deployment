@@ -68,7 +68,7 @@ variable "install_services" {
     datagate      = false, # Db2 Data Gate
     dods          = false, # Decision Optimization
     ca            = false, # Cognos Analytics
-    spss          = false, # SPSS Modeler
+    spss-modeler  = false, # SPSS Modeler
   }
 }
 
