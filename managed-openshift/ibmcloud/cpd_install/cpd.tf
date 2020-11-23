@@ -46,7 +46,27 @@ locals {
     "datagate"       = "portworx-db2-rwx-sc",
     "dods"           = "portworx-shared-gp3",
     "ca"             = "portworx-shared-gp3",
-    "spss"           = "portworx-shared-gp3",
+    "spss-modeler"   = "portworx-shared-gp3",
+  }
+  override = {
+    "lite"           = "portworx",
+    "dv"             = "portworx",
+    "spark"          = "portworx",
+    "wkc"            = "portworx",
+    "wsl"            = "portworx",
+    "wml"            = "portworx",
+    "aiopenscale"    = "portworx",
+    "cde"            = "portworx",
+    "streams"        = "portworx",
+    "streams-flows"  = "",
+    "ds"             = "portworx",
+    "dmc"            = "",
+    "db2wh"          = "",
+    "db2oltp"        = "",
+    "datagate"       = "portworx",
+    "dods"           = "portworx",
+    "ca"             = "portworx",
+    "spss-modeler"   = "portworx",
   }
 }
 
@@ -57,7 +77,7 @@ resource "null_resource" "install_lite" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "oc new-project ${var.cpd_project_name}; ./install_cpdservice_generic.sh ${var.cpd_project_name} lite ${local.storageclass["lite"]}"
+    command = "oc new-project ${var.cpd_project_name}; ./install_cpdservice_generic.sh ${var.cpd_project_name} lite ${local.storageclass["lite"]} ${local.override["lite"]}"
   }
 
   depends_on = [null_resource.install_cpd_operator]
@@ -84,7 +104,7 @@ resource "null_resource" "install_spark" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} spark ${local.storageclass["spark"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} spark ${local.storageclass["spark"]} ${local.override["spark"]}"
   }
 
   depends_on = [
@@ -98,7 +118,7 @@ resource "null_resource" "install_dv" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dv ${local.storageclass["dv"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dv ${local.storageclass["dv"]} ${local.override["dv"]}"
   }
 
   depends_on = [
@@ -113,7 +133,7 @@ resource "null_resource" "install_wkc" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wkc ${local.storageclass["wkc"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wkc ${local.storageclass["wkc"]} ${local.override["wkc"]}"
   }
 
   depends_on = [
@@ -129,7 +149,7 @@ resource "null_resource" "install_wsl" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wsl ${local.storageclass["wsl"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wsl ${local.storageclass["wsl"]} ${local.override["wsl"]}"
   }
 
   depends_on = [
@@ -146,7 +166,7 @@ resource "null_resource" "install_wml" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wml ${local.storageclass["wml"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} wml ${local.storageclass["wml"]} ${local.override["wml"]}"
   }
 
   depends_on = [
@@ -164,7 +184,7 @@ resource "null_resource" "install_aiopenscale" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} aiopenscale ${local.storageclass["aiopenscale"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} aiopenscale ${local.storageclass["aiopenscale"]} ${local.override["aiopenscale"]}"
   }
 
   depends_on = [
@@ -183,7 +203,7 @@ resource "null_resource" "install_cde" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} cde ${local.storageclass["cde"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} cde ${local.storageclass["cde"]} ${local.override["cde"]}"
   }
 
   depends_on = [
@@ -204,7 +224,7 @@ resource "null_resource" "install_streams" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} streams ${local.storageclass["streams"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} streams ${local.storageclass["streams"]} ${local.override["streams"]}"
   }
 
   depends_on = [
@@ -225,7 +245,7 @@ resource "null_resource" "install_streams_flows" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} streams-flows ${local.storageclass["streams-flows"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} streams-flows ${local.storageclass["streams-flows"]} ${local.override["streams-flows"]}"
   }
 
   depends_on = [
@@ -247,7 +267,7 @@ resource "null_resource" "install_ds" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} ds ${local.storageclass["ds"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} ds ${local.storageclass["ds"]} ${local.override["ds"]}"
   }
 
   depends_on = [
@@ -270,7 +290,7 @@ resource "null_resource" "install_dmc" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dmc ${local.storageclass["dmc"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dmc ${local.storageclass["dmc"]} ${local.override["dmc"]}"
   }
 
   depends_on = [
@@ -294,7 +314,7 @@ resource "null_resource" "install_db2wh" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} db2wh ${local.storageclass["db2wh"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} db2wh ${local.storageclass["db2wh"]} ${local.override["db2wh"]}"
   }
 
   depends_on = [
@@ -319,7 +339,7 @@ resource "null_resource" "install_db2oltp" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} db2oltp ${local.storageclass["db2oltp"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} db2oltp ${local.storageclass["db2oltp"]} ${local.override["db2oltp"]}"
   }
 
   depends_on = [
@@ -345,7 +365,7 @@ resource "null_resource" "install_datagate" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} datagate ${local.storageclass["datagate"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} datagate ${local.storageclass["datagate"]} ${local.override["datagate"]}"
   }
   
   depends_on = [
@@ -372,7 +392,7 @@ resource "null_resource" "install_dods" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dods ${local.storageclass["dods"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dods ${local.storageclass["dods"]} ${local.override["dods"]}"
   }
   
   depends_on = [
@@ -400,7 +420,7 @@ resource "null_resource" "install_ca" {
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} ca ${local.storageclass["ca"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} ca ${local.storageclass["ca"]} ${local.override["ca"]}"
   }
 
   depends_on = [
@@ -424,12 +444,12 @@ resource "null_resource" "install_ca" {
 }
 
 resource "null_resource" "install_spss" {
-  count = var.accept_cpd_license == "yes" && var.install_services["spss"] ? 1 : 0
+  count = var.accept_cpd_license == "yes" && var.install_services["spss-modeler"] ? 1 : 0
   
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} spss ${local.storageclass["spss"]}"
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} spss-modeler ${local.storageclass["spss-modeler"]} ${local.override["spss-modeler"]}"
   }
   
   depends_on = [

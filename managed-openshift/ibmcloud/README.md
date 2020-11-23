@@ -30,7 +30,7 @@ The deployment creates the following resources:
 
 ## Cloud Pak for Data services
 
-As part of the deployment, the following services can be enabled. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).
+As part of the deployment, the following services can be enabled. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
 
 * Lite (base)
 * Analytics Engine powered by Apache Spark
@@ -86,17 +86,13 @@ Currently, this deployment installs an OpenShift cluster in a VPC with permissiv
 
 Open an Issue in this repo that describes the error.
 
-### Common issues
+### Common errors
 
-Many failures can be resolved by retrying `terraform apply`. This is because tokens or script loops can time out prematurely when a resource takes unusually long to provision and stabilize.
+Resource provisioning can fail due to random errors such as latency timeouts, tokens expiring prematurely or cloud resources failing to stabilize. To let Terraform retry the failed resource and continue with the remainder of the deployment, run `terraform apply` again. Alternatively, you can run `terraform destroy` and start from the beginning.
 
 * #### Errors with `docker` commands
 
   Ensure that your system has the latest version of Docker installed.
-
-* #### `module.cpd_install.null_resource.extract_ibm_cp_datacore (local-exec): gzip: stdin: not in gzip format`
-
-  The file `ibm-cp-datacore-*.tgz` has not been downloaded correctly from GitHub. Download the file from the browser using GitHub's **Download** button and move it to this directory.
 
 * #### `exit status 1. Output: error: Missing or incomplete configuration info.  Please point to an existing, complete config file`
 
@@ -104,12 +100,18 @@ Many failures can be resolved by retrying `terraform apply`. This is because tok
   1. Run `terraform state rm module.cpd_install.null_resource.oc_login module.cpd_install.null_resource.oc_login`.
   2. Retry `terraform apply`.
 
-* #### `Error: timeout while waiting for state to become 'Ready'` seen for the resource `module.roks.ibm_container_vpc_cluster.this`
+* #### `Error: timeout while waiting for state to become 'Ready'` for the resource `module.roks.ibm_container_vpc_cluster.this`
 
   This error happens when it takes longer than usual for the cluster ingress domain to be created.
   1. Open the IBM Cloud [OpenShift clusters](https://cloud.ibm.com/kubernetes/clusters?platformType=openshift) console and verify that the state of your cluster is "Normal". If there is an error, contact support or run `terraform destroy` and try again.
   2. Run `terraform untaint module.roks.ibm_container_vpc_cluster.this` to mark the resource as successful.
   3. Run `terraform apply` again. The deployment will continue onwards.
+
+* #### `Unable to connect to the server: dial tcp: lookup c100-e.us-east.containers.cloud.ibm.com on 192.168.65.1:53: read udp 172.17.0.2:33170->192.168.65.1:53: i/o timeout` for the resource `module.portworx.ibm_resource_instance.portworx`
+
+  1. Run `portworx/scripts/portworx_wait_until_ready.sh`. If the script prints an error, run `terraform destroy` and try the deployment again.
+  2. Else, run `terraform untaint module.portworx.ibm_resource_instance.portworx` to mark the resource as successful.
+  3. Run `terraform apply`. The deployment will continue onwards.
 
 ### Coming soon
 
