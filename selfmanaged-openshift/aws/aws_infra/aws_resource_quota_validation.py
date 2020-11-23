@@ -18,37 +18,6 @@ import re
 import sys
 
 
-# OCP version to be used (if needed - can be requested via user input)
-ocp_version = '4.5'
-
-# OpenShift required resources
-# instances are handeled separately
-ocp = {
-    '4.5': {
-            'single_zone': {
-                                'vpcs': 1,
-                                'network-interfaces': 14,
-                                'nat-gateways': 3,
-                                'security-groups': 6,
-                                'elastic-ips': 1,
-                                'application-load-ballancer': 2,
-                                'classic-load-ballancer': 1,
-                                's3-buckets': 2
-                            },
-            'multi_zone':  {
-                                'vpcs': 1,
-                                'network-interfaces': 14,
-                                'nat-gateways': 3,
-                                'security-groups': 6,
-                                'elastic-ips': 3,
-                                'application-load-ballancer': 2,
-                                'classic-load-ballancer': 1,
-                                's3-buckets': 2
-                            }
-            }
-}
-
-
 def get_terraform_configuration(tf_var_file):
 
     print("\nCluster configuration")
@@ -75,6 +44,14 @@ def get_terraform_configuration(tf_var_file):
     if tf_config['storage-type'] == 'ocs':
         tf_config['instance_type']['worker'] = tf_config_json['variable']['worker-ocs-instance-type']['default']
     tf_config['instance_type']['bootnode'] = tf_config_json['variable']['bootnode-instance-type']['default']
+
+    # storage-type dependend adaptions
+    ## storage-type == 'ocs' --> 3 additional OCS worker nodes are deployed
+    if tf_config['storage-type'] == 'ocs':
+        tf_config['replica_count']['worker'] = tf_config['replica_count']['worker'] + 3
+    ## storage-type == 'portworx' --> 1 additional worker node added by cluster auto-scaler
+    if tf_config['storage-type'] == 'portworx':
+        tf_config['replica_count']['worker'] = tf_config['replica_count']['worker'] + 1
 
     # Summing up the number of required number of instance types
     for node_type in tf_config['instance_type']:
@@ -205,17 +182,37 @@ def main():
     # Add required resource counts
     #
     ##############################
-   
+
+    # OCP required resources
+    ocp = AWSGenericHelper.get_opc_required_resources(tf_config['storage-type'],
+                                                      ha_config)
+
+    # Calculate the additionally needed number of workers
+    # for CP4D services to be installed
+    worker_instance_type = tf_config['instance_type']['worker']
+    num_service_worker_nodes = ec2_helper.calculate_num_service_worker_nodes(
+                                                        worker_instance_type,
+                                                        tf_var_file)
+
+    # Add number of required worker nodes for CP4D services
+    # to number of OCP worker nodes
+    tf_config['instances'][worker_instance_type] = (tf_config['instances'][worker_instance_type] +
+                                                    num_service_worker_nodes)
+
+    # Add number of required Network Interfaces according
+    # to the number of service worker nodes
+    ocp['network-interfaces'] = ocp['network-interfaces'] + num_service_worker_nodes
+
     # EC2 resources
     ## VPCs
     vpc_used = ec2_helper.get_num_vpc()
-    vpc_required = ocp[ocp_version][ha_config]['vpcs']
+    vpc_required = ocp['vpcs']
     resource_validation_check(sq, 'vpc', vpc_quota_code_vpcs,
                               vpc_used, vpc_required)
 
     ### Elastic IPs
     eip_used = ec2_helper.get_num_elastic_ips()
-    eip_required = ocp[ocp_version][ha_config]['elastic-ips']
+    eip_required = ocp['elastic-ips']
     ec2_quota_code_elastic_ips = get_quota_code_by_name_pattern(
                                             'ec2',
                                             'Elastic IPs',
@@ -225,20 +222,20 @@ def main():
 
     ### NatGateways
     nat_gw_used = ec2_helper.get_num_nat_gw()
-    nat_gw_required = ocp[ocp_version][ha_config]['nat-gateways']
+    nat_gw_required = ocp['nat-gateways']
     resource_validation_check(sq, 'vpc', vpc_quota_code_nat_gateways,
                               nat_gw_used, nat_gw_required)
 
     ### SecurityGroups
     sg_used = ec2_helper.get_num_security_groups()
-    sg_required = ocp[ocp_version][ha_config]['security-groups']
+    sg_required = ocp['security-groups']
     resource_validation_check(sq, 'vpc', vpc_quota_code_security_groups,
                               sg_used, sg_required)
 
 
     ### Elastic Network Interfaces (ENIs)
     eni_used = ec2_helper.get_num_network_interfaces()
-    eni_required = ocp[ocp_version][ha_config]['network-interfaces']
+    eni_required = ocp['network-interfaces']
     resource_validation_check(sq, 'vpc', vpc_quota_code_network_interfaces,
                               eni_used, eni_required)
 
@@ -291,7 +288,7 @@ def main():
     ## ELB v2 (network) resouces usage counts
     ### Elastic Load Balancers v2 (ELB/NLB) - type: network
     elb_v2_used = elb_v2_helper.get_num_elb_v2()
-    elb_v2_required = ocp[ocp_version][ha_config]['application-load-ballancer']
+    elb_v2_required = ocp['application-load-ballancer']
     elb_v2_quota_code_application_load_balancers = get_quota_code_by_name_pattern(
                                             'elasticloadbalancing',
                                             'Application Load Balancers',
@@ -303,7 +300,7 @@ def main():
     ## ELB (classic) resouces usage counts
     ### Elastic Load Balancers (ELB/NLB) - type: classic
     elb_used = elb_helper.get_num_elb()
-    elb_required = ocp[ocp_version][ha_config]['classic-load-ballancer']
+    elb_required = ocp['classic-load-ballancer']
     elb_quota_code_classic_load_balancers = get_quota_code_by_name_pattern(
                                             'elasticloadbalancing',
                                             'Classic Load Balancers',
@@ -315,7 +312,7 @@ def main():
     ## S3 resouces usage counts
     ### S3 buckets
     s3_buckets_used = s3_helper.get_num_buckets()
-    s3_required = ocp[ocp_version][ha_config]['s3-buckets']
+    s3_required = ocp['s3-buckets']
     resource_validation_check(sq, 's3', s3_quota_code_buckets,
                               s3_buckets_used, s3_required)
 
