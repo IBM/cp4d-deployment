@@ -11,7 +11,7 @@ spec:
   serviceName: SERVICE
   version: latest
   storageClass: STORAGECLASS
-  overrideConfig: portworx
+  overrideConfig: OVERRIDE
   flags: ""
   autoPatch: false
   scale: ""

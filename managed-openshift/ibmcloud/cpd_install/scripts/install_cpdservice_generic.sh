@@ -3,10 +3,11 @@
 NAMESPACE=$1
 SERVICE=$2
 STORAGECLASS=$3
+OVERRIDE=$4
 
 echo "=== Commencing installation of ${SERVICE} ==="
 
-if ! sed -e "s/SERVICE/${SERVICE}/g" -e "s/STORAGECLASS/${STORAGECLASS}/g" metaoperator.cpd.ibm.com_v1_cpdservice_cr.yaml | oc -n ${NAMESPACE} apply -f -; then
+if ! sed -e "s/SERVICE/${SERVICE}/g" -e "s/STORAGECLASS/${STORAGECLASS}/g" -e "s/OVERRIDE/\"${OVERRIDE}\"/g" metaoperator.cpd.ibm.com_v1_cpdservice_cr.yaml | oc -n ${NAMESPACE} apply -f -; then
   echo 'Error applying the CPDService manifest'
   exit 1
 fi
@@ -28,10 +29,10 @@ while true; do
     break
   fi
   
-  # if [ "$STATUS" == "Failed" ]; then
-  #   echo '=== Installation has failed ==='
-  #   exit 1
-  # fi
+  if [ "$STATUS" == "Failed" ]; then
+    echo '=== Installation has failed ==='
+    exit 1
+  fi
   
   echo "Sleeping $SLEEP_TIME..."
   sleep $SLEEP_TIME
