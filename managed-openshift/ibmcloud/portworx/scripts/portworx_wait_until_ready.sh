@@ -18,14 +18,14 @@ fi
 while true; do
   if ! READY=$(oc get -n kube-system ds/portworx -o jsonpath='{.status.numberReady}'); then
     echo 'Error getting READY pods'
-    exit 1
+  else
+    echo "$READY out of $DESIRED pods are ready"
+    
+    if [ "$DESIRED" -eq "$READY" ]; then
+      break;
+    fi
   fi
   
-  echo "$READY out of $DESIRED pods are ready"
-  
-  if [ "$DESIRED" -eq "$READY" ]; then
-    break;
-  fi
 
   echo "Sleeping $SLEEP_TIME..."
   sleep $SLEEP_TIME

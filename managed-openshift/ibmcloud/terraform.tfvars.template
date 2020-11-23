@@ -1,10 +1,10 @@
 # Required and frequently used variables are listed here.
-# Other variables from vars.tf may also be overriden in this file.
+# Other variables from vars.tf may also be overridden in this file.
 
 ibmcloud_api_key = "<ibmcloud api key>"
 region = "<region>"
-resource_group_name = "<resource group name>"
 unique_id = "<unique id>"
+# resource_group_name = "<resource group name>"
 
 accept_cpd_license = "<yes|no>" # see vars.tf for a link to the license
 cpd_registry_password = "<entitled registry password>" # retrieve from https://myibm.ibm.com/products-services/containerlibrary
@@ -31,6 +31,6 @@ install_services = {
   datagate      = false, # Db2 Data Gate
   dods          = false, # Decision Optimization
   ca            = false, # Cognos Analytics
-  spss          = false, # SPSS Modeler
+  spss-modeler  = false, # SPSS Modeler
 }
 */
