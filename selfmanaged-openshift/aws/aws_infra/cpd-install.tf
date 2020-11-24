@@ -51,11 +51,12 @@ resource "null_resource" "cpd_config" {
 
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
-            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl-version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
+            "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl-version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
+            "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-${var.datacore-version}.tgz -o /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.0.tgz",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
             "oc new-project cpd-meta-ops",
             "./install-cpd-operator.sh ${var.api-key} cpd-meta-ops",
             "sleep 5m",
