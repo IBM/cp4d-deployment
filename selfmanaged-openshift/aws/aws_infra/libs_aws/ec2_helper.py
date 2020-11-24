@@ -302,3 +302,14 @@ class EC2Helper():
         print("      - Specify different AWS instance types for that region.")
         print("      - Specify a different region.")
         print("")
+
+    def calculate_num_service_worker_nodes(self,
+                                           worker_instance_type,
+                                           tf_var_file):
+
+        instance_type_vcpus = self.get_vcpus_per_instance_type()
+        worker_node_vcpus = instance_type_vcpus[worker_instance_type]
+        services_vcpus = AWSGenericHelper.get_services_vcpus(tf_var_file)
+        num_service_worker_nodes = abs(-services_vcpus // worker_node_vcpus)
+
+        return num_service_worker_nodes
