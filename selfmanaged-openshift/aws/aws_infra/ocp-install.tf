@@ -31,14 +31,14 @@ resource "null_resource" "install_openshift" {
             "pip install awscli --upgrade --user > /dev/null",
 
             #Perform aws account Permission and Resource quota validaton.
-            "chmod +x /home/${self.triggers.username}/*.sh *.py",
+            "chmod +x /home/${self.triggers.username}/*.sh",
             "mkdir -p /home/${var.admin-username}/.aws",
             "cat > /home/${var.admin-username}/.aws/credentials <<EOL\n${data.template_file.awscreds.rendered}\nEOL",
             "cat > /home/${var.admin-username}/.aws/config <<EOL\n${data.template_file.awsregion.rendered}\nEOL",
 
             #Create OpenShift Cluster.
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-install-linux.tar.gz",
-            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-client-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp-version}/openshift-install-linux.tar.gz",
+            "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp-version}/openshift-client-linux.tar.gz",
             "tar -xvf openshift-install-linux.tar.gz",
             "sudo tar -xvf openshift-client-linux.tar.gz -C /usr/local/bin",
             "chmod +x openshift-install",

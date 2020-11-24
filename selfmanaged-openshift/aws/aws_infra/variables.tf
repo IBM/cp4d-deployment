@@ -308,12 +308,16 @@ variable "planning-analytics" {
 ##############################
 
 ##### Other Parameters , Don't modfify any values here#####
-variable "ocp_version" {
+variable "ocp-version" {
   default = "4.5.18"
 }
 
-variable "cloudctl_version" {
+variable "cloudctl-version" {
   default = "v3.6.0"
+}
+
+variable "datacore-version" {
+  default = "1.3.1"
 }
 
 variable "cpd-version" {
