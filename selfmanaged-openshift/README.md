@@ -136,8 +136,10 @@ As part of the deployment, the following services can be enabled.
   - Db2 Data Gate
   - Decision Optimization
   - SPSS Modeler
-  - Watson Assistant
-  - Watson Discovery
+  - Db2 Big SQL
+  - Planning Analytics
+<!--  - Watson Assistant
+  - Watson Discovery -->
  
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).
