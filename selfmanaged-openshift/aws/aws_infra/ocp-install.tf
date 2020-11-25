@@ -1,7 +1,7 @@
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
-    install-config = var.azlist == "multi_zone" ? "${data.template_file.installconfig[0].rendered}" : "${data.template_file.installconfig-1AZ[0].rendered}"
+    install-config = var.azlist == "multi_zone" ? data.template_file.installconfig[0].rendered : data.template_file.installconfig-1AZ[0].rendered
 }
 
 resource "null_resource" "install_openshift" {
@@ -57,7 +57,7 @@ resource "null_resource" "install_openshift" {
             "cat > ${local.ocptemplates}/machine-autoscaler.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
             "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
             "cat > ${local.ocptemplates}/machine-health-check.yaml <<EOL\n${data.template_file.machinehealthcheck.rendered}\nEOL",
-            "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file("${var.ssh-private-key-file-path}")}\nEOL",
+            "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
 
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password)",

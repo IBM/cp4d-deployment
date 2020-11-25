@@ -47,7 +47,7 @@ locals{
     multi_zone   = data.aws_availability_zones.azs.names
   }
 
-  avzone   = "${local.zonelist[var.azlist]}"
+  avzone   = local.zonelist[var.azlist]
   vpcid    = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
 }
 
