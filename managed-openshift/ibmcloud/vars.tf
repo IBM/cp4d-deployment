@@ -52,37 +52,48 @@ variable "install_services" {
   type = map
   description = "Choose the Cloud Pak for Data services to be installed"
   default = {
-    spark         = false, # Analytics Engine powered by Apache Spark
-    dv            = false, # Data Virtualization
-    wkc           = false, # Watson Knowledge Catalog
-    wsl           = false, # Watson Studio
-    wml           = false, # Watson Machine Learning
-    aiopenscale   = false, # Watson OpenScale
-    cde           = false, # Cognos Dashboard Engine
-    streams       = false, # Streams
-    streams-flows = false, # Streams Flows
-    ds            = false, # DataStage
-    dmc           = false, # Db2 Data Management Console
-    db2wh         = false, # Db2 Warehouse
-    db2oltp       = false, # Db2
-    datagate      = false, # Db2 Data Gate
-    dods          = false, # Decision Optimization
-    ca            = false, # Cognos Analytics
-    spss-modeler  = false, # SPSS Modeler
+    spark              = false, # Analytics Engine powered by Apache Spark
+    dv                 = false, # Data Virtualization
+    wkc                = false, # Watson Knowledge Catalog
+    wsl                = false, # Watson Studio
+    wml                = false, # Watson Machine Learning
+    aiopenscale        = false, # Watson OpenScale
+    cde                = false, # Cognos Dashboard Engine
+    streams            = false, # Streams
+    streams-flows      = false, # Streams Flows
+    ds                 = false, # DataStage
+    dmc                = false, # Db2 Data Management Console
+    db2wh              = false, # Db2 Warehouse
+    db2oltp            = false, # Db2
+    datagate           = false, # Db2 Data Gate
+    dods               = false, # Decision Optimization
+    ca                 = false, # Cognos Analytics
+    spss-modeler       = false, # SPSS Modeler
+    big-sql            = false, # Db2 Big SQL
+    rstudio            = false, # Watson Studio Local RStudio
+    hadoop-addon       = false, # Hadoop Execution Addon
+    # mongodb            = false, # MongoDB Enterprise
+    runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
+    # runtime-addon-r36  = false, # Jupyter R 3.6 Runtime Addon
   }
 }
 
 ####################
 # VPC configuration
 ####################
-variable "existing_vpc_name" {
-  description = "Name of the VPC, if you wish to install CP4D in an existing VPC"
+variable "existing_vpc_id" {
+  description = "ID of the VPC, if you wish to install CP4D in an existing VPC"
+  default = null
+}
+
+variable "existing_vpc_subnets" {
+  description = "List of subnet IDs in an existing VPC in which the cluster will be installed. Required when `existing_vpc_id` has been provided."
   default = null
 }
 
 variable "enable_public_gateway" {
   type = bool
-  description = "Attach a public gateway to the worker node subnets? [true/false]"
+  description = "Attach a public gateway to the worker node subnets? [true/false] Currently unsupported."
   default = true
 }
 
@@ -98,8 +109,8 @@ variable "allowed_cidr_range" {
   default = ["0.0.0.0/0"]
 }
 
-#Network Variables
 variable "acl_rules" {
+  description = "List of rules for the network ACL attached to every subnet. Refer to https://cloud.ibm.com/docs/terraform?topic=terraform-vpc-gen2-resources#network-acl-input for the format."
   default = [
     {
       name        = "egress"
@@ -150,7 +161,7 @@ variable "storage_profile" {
 }
 
 variable "storage_iops" {
-  description = "The iops for the block storage. Only used for the 'custom' storage profile."
+  description = "The IOPS for the block storage. Only used for the 'custom' storage profile."
   default = 10000
 }
 
@@ -165,12 +176,12 @@ variable "create_external_etcd" {
 variable "cos_instance_crn" {
   # Retrieve the CRN of an existing bucket using the ibmcloud CLI:
   # `ibmcloud resource service-instance $COS_INSTANCE_NAME --id | awk '{print $1}'`
-  description = "OpenShift requires an object store to back up the internal registry of your cluster. You may use an existing COS, or the module will create one."
+  description = "OpenShift requires an object store to back up the internal registry of your cluster. You may supply an existing COS, or the module will create a new one."
   default = null
 }
 
 variable "disable_public_service_endpoint" {
-  description = "Disable the ROKS public service endpoint? [true/false]"
+  description = "Disable the ROKS public service endpoint? [true/false], Currently not supported"
   type = bool
   default = false
 }
@@ -190,6 +201,6 @@ variable "worker_node_flavor" {
 
 
 variable "worker_nodes_per_zone" {
-  description = "Number of initial worker nodes per zone for the ROKS cluster. Select at least 3 for single-zone and at least 2 for multi-zone clusters."
+  description = "Number of initial worker nodes per zone for the ROKS cluster. Select at least 3 for single zone and 2 for multizone clusters."
   default = "3"
 }

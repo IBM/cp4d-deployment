@@ -8,9 +8,14 @@ provider "kubernetes" {
 # Log in to oc cli
 ###################
 resource "null_resource" "oc_login" {
+  triggers = {
+    oc_token = var.oc_token
+    oc_host = var.oc_host
+  }
+  
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "oc login --token=${var.oc_token} --server=${var.oc_host} || exit $?"
+    command = "oc login --token=${self.triggers.oc_token} --server=${self.triggers.oc_host} || exit $?"
   }
   
   provisioner "local-exec" {
@@ -101,7 +106,6 @@ resource "null_resource" "retrieve_ibm_cp_datacore" {
 #######################
 resource "null_resource" "prereqs_checkpoint" {
   depends_on = [
-    null_resource.oc_login,
     null_resource.setkernelparams,
     null_resource.create_registry_route,
     null_resource.annotate_registry_route,

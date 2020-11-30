@@ -1,5 +1,5 @@
-# Required and frequently used variables are listed here.
-# Other variables from vars.tf may also be overridden in this file.
+## Required and frequently used variables are listed here.
+## Other variables from vars.tf may also be overridden in this file.
 
 ibmcloud_api_key = "<ibmcloud api key>"
 region = "<region>"
@@ -9,28 +9,32 @@ unique_id = "<unique id>"
 accept_cpd_license = "<yes|no>" # see vars.tf for a link to the license
 cpd_registry_password = "<entitled registry password>" # retrieve from https://myibm.ibm.com/products-services/containerlibrary
 
-
 # multizone = <true|false>
 # worker_nodes_per_zone = "3"
 
-/*
+# existing_vpc_id = ""
+# existing_vpc_subnets = ["xyz"]
+
 install_services = {
-  spark         = false, # Analytics Engine powered by Apache Spark
-  dv            = false, # Data Virtualization
-  wkc           = false, # Watson Knowledge Catalog
-  wsl           = false, # Watson Studio
-  wml           = false, # Watson Machine Learning
-  aiopenscale   = false, # Watson OpenScale
-  cde           = false, # Cognos Dashboard Engine
-  streams       = false, # Streams
-  streams-flows = false, # Streams Flows
-  ds            = false, # DataStage
-  dmc           = false, # Db2 Data Management Console
-  db2wh         = false, # Db2 Warehouse
-  db2oltp       = false, # Db2
-  datagate      = false, # Db2 Data Gate
-  dods          = false, # Decision Optimization
-  ca            = false, # Cognos Analytics
-  spss-modeler  = false, # SPSS Modeler
+  spark              = false, # Analytics Engine powered by Apache Spark
+  dv                 = false, # Data Virtualization
+  wkc                = false, # Watson Knowledge Catalog
+  wsl                = false, # Watson Studio
+  wml                = false, # Watson Machine Learning
+  aiopenscale        = false, # Watson OpenScale
+  cde                = false, # Cognos Dashboard Engine
+  streams            = false, # Streams
+  streams-flows      = false, # Streams Flows
+  ds                 = false, # DataStage
+  dmc                = false, # Db2 Data Management Console
+  db2wh              = false, # Db2 Warehouse
+  db2oltp            = false, # Db2
+  datagate           = false, # Db2 Data Gate
+  dods               = false, # Decision Optimization
+  ca                 = false, # Cognos Analytics
+  spss-modeler       = false, # SPSS Modeler
+  big-sql            = false, # Db2 Big SQL
+  rstudio            = false, # Watson Studio Local RStudio
+  hadoop-addon       = false, # Hadoop Execution Addon
+  runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
 }
-*/
