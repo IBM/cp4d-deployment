@@ -41,7 +41,7 @@
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
-| `ocp_version` | stable-4.5 | Openshift Container Platform version to install |
+| `ocp_version` | 4.5.18 | Openshift Container Platform version to install |
 | `cpd-version` | latest | CPD version to install |
 | `cloudctl_version` | v3.6.0 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
