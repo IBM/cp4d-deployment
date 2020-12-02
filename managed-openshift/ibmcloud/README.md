@@ -4,6 +4,19 @@
 
 This deployment guide provides instructions for deploying Cloud Pak for Data on managed Red Hat OpenShift on IBM Cloud (formerly known as ROKS) using Terraform.
 
+- [Costs and licenses](#costs-and-licenses)
+- [Deployment topology](#deployment-topology)
+- [Cloud Pak for Data services](#cloud-pak-for-data-services)
+- [Instructions](#instructions)
+  * [Building the Terraform environment container](#building-the-terraform-environment-container)
+  * [Installing Cloud Pak for Data](#installing-cloud-pak-for-data)
+  * [Securing your VPC and cluster](#securing-your-vpc-and-cluster)
+  * [Deploying in an existing VPC](#deploying-in-an-existing-vpc)
+- [Troubleshooting](#troubleshooting)
+  * [View detailed install logs](#view-detailed-install-logs)
+  * [Common errors](#common-errors)
+- [Coming soon](#coming-soon)
+
 ## Costs and licenses
 
 These scripts create resources on IBM Cloud. For cost estimates, see the pricing pages for each IBM Cloud service that will be enabled. This deployment lets you use the OpenShift license bundled with your Cloud Pak entitlement. Portworx Enterprise is installed from the IBM Cloud catalog and a separate subscription from Portworx is not required.
@@ -14,7 +27,9 @@ You must have a Cloud Pak for Data entitlement API key to download images from t
 
 ## Deployment topology
 
-The deployment creates the following resources:
+![architecture diagram](cpd_roks_diagram.png)
+
+The deployment creates the following resources.
 
 * A [Virtual Private Cloud (Gen 2)](https://cloud.ibm.com/docs/vpc/vpc-getting-started-with-ibm-cloud-virtual-private-cloud-infrastructure) spanning one or three zones with a public gateway and private subnet in each zone.
 
@@ -28,9 +43,13 @@ The deployment creates the following resources:
 
 * IBM Cloud Object Storage instance to back up the internal registry of your cluster.
 
+Refer to [Quotas and service limits](https://cloud.ibm.com/docs/vpc?topic=vpc-quotas&locale=en) and ensure that your IBM Cloud account has sufficient resource quotas available.
+
+Refer to [User access permissions](https://cloud.ibm.com/docs/openshift?topic=openshift-access_reference&locale=en) to verify that your account has been assigned the necessary IBM Cloud IAM permissions to create the resources in the deployment.
+
 ## Cloud Pak for Data services
 
-As part of the deployment, the following services can be enabled. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
+As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
 
 * Lite (base)
 * Analytics Engine powered by Apache Spark
@@ -50,6 +69,10 @@ As part of the deployment, the following services can be enabled. For more infor
 * Decision Optimization
 * Cognos Analytics
 * SPSS Modeler
+* Db2 Big SQL
+* Watson Studio Local RStudio
+* Hadoop Execution Addon
+* Jupyter Python 3.7 Runtime Addon
 
 ## Instructions
 
@@ -82,9 +105,29 @@ This directory on the host will be bind-mounted to `~/templates` in the containe
 
 Currently, this deployment installs an OpenShift cluster in a VPC with permissive network access policies. To control traffic to your cluster, see [Securing the cluster network](https://cloud.ibm.com/docs/openshift?topic=openshift-vpc-network-policy).
 
+### Deploying in an existing VPC
+
+These templates can be used to install Cloud Pak for Data in an existing VPC on your account. You must provide valid values for the following variables:
+
+* `existing_vpc_id`
+* `existing_vpc_subnets` — A list of subnet IDs in your VPC in which to install the cluster. Every subnet must belong to a different zone. Thus, in a non-multizone deployment only supply one subnet in a list. At this time, public gateways must be enabled on all provided subnets.
+* `multizone`
+
+Note that when installing in an existing VPC, all other VPC configuration variables such as `enable_public_gateway`, `allowed_cidr_range`, `acl_rules` are ignored.
+
 ## Troubleshooting
 
 Open an Issue in this repo that describes the error.
+
+### View detailed logs
+
+Cloud Pak for Data installation logs can be viewed in the following locations. These will become available after Terraform creates the `module.cpd_install.null_resource.install_cpd_operator` resource successfully.
+
+* cpd-meta-operator: `oc -n cpd-meta-ops logs -f deploy/ibm-cp-data-operator`
+
+* cpd-install-operator: `oc -n cpd-tenant logs -f deploy/cpd-install-operator`
+
+**Note**: These logs may contain sensitive information such as your ICR entitlement key. Do not attach them to a GitHub Issue.
 
 ### Common errors
 
@@ -113,9 +156,8 @@ Resource provisioning can fail due to random errors such as latency timeouts, to
   2. Else, run `terraform untaint module.portworx.ibm_resource_instance.portworx` to mark the resource as successful.
   3. Run `terraform apply`. The deployment will continue onwards.
 
-### Coming soon
+## Coming soon
 
-* Support for deploying in an existing VPC
 * Support for application access restrictions based on `allowed_cidr_range`
 * Support for additional Cloud Pak for Data services
 * Support for IBM Key Protect volume encryption at deploy time.

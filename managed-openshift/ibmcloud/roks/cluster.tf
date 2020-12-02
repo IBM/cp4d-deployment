@@ -20,6 +20,15 @@ resource "ibm_resource_instance" "cos_instance" {
 #   storage_class        = "standard"
 # }
 
+data "ibm_is_subnet" "this" {
+  count = length(var.vpc_subnets)
+  identifier = var.vpc_subnets[count.index]
+}
+
+locals {
+  zone_subnet_map = zipmap(data.ibm_is_subnet.this.*.zone, var.vpc_subnets)
+}
+
 #Create the ROKS cluster
 resource "ibm_container_vpc_cluster" "this" {
   # cos_instance_crn  = coalesce(var.cos_instance_crn, ibm_resource_instance.cos_instance.crn)
@@ -34,7 +43,7 @@ resource "ibm_container_vpc_cluster" "this" {
   worker_count                    = var.worker_nodes_per_zone
   
   dynamic "zones" {
-    for_each = var.zone_subnet_id_map
+    for_each = local.zone_subnet_map
     content {
       name = zones.key
       subnet_id = zones.value
@@ -46,6 +55,6 @@ resource "ibm_container_vpc_cluster" "this" {
 
 data "ibm_container_cluster_config" "this" {
   cluster_name_id = ibm_container_vpc_cluster.this.id
-  # config_dir = "${path.root}"
+  # download = false
   resource_group_id = var.resource_group_id
 }

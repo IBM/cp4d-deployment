@@ -19,6 +19,7 @@ resource "null_resource" "install_cpd_operator" {
   }
   
   depends_on = [
+    null_resource.oc_login,
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
   ]
@@ -29,44 +30,56 @@ resource "null_resource" "install_cpd_operator" {
 #############################
 locals {
   storageclass = {
-    "lite"           = "portworx-shared-gp3",
-    "dv"             = "portworx-shared-gp3",
-    "spark"          = "portworx-shared-gp3",
-    "wkc"            = "portworx-shared-gp3",
-    "wsl"            = "portworx-shared-gp3",
-    "wml"            = "portworx-shared-gp3",
-    "aiopenscale"    = "portworx-shared-gp3",
-    "cde"            = "portworx-shared-gp3",
-    "streams"        = "portworx-shared-gp-allow",
-    "streams-flows"  = "portworx-shared-gp3",
-    "ds"             = "portworx-shared-gp3",
-    "dmc"            = "portworx-shared-gp3",
-    "db2wh"          = "portworx-shared-gp3",
-    "db2oltp"        = "portworx-shared-gp3",
-    "datagate"       = "portworx-db2-rwx-sc",
-    "dods"           = "portworx-shared-gp3",
-    "ca"             = "portworx-shared-gp3",
-    "spss-modeler"   = "portworx-shared-gp3",
+    "lite"               = "portworx-shared-gp3",
+    "dv"                 = "portworx-shared-gp3",
+    "spark"              = "portworx-shared-gp3",
+    "wkc"                = "portworx-shared-gp3",
+    "wsl"                = "portworx-shared-gp3",
+    "wml"                = "portworx-shared-gp3",
+    "aiopenscale"        = "portworx-shared-gp3",
+    "cde"                = "portworx-shared-gp3",
+    "streams"            = "portworx-shared-gp-allow",
+    "streams-flows"      = "portworx-shared-gp3",
+    "ds"                 = "portworx-shared-gp3",
+    "dmc"                = "portworx-shared-gp3",
+    "db2wh"              = "portworx-shared-gp3",
+    "db2oltp"            = "portworx-shared-gp3",
+    "datagate"           = "portworx-db2-rwx-sc",
+    "dods"               = "portworx-shared-gp3",
+    "ca"                 = "portworx-shared-gp3",
+    "spss-modeler"       = "portworx-shared-gp3",
+    "big-sql"            = "portworx-shared-gp3",
+    "rstudio"            = "portworx-shared-gp3",
+    "hadoop-addon"       = "portworx-shared-gp3",
+    "mongodb"            = "portworx-shared-gp3",
+    "runtime-addon-py37" = "portworx-shared-gp3",
+    # "runtime-addon-r36"  = "portworx-shared-gp3",
   }
   override = {
-    "lite"           = "portworx",
-    "dv"             = "portworx",
-    "spark"          = "portworx",
-    "wkc"            = "portworx",
-    "wsl"            = "portworx",
-    "wml"            = "portworx",
-    "aiopenscale"    = "portworx",
-    "cde"            = "portworx",
-    "streams"        = "portworx",
-    "streams-flows"  = "",
-    "ds"             = "portworx",
-    "dmc"            = "",
-    "db2wh"          = "",
-    "db2oltp"        = "",
-    "datagate"       = "portworx",
-    "dods"           = "portworx",
-    "ca"             = "portworx",
-    "spss-modeler"   = "portworx",
+    "lite"               = "portworx",
+    "dv"                 = "portworx",
+    "spark"              = "portworx",
+    "wkc"                = "portworx",
+    "wsl"                = "portworx",
+    "wml"                = "portworx",
+    "aiopenscale"        = "portworx",
+    "cde"                = "portworx",
+    "streams"            = "portworx",
+    "streams-flows"      = "",
+    "ds"                 = "portworx",
+    "dmc"                = "portworx",
+    "db2wh"              = "",
+    "db2oltp"            = "",
+    "datagate"           = "portworx",
+    "dods"               = "portworx",
+    "ca"                 = "portworx",
+    "spss-modeler"       = "portworx",
+    "big-sql"            = "portworx",
+    "rstudio"            = "portworx",
+    "hadoop-addon"       = "portworx",
+    "mongodb"            = "portworx",
+    "runtime-addon-py37" = "portworx",
+    # "runtime-addon-r36"  = "portworx",
   }
 }
 
@@ -80,7 +93,10 @@ resource "null_resource" "install_lite" {
     command = "oc new-project ${var.cpd_project_name}; ./install_cpdservice_generic.sh ${var.cpd_project_name} lite ${local.storageclass["lite"]} ${local.override["lite"]}"
   }
 
-  depends_on = [null_resource.install_cpd_operator]
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_cpd_operator
+  ]
 }
 
 # Reencrypt route
@@ -92,7 +108,10 @@ resource "null_resource" "reencrypt_route" {
     command = "./reencrypt_route.sh ${var.cpd_project_name}"
   }
 
-  depends_on = [null_resource.install_lite]
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_lite
+  ]
 }
 
 
@@ -108,6 +127,7 @@ resource "null_resource" "install_spark" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite
   ]
 }
@@ -122,6 +142,7 @@ resource "null_resource" "install_dv" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
   ]
@@ -137,6 +158,7 @@ resource "null_resource" "install_wkc" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -153,6 +175,7 @@ resource "null_resource" "install_wsl" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -170,6 +193,7 @@ resource "null_resource" "install_wml" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -188,6 +212,7 @@ resource "null_resource" "install_aiopenscale" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -207,6 +232,7 @@ resource "null_resource" "install_cde" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -228,6 +254,7 @@ resource "null_resource" "install_streams" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -249,6 +276,7 @@ resource "null_resource" "install_streams_flows" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -271,6 +299,7 @@ resource "null_resource" "install_ds" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -294,6 +323,7 @@ resource "null_resource" "install_dmc" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -318,6 +348,7 @@ resource "null_resource" "install_db2wh" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -343,6 +374,7 @@ resource "null_resource" "install_db2oltp" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -369,6 +401,7 @@ resource "null_resource" "install_datagate" {
   }
   
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -396,6 +429,7 @@ resource "null_resource" "install_dods" {
   }
   
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -424,6 +458,7 @@ resource "null_resource" "install_ca" {
   }
 
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -453,6 +488,7 @@ resource "null_resource" "install_spss" {
   }
   
   depends_on = [
+    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -472,3 +508,210 @@ resource "null_resource" "install_spss" {
     null_resource.install_ca,
   ]
 }
+
+resource "null_resource" "install_big_sql" {
+  count = var.accept_cpd_license == "yes" && var.install_services["big-sql"] ? 1 : 0
+  
+  provisioner "local-exec" {
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} big-sql ${local.storageclass["big-sql"]} ${local.override["big-sql"]}"
+  }
+  
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_lite,
+    null_resource.install_spark,
+    null_resource.install_dv,
+    null_resource.install_wkc,
+    null_resource.install_wsl,
+    null_resource.install_wml,
+    null_resource.install_aiopenscale,
+    null_resource.install_cde,
+    null_resource.install_streams,
+    null_resource.install_streams_flows,
+    null_resource.install_ds,
+    null_resource.install_dmc,
+    null_resource.install_db2wh,
+    null_resource.install_db2oltp,
+    null_resource.install_datagate,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_spss,
+  ]
+}
+
+resource "null_resource" "install_rstudio" {
+  count = var.accept_cpd_license == "yes" && var.install_services["rstudio"] ? 1 : 0
+  
+  provisioner "local-exec" {
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} rstudio ${local.storageclass["rstudio"]} ${local.override["rstudio"]}"
+  }
+  
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_lite,
+    null_resource.install_spark,
+    null_resource.install_dv,
+    null_resource.install_wkc,
+    null_resource.install_wsl,
+    null_resource.install_wml,
+    null_resource.install_aiopenscale,
+    null_resource.install_cde,
+    null_resource.install_streams,
+    null_resource.install_streams_flows,
+    null_resource.install_ds,
+    null_resource.install_dmc,
+    null_resource.install_db2wh,
+    null_resource.install_db2oltp,
+    null_resource.install_datagate,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_spss,
+    null_resource.install_big_sql,
+  ]
+}
+
+resource "null_resource" "install_hadoop_addon" {
+  count = var.accept_cpd_license == "yes" && var.install_services["hadoop-addon"] ? 1 : 0
+  
+  provisioner "local-exec" {
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} hadoop-addon ${local.storageclass["hadoop-addon"]} ${local.override["hadoop-addon"]}"
+  }
+  
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_lite,
+    null_resource.install_spark,
+    null_resource.install_dv,
+    null_resource.install_wkc,
+    null_resource.install_wsl,
+    null_resource.install_wml,
+    null_resource.install_aiopenscale,
+    null_resource.install_cde,
+    null_resource.install_streams,
+    null_resource.install_streams_flows,
+    null_resource.install_ds,
+    null_resource.install_dmc,
+    null_resource.install_db2wh,
+    null_resource.install_db2oltp,
+    null_resource.install_datagate,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_spss,
+    null_resource.install_big_sql,
+    null_resource.install_rstudio,
+  ]
+}
+
+# resource "null_resource" "install_mongodb" {
+#   count = var.accept_cpd_license == "yes" && var.install_services["mongodb"] ? 1 : 0
+#
+#   provisioner "local-exec" {
+#     working_dir = "${path.module}/scripts/"
+#     interpreter = ["/bin/bash", "-c"]
+#     command = "./install_cpdservice_generic.sh ${var.cpd_project_name} mongodb ${local.storageclass["mongodb"]} ${local.override["mongodb"]}"
+#   }
+#
+#   depends_on = [
+#     null_resource.oc_login,
+#     null_resource.install_lite,
+#     null_resource.install_spark,
+#     null_resource.install_dv,
+#     null_resource.install_wkc,
+#     null_resource.install_wsl,
+#     null_resource.install_wml,
+#     null_resource.install_aiopenscale,
+#     null_resource.install_cde,
+#     null_resource.install_streams,
+#     null_resource.install_streams_flows,
+#     null_resource.install_ds,
+#     null_resource.install_dmc,
+#     null_resource.install_db2wh,
+#     null_resource.install_db2oltp,
+#     null_resource.install_datagate,
+#     null_resource.install_dods,
+#     null_resource.install_ca,
+#     null_resource.install_spss,
+#     null_resource.install_big_sql,
+#     null_resource.install_rstudio,
+#     null_resource.install_hadoop_addon,
+#   ]
+# }
+
+resource "null_resource" "install_runtime_addon_py37" {
+  count = var.accept_cpd_license == "yes" && var.install_services["runtime-addon-py37"] ? 1 : 0
+  
+  provisioner "local-exec" {
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} runtime-addon-py37 ${local.storageclass["runtime-addon-py37"]} ${local.override["runtime-addon-py37"]}"
+  }
+  
+  depends_on = [
+    null_resource.oc_login,
+    null_resource.install_lite,
+    null_resource.install_spark,
+    null_resource.install_dv,
+    null_resource.install_wkc,
+    null_resource.install_wsl,
+    null_resource.install_wml,
+    null_resource.install_aiopenscale,
+    null_resource.install_cde,
+    null_resource.install_streams,
+    null_resource.install_streams_flows,
+    null_resource.install_ds,
+    null_resource.install_dmc,
+    null_resource.install_db2wh,
+    null_resource.install_db2oltp,
+    null_resource.install_datagate,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_spss,
+    null_resource.install_big_sql,
+    null_resource.install_rstudio,
+    null_resource.install_hadoop_addon,
+    # null_resource.install_mongodb,
+  ]
+}
+
+# resource "null_resource" "install_runtime_addon_r36" {
+#   count = var.accept_cpd_license == "yes" && var.install_services["runtime-addon-r36"] ? 1 : 0
+#
+#   provisioner "local-exec" {
+#     working_dir = "${path.module}/scripts/"
+#     interpreter = ["/bin/bash", "-c"]
+#     command = "./install_cpdservice_generic.sh ${var.cpd_project_name} runtime-addon-r36 ${local.storageclass["runtime-addon-r36"]} ${local.override["runtime-addon-r36"]}"
+#   }
+#
+#   depends_on = [
+#     null_resource.oc_login,
+#     null_resource.install_lite,
+#     null_resource.install_spark,
+#     null_resource.install_dv,
+#     null_resource.install_wkc,
+#     null_resource.install_wsl,
+#     null_resource.install_wml,
+#     null_resource.install_aiopenscale,
+#     null_resource.install_cde,
+#     null_resource.install_streams,
+#     null_resource.install_streams_flows,
+#     null_resource.install_ds,
+#     null_resource.install_dmc,
+#     null_resource.install_db2wh,
+#     null_resource.install_db2oltp,
+#     null_resource.install_datagate,
+#     null_resource.install_dods,
+#     null_resource.install_ca,
+#     null_resource.install_spss,
+#     null_resource.install_big_sql,
+#     null_resource.install_rstudio,
+#     null_resource.install_hadoop_addon,
+#     null_resource.install_mongodb,
+#     null_resource.install_runtime_addon_py37,
+#   ]
+# }
