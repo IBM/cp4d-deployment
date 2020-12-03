@@ -34,7 +34,7 @@ The deployment sets up the following as shown in the diagram.
    Name the new folder differently in case you plan to build multiple infrastructures.
 * Change the current directory to aws_infra:
 ```
-cd cp4d-deployment-<your infrastructure name>/aws/aws_infra
+cd cp4d-deployment-<your infrastructure name>/selfmanaged-openshift/aws/aws_infra
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 * Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
