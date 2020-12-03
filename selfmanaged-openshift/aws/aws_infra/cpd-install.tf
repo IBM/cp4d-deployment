@@ -739,7 +739,7 @@ resource "null_resource" "install_bigsql" {
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
             "cat > ${local.installerhome}/cpd-big-sql.yaml <<EOL\n${data.template_file.cpd-service.rendered}\nEOL",
             "sed -i -e s#SERVICE#big-sql#g ${local.installerhome}/cpd-big-sql.yaml",
-            "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-big-sql.yaml",
+            "sed -i -e s#STORAGECLASS#${lookup(var.bigsql-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-big-sql.yaml",
             "oc create -f ${local.installerhome}/cpd-big-sql.yaml -n ${var.cpd-namespace}",
             "./wait-for-service-install.sh big-sql ${var.cpd-namespace}",
         ]
