@@ -264,6 +264,20 @@ provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
 ---
+allowVolumeExpansion: true
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-dv-shared-gp3
+parameters:
+  block_size: 4096b
+  priority_io: high
+  repl: "3"
+  shared: "true"
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
