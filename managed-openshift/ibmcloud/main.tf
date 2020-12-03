@@ -20,11 +20,15 @@ data "ibm_resource_group" "this" {
 module "vpc" {
   source = "./vpc"
   
-  acl_rules             = var.acl_rules
-  enable_public_gateway = var.enable_public_gateway
-  multizone             = var.multizone
-  resource_group_id     = data.ibm_resource_group.this.id
-  region                = var.region
+  # when this is not null, the module doesn't create any resources
+  existing_vpc_id           = var.existing_vpc_id
+  existing_vpc_subnets      = var.existing_vpc_subnets
+  
+  acl_rules                 = var.acl_rules
+  enable_public_gateway     = var.enable_public_gateway
+  multizone                 = var.multizone
+  resource_group_id         = data.ibm_resource_group.this.id
+  region                    = var.region
   subnet_ip_range_cidr      = var.subnet_ip_range_cidr
   unique_id                 = var.unique_id
   zone_address_prefix_cidr  = var.zone_address_prefix_cidr
@@ -42,10 +46,9 @@ module "roks" {
   resource_group_id               = data.ibm_resource_group.this.id
   unique_id                       = var.unique_id
   vpc_id                          = module.vpc.vpc_id
+  vpc_subnets                     = module.vpc.vpc_subnets
   worker_node_flavor              = var.worker_node_flavor
   worker_nodes_per_zone           = var.worker_nodes_per_zone
-  zone_subnet_id_map              = module.vpc.zone_subnet_id_map
-  
 }
 
 module "portworx" {
