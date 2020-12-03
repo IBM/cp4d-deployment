@@ -134,9 +134,14 @@ resource "kubernetes_secret" "etcd" {
 # Install Portworx on the cluster
 ##################################
 resource "null_resource" "oc_login" {
+  triggers = {
+    oc_token = var.oc_token
+    oc_host = var.oc_host
+  }
+  
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "oc login --token=${var.oc_token} --server=${var.oc_host} || exit $?"
+    command = "oc login --token=${self.triggers.oc_token} --server=${self.triggers.oc_host} || exit $?"
   }
   
   provisioner "local-exec" {
