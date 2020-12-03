@@ -390,4 +390,15 @@ variable "streams-storageclass" {
   }
 }
 
+# StorageClass Db2 Bigsql
+variable "bigsql-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-dv-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "efs"        = "aws-efs"
+  }
+}
+
 data "aws_availability_zones" "azs" {}
