@@ -10,7 +10,7 @@ locals {
     #Storage Classes
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp3" : "nfs"
+    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
 
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
