@@ -65,10 +65,10 @@ resource "null_resource" "cpd_config" {
             "oc new-project ${var.cpd-namespace}",
 
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true,\"replicas\":${lookup(var.image-replica,var.azlist)}}}' -n openshift-image-registry",
-            "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
             "oc patch svc/image-registry -p '{\"spec\":{\"sessionAffinity\": \"ClientIP\"}}' -n openshift-image-registry",
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"managementState\":\"Unmanaged\"}}'",
             "sleep 3m",
+            "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
             "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
             "sleep 2m",
             "./update-elb-timeout.sh ${local.vpcid}",
