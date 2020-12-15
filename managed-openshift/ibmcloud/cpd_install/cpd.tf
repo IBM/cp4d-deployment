@@ -19,7 +19,6 @@ resource "null_resource" "install_cpd_operator" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
   ]
@@ -94,7 +93,6 @@ resource "null_resource" "install_lite" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_cpd_operator
   ]
 }
@@ -109,7 +107,6 @@ resource "null_resource" "reencrypt_route" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite
   ]
 }
@@ -127,7 +124,6 @@ resource "null_resource" "install_spark" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite
   ]
 }
@@ -142,7 +138,6 @@ resource "null_resource" "install_dv" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
   ]
@@ -158,7 +153,6 @@ resource "null_resource" "install_wkc" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -175,7 +169,6 @@ resource "null_resource" "install_wsl" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -193,7 +186,6 @@ resource "null_resource" "install_wml" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -212,7 +204,6 @@ resource "null_resource" "install_aiopenscale" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -232,7 +223,6 @@ resource "null_resource" "install_cde" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -254,7 +244,6 @@ resource "null_resource" "install_streams" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -276,7 +265,6 @@ resource "null_resource" "install_streams_flows" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -299,7 +287,6 @@ resource "null_resource" "install_ds" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -323,7 +310,6 @@ resource "null_resource" "install_dmc" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -348,7 +334,6 @@ resource "null_resource" "install_db2wh" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -374,7 +359,6 @@ resource "null_resource" "install_db2oltp" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -401,7 +385,6 @@ resource "null_resource" "install_datagate" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -429,7 +412,6 @@ resource "null_resource" "install_dods" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -458,7 +440,6 @@ resource "null_resource" "install_ca" {
   }
 
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -488,7 +469,6 @@ resource "null_resource" "install_spss" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -519,7 +499,6 @@ resource "null_resource" "install_big_sql" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -551,7 +530,6 @@ resource "null_resource" "install_rstudio" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -584,7 +562,6 @@ resource "null_resource" "install_hadoop_addon" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -618,7 +595,6 @@ resource "null_resource" "install_hadoop_addon" {
 #   }
 #
 #   depends_on = [
-#     null_resource.oc_login,
 #     null_resource.install_lite,
 #     null_resource.install_spark,
 #     null_resource.install_dv,
@@ -653,7 +629,6 @@ resource "null_resource" "install_runtime_addon_py37" {
   }
   
   depends_on = [
-    null_resource.oc_login,
     null_resource.install_lite,
     null_resource.install_spark,
     null_resource.install_dv,
@@ -689,7 +664,6 @@ resource "null_resource" "install_runtime_addon_py37" {
 #   }
 #
 #   depends_on = [
-#     null_resource.oc_login,
 #     null_resource.install_lite,
 #     null_resource.install_spark,
 #     null_resource.install_dv,

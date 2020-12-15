@@ -282,6 +282,21 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
+# gp db
+cat <<EOF | oc create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-db-gp
+parameters:
+  io_profile: "db_remote"
+  repl: "1"
+  disable_io_profile_protection: "1"
+allowVolumeExpansion: true
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
 
 # General Purpose for Databases, 2 Replicas - MongoDB - (Implemented application-level redundancy)
 cat <<EOF | oc create -f -

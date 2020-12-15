@@ -13,8 +13,6 @@ variable "cpd_registry" {}
 variable "cpd_registry_username" {}
 variable "install_services" {}
 variable "multizone" {}
-variable "oc_host" {}
-variable "oc_token" {}
 variable "portworx_is_ready" {
   type = any
   default = null
