@@ -37,11 +37,11 @@ The deployment creates the following resources.
 
 * One [block storage](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-about) volume attached to each worker node.
 
-* [Portworx Enterprise](https://cloud.ibm.com/catalog/services/portworx-enterprise) running highly-available software-defined persistent storage.
+* [Portworx Enterprise](https://cloud.ibm.com/catalog/services/portworx-enterprise#about) running highly-available software-defined persistent storage.
 
-* A managed database service ([Databases for Etcd](https://cloud.ibm.com/docs/databases-for-etcd?topic=databases-for-etcd-getting-started)) for Portworx cluster metadata to keep the metadata separate from application data (optional).
+* A managed database service ([Databases for Etcd](https://cloud.ibm.com/docs/databases-for-etcd)) for Portworx cluster metadata to keep the metadata separate from application data (optional).
 
-* IBM Cloud Object Storage instance to back up the internal registry of your cluster.
+* A [Cloud Object Storage](https://cloud.ibm.com/docs/cloud-object-storage) instance to back up the internal registry of your cluster.
 
 Refer to [Quotas and service limits](https://cloud.ibm.com/docs/vpc?topic=vpc-quotas&locale=en) and ensure that your IBM Cloud account has sufficient resource quotas available.
 
@@ -76,6 +76,8 @@ As part of the deployment, any of the following services can be installed. For m
 
 ## Instructions
 
+[![Link to video walkthrough](http://img.youtube.com/vi/QXxk7j1Pan8/0.jpg)](https://video.ibm.com/channel/23952663/video/cpd-deploy-terraform "Link to video walkthrough")
+
 ### Building the Terraform environment container
 
 It is recommended that these scripts be executed from a Docker container to ensure that the required tools and packages are available. Docker can be installed for your system using instructions found [here](https://docs.docker.com/get-docker/). This deployment has been tested using Docker version 19.03.13.
@@ -90,30 +92,35 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 This directory on the host will be bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
 
-### Installing Cloud Pak for Data
+### Deploying Cloud Pak for Data
 
-1. Copy `terraform.tfvars.template` to `terraform.tfvars` and enter the values. This file can also be used to override the defaults in `vars.tf`.
+1. Copy `terraform.tfvars.template` to `terraform.tfvars`. This file can be used to define values for variables. Refer to [VARIABLES.md](VARIABLES.md) and [vars.tf](vars.tf) for a list of available variables.
 
-2. Log in to your container with `docker exec -it my-container bash`.
+2. Log in to your container with `docker exec -it my-container bash --login`.
 
 3. Run `terraform init`.
 
 4. Run `terraform apply`.
 
-
 ### Securing your VPC and cluster
 
-Currently, this deployment installs an OpenShift cluster in a VPC with permissive network access policies. To control traffic to your cluster, see [Securing the cluster network](https://cloud.ibm.com/docs/openshift?topic=openshift-vpc-network-policy).
+This deployment installs an OpenShift cluster in a VPC with permissive network access policies. To control traffic to your cluster, see [Securing the cluster network](https://cloud.ibm.com/docs/openshift?topic=openshift-vpc-network-policy).
 
 ### Deploying in an existing VPC
 
-These templates can be used to install Cloud Pak for Data in an existing VPC on your account. You must provide valid values for the following variables:
+These templates can be used to install Cloud Pak for Data in an existing VPC on your account by providing values for the following variables.
 
 * `existing_vpc_id`
-* `existing_vpc_subnets` — A list of subnet IDs in your VPC in which to install the cluster. Every subnet must belong to a different zone. Thus, in a non-multizone deployment only supply one subnet in a list. At this time, public gateways must be enabled on all provided subnets.
+* `existing_vpc_subnets` — A list of subnet IDs in your VPC in which to install the cluster. Every subnet must belong to a different zone. Thus, in a non-multizone deployment only supply one subnet in a list. Public gateways must be enabled on all provided subnets.
 * `multizone`
 
-Note that when installing in an existing VPC, all other VPC configuration variables such as `enable_public_gateway`, `allowed_cidr_range`, `acl_rules` are ignored.
+When installing in an existing VPC, all other VPC configuration variables such as `enable_public_gateway`, `allowed_cidr_range`, `acl_rules` are ignored.
+
+### Deploying in an existing OpenShift cluster
+
+These templates can also deploy Cloud Pak for Data on an existing VPC Gen 2 OpenShift on IBM Cloud cluster. In addition to the values in the "Deploying in an existing VPC" section, provide values for the following variables.
+
+* `existing_roks_cluster` — Name or ID of the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
 
 ## Troubleshooting
 
@@ -136,12 +143,6 @@ Resource provisioning can fail due to random errors such as latency timeouts, to
 * #### Errors with `docker` commands
 
   Ensure that your system has the latest version of Docker installed.
-
-* #### `exit status 1. Output: error: Missing or incomplete configuration info.  Please point to an existing, complete config file`
-
-  This can occur when the `oc` token has expired or has been invalidated for some reason.
-  1. Run `terraform state rm module.cpd_install.null_resource.oc_login module.cpd_install.null_resource.oc_login`.
-  2. Retry `terraform apply`.
 
 * #### `Error: timeout while waiting for state to become 'Ready'` for the resource `module.roks.ibm_container_vpc_cluster.this`
 
