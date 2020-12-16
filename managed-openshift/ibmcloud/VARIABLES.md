@@ -1,5 +1,3 @@
-
-
 |Variable name                      |Default                                                  |Description |
 |-----------------------------------|:-------------------------------------------------------:|------------|
 |`ibmcloud_api_key`                 | Required                                                 | IBM Cloud API key

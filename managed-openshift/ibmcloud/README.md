@@ -12,6 +12,7 @@ This deployment guide provides instructions for deploying Cloud Pak for Data on 
   * [Installing Cloud Pak for Data](#installing-cloud-pak-for-data)
   * [Securing your VPC and cluster](#securing-your-vpc-and-cluster)
   * [Deploying in an existing VPC](#deploying-in-an-existing-vpc)
+  * [Deploying in an existing OpenShift cluster](#deploying-in-an-existing-openshift-cluster)
 - [Troubleshooting](#troubleshooting)
   * [View detailed install logs](#view-detailed-install-logs)
   * [Common errors](#common-errors)
@@ -90,7 +91,7 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 3. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
-This directory on the host will be bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
+The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
 
 ### Deploying Cloud Pak for Data
 
