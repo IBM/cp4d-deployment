@@ -1,7 +1,7 @@
 terraform {
   required_version = "v0.12.29"
   required_providers {
-    ibm = "1.14.0"
+    ibm = "1.17.0"
     kubernetes = "1.13.3"
     null = "~> 3.0"
   }
@@ -38,6 +38,7 @@ module "roks" {
   source = "./roks"
   
   cos_instance_crn                = var.cos_instance_crn
+  existing_roks_cluster           = var.existing_roks_cluster
   disable_public_service_endpoint = var.disable_public_service_endpoint
   entitlement                     = var.entitlement
   kube_version                    = var.kube_version
@@ -57,8 +58,6 @@ module "portworx" {
   cluster_id           = module.roks.cluster_id
   create_external_etcd = var.create_external_etcd
   ibmcloud_api_key     = var.ibmcloud_api_key
-  oc_host              = module.roks.oc_host
-  oc_token             = module.roks.oc_token
   region               = var.region
   resource_group_id    = data.ibm_resource_group.this.id
   storage_capacity     = var.storage_capacity
@@ -79,8 +78,6 @@ module "cpd_install" {
   cpd_registry_username = var.cpd_registry_username
   install_services      = var.install_services
   multizone             = var.multizone
-  oc_host               = module.roks.oc_host
-  oc_token              = module.roks.oc_token
   portworx_is_ready     = module.portworx.portworx_is_ready
   region                = var.region
   resource_group_id     = data.ibm_resource_group.this.id

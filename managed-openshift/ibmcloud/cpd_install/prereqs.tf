@@ -1,30 +1,3 @@
-provider "kubernetes" {
-  load_config_file = "false"
-  host             = var.oc_host
-  token            = var.oc_token
-}
-
-###################
-# Log in to oc cli
-###################
-resource "null_resource" "oc_login" {
-  triggers = {
-    oc_token = var.oc_token
-    oc_host = var.oc_host
-  }
-  
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc login --token=${self.triggers.oc_token} --server=${self.triggers.oc_host} || exit $?"
-  }
-  
-  provisioner "local-exec" {
-    when = destroy
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc logout || true"
-  }
-}
-
 #############################
 # Optimize kernel parameters
 #############################
@@ -33,7 +6,7 @@ locals {
   worker_node_memory = tonumber(regex("[0-9]+$", var.worker_node_flavor))
 }
 resource "null_resource" "setkernelparams" {
-  depends_on = [null_resource.oc_login]
+  depends_on = [var.portworx_is_ready]
   
   provisioner "local-exec" {
     working_dir = "${path.module}/scripts/"
@@ -46,7 +19,7 @@ resource "null_resource" "setkernelparams" {
 # Create and annotate image registry route
 ###########################################
 resource "null_resource" "create_registry_route" {
-  depends_on = [null_resource.oc_login]
+  depends_on = [var.portworx_is_ready]
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
@@ -66,7 +39,7 @@ resource "null_resource" "annotate_registry_route" {
 # Patch S3 endpoint
 ################################
 # resource "null_resource" "patch_s3_endpoint" {
-#   depends_on = [null_resource.oc_login]
+#   depends_on = [var.portworx_is_ready]
 #
 #   provisioner "local-exec" {
 #     interpreter = ["/bin/bash", "-c"]
@@ -77,7 +50,7 @@ resource "null_resource" "annotate_registry_route" {
 # Increase imageregistry replicas if multizone
 ###############################################
 # resource "null_resource" "imageregistry_multizone" {
-#   depends_on = [null_resource.oc_login]
+#   depends_on = [var.portworx_is_ready]
 #   count = var.multizone ? 1 : 0
 #
 #   provisioner "local-exec" {
@@ -106,6 +79,7 @@ resource "null_resource" "retrieve_ibm_cp_datacore" {
 #######################
 resource "null_resource" "prereqs_checkpoint" {
   depends_on = [
+    var.portworx_is_ready,
     null_resource.setkernelparams,
     null_resource.create_registry_route,
     null_resource.annotate_registry_route,

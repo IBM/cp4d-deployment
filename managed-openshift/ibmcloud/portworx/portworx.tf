@@ -1,8 +1,4 @@
-provider "kubernetes" {
-  load_config_file = "false"
-  host             = var.oc_host
-  token            = var.oc_token
-}
+provider "kubernetes" {}
 
 ##################################################
 # Create and attach block storage to worker nodes
@@ -133,30 +129,10 @@ resource "kubernetes_secret" "etcd" {
 ##################################
 # Install Portworx on the cluster
 ##################################
-resource "null_resource" "oc_login" {
-  triggers = {
-    oc_token = var.oc_token
-    oc_host = var.oc_host
-  }
-  
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc login --token=${self.triggers.oc_token} --server=${self.triggers.oc_host} || exit $?"
-  }
-  
-  provisioner "local-exec" {
-    when = destroy
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc logout || true"
-  }
-}
-
-# Install Portworx
 resource "ibm_resource_instance" "portworx" {
   depends_on = [
     null_resource.volume_attachment,
     kubernetes_secret.etcd,
-    null_resource.oc_login
   ]
 
   name              = "${var.unique_id}-pwx-service"

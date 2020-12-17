@@ -17,7 +17,7 @@ data "template_file" "installconfig" {
     vars = {
         baseDomainResourceGroupName = var.dnszone-resource-group
         region = var.region
-        pullSecret = file("${var.pull-secret-file-path}")
+        pullSecret = file(var.pull-secret-file-path)
         sshKey = var.ssh-public-key
         baseDomain = var.dnszone
         worker-instance-type = var.worker-instance-type
@@ -106,7 +106,7 @@ data "template_file" "nfs-template" {
     count = var.storage == "nfs" ? 1 : 0
     template = file("../nfs_module/nfs-template.tpl.yaml")
     vars = {
-        nfsserver = "${azurerm_network_interface.nfs[count.index].private_ip_address}"
+        nfsserver = azurerm_network_interface.nfs[count.index].private_ip_address
         nfspath = "/exports/home"
     }
 }
