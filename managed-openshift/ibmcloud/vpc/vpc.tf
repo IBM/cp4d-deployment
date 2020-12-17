@@ -41,13 +41,13 @@ resource "ibm_is_public_gateway" "this" {
   zone           = local.zones[count.index]
 }
 
-resource "ibm_is_security_group_rule" "allow_all" {
-  count = local.create_resources ? 1 : 0
-  
-  direction = "inbound"
-  group     = ibm_is_vpc.this[0].default_security_group
-  remote    = "0.0.0.0/0"
-}
+# resource "ibm_is_security_group_rule" "allow_all" {
+#   count = local.create_resources ? 1 : 0
+#
+#   direction = "inbound"
+#   group     = ibm_is_vpc.this[0].default_security_group
+#   remote    = "0.0.0.0/0"
+# }
 
 resource "ibm_is_network_acl" "this" {
   count = local.create_resources ? 1 : 0

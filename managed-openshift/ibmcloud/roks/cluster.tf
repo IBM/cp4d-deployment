@@ -4,7 +4,8 @@ locals {
 }
 
 resource "ibm_resource_instance" "cos_instance" {
-  count    = var.cos_instance_crn == null ? 1 : 0
+  count = var.cos_instance_crn == null ? 1 : 0
+  
   location = "global"
   name     = "${var.unique_id}-cos-instance"
   plan     = "standard"
@@ -31,7 +32,8 @@ locals {
 
 #Create the ROKS cluster
 resource "ibm_container_vpc_cluster" "this" {
-  # cos_instance_crn  = coalesce(var.cos_instance_crn, ibm_resource_instance.cos_instance.crn)
+  count = var.existing_roks_cluster == null ? 1 : 0
+
   cos_instance_crn                = var.cos_instance_crn == null ? ibm_resource_instance.cos_instance[0].crn : var.cos_instance_crn
   disable_public_service_endpoint = var.disable_public_service_endpoint
   entitlement                     = var.entitlement
@@ -51,10 +53,24 @@ resource "ibm_container_vpc_cluster" "this" {
   }
 }
 
-
+data "ibm_container_vpc_cluster" "this" {
+  name              = var.existing_roks_cluster == null ? ibm_container_vpc_cluster.this[0].id : var.existing_roks_cluster
+  resource_group_id = var.resource_group_id
+}
 
 data "ibm_container_cluster_config" "this" {
-  cluster_name_id = ibm_container_vpc_cluster.this.id
-  # download = false
+  cluster_name_id = data.ibm_container_vpc_cluster.this.id
+  config_dir = pathexpand("~")
   resource_group_id = var.resource_group_id
+}
+
+resource "null_resource" "make_kubeconfig_symlink" {
+  triggers = {
+    config_file_path =  data.ibm_container_cluster_config.this.config_file_path
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = "mkdir -p ~/.kube && rm -f ~/.kube/config && ln -s ${self.triggers.config_file_path} ~/.kube/config"
+  }
 }

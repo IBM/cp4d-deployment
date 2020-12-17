@@ -3,7 +3,7 @@
 
 ibmcloud_api_key = "<ibmcloud api key>"
 region = "<region>"
-unique_id = "<unique id>"
+unique_id = "<unique id>" # only use alphanumeric and hyphen chars
 # resource_group_name = "<resource group name>"
 
 accept_cpd_license = "<yes|no>" # see vars.tf for a link to the license
@@ -14,6 +14,9 @@ cpd_registry_password = "<entitled registry password>" # retrieve from https://m
 
 # existing_vpc_id = ""
 # existing_vpc_subnets = ["xyz"]
+# existing_roks_cluster = ""
+
+# create_external_etcd = true
 
 install_services = {
   spark              = false, # Analytics Engine powered by Apache Spark
