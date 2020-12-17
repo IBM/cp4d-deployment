@@ -10,12 +10,12 @@ output "openshift_console_url" {
 
 output "openshift_console_username" {
   description = "Username for OpenShift web console"
-  value       = "${var.openshift-username}"
+  value       = var.openshift-username
 }
 
 output "openshift_console_password" {
   description = "Password for OpenShift web console"
-  value       = "${var.openshift-password}"
+  value       = var.openshift-password
 }
 
 output "cpd_url" {

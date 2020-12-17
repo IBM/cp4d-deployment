@@ -1,5 +1,4 @@
 variable "cos_instance_crn" {
-  description = "You may pass an existing Cloud Object Storage bucket, else the module will create a one."
   default = null
 }
 
@@ -7,6 +6,10 @@ variable "disable_public_service_endpoint" {}
 
 variable "entitlement" {
   default = "cloud_pak"
+}
+
+variable "existing_roks_cluster" {
+  default = null
 }
 
 variable "kube_version" {

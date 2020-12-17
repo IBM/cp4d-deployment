@@ -180,6 +180,11 @@ variable "cos_instance_crn" {
   default = null
 }
 
+variable "existing_roks_cluster" {
+  description = "ID or name of an existing OpenShift on IBM Cloud (VPC Gen 2) cluster, should you wish to install in an existing cluster."
+  default = null
+}
+
 variable "disable_public_service_endpoint" {
   description = "Disable the ROKS public service endpoint? [true/false], Currently not supported"
   type = bool
