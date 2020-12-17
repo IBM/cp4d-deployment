@@ -58,6 +58,7 @@ module "portworx" {
   cluster_id           = module.roks.cluster_id
   create_external_etcd = var.create_external_etcd
   ibmcloud_api_key     = var.ibmcloud_api_key
+  kube_config_path     = module.roks.kube_config_path
   region               = var.region
   resource_group_id    = data.ibm_resource_group.this.id
   storage_capacity     = var.storage_capacity

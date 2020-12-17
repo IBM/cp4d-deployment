@@ -6,3 +6,7 @@ output "cluster_id" {
 output "ingress_hostname" {
   value = data.ibm_container_vpc_cluster.this.ingress_hostname
 }
+
+output "kube_config_path" {
+  value = data.ibm_container_cluster_config.this.config_file_path
+}

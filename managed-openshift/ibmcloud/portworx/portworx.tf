@@ -1,4 +1,6 @@
-provider "kubernetes" {}
+provider "kubernetes" {
+  config_path = var.kube_config_path
+}
 
 ##################################################
 # Create and attach block storage to worker nodes
