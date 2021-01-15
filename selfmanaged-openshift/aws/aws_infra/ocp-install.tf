@@ -2,8 +2,8 @@ locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
 
-    install-config-public = var.azlist == "multi_zone" ? data.template_file.installconfig[0].rendered : data.template_file.installconfig-1AZ[0].rendered
-    install-config-private = var.azlist == "multi_zone" ? data.template_file.installconfig-private[0].rendered : data.template_file.installconfig-1AZ-private[0].rendered
+    install-config-public = var.azlist == "multi_zone" ? data.template_file.installconfig[*].rendered : data.template_file.installconfig-1AZ[*].rendered
+    install-config-private = var.azlist == "multi_zone" ? data.template_file.installconfig-private[*].rendered : data.template_file.installconfig-1AZ-private[*].rendered
 
     public-or-private-ip = var.only-private-subnets == "yes" ? aws_instance.bootnode.private_ip : aws_instance.bootnode.public_ip
     bootnode-subnet-id = var.only-private-subnets == "yes" ? var.subnetid-private1 : coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
@@ -12,7 +12,7 @@ locals {
     machine-healthcheck = var.azlist == "multi_zone" ? data.template_file.machinehealthcheck.rendered : data.template_file.machinehealthcheck-1AZ.rendered
 }
 locals{
-    install-config = var.only-private-subnets == "yes" ? local.install-config-private : local.install-config-public
+    install-config = var.only-private-subnets == "yes" ? local.install-config-private[0] : local.install-config-public[0]
 }
 
 resource "null_resource" "install_openshift" {
