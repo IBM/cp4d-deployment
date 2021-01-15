@@ -14,7 +14,7 @@ data "template_file" "awsregion" {
 }
 
 data "template_file" "installconfig" {
-    count    = var.azlist == "multi_zone" ? 1 : 0
+    count    = var.azlist == "multi_zone" && var.only-private-subnets == "no" ? 1 : 0
     template = file("../openshift_module/install-config-multi-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -43,7 +43,7 @@ data "template_file" "installconfig" {
 }
 
 data "template_file" "installconfig-1AZ" {
-    count    = var.azlist == "single_zone" ? 1 : 0
+    count    = var.azlist == "single_zone" && var.only-private-subnets == "no" ? 1 : 0
     template = file("../openshift_module/install-config-single-zone.tpl.yaml")
     vars = {
         region                      = var.region
@@ -66,7 +66,7 @@ data "template_file" "installconfig-1AZ" {
 }
 
 data "template_file" "installconfig-private" {
-    count    = var.azlist == "multi_zone" ? 1 : 0
+    count    = var.azlist == "multi_zone" && var.only-private-subnets == "yes" ? 1 : 0
     template = file("../openshift_module/install-config-multi-zone-private-subnet.tpl.yaml")
     vars = {
         region                      = var.region
@@ -92,7 +92,7 @@ data "template_file" "installconfig-private" {
 }
 
 data "template_file" "installconfig-1AZ-private" {
-    count    = var.azlist == "single_zone" ? 1 : 0
+    count    = var.azlist == "single_zone" && var.only-private-subnets == "yes" ? 1 : 0
     template = file("../openshift_module/install-config-single-zone-private-subnet.tpl.yaml")
     vars = {
         region                      = var.region
