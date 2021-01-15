@@ -10,6 +10,7 @@ locals {
 
     machine-autoscaler = var.azlist == "multi_zone" ? data.template_file.machineautoscaler.rendered : data.template_file.machineautoscaler-1AZ.rendered
     machine-healthcheck = var.azlist == "multi_zone" ? data.template_file.machinehealthcheck.rendered : data.template_file.machinehealthcheck-1AZ.rendered
+    worker-ocs = var.azlist == "multi_zone" ? data.template_file.workerocs.rendered : data.template_file.workerocs-1AZ.rendered
 }
 locals{
     install-config = var.only-private-subnets == "yes" ? local.install-config-private[0] : local.install-config-public[0]
@@ -66,7 +67,7 @@ resource "null_resource" "install_openshift" {
             "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
             "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
             "cat > ${local.ocptemplates}/machine-autoscaler.yaml <<EOL\n${local.machine-autoscaler}\nEOL",
-            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${local.worker-ocs}\nEOL",
             "cat > ${local.ocptemplates}/machine-health-check.yaml <<EOL\n${local.machine-healthcheck}\nEOL",
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
 
