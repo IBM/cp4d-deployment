@@ -89,32 +89,32 @@ variable "only-private-subnets" {
 }
 
 variable "subnetid-public1" {
-  description = "Public Subnet in ZONE a"
+  description = "Public Subnet in ZONE 1"
   default = ""
 }
 
 variable "subnetid-public2" {
-  description = "Public Subnet in ZONE b"
+  description = "Public Subnet in ZONE 2"
   default = ""
 }
 
 variable "subnetid-public3" {
-  description = "Public Subnet in ZONE c"
+  description = "Public Subnet in ZONE 3"
   default = ""
 }
 
 variable "subnetid-private1" {
-  description = "Private Subnet in ZONE a"
+  description = "Private Subnet in ZONE 1"
   default = ""
 }
 
 variable "subnetid-private2" {
-  description = "Private Subnet in ZONE b"
+  description = "Private Subnet in ZONE 2"
   default = ""
 }
 
 variable "subnetid-private3" {
-  description = "Private Subnet in ZONE c"
+  description = "Private Subnet in ZONE 3"
   default = ""
 }
 
