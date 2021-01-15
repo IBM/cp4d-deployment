@@ -164,13 +164,15 @@ data "template_file" "workerocs" {
 }
 
 data "template_file" "workerocs-1AZ" {
-    template = file("../openshift_module/workerocs-1AZ.tpl.yaml")
+    template = file("../openshift_module/workerocs.tpl.yaml")
     vars = {
         region        = var.region
         instance-type = var.worker-ocs-instance-type
         ami_id        = lookup(var.images-rcos,var.region)
         cluster-name  = var.cluster-name
         az1           = coalesce(var.availability-zone1, local.avzone[0])
+        az2           = coalesce(var.availability-zone1, local.avzone[0])
+        az3           = coalesce(var.availability-zone1, local.avzone[0])
     }
 }
 
