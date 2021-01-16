@@ -123,7 +123,7 @@ variable "private-subnet-tag-name" {
 }
 
 variable "private-subnet-tag-value" {
-  default = "cpd-ocp-private-subnet"
+  default = "*cpd-private-subnet*"
 }
 ######################################################################################
 ######################################################################################
