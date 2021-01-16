@@ -95,7 +95,7 @@ resource "aws_subnet" "public1" {
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    Name = "cpd-ocp-public-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone1, local.avzone[0])])
   }
 }
 resource "aws_subnet" "public2" {
@@ -107,7 +107,7 @@ resource "aws_subnet" "public2" {
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    Name = "cpd-ocp-public-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone2, local.avzone[1])])
   }
 }
 resource "aws_subnet" "public3" {
@@ -119,7 +119,7 @@ resource "aws_subnet" "public3" {
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    Name = "cpd-ocp-public-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone3, local.avzone[2])])
   }
 }
 resource "aws_route_table" "public" {
@@ -197,7 +197,7 @@ resource "aws_subnet" "private1" {
   depends_on           = [aws_nat_gateway.nat1]
 
   tags = {
-    Name = "cpd-ocp-private-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone1, local.avzone[0])])
   }
 }
 resource "aws_subnet" "private2" {
@@ -208,7 +208,7 @@ resource "aws_subnet" "private2" {
   depends_on           = [aws_nat_gateway.nat2]
 
   tags = {
-    Name = "cpd-ocp-private-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone2, local.avzone[1])])
   }
 }
 resource "aws_subnet" "private3" {
@@ -219,7 +219,7 @@ resource "aws_subnet" "private3" {
   depends_on           = [aws_nat_gateway.nat3]
 
   tags = {
-    Name = "cpd-ocp-private-subnet"
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone3, local.avzone[2])])
   }
 }
 resource "aws_route_table" "private1" {
