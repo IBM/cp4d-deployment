@@ -57,15 +57,20 @@ secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
 * Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
 ```bash
 terraform init
-terraform apply -var-file="Path To osaws_var.tfvars file"
+terraform apply -var-file="Path To osaws_var.tfvars file | tee terraform.log"
 ```
 #### cp4d installation logs:
 After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
 ### Destroying the cluster:
-* Run:
+* When cluster created successfully, execute following commands to delete the cluster:
   ```bash
   terraform destroy -target null_resource.destroy_cluster -var-file="Path To osaws_var.tfvars file"
+  terraform destroy -var-file="Path To osaws_var.tfvars file"
+  ```
+* When cluster creation fails for some reason and only bootnode is created, execute following commands to delete the created resources:
+  ```bash
+  terraform state rm null_resource.destroy_cluster
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
 ### Note:

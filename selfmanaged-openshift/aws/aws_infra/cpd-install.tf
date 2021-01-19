@@ -16,7 +16,7 @@ locals {
 
 resource "null_resource" "cpd_config" {
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -41,7 +41,7 @@ resource "null_resource" "cpd_config" {
             "cat > ${local.ocptemplates}/security-limits-mc.yaml <<EOL\n${data.template_file.security-limits-mc.rendered}\nEOL",
             "cat > ${local.ocptemplates}/crio-mc.yaml <<EOL\n${data.template_file.crio-mc.rendered}\nEOL",
             "cat > ${local.ocptemplates}/registries.conf <<EOL\n${data.template_file.registry-conf.rendered}\nEOL",
-            "oc create -f ${local.ocptemplates}/machine-autoscaler.yaml 2> /dev/null",
+            "oc create -f ${local.ocptemplates}/machine-autoscaler.yaml",
             "oc create -f ${local.ocptemplates}/insecure-registry-mc.yaml",
             "oc create -f ${local.ocptemplates}/sysctl-machineconfig.yaml",
             "oc create -f ${local.ocptemplates}/security-limits-mc.yaml",
@@ -84,7 +84,7 @@ resource "null_resource" "cpd_config" {
 resource "null_resource" "install_lite" {
     count = var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
+      bootnode_public_ip      = local.public-or-private-ip
       username                = var.admin-username
       private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -101,7 +101,7 @@ resource "null_resource" "install_lite" {
             "sed -i -e s#SERVICE#lite#g ${local.installerhome}/cpd-lite.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-lite.yaml",
             "oc create -f ${local.installerhome}/cpd-lite.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh lite ${var.cpd-namespace}",
+            "./wait-for-service-install.sh lite ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Lite Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -112,7 +112,7 @@ resource "null_resource" "install_lite" {
 resource "null_resource" "install_dv" {
     count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -129,7 +129,7 @@ resource "null_resource" "install_dv" {
             "sed -i -e s#SERVICE#dv#g ${local.installerhome}/cpd-dv.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dv.yaml",
             "oc create -f ${local.installerhome}/cpd-dv.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dv ${var.cpd-namespace}",
+            "./wait-for-service-install.sh dv ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"DV Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -140,7 +140,7 @@ resource "null_resource" "install_dv" {
 resource "null_resource" "install_spark" {
     count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -157,7 +157,7 @@ resource "null_resource" "install_spark" {
             "sed -i -e s#SERVICE#spark#g ${local.installerhome}/cpd-spark.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-spark.yaml",
             "oc create -f ${local.installerhome}/cpd-spark.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh spark ${var.cpd-namespace}",      
+            "./wait-for-service-install.sh spark ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Spark Installation Failed\" ; exit 1 ; fi",      
         ]
     }
     depends_on = [
@@ -169,7 +169,7 @@ resource "null_resource" "install_spark" {
 resource "null_resource" "install_wkc" {
     count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -186,7 +186,7 @@ resource "null_resource" "install_wkc" {
             "sed -i -e s#SERVICE#wkc#g ${local.installerhome}/cpd-wkc.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wkc.yaml",
             "oc create -f ${local.installerhome}/cpd-wkc.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh wkc ${var.cpd-namespace}",          
+            "./wait-for-service-install.sh wkc ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"WKC Installation Failed\" ; exit 1 ; fi",          
         ]
     }
     depends_on = [
@@ -199,7 +199,7 @@ resource "null_resource" "install_wkc" {
 resource "null_resource" "install_wsl" {
     count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -216,7 +216,7 @@ resource "null_resource" "install_wsl" {
             "sed -i -e s#SERVICE#wsl#g ${local.installerhome}/cpd-wsl.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wsl.yaml",
             "oc create -f ${local.installerhome}/cpd-wsl.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh wsl ${var.cpd-namespace}",          
+            "./wait-for-service-install.sh wsl ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"WSL Installation Failed\" ; exit 1 ; fi",          
         ]
     }
     depends_on = [
@@ -230,7 +230,7 @@ resource "null_resource" "install_wsl" {
 resource "null_resource" "install_wml" {
     count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -247,7 +247,7 @@ resource "null_resource" "install_wml" {
             "sed -i -e s#SERVICE#wml#g ${local.installerhome}/cpd-wml.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-wml.yaml",
             "oc create -f ${local.installerhome}/cpd-wml.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh wml ${var.cpd-namespace}",         
+            "./wait-for-service-install.sh wml ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"WML Installation Failed\" ; exit 1 ; fi",         
         ]
     }
     depends_on = [
@@ -262,7 +262,7 @@ resource "null_resource" "install_wml" {
 resource "null_resource" "install_aiopenscale" {
     count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -279,7 +279,7 @@ resource "null_resource" "install_aiopenscale" {
             "sed -i -e s#SERVICE#aiopenscale#g ${local.installerhome}/cpd-aiopenscale.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-aiopenscale.yaml",
             "oc create -f ${local.installerhome}/cpd-aiopenscale.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh aiopenscale ${var.cpd-namespace}",          
+            "./wait-for-service-install.sh aiopenscale ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"AIOpenscale Installation Failed\" ; exit 1 ; fi",          
         ]
     }
     depends_on = [
@@ -295,7 +295,7 @@ resource "null_resource" "install_aiopenscale" {
 resource "null_resource" "install_cde" {
     count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -312,7 +312,7 @@ resource "null_resource" "install_cde" {
             "sed -i -e s#SERVICE#cde#g ${local.installerhome}/cpd-cde.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-cde.yaml",
             "oc create -f ${local.installerhome}/cpd-cde.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh cde ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh cde ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"CDE Installation Failed\" ; exit 1 ; fi",           
         ]
     }
     depends_on = [
@@ -329,7 +329,7 @@ resource "null_resource" "install_cde" {
 resource "null_resource" "install_streams" {
     count = var.streams == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -346,7 +346,7 @@ resource "null_resource" "install_streams" {
             "sed -i -e s#SERVICE#streams#g ${local.installerhome}/cpd-streams.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.streams-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-streams.yaml",
             "oc create -f ${local.installerhome}/cpd-streams.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh streams ${var.cpd-namespace}",
+            "./wait-for-service-install.sh streams ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Streams Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -364,7 +364,7 @@ resource "null_resource" "install_streams" {
 resource "null_resource" "install_streams_flows" {
     count = var.streams-flows == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -381,7 +381,7 @@ resource "null_resource" "install_streams_flows" {
             "sed -i -e s#SERVICE#streams-flows#g ${local.installerhome}/cpd-streams-flows.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-streams-flows.yaml",
             "oc create -f ${local.installerhome}/cpd-streams-flows.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh streams-flows ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh streams-flows ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Streams-Flows Installation Failed\" ; exit 1 ; fi",           
         ]
     }
     depends_on = [
@@ -400,7 +400,7 @@ resource "null_resource" "install_streams_flows" {
 resource "null_resource" "install_ds" {
     count = var.datastage == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -417,7 +417,7 @@ resource "null_resource" "install_ds" {
             "sed -i -e s#SERVICE#ds#g ${local.installerhome}/cpd-ds.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ds.yaml",
             "oc create -f ${local.installerhome}/cpd-ds.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh ds ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh ds ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"DS Installation Failed\" ; exit 1 ; fi",           
         ]
     }
     depends_on = [
@@ -437,7 +437,7 @@ resource "null_resource" "install_ds" {
 resource "null_resource" "install_db2wh" {
     count = var.db2-warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -454,7 +454,7 @@ resource "null_resource" "install_db2wh" {
             "sed -i -e s#SERVICE#db2wh#g ${local.installerhome}/cpd-db2wh.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2wh.yaml",
             "oc create -f ${local.installerhome}/cpd-db2wh.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh db2wh ${var.cpd-namespace}",
+            "./wait-for-service-install.sh db2wh ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Db2Wh Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -475,7 +475,7 @@ resource "null_resource" "install_db2wh" {
 resource "null_resource" "install_db2oltp" {
     count = var.db2-advanced-edition == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -492,7 +492,7 @@ resource "null_resource" "install_db2oltp" {
             "sed -i -e s#SERVICE#db2oltp#g ${local.installerhome}/cpd-db2oltp.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-db2oltp.yaml",
             "oc create -f ${local.installerhome}/cpd-db2oltp.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace}",  
+            "./wait-for-service-install.sh db2oltp ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"Db2Oltp Installation Failed\" ; exit 1 ; fi",  
         ]
     }
     depends_on = [
@@ -514,7 +514,7 @@ resource "null_resource" "install_db2oltp" {
 resource "null_resource" "install_dmc" {
     count = var.data-management-console == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -531,7 +531,7 @@ resource "null_resource" "install_dmc" {
             "sed -i -e s#SERVICE#dmc#g ${local.installerhome}/cpd-dmc.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dmc.yaml",
             "oc create -f ${local.installerhome}/cpd-dmc.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dmc ${var.cpd-namespace}",             
+            "./wait-for-service-install.sh dmc ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"DMC Installation Failed\" ; exit 1 ; fi",             
         ]
     }
     depends_on = [
@@ -554,7 +554,7 @@ resource "null_resource" "install_dmc" {
 resource "null_resource" "install_datagate" {
     count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -571,7 +571,7 @@ resource "null_resource" "install_datagate" {
             "sed -i -e s#SERVICE#datagate#g ${local.installerhome}/cpd-datagate.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-datagate.yaml",
             "oc create -f ${local.installerhome}/cpd-datagate.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh datagate ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh datagate ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"DataGate Installation Failed\" ; exit 1 ; fi",           
       ]
     }
     depends_on = [
@@ -595,7 +595,7 @@ resource "null_resource" "install_datagate" {
 resource "null_resource" "install_dods" {
     count = var.decision-optimization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -612,7 +612,7 @@ resource "null_resource" "install_dods" {
             "sed -i -e s#SERVICE#dods#g ${local.installerhome}/cpd-dods.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-dods.yaml",
             "oc create -f ${local.installerhome}/cpd-dods.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh dods ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh dods ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"DODS Installation Failed\" ; exit 1 ; fi",           
         ]
     }
     depends_on = [
@@ -637,7 +637,7 @@ resource "null_resource" "install_dods" {
 resource "null_resource" "install_ca" {
     count = var.cognos-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -654,7 +654,7 @@ resource "null_resource" "install_ca" {
             "sed -i -e s#SERVICE#ca#g ${local.installerhome}/cpd-ca.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-ca.yaml",
             "oc create -f ${local.installerhome}/cpd-ca.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh ca ${var.cpd-namespace}",           
+            "./wait-for-service-install.sh ca ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"CA Installation Failed\" ; exit 1 ; fi",           
         ]
     }
     depends_on = [
@@ -680,7 +680,7 @@ resource "null_resource" "install_ca" {
 resource "null_resource" "install_spss" {
     count = var.spss-modeler == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -697,7 +697,7 @@ resource "null_resource" "install_spss" {
             "sed -i -e s#SERVICE#spss-modeler#g ${local.installerhome}/cpd-spss-modeler.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-spss-modeler.yaml",
             "oc create -f ${local.installerhome}/cpd-spss-modeler.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh spss-modeler ${var.cpd-namespace}",
+            "./wait-for-service-install.sh spss-modeler ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"SPSS-Modeler Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -724,7 +724,7 @@ resource "null_resource" "install_spss" {
 resource "null_resource" "install_bigsql" {
     count = var.db2-bigsql == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -741,7 +741,7 @@ resource "null_resource" "install_bigsql" {
             "sed -i -e s#SERVICE#big-sql#g ${local.installerhome}/cpd-big-sql.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.bigsql-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-big-sql.yaml",
             "oc create -f ${local.installerhome}/cpd-big-sql.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh big-sql ${var.cpd-namespace}",
+            "./wait-for-service-install.sh big-sql ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"BigSql Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -769,7 +769,7 @@ resource "null_resource" "install_bigsql" {
 resource "null_resource" "install_pa" {
     count = var.planning-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -786,7 +786,7 @@ resource "null_resource" "install_pa" {
             "sed -i -e s#SERVICE#pa#g ${local.installerhome}/cpd-pa.yaml",
             "sed -i -e s#STORAGECLASS#${lookup(var.cpd-storageclass,var.storage-type)}#g ${local.installerhome}/cpd-pa.yaml",
             "oc create -f ${local.installerhome}/cpd-pa.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh pa ${var.cpd-namespace}",
+            "./wait-for-service-install.sh pa ${var.cpd-namespace} ; if [ $? -ne 0 ] ; then echo \"PA Installation Failed\" ; exit 1 ; fi",
         ]
     }
     depends_on = [
@@ -815,7 +815,7 @@ resource "null_resource" "install_pa" {
 # resource "null_resource" "install_watson_assistant" {
 #     count = var.watson-assistant == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0 
 #     triggers = {
-#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         bootnode_public_ip      = local.public-or-private-ip
 #         username                = var.admin-username
 #         private-key-file-path   = var.ssh-private-key-file-path
 #     }
@@ -863,7 +863,7 @@ resource "null_resource" "install_pa" {
 # resource "null_resource" "install_watson_discovery" {
 #     count = var.watson-discovery == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
 #     triggers = {
-#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         bootnode_public_ip      = local.public-or-private-ip
 #         username                = var.admin-username
 #         private-key-file-path   = var.ssh-private-key-file-path
 #     }
@@ -912,7 +912,7 @@ resource "null_resource" "install_pa" {
 # resource "null_resource" "install_watson_knowledge_studio" {
 #     count = var.watson-knowledge-studio == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
 #     triggers = {
-#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         bootnode_public_ip      = local.public-or-private-ip
 #         username                = var.admin-username
 #         private-key-file-path   = var.ssh-private-key-file-path
 #     }
@@ -959,7 +959,7 @@ resource "null_resource" "install_pa" {
 # resource "null_resource" "install_watson_language_translator" {
 #     count = var.watson-language-translator == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
 #     triggers = {
-#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         bootnode_public_ip      = local.public-or-private-ip
 #         username                = var.admin-username
 #         private-key-file-path   = var.ssh-private-key-file-path
 #     }
@@ -1010,7 +1010,7 @@ resource "null_resource" "install_pa" {
 # resource "null_resource" "install_watson_speech" {
 #     count = var.watson-speech == "yes" && var.storage-type != "ocs" && var.accept-cpd-license == "accept" ? 1 : 0
 #     triggers = {
-#         bootnode_public_ip      = aws_instance.bootnode.public_ip
+#         bootnode_public_ip      = local.public-or-private-ip
 #         username                = var.admin-username
 #         private-key-file-path   = var.ssh-private-key-file-path
 #     }
