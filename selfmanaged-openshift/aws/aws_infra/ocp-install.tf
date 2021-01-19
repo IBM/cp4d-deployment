@@ -1,12 +1,24 @@
 locals {
     ocpdir = "ocpfourx"
     ocptemplates = "ocpfourxtemplates"
-    install-config = var.azlist == "multi_zone" ? data.template_file.installconfig[0].rendered : data.template_file.installconfig-1AZ[0].rendered
+
+    install-config-public = var.azlist == "multi_zone" ? data.template_file.installconfig[*].rendered : data.template_file.installconfig-1AZ[*].rendered
+    install-config-private = var.azlist == "multi_zone" ? data.template_file.installconfig-private[*].rendered : data.template_file.installconfig-1AZ-private[*].rendered
+
+    public-or-private-ip = var.only-private-subnets == "yes" ? aws_instance.bootnode.private_ip : aws_instance.bootnode.public_ip
+    bootnode-subnet-id = var.only-private-subnets == "yes" ? var.subnetid-private1 : coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
+
+    machine-autoscaler = var.azlist == "multi_zone" ? data.template_file.machineautoscaler.rendered : data.template_file.machineautoscaler-1AZ.rendered
+    machine-healthcheck = var.azlist == "multi_zone" ? data.template_file.machinehealthcheck.rendered : data.template_file.machinehealthcheck-1AZ.rendered
+    worker-ocs = var.azlist == "multi_zone" ? data.template_file.workerocs.rendered : data.template_file.workerocs-1AZ.rendered
+}
+locals{
+    install-config = var.only-private-subnets == "yes" ? local.install-config-private[0] : local.install-config-public[0]
 }
 
 resource "null_resource" "install_openshift" {
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -54,9 +66,9 @@ resource "null_resource" "install_openshift" {
             "mkdir -p /home/${var.admin-username}/.kube",
             "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
             "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machine-autoscaler.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machine-health-check.yaml <<EOL\n${data.template_file.machinehealthcheck.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/machine-autoscaler.yaml <<EOL\n${local.machine-autoscaler}\nEOL",
+            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${local.worker-ocs}\nEOL",
+            "cat > ${local.ocptemplates}/machine-health-check.yaml <<EOL\n${local.machine-healthcheck}\nEOL",
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
 
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
@@ -76,7 +88,7 @@ resource "null_resource" "install_openshift" {
 resource "null_resource" "install_portworx" {
     count    = var.storage-type == "portworx" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -110,7 +122,7 @@ resource "null_resource" "install_portworx" {
 resource "null_resource" "install_ocs" {
     count    = var.storage-type == "ocs" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -149,7 +161,7 @@ resource "null_resource" "install_ocs" {
 resource "null_resource" "install_efs" {
     count    = var.storage-type == "efs" ? 1 : 0
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
     }
@@ -175,7 +187,7 @@ resource "null_resource" "install_efs" {
             "cat > ${local.ocptemplates}/efs-pvc.yaml <<EOL\n${file("../efs_module/efs-pvc.yaml")}\nEOL",
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
 
-            "./create-efs.sh ${var.region} ${var.vpc_cidr} ${local.vpcid} ${var.efs-performance-mode}",
+            "./create-efs.sh ${var.region} ${var.vpc_cidr} ${local.vpcid} ${var.efs-performance-mode} ${var.private-subnet-tag-name} ${var.private-subnet-tag-value}",
             "sleep 180",
             "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
             "FILESYSTEMID=$(aws efs describe-file-systems --query FileSystems[?Name==\\'$CLUSTERID-efs\\'].FileSystemId --output text)",
