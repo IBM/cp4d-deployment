@@ -10,6 +10,27 @@ variable "azlist" {
   default     = "multi_zone"
 }
 
+###############################################################################
+# 1. Leave it as it is if you don't want to provide Availability zone values, #
+#    in that case it will be automatically selected based on the region.      #
+# 2. For single_zone installation, provide only availability-zone1 value.     #
+###############################################################################
+variable "availability-zone1" {
+  description = "example eu-west-2a"
+  default     = ""
+}
+
+variable "availability-zone2" {
+  description = "example eu-west-2b"
+  default     = ""
+}
+
+variable "availability-zone3" {
+  description = "example eu-west-2c"
+  default     = ""
+}
+################################################################################
+
 variable "new-or-existing-vpc-subnet" {
   description = "For existing VPC and SUBNETS use 'exist' otherwise use 'new' to create new VPC and SUBNETS, default is 'new' "
   default     = "new"
@@ -48,9 +69,13 @@ variable "private-subnet-cidr3" {
   default = "10.0.160.0/20"
 }
 
-######################################################################################
-# For Existing VPC and SUBNETS, provide the values here, otherwise leave it as it is #
-######################################################################################
+################################################################################################
+# 1. For Existing VPC and SUBNETS, provide the values here, otherwise leave it as it is.       #
+# 2. All Private Subnets should be Tagged with same Name and Value.                            #
+# 3. For single_zone installation, provide only subnetid-public1 and subnetid-private1 values. #
+# 4. For only-private-subnets installation, provide all three Private Subnet values or         # 
+#    subnetid-private1 for single_zone installation.                                           #
+################################################################################################
 
 # Make sure to enable DNS hostnames in existing VPC
 variable "vpcid-existing" {
@@ -58,37 +83,50 @@ variable "vpcid-existing" {
   default     = ""
 }
 
+variable "only-private-subnets" {
+  description = "Select 'yes' if only private subnets present in the existing VPC, default is 'no'."
+  default     = "no"
+}
+
 variable "subnetid-public1" {
-  description = "Public Subnet in ZONE a"
+  description = "Public Subnet in ZONE 1"
   default = ""
 }
 
 variable "subnetid-public2" {
-  description = "Public Subnet in ZONE b"
+  description = "Public Subnet in ZONE 2"
   default = ""
 }
 
 variable "subnetid-public3" {
-  description = "Public Subnet in ZONE c"
+  description = "Public Subnet in ZONE 3"
   default = ""
 }
 
 variable "subnetid-private1" {
-  description = "Private Subnet in ZONE a"
+  description = "Private Subnet in ZONE 1"
   default = ""
 }
 
 variable "subnetid-private2" {
-  description = "Private Subnet in ZONE b"
+  description = "Private Subnet in ZONE 2"
   default = ""
 }
 
 variable "subnetid-private3" {
-  description = "Private Subnet in ZONE c"
+  description = "Private Subnet in ZONE 3"
   default = ""
 }
-######################################################################################
 
+variable "private-subnet-tag-name" {
+  default = "Name"
+}
+
+variable "private-subnet-tag-value" {
+  default = "*cpd-private-subnet*"
+}
+######################################################################################
+######################################################################################
 
 ##### AWS Configuration #####
 variable "key_name" {
@@ -102,9 +140,11 @@ variable "tenancy" {
 }
 
 variable "access_key_id" {
+  default = ""
 }
 
 variable "secret_access_key" {
+  default = ""
 }
 
 ##### OpenShift Hosts Configuration #####
@@ -153,26 +193,33 @@ variable "admin-username" {
 }
 
 variable "openshift-username" {
+  default = "kubeadmin"
 }
 
 variable "openshift-password" {
+  default = "password"
 }
 
 variable "pull-secret-file-path" {
+  default = ""
 }
 
 variable "public_key_path" {
   description = "The local public key path, e.g. ~/.ssh/id_rsa.pub"
+  default = ""
 }
 
 variable "ssh-public-key" {
+  default = ""
 }
 
 variable "ssh-private-key-file-path" {
+  default = ""
 }
 
 ##### DNS configuration #####
 variable "dnszone" {
+  default = ""
 }
 
 ##### Portworx / OCS / EFS Configuration #####
@@ -306,8 +353,11 @@ variable "planning-analytics" {
 #   default = "no"
 # }
 ##############################
+##############################
 
-##### Other Parameters , Don't modfify any values here#####
+####################################################
+# Other Parameters , don't modfify any values here #
+####################################################
 variable "ocp-version" {
   default = "4.5.18"
 }
