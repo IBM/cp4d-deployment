@@ -10,7 +10,7 @@ metadata:
  name: portworx-couchdb-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "2"
+ repl: "3"
  priority_io: "high"
  io_profile: "db_remote"
  disable_io_profile_protection: "1"
@@ -203,7 +203,7 @@ metadata:
  name: portworx-shared-gp-allow
 parameters:
  priority_io: high
- repl: "2"
+ repl: "3"
  io_profile: "cms"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Delete
