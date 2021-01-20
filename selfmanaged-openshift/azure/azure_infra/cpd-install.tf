@@ -6,11 +6,11 @@ locals {
     operator = "/home/${var.admin-username}/operator"
 
     # Override
-    override-value = var.storage == "nfs" ? "\"\"" : "portworx"
+    override-value = var.storage == "nfs" ? "\"\"" : var.storage
     #Storage Classes
-    cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
-    streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
+    cp-storageclass = lookup(var.cp-storageclass,var.storage)
+    streams-storageclass = lookup(var.streams-storageclass,var.storage)
+    bigsql-storageclass = lookup(var.bigsql-storageclass,var.storage)
 
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
@@ -57,6 +57,7 @@ resource "null_resource" "cpd_config" {
     depends_on = [
         null_resource.openshift_post_install,
         null_resource.install_portworx,
+        null_resource.install_ocs,
         null_resource.install_nfs_client,
     ]
 }

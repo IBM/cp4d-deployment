@@ -165,6 +165,47 @@ resource "null_resource" "install_portworx" {
     ]
 }
 
+resource "null_resource" "install_ocs" {
+    count    = var.storage == "ocs" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+    }
+    connection {
+        type = "ssh"
+        host = azurerm_public_ip.bootnode.ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.ocptemplates}/toolbox.yaml <<EOL\n${file("../ocs_module/toolbox.yaml")}\nEOL",
+            "sed -i s/\"namespace: rook-ceph\"/\"namespace: openshift-storage\"/g ${local.ocptemplates}/toolbox.yaml",
+            "cat > ${local.ocptemplates}/deploy-with-olm.yaml <<EOL\n${file("../ocs_module/deploy-with-olm.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/ocs-storagecluster.yaml <<EOL\n${file("../ocs_module/ocs-storagecluster.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
+            "cat > ocs-prereq.sh <<EOL\n${file("../ocs_module/ocs-prereq.sh")}\nEOL",
+            "sudo chmod +x ocs-prereq.sh",
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+
+            "oc create -f ${local.ocptemplates}/machineset-worker-ocs.yaml",
+            "sleep 420",
+            "./ocs-prereq.sh",
+            "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
+            "sleep 300",
+            "oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml",
+            "sleep 600",
+            "oc apply -f ${local.ocptemplates}/toolbox.yaml",
+            "sleep 60",
+        ]
+    }
+    depends_on = [
+        null_resource.install_openshift,
+        null_resource.openshift_post_install
+    ]
+}
+
 resource "null_resource" "install-nfs-server" {
     count = var.storage == "nfs" ? 1 : 0
     triggers = {

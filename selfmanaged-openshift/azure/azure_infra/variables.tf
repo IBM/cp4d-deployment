@@ -147,6 +147,38 @@ variable "storage-disk-size" {
   default = 1024
 }
 
+variable "cp-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass Streams
+variable "streams-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp-allow"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass BigSQL
+variable "bigsql-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-dv-shared-gp"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
 variable "enableNFSBackup" {
   default = "no"
 }
