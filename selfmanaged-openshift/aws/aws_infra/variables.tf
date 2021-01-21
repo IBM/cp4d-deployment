@@ -445,7 +445,7 @@ variable "bigsql-storageclass" {
   type        = map
 
   default     = {
-    "portworx"   = "portworx-dv-shared-gp3"
+    "portworx"   = "portworx-dv-shared-gp"
     "ocs"        = "ocs-storagecluster-cephfs"
     "efs"        = "aws-efs"
   }
