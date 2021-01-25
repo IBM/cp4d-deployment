@@ -37,7 +37,7 @@ resource "null_resource" "install_openshift" {
             "sudo yum -y install wget",
             "sudo yum -y install bind-utils",
             "curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null",
-            "python get-pip.py --user > /dev/null",
+            "python3 get-pip.py --user > /dev/null",
             "export PATH=\"~/.local/bin:$PATH\"",
             "source ~/.bash_profile > /dev/null",
             "pip install awscli --upgrade --user > /dev/null",
@@ -174,7 +174,7 @@ resource "null_resource" "install_efs" {
     provisioner "remote-exec" {
         inline = [
             "curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null",
-            "python get-pip.py --user > /dev/null",
+            "python3 get-pip.py --user > /dev/null",
             "export PATH=\"~/.local/bin:$PATH\"",
             "source ~/.bash_profile > /dev/null",
             "pip install awscli --upgrade --user > /dev/null",
