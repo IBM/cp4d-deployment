@@ -9,7 +9,7 @@ PRIVATE_SUBNET_TAG_VALUE=$6
 
 #Install aws CLI
 curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null
-python get-pip.py --user > /dev/null
+python3 get-pip.py --user > /dev/null
 export PATH="~/.local/bin:$PATH"
 source ~/.bash_profile > /dev/null
 pip install awscli --upgrade --user > /dev/null
