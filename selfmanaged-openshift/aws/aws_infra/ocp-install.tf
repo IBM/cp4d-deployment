@@ -8,9 +8,9 @@ locals {
     public-or-private-ip = var.only-private-subnets == "yes" ? aws_instance.bootnode.private_ip : aws_instance.bootnode.public_ip
     bootnode-subnet-id = var.only-private-subnets == "yes" ? var.subnetid-private1 : coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
 
-    machine-autoscaler = var.azlist == "multi_zone" ? data.template_file.machineautoscaler[*].rendered : data.template_file.machineautoscaler-1AZ[*].rendered
-    machine-healthcheck = var.azlist == "multi_zone" ? data.template_file.machinehealthcheck[*].rendered : data.template_file.machinehealthcheck-1AZ[*].rendered
-    worker-ocs = var.azlist == "multi_zone" ? data.template_file.workerocs[*].rendered : data.template_file.workerocs-1AZ[*].rendered
+    machine-autoscaler = var.azlist == "multi_zone" ? data.template_file.machineautoscaler[0].rendered : data.template_file.machineautoscaler-1AZ[0].rendered
+    machine-healthcheck = var.azlist == "multi_zone" ? data.template_file.machinehealthcheck[0].rendered : data.template_file.machinehealthcheck-1AZ[0].rendered
+    worker-ocs = var.azlist == "multi_zone" ? data.template_file.workerocs[0].rendered : data.template_file.workerocs-1AZ[0].rendered
 }
 locals{
     install-config = var.only-private-subnets == "yes" ? local.install-config-private[0] : local.install-config-public[0]
