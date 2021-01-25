@@ -131,6 +131,7 @@ data "template_file" "clusterautoscaler" {
 }
 
 data "template_file" "machineautoscaler" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/machine-autoscaler.tpl.yaml")
     vars = {
         machinetype   = "worker"
@@ -142,6 +143,7 @@ data "template_file" "machineautoscaler" {
 }
 
 data "template_file" "machineautoscaler-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/machine-autoscaler-1AZ.tpl.yaml")
     vars = {
         machinetype   = "worker"
@@ -151,6 +153,7 @@ data "template_file" "machineautoscaler-1AZ" {
 }
 
 data "template_file" "workerocs" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/workerocs.tpl.yaml")
     vars = {
         region        = var.region
@@ -164,6 +167,7 @@ data "template_file" "workerocs" {
 }
 
 data "template_file" "workerocs-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/workerocs.tpl.yaml")
     vars = {
         region        = var.region
@@ -177,6 +181,7 @@ data "template_file" "workerocs-1AZ" {
 }
 
 data "template_file" "machinehealthcheck" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/machine-health-check.tpl.yaml")
     vars = {
         az1           = coalesce(var.availability-zone1, local.avzone[0])
@@ -186,6 +191,7 @@ data "template_file" "machinehealthcheck" {
 }
 
 data "template_file" "machinehealthcheck-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/machine-health-check-1AZ.tpl.yaml")
     vars = {
         az1           = coalesce(var.availability-zone1, local.avzone[0])
