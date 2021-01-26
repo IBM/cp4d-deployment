@@ -4,7 +4,7 @@
 |`region`                           | Required                                                 | IBM Cloud region where all resources will be deployed
 |`resource_group_name`              | `default`                                                | Name of the IBM Cloud resource group in which resources should be created
 |`unique_id`                        | `cp4d-roks-tf`                                           | Unique string for naming resources
-|`accept_cpd_license`               | Required                                                 | I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/Bdq6KP [yes/no]
+|`accept_cpd_license`               | Required                                                 | I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdfEkc [yes/no]
 |`cpd_registry_username`            | `cp`                                                     |
 |`cpd_registry_password`            | Required                                                 | Can be fetched from https://myibm.ibm.com/products-services/containerlibrary
 |`cpd_registry`                     | `cp.icr.io/cp/cpd`                                       |
