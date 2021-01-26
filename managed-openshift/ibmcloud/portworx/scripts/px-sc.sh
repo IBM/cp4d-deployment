@@ -282,6 +282,22 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
+#Shared gp high iops:
+cat <<EOF | oc create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-shared-gp1
+parameters:
+  priority_io: high
+  repl: "1"
+  sharedv4: "true"
+allowVolumeExpansion: true
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
+
 # gp db
 cat <<EOF | oc create -f -
 apiVersion: storage.k8s.io/v1
@@ -332,6 +348,7 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
+
 # DB2 RWX shared volumes for System Storage, backup storage, future load storage, and future diagnostic logs storage
 cat <<EOF | oc create -f -
 allowVolumeExpansion: true
@@ -342,6 +359,7 @@ metadata:
 parameters:
   io_profile: cms
   block_size: 4096b
+  nfs_v4: "true"
   repl: "3"
   sharedv4: "true"
   priority_io: high
