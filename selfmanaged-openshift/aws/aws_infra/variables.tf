@@ -217,6 +217,11 @@ variable "ssh-private-key-file-path" {
   default = ""
 }
 
+variable "classic-lb-timeout" {
+  description = "Classic loadbalancer timeout value in seconds."
+  default = "600"
+}
+
 ##### DNS configuration #####
 variable "dnszone" {
   default = ""
