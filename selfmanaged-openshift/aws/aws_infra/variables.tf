@@ -372,7 +372,7 @@ variable "cloudctl-version" {
 }
 
 variable "datacore-version" {
-  default = "1.3.1"
+  default = "1.3.3"
 }
 
 variable "cpd-version" {
