@@ -45,4 +45,3 @@ oc create -f $HOME/ocpfourxtemplates/px-operator-disconnected.yaml
 ./portworx-prereq.sh
 
 oc apply -f \"$PORTWORX_SPEC_URL\"
-sleep 6m
