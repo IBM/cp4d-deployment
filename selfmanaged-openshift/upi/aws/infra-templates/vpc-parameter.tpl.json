@@ -1,0 +1,15 @@
+[
+    {
+      "ParameterKey": "VpcCidr", 
+      "ParameterValue": "${vpccidr}"
+    },
+    {
+      "ParameterKey": "AvailabilityZoneCount", 
+      "ParameterValue": "${azcount}" 
+    },
+    {
+      "ParameterKey": "SubnetBits", 
+      "ParameterValue": "${subnetbits}" 
+    }
+  ]
+  
