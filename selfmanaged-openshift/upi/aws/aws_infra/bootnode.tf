@@ -267,10 +267,6 @@ resource "null_resource" "file_copy" {
     source      = "../scripts/create-portworx-disconnected.sh"
     destination = "/home/${var.admin-username}/create-portworx-disconnected.sh"
   }
-  provisioner "file" {
-    source      = "../cpd_module/ibm-cp-datacore-1.3.1.tgz"
-    destination = "/home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz"
-  }
 
   depends_on = [
     aws_instance.bootnode,
