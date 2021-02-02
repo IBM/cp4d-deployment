@@ -2,7 +2,7 @@
 ## Other variables from vars.tf may also be overridden in this file.
 
 ibmcloud_api_key = "<ibmcloud api key>"
-region = "<region>"
+region = "us-east"
 unique_id = "<unique id>" # only use alphanumeric and hyphen chars
 # resource_group_name = "<resource group name>"
 
