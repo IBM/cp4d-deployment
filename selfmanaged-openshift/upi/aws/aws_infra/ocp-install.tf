@@ -467,6 +467,8 @@ resource "null_resource" "install_portworx_disconnected" {
       "cat > /home/${var.admin-username}/policy.json <<EOL\n${file("../portworx_module/policy.json")}\nEOL",
       "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
       "./create-portworx-disconnected.sh \"${var.portworx-spec-url}\" ${var.redhat-username} ${var.redhat-password}",
+      "sleep 6m",
+      "./px-storageclasses.sh",
     ]
   }
   depends_on = [
