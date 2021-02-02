@@ -44,7 +44,7 @@ resource "null_resource" "cpd_config" {
       "mkdir -p ${local.operator}",
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl-version}/cloudctl-linux-amd64.tar.gz -O ${local.operator}/cloudctl-linux-amd64.tar.gz",
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl-version}/cloudctl-linux-amd64.tar.gz.sig -O ${local.operator}/cloudctl-linux-amd64.tar.gz.sig",
-      #"curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-${var.datacore-version}.tgz -o /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
+      "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-${var.datacore-version}.tgz -o /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
       "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
       "tar -xf /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
 
@@ -115,8 +115,8 @@ resource "null_resource" "cpd_operator_disconnected" {
       "sudo yum install -y podman httpd-tools",
 
       "cat > /home/${var.admin-username}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
-      "wget https://github.com/IBM/cpd-cli/releases/download/${var.cpd-cli-version}/cpd-cli-linux-EE-3.5.1.tgz -O ${local.operator}/cpd-cli-linux-EE-3.5.1.tgz",
-      "tar -xf ${local.operator}/cpd-cli-linux-EE-3.5.1.tgz -C ${local.operator}",
+      "wget https://github.com/IBM/cpd-cli/releases/download/v${var.cpd-cli-version}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz -O ${local.operator}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz",
+      "tar -xf ${local.operator}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz -C ${local.operator}",
       "sudo mv ${local.operator}/cpd-cli ${local.operator}/plugins ${local.operator}/LICENSES /usr/local/bin",
       "mkdir -p /home/${var.admin-username}/offline",
       "sed -i -e s#CPDSERVICESLIST#${var.cpdservices-to-install}#g /home/${var.admin-username}/install-cpd-operator-airgap.sh",
