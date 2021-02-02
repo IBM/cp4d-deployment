@@ -401,7 +401,7 @@ variable "cloudctl-version" {
 }
 
 variable "datacore-version" {
-  default = "1.3.1"
+  default = "1.3.3"
 }
 
 variable "cpd-version" {
@@ -409,7 +409,7 @@ variable "cpd-version" {
 }
 
 variable "cpd-cli-version" {
-  default = "v3.5.0"
+  default = "3.5.2"
 }
 
 variable "images-rcos" {
