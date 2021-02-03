@@ -17,7 +17,8 @@ The template sets up the following:
     - OpenShift Container Platform master instances.
     - OpenShift compute nodes with machine auto scaling features.
 * An Azure Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser.
-* Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or on an exclusive node for NFS.
+<!-- * Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or on an exclusive node for NFS. -->
+* Storage disks with Azure Managed Disk mounted on an exclusive node for NFS.
 * An Azure domain as your public Domain Name System (DNS) zone for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Requirements
@@ -25,6 +26,9 @@ The template sets up the following:
 * Install [az-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
 * Install [terraform](https://learn.hashicorp.com/terraform/getting-started/install.html).
 
+### Note: 
+
+* This terraform script supports CPD 3.5 with OCP 4.5.18 version and storage type is nfs(currently). (Portworx will be supported in the next refresh) 
 ### Steps to Deploy (UPI Installation)
 
 1. Create an [App Service Domain](https://portal.azure.com/#create/Microsoft.Domain).
@@ -81,7 +85,7 @@ The template sets up the following:
 
 4. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
 
-* If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`. 
+<!-- * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.  -->
 
 * Read and agree to the [license terms](https://ibm.biz/Bdq6KP).
 * The ARM templates can be found [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/UPI/azure/openshift_module) which can be customized as per the requirement.

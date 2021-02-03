@@ -144,15 +144,15 @@ variable "private-or-public-cluster" {
 variable "storage" {
   default = "nfs"
 }
-variable "portworx-spec-url" {
-  default = ""
-}
+# variable "portworx-spec-url" {
+#   default = ""
+# }
 variable "storage-disk-size" {
   default = 1024
 }
-variable "enableNFSBackup" {
-  default = "no"
-}
+# variable "enableNFSBackup" {
+#   default = "no"
+# }
 
 # Disconnected install - variable declaration. 
 
