@@ -25,9 +25,9 @@ The following are the prerequisites for executing the script in your cluster.
    unit=Enter your department name.
    
    Example:
-    Countrycode=IN
-    State=Karnataka
-    Locality=Bangalore
+    Countrycode=US
+    State=California
+    Locality=SanJose
     Organization=IBM
     unit=cp4d
    ```
