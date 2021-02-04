@@ -12,7 +12,7 @@ resource "null_resource" "delete_db2_sc" {
   }
 }
 
-# px-sc.sh comes from https://github.ibm.com/PrivateCloud-analytics/portworx-util/blob/px-2.5.5/cpd-portworx/px-install-4.x/px-sc.sh
+# px-sc.sh comes from https://github.ibm.com/PrivateCloud-analytics/portworx-util/blob/px-2.5.5/cpd-portworx/px-2.6.2.0/px-install-4.x/px-sc.sh
 resource "null_resource" "px_sc" {
   depends_on = [ibm_resource_instance.portworx, null_resource.delete_db2_sc]
   

@@ -1,5 +1,5 @@
 variable "accept_cpd_license" {
-  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/Bdq6KP [yes/no]"
+  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdfEkc [yes/no]"
   
   # validation {
   #   condition = var.accept_cpd_license == "yes"
