@@ -84,8 +84,7 @@ ip-10-5-13-111.eu-north-1.compute.internal:5000
    scripts are present.
    * Make sure `pull-secret.json` generated during mirror registry setup is present in that directory.
    * Change the script mode to executable, `chmod +x ocs-disconnected.sh`.
-   * Execute the script as `./ocs-disconnected.sh MIRROR_REGISTRY_DNS` where MIRROR_REGISTRY_DNS is `<local_registry>:<port>` value
-   from the `imageContentSources` section, from the output of the command for creating mirror registry. 
+   * Execute the script as `./ocs-disconnected.sh MIRROR_REGISTRY_DNS` where `MIRROR_REGISTRY_DNS` is `<local_registry>:<port>` value from the `imageContentSources` section, from the output of the command for creating mirror registry. 
    Example ip-0-0-0-0.eu-west-3.compute.internal:5000
    * This script will build and mirror the catalog for redhat-operators. This is a long operation and will take more then 5 hours.
    * Once the build and mirroring is complete, `redhat-operators-manifests/imageContentSourcePolicy.yaml` file gets created. Copy this file to your local
