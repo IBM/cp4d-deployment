@@ -1,6 +1,6 @@
 | Variables             | Default       | Description          |
 | --------------------- | :-----------: | -------------------- |
-| `region` | us-west-2 | Region where cluster would be deployed. RHCOS AMIs required for AWS infrastructure is not present in `ap-east-1`, `af-south-1` and `eu-south-1` regions. Also `us-west-1` is not supported as minimum of 3 AZs are required to deploy the cluster. |
+| `region` | us-west-2 | Region where cluster would be deployed.
 | `azlist` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
 | `new-or-existing-vpc-subnet` | new | For existing VPC and SUBNETS use `exist` otherwise use `new` to create a new VPC and SUBNETS, default is `new`. |
 | `disconnected-cluster` | no | For creating an disconnected cluster, select `yes` otherwise `no`, default if `no`. |
