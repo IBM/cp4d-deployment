@@ -23,6 +23,13 @@ The following are the prerequisites for executing the script in your cluster.
    locality=Enter the name of your city.
    organization=Enter your company name.
    unit=Enter your department name.
+   
+   Example:
+    Countrycode=IN
+    State=Karnataka
+    Locality=Bangalore
+    Organization=IBM
+    unit=cp4d
    ```
    [ISO 3166 country codes](https://www.iso.org/iso-3166-country-codes.html) standard.
    * Assign execute permission to both the shell script
@@ -30,12 +37,12 @@ The following are the prerequisites for executing the script in your cluster.
    chmod +x createMirrorRegistry.sh
    chmod +x createSSL.sh
    ```
- Then execute the script by giving the follwing parameters in the same sequence "`emailid`, `any username`, `any password`, OCP version same as cluster's version (currently using `4.5.18`), `red hat account username`, `red hat account password`" as parameters.
+ Then execute the script by giving the follwing parameters in the same sequence "`emailid`, `any username`, `any password`, OCP version same as cluster's version (currently using `4.6.13`), `red hat account username`, `red hat account password`" as parameters.
 
 ##### Example:
 
   ```
-  ./createMirrorRegistry.sh "example@in.ibm.com" "testuser" "testPassword" "4.5.18" "RedHat account username" "RedHat account password"
+  ./createMirrorRegistry.sh "example@in.ibm.com" "testuser" "testPassword" "4.6.13" "RedHat account username" "RedHat account password"
   ```
    * This command pulls the release information as a digest, and its output includes the `imageContentSources` data that you require when you install your cluster.
    * Record the entire `imageContentSources` section, The information about your mirrors is unique to your mirrored repository, and you must add the `imageContentSources` section to the install-config.yaml file during installation.
