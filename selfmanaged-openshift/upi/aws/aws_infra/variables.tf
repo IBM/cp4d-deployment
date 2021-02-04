@@ -393,7 +393,7 @@ variable "planning-analytics" {
 # Other Parameters , Don't modify any values here #
 ####################################################
 variable "ocp-version" {
-  default = "4.5.18"
+  default = "4.6.13"
 }
 
 variable "cloudctl-version" {
@@ -416,23 +416,26 @@ variable "images-rcos" {
   type = map
 
   default = {
-    "ap-northeast-1" = "ami-0530d04240177f118"
-    "ap-northeast-2" = "ami-09e4cd700276785d2"
-    "ap-south-1"     = "ami-0754b15d212830477"
-    "ap-southeast-1" = "ami-03b46cc4b1518c5a8"
-    "ap-southeast-2" = "ami-0a5b99ab2234a4e6a"
-    "ca-central-1"   = "ami-012bc4ee3b6c673bc"
-    "eu-central-1"   = "ami-02e08df1201f1c2f8"
-    "eu-north-1"     = "ami-0309c9d2fadcb2d5a"
-    "eu-west-1"      = "ami-0bdd69d8e7cd18188"
-    "eu-west-2"      = "ami-0e610e967a62dbdfa"
-    "eu-west-3"      = "ami-0e817e26f638a71ac"
-    "me-south-1"     = "ami-024117d7c87b7ff08"
-    "sa-east-1"      = "ami-08e62f746b94950c1"
-    "us-east-1"      = "ami-077ede5bed2e431ea"
-    "us-east-2"      = "ami-0f4ecf819275850dd"
-    "us-west-1"      = "ami-0c4990e435bc6c5fe"
-    "us-west-2"      = "ami-000d6e92357ac605c"
+    "af-south-1"      = "ami-09921c9c1c36e695c"
+    "ap-east-1"       = "ami-01ee8446e9af6b197"
+    "ap-northeast-1"  = "ami-04e5b5722a55846ea"
+    "ap-northeast-2"  = "ami-0fdc25c8a0273a742"
+    "ap-south-1"      = "ami-09e3deb397cc526a8"
+    "ap-southeast-1"  = "ami-0630e03f75e02eec4"
+    "ap-southeast-2"  = "ami-069450613262ba03c"
+    "ca-central-1"    = "ami-012518cdbd3057dfd"
+    "eu-central-1"    = "ami-0bd7175ff5b1aef0c"
+    "eu-north-1"      = "ami-06c9ec42d0a839ad2"
+    "eu-south-1"      = "ami-0614d7440a0363d71"
+    "eu-west-1"       = "ami-01b89df58b5d4d5fa"
+    "eu-west-2"       = "ami-06f6e31ddd554f89d"
+    "eu-west-3"       = "ami-0dc82e2517ded15a1"
+    "me-south-1"      = "ami-07d181e3aa0f76067"
+    "sa-east-1"       = "ami-0cd44e6dd20e6c7fa"
+    "us-east-1"       = "ami-04a16d506e5b0e246"
+    "us-east-2"       = "ami-0a1f868ad58ea59a7"
+    "us-west-1"       = "ami-0a65d76e3a6f6622f"
+    "us-west-2"       = "ami-0dd9008abadc519f1"
   }
 }
 
