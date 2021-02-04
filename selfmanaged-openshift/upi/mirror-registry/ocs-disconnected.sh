@@ -8,7 +8,7 @@ echo "****************************************"
 echo "Build the catalog for redhat-operators"
 echo "****************************************"
 oc adm catalog build --appregistry-org redhat-operators \
-  --from=registry.redhat.io/openshift4/ose-operator-registry:v4.5 \
+  --from=registry.redhat.io/openshift4/ose-operator-registry:v4.6 \
   --to=${MIRROR_REGISTRY_DNS}/olm/redhat-operators:v1 \
   --registry-config=${AUTH_FILE} \
   --filter-by-os="linux/amd64" --insecure
