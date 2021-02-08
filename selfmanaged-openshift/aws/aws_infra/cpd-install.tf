@@ -71,7 +71,7 @@ resource "null_resource" "cpd_config" {
             "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
             "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
             "sleep 2m",
-            "./update-elb-timeout.sh ${local.vpcid}",
+            "./update-elb-timeout.sh ${local.vpcid} ${var.classic-lb-timeout}",
         ]
     }
     depends_on = [

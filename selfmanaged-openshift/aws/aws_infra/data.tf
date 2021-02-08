@@ -18,7 +18,7 @@ data "template_file" "installconfig" {
     template = file("../openshift_module/install-config-multi-zone.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
@@ -47,7 +47,7 @@ data "template_file" "installconfig-1AZ" {
     template = file("../openshift_module/install-config-single-zone.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
@@ -70,7 +70,7 @@ data "template_file" "installconfig-private" {
     template = file("../openshift_module/install-config-multi-zone-private-subnet.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
@@ -96,7 +96,7 @@ data "template_file" "installconfig-1AZ-private" {
     template = file("../openshift_module/install-config-single-zone-private-subnet.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
