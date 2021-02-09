@@ -25,11 +25,11 @@ The following are the prerequisites for executing the script in your cluster.
    unit=Enter your department name.
    
    Example:
-    Countrycode=US
-    State=California
-    Locality=SanJose
-    Organization=IBM
-    unit=cp4d
+   Countrycode=US
+   State=California
+   Locality=SanJose
+   Organization=IBM
+   unit=cp4d
    ```
    [ISO 3166 country codes](https://www.iso.org/iso-3166-country-codes.html) standard.
    * Assign execute permission to both the shell script
