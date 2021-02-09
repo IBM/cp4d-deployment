@@ -5,7 +5,7 @@ metadata:
   name: "CLUSTERID-${machinetype}-${az1}"
   namespace: "openshift-machine-api"
 spec:
-  minReplicas: 1
+  minReplicas: ${replica}
   maxReplicas: 12
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
@@ -18,7 +18,7 @@ metadata:
   name: "CLUSTERID-${machinetype}-${az2}"
   namespace: "openshift-machine-api"
 spec:
-  minReplicas: 1
+  minReplicas: ${replica}
   maxReplicas: 12
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
@@ -31,11 +31,10 @@ metadata:
   name: "CLUSTERID-${machinetype}-${az3}"
   namespace: "openshift-machine-api"
 spec:
-  minReplicas: 1
+  minReplicas: ${replica}
   maxReplicas: 12
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
     name: "CLUSTERID-${machinetype}-${az3}"
-
 

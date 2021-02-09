@@ -45,6 +45,8 @@
 | `ssh-public-key` | Requires input | ssh Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `ssh-private-key-file-path` | Requires input | Path to the private key file of the corresponding ssh public key used to allow terraform run commands remotely. Example: "~/.ssh/id_rsa" |
 | `classic-lb-timeout` | 600 | Classic loadbalancer timeout value in seconds. |
+| `autoscaler-replica-count` | 1 | Replica count for machine autoscaler. |
+| `max-total-nodes` | 24 | Maximum number of node count for cluster autoscaler. |
 | `dnszone` | Requires input | The domain name configured for the cluster. |
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |
