@@ -5,7 +5,11 @@
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
+#### CPD Installation using User Provisioned Infrastructure
 ![Alt text](images/aws-multi-zone.jpg)
+
+#### CPD Installation using a Mirror Registry
+![Alt text](images/mirror-architecture-diagram.png)
 
 The deployment sets up the following as shown in the diagram.
  - A highly available architecture that spans one or three Availability Zones.
@@ -21,7 +25,7 @@ The deployment sets up the following as shown in the diagram.
  - A Network Load Balancer spanning the public subnets for accessing the OCP master instances. Internet traffic to this load balancer is only permitted from RemoteAccessCIDR.
  - A Network Load Balancer spanning the private subnets for routing internal OpenShift application programming interface (API) traffic to the OCP master instances.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
-
+ - A VPC Peering connectionn between two VPCs if installing the cluster using a Mirror Registry.
 
 ### Steps to Deploy (CPD Installation using User Provisioned Infrastructure)
 
