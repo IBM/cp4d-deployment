@@ -116,7 +116,7 @@ data "template_file" "installconfig-1AZ-private" {
 data "template_file" "clusterautoscaler" {
     template = file("../openshift_module/cluster-autoscaler.tpl.yaml")
     vars = {
-        max-total-nodes     = 24
+        max-total-nodes     = var.max-total-nodes
         pod-priority        = -10
         min-cores           = 48
         max-cores           = 128
@@ -134,6 +134,7 @@ data "template_file" "machineautoscaler" {
     count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/machine-autoscaler.tpl.yaml")
     vars = {
+        replica       = var.autoscaler-replica-count
         machinetype   = "worker"
         region        = var.region
         az1           = coalesce(var.availability-zone1, local.avzone[0])
@@ -146,6 +147,7 @@ data "template_file" "machineautoscaler-1AZ" {
     count    = var.azlist == "single_zone" ? 1 : 0
     template = file("../openshift_module/machine-autoscaler-1AZ.tpl.yaml")
     vars = {
+        replica       = var.autoscaler-replica-count
         machinetype   = "worker"
         region        = var.region
         az1           = coalesce(var.availability-zone1, local.avzone[0])
