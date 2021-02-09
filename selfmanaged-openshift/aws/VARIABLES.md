@@ -1,6 +1,6 @@
 | Variables             | Default       | Description          |
 | --------------------- | :-----------: | -------------------- |
-| `region` | us-west-2 | Region where cluster would be deployed. RHCOS AMIs required for AWS infrastructure is not present in `ap-east-1`, `af-south-1` and `eu-south-1` regions. Also `us-west-1` is not supported as minimum of 3 AZs are required to deploy the cluster. |
+| `region` | us-west-2 | Region where cluster would be deployed. |
 | `azlist` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
 | `availability-zone1` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability-zone1` value. |
 | `availability-zone2` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability-zone1` value. |
@@ -8,20 +8,20 @@
 | `new-or-existing-vpc-subnet` | new | For existing VPC and SUBNETS use `exist` otherwise use `new` to create a new VPC and SUBNETS, default is `new`. |
 | `vpc_cidr` | 10.0.0.0/16 | The CIDR block for the VPC to be created. |
 | `cluster_network_cidr` | 10.128.0.0/14 | The CIDR block for the network cidr to be created. |
-| `public-subnet-cidr1` | 10.0.0.0/20 | The CIDR block for the public subnet located in Availability Zone a. |
-| `public-subnet-cidr2` | 10.0.16.0/20 | The CIDR block for the public subnet located in Availability Zone b. |
-| `public-subnet-cidr3` | 10.0.32.0/20 | The CIDR block for the public subnet located in Availability Zone c. |
-| `private-subnet-cidr1` | 10.0.128.0/20 | The CIDR block for the private subnet located in Availability Zone a. |
-| `private-subnet-cidr2` | 10.0.144.0/20 | The CIDR block for the private subnet located in Availability Zone b. |
-| `private-subnet-cidr3` | 10.0.160.0/20 | The CIDR block for the private subnet located in Availability Zone c. |
+| `public-subnet-cidr1` | 10.0.0.0/20 | The CIDR block for the public subnet located in Availability Zone 1. |
+| `public-subnet-cidr2` | 10.0.16.0/20 | The CIDR block for the public subnet located in Availability Zone 2. |
+| `public-subnet-cidr3` | 10.0.32.0/20 | The CIDR block for the public subnet located in Availability Zone 3. |
+| `private-subnet-cidr1` | 10.0.128.0/20 | The CIDR block for the private subnet located in Availability Zone 1. |
+| `private-subnet-cidr2` | 10.0.144.0/20 | The CIDR block for the private subnet located in Availability Zone 2. |
+| `private-subnet-cidr3` | 10.0.160.0/20 | The CIDR block for the private subnet located in Availability Zone 3. |
 | `vpcid-existing` | "" | If existing VPC is to be used and selected `exist` as input parameter for `new-or-exist` variable, then provide a VPC id otherwise if creating a new VPC and selected `new` for `new-or-exist` then keep it blank as `“”`. Enable DNS hostnames in existing VPC |
 | `only-private-subnets` | "" | Select 'yes' if only private subnets present in the existing VPC, default is 'no'. You should have `ssh` access to the private subnet as bootnode will be created in one of the private subnet. |
-| `subnetid-public1` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone a. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
-| `subnetid-public2` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone b. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
-| `subnetid-public3` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone c. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
-| `subnetid-private1` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone a. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
-| `subnetid-private2` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone b. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
-| `subnetid-private3` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone c. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-public1` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone 1. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-public2` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone 2. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-public3` | "" | In case of existing VPC and SUBNETS, Subnet Id for public subnet in zone 3. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-private1` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 1. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-private2` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 2. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
+| `subnetid-private3` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 3. For `single_zone` installation, provide only `subnetid-public1` and `subnetid-private1` values. For `only-private-subnets` installation, provide all three `private subnet` values or `subnetid-private1` for `single_zone` installation. |
 | `private-subnet-tag-name` | Requires input | Private subnets Tag Name, all Private Subnets should be Tagged with same Name and Value. |
 | `private-subnet-tag-value` | Requires input | Private subnets Tag Value, all Private Subnets should be Tagged with same Name and Value. |
 | `key_name` | Requires input | The name of a key pair, which allows you to securely connect to your instance after it launches. |
@@ -44,6 +44,9 @@
 | `public_key_path` | Requires input | Path to the ssh public key file to allow terraform run commands remotely. Example: "~/.ssh/id_rsa.pub" |
 | `ssh-public-key` | Requires input | ssh Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `ssh-private-key-file-path` | Requires input | Path to the private key file of the corresponding ssh public key used to allow terraform run commands remotely. Example: "~/.ssh/id_rsa" |
+| `classic-lb-timeout` | 600 | Classic loadbalancer timeout value in seconds. |
+| `autoscaler-replica-count` | 1 | Replica count for machine autoscaler. |
+| `max-total-nodes` | 24 | Maximum number of node count for cluster autoscaler. |
 | `dnszone` | Requires input | The domain name configured for the cluster. |
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |

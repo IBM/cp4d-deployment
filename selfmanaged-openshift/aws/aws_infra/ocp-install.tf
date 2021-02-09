@@ -149,7 +149,7 @@ resource "null_resource" "install_ocs" {
             "sleep 600",
             "oc apply -f ${local.ocptemplates}/toolbox.yaml",
             "sleep 60",
-            "./delete-noobaa-buckets.sh 2> /dev/null",
+            "./delete-noobaa-buckets.sh 2> /dev/null || true",
         ]
     }
     depends_on = [
