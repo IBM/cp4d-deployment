@@ -222,6 +222,16 @@ variable "classic-lb-timeout" {
   default = "600"
 }
 
+variable "autoscaler-replica-count" {
+  description = "Replica count for machine autoscaler."
+  default = "1"
+}
+
+variable "max-total-nodes" {
+  description = "Maximum number of node count for cluster autoscaler."
+  default = "24"
+}
+
 ##### DNS configuration #####
 variable "dnszone" {
   default = ""
