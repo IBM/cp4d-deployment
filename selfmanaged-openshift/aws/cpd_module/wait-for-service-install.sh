@@ -13,7 +13,7 @@ while [ "$STATUS" != "Ready" ];do
         echo "**********************************"
         echo "$SERVICE Installation Failed!!!!"
         echo "**********************************"
-        exit
+        exit 1
     fi
 done 
 echo "*************************************"

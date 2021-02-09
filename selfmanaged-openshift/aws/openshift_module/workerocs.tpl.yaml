@@ -60,7 +60,7 @@ spec:
             filters:
             - name: tag:Name
               values:
-              - ${cluster-name}-private-vpc-${az1}
+              - ${cluster-name}-cpd-private-subnet-${az1}
           tags:
           - name: kubernetes.io/cluster/CLUSTERID
             value: owned
@@ -130,7 +130,7 @@ spec:
             filters:
             - name: tag:Name
               values:
-              - ${cluster-name}-private-vpc-${az2}
+              - ${cluster-name}-cpd-private-subnet-${az2}
           tags:
           - name: kubernetes.io/cluster/CLUSTERID
             value: owned
@@ -200,7 +200,7 @@ spec:
             filters:
             - name: tag:Name
               values:
-              - ${cluster-name}-private-vpc-${az3}
+              - ${cluster-name}-cpd-private-subnet-${az3}
           tags:
           - name: kubernetes.io/cluster/CLUSTERID
             value: owned

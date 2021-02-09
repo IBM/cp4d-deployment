@@ -10,34 +10,10 @@ locals {
     #Storage Classes
     cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
     streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
+    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp3" : "nfs"
 
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
-}
-
-resource "null_resource" "cpd_files" {
-    triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
-        username = var.admin-username
-        private_key_file_path = var.ssh-private-key-file-path
-        namespace = var.cpd-namespace
-    }
-    connection {
-        type = "ssh"
-        host = self.triggers.bootnode_ip_address
-        user = self.triggers.username
-        private_key = file(self.triggers.private_key_file_path)
-    }
-
-    provisioner "file" {
-    source      = "../cpd_module/ibm-cp-datacore-1.3.0.tar"
-    destination = "/home/${var.admin-username}/ibm-cp-datacore-1.3.0.tar"
-    }
-
-    depends_on = [
-        null_resource.openshift_post_install,
-    ]
 }
 
 resource "null_resource" "cpd_config" {
@@ -58,14 +34,14 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
+            "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-1.3.1.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
             "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
-            "sudo mv ibm-cp-datacore-1.3.0.tar /home/${var.admin-username}/",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.0.tar",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",
@@ -80,7 +56,6 @@ resource "null_resource" "cpd_config" {
     }
     depends_on = [
         null_resource.openshift_post_install,
-        null_resource.cpd_files,
         null_resource.install_portworx,
         null_resource.install_nfs_client,
     ]
@@ -764,7 +739,7 @@ resource "null_resource" "install_bigsql" {
             "sed -i -e s#SERVICE#big-sql#g ${local.installerhome}/cpd-bigsql.yaml",
             "sed -i -e s#STORAGECLASS#${local.bigsql-storageclass}#g ${local.installerhome}/cpd-bigsql.yaml",
             "oc create -f ${local.installerhome}/cpd-bigsql.yaml -n ${var.cpd-namespace}",
-            "./wait-for-service-install.sh bigsql ${var.cpd-namespace}",
+            "./wait-for-service-install.sh big-sql ${var.cpd-namespace}",
         ]
     }
     depends_on = [

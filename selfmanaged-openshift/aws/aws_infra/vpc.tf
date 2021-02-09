@@ -5,6 +5,36 @@ provider "aws" {
         secret_key = var.secret_access_key
 }
 
+resource "null_resource" "variables-validation" {
+    provisioner "local-exec" {
+        command = "if [ -z ${var.access_key_id} ] ; then echo \"access_key_id value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.secret_access_key} ] ; then echo \"secret_access_key value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.pull-secret-file-path} ] ; then echo \"pull-secret-file-path value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.public_key_path} ] ; then echo \"public_key_path value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.ssh-public-key} ] ; then echo \"ssh-public-key value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.ssh-private-key-file-path} ] ; then echo \"ssh-private-key-file-path value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.dnszone} ] ; then echo \"dnszone value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ -z ${var.api-key} ] ; then echo \"api-key value missing in variables.tf file\" ; exit 1 ; fi"
+    }
+    provisioner "local-exec" {
+        command = "if [ ${var.storage-type} = 'portworx' ]; then if [ -z ${var.portworx-spec-url} ] ; then echo \"portworx-spec-url value missing in variables.tf file\" ; exit 1 ; fi ; fi"
+    }
+}
+
 resource "null_resource" "permission-resource-validation" {
     provisioner "local-exec" {
         command = "mkdir -p $HOME/.aws"
@@ -24,6 +54,10 @@ resource "null_resource" "permission-resource-validation" {
     provisioner "local-exec" {
         command = "echo file | ./aws_resource_quota_validation.sh ; if [ $? -ne 0 ] ; then echo \"Resource Quota Validation Failed\" ; exit 1 ; fi"
     }
+
+  depends_on = [
+      null_resource.variables-validation,
+  ]
 }
 
 resource "aws_vpc" "cpdvpc" {
@@ -42,12 +76,7 @@ resource "aws_vpc" "cpdvpc" {
 }
 
 locals{
-  zonelist ={
-    single_zone  = [data.aws_availability_zones.azs.names[0],data.aws_availability_zones.azs.names[0],data.aws_availability_zones.azs.names[0]]
-    multi_zone   = data.aws_availability_zones.azs.names
-  }
-
-  avzone   = "${local.zonelist[var.azlist]}"
+  avzone   = data.aws_availability_zones.azs.names
   vpcid    = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
 }
 
@@ -61,36 +90,36 @@ resource "aws_subnet" "public1" {
   count                   = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
   vpc_id                  = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block              = var.public-subnet-cidr1
-  availability_zone       = local.avzone[0]
+  availability_zone       = coalesce(var.availability-zone1, local.avzone[0])
   map_public_ip_on_launch = true
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"public-vpc",local.avzone[0]])
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone1, local.avzone[0])])
   }
 }
 resource "aws_subnet" "public2" {
   count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id                  = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block              = var.public-subnet-cidr2
-  availability_zone       = local.avzone[1]
+  availability_zone       = coalesce(var.availability-zone2, local.avzone[1])
   map_public_ip_on_launch = true
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"public-vpc",local.avzone[1]])
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone2, local.avzone[1])])
   }
 }
 resource "aws_subnet" "public3" {
   count                   = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id                  = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block              = var.public-subnet-cidr3
-  availability_zone       = local.avzone[2]
+  availability_zone       = coalesce(var.availability-zone3, local.avzone[2])
   map_public_ip_on_launch = true
   depends_on              = [aws_internet_gateway.bootnode]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"public-vpc",local.avzone[2]])
+    "Name": join("-",[var.cluster-name,"cpd-public-subnet",coalesce(var.availability-zone3, local.avzone[2])])
   }
 }
 resource "aws_route_table" "public" {
@@ -164,33 +193,33 @@ resource "aws_subnet" "private1" {
   count                = var.new-or-existing-vpc-subnet == "new" ? 1 : 0
   vpc_id               = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block           = var.private-subnet-cidr1
-  availability_zone    = local.avzone[0]
+  availability_zone    = coalesce(var.availability-zone1, local.avzone[0])
   depends_on           = [aws_nat_gateway.nat1]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"private-vpc",local.avzone[0]])
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone1, local.avzone[0])])
   }
 }
 resource "aws_subnet" "private2" {
   count                = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id               = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block           = var.private-subnet-cidr2
-  availability_zone    = local.avzone[1]
+  availability_zone    = coalesce(var.availability-zone2, local.avzone[1])
   depends_on           = [aws_nat_gateway.nat2]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"private-vpc",local.avzone[1]])
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone2, local.avzone[1])])
   }
 }
 resource "aws_subnet" "private3" {
   count                = var.new-or-existing-vpc-subnet == "new" && var.azlist == "multi_zone" ? 1 : 0
   vpc_id               = coalesce(var.vpcid-existing, join("",aws_vpc.cpdvpc[*].id))
   cidr_block           = var.private-subnet-cidr3
-  availability_zone    = local.avzone[2]
+  availability_zone    = coalesce(var.availability-zone3, local.avzone[2])
   depends_on           = [aws_nat_gateway.nat3]
 
   tags = {
-    "Name": join("-",[var.cluster-name,"private-vpc",local.avzone[2]])
+    "Name": join("-",[var.cluster-name,"cpd-private-subnet",coalesce(var.availability-zone3, local.avzone[2])])
   }
 }
 resource "aws_route_table" "private1" {

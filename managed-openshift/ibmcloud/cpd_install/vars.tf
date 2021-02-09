@@ -1,5 +1,5 @@
 variable "accept_cpd_license" {
-  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/Bdq6KP [yes/no]"
+  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdfEkc [yes/no]"
   
   # validation {
   #   condition = var.accept_cpd_license == "yes"
@@ -13,8 +13,6 @@ variable "cpd_registry" {}
 variable "cpd_registry_username" {}
 variable "install_services" {}
 variable "multizone" {}
-variable "oc_host" {}
-variable "oc_token" {}
 variable "portworx_is_ready" {
   type = any
   default = null

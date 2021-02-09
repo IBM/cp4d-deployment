@@ -10,7 +10,7 @@ metadata:
  name: portworx-couchdb-sc
 provisioner: kubernetes.io/portworx-volume
 parameters:
- repl: "2"
+ repl: "3"
  priority_io: "high"
  io_profile: "db_remote"
  disable_io_profile_protection: "1"
@@ -203,7 +203,7 @@ metadata:
  name: portworx-shared-gp-allow
 parameters:
  priority_io: high
- repl: "2"
+ repl: "3"
  io_profile: "cms"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Delete
@@ -282,6 +282,21 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
+# gp db
+cat <<EOF | oc create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-db-gp
+parameters:
+  io_profile: "db_remote"
+  repl: "1"
+  disable_io_profile_protection: "1"
+allowVolumeExpansion: true
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
 
 # General Purpose for Databases, 2 Replicas - MongoDB - (Implemented application-level redundancy)
 cat <<EOF | oc create -f -
@@ -317,7 +332,6 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 EOF
 
-
 # DB2 RWX shared volumes for System Storage, backup storage, future load storage, and future diagnostic logs storage
 cat <<EOF | oc create -f -
 allowVolumeExpansion: true
@@ -326,6 +340,9 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwx-sc
 parameters:
+  io_profile: cms
+  block_size: 4096b
+  nfs_v4: "true"
   repl: "3"
   sharedv4: "true"
   priority_io: high
@@ -342,9 +359,11 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwo-sc
 parameters:
+  block_size: 4096b
   io_profile: db_remote
   priority_io: high
   repl: "3"
+  sharedv4: "false"
   disable_io_profile_protection: "1"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain

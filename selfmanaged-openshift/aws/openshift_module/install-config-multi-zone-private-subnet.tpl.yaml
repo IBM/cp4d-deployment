@@ -45,9 +45,6 @@ platform:
   aws:
     region: ${region}
     subnets:
-    - ${public-subnet-1}
-    - ${public-subnet-2}
-    - ${public-subnet-3}
     - ${private-subnet-1}
     - ${private-subnet-2}
     - ${private-subnet-3}
