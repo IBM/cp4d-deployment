@@ -86,20 +86,8 @@ resource "null_resource" "file_copy" {
     destination = "/home/${var.admin-username}/delete-efs.sh"
   }
   provisioner "file" {
-    source      = "../scripts/efs-backup.sh"
-    destination = "/home/${var.admin-username}/efs-backup.sh"
-  }
-  provisioner "file" {
-    source      = "../scripts/delete-efs-backup.sh"
-    destination = "/home/${var.admin-username}/delete-efs-backup.sh"
-  }
-  provisioner "file" {
     source      = "../scripts/update-elb-timeout.sh"
     destination = "/home/${var.admin-username}/update-elb-timeout.sh"
-  }
-  provisioner "file" {
-    source      = "../scripts/delete-elb-outofservice.sh"
-    destination = "/home/${var.admin-username}/delete-elb-outofservice.sh"
   }
   provisioner "file" {
     source      = "../cpd_module/install-cpd-operator.sh"

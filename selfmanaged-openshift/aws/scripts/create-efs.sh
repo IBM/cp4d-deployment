@@ -16,7 +16,7 @@ pip install awscli --upgrade --user > /dev/null
 pip install pssh > /dev/null
 
 CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}')
-EFS_SG_GROUPID=`aws ec2 create-security-group --group-name EFSSecutityGroup --description "EFS security group" --vpc-id $VPC_ID | awk -F':' '{print $2}' | awk '{print $1}' | xargs | tr -d '"'`
+EFS_SG_GROUPID=`aws ec2 create-security-group --group-name "$CLUSTERID-EFSSecutityGroup" --description "EFS security group" --vpc-id $VPC_ID | awk -F':' '{print $2}' | awk '{print $1}' | xargs | tr -d '"'`
 
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 2049 --cidr $VPC_CIDR
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 22 --cidr $VPC_CIDR
