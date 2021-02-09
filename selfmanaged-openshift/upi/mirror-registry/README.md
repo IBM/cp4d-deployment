@@ -14,7 +14,7 @@ The "CreateMirrorRegistry.sh" file will create the Mirror Registry in your Basti
 The following are the prerequisites for executing the script in your cluster.
 
    * You should have a Red Hat Enterprise Linux (RHEL) `7.*` server on your network to use as the registry host and the registry host can access the internet. Make sure there is `1000 GiB` available disk space on the mirror host.
-   * Make sure that `VPC CIDR` range of mirror registry ec2 instance is different from the `VPC CIDR` range used for creating the OpenShift cluster.
+   * Make sure that `VPC CIDR` range of mirror registry ec2 instance should not overlap with the `VPC CIDR` range used for creating the OpenShift cluster. Example VPC CIDR range of cluster = 10.0.0.0/16 and VPC CIDR range of mirror registry = 10.5.0.0/16
    * Download your registry.redhat.io pull secret from the [Pull Secret](https://cloud.redhat.com/openshift/install/pull-secret) page on the Red Hat OpenShift Cluster Manager site. Place the pull_secret file in the same folder as the script.
    * If you do not have an existing trusted certificate authority, you can generate a self-signed certificate. To generate a self signed certificate update `certificate` file and place it in the same directory as that of the scripts. (don't put any double quotes " " on the variable values and also no space in a value.)
    ```
