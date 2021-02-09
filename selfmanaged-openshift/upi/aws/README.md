@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 3.5 on OCP 4.6 on AWS
+# Cloud Pak for Data 3.5 on OCP 4.6 on AWS (User Provisioned Infrastructure)
 
 ## Deployment Topology
 
@@ -23,7 +23,7 @@ The deployment sets up the following as shown in the diagram.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 
-### Steps to Deploy (UPI Installation)
+### Steps to Deploy (CPD Installation using User Provisioned Infrastructure)
 
 1. Create a Route 53 domain.
 2. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
@@ -57,10 +57,10 @@ terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file"
 ```
 
-### Steps to Deploy (Disconnected UPI Installation)
+### Steps to Deploy (CPD Installation using a Mirror Registry)
 
 1. Create a Mirror Registry, follow the steps here [Mirror Registry Creation](../mirror-registry) .
-2. Follow the steps 1 to 9 from UPI installation section above.
+2. Follow the steps 1 to 9 from "CPD Installation using User Provisioned Infrastructure" above.
 3. Copy `/opt/registry/certs/domain.crt` file from the RHEL server where Mirror Registry is created to the current installer machine.
 4. Update the `pull-Secret` file's value to contain the authentication information for your mirror registry. 
 ```
