@@ -30,7 +30,7 @@ spec:
           node-role.kubernetes.io/worker: ""
       providerSpec:
         value:
-          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          apiVersion: azureproviderconfig.openshift.io/v1beta1
           credentialsSecret:
             name: azure-cloud-credentials
             namespace: openshift-machine-api
@@ -96,7 +96,7 @@ spec:
           node-role.kubernetes.io/worker: ""
       providerSpec:
         value:
-          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          apiVersion: azureproviderconfig.openshift.io/v1beta1
           credentialsSecret:
             name: azure-cloud-credentials
             namespace: openshift-machine-api
@@ -162,7 +162,7 @@ spec:
           node-role.kubernetes.io/worker: ""
       providerSpec:
         value:
-          apiVersion: awsproviderconfig.openshift.io/v1beta1
+          apiVersion: azureproviderconfig.openshift.io/v1beta1
           credentialsSecret:
             name: azure-cloud-credentials
             namespace: openshift-machine-api

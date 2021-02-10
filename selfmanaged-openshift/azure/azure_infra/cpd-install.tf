@@ -6,11 +6,11 @@ locals {
     operator = "/home/${var.admin-username}/operator"
 
     # Override
-    override-value = var.storage == "nfs" ? "\"\"" : "portworx"
+    override-value = var.storage == "nfs" ? "\"\"" : var.storage
     #Storage Classes
-    cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
-    streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp3" : "nfs"
+    cp-storageclass = lookup(var.cp-storageclass,var.storage)
+    streams-storageclass = lookup(var.streams-storageclass,var.storage)
+    bigsql-storageclass = lookup(var.bigsql-storageclass,var.storage)
 
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
@@ -34,14 +34,15 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-1.3.1.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            //"curl https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
+            "wget https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
             "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",
@@ -57,6 +58,7 @@ resource "null_resource" "cpd_config" {
     depends_on = [
         null_resource.openshift_post_install,
         null_resource.install_portworx,
+        null_resource.install_ocs,
         null_resource.install_nfs_client,
     ]
 }

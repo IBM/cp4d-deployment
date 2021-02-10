@@ -11,6 +11,7 @@ resource "null_resource" "az_validation_check" {
     }
 }
 resource "azurerm_resource_group" "cpdrg" {
+    count = var.new-or-existing == "new" ? 1 : 0
     name = var.resource-group
     location = var.region
     depends_on = [

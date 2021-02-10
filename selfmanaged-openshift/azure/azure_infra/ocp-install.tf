@@ -47,8 +47,8 @@ resource "null_resource" "install_openshift" {
             "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
-            "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
-            "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+            //"oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
+            //"oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
         ]
     }
@@ -114,6 +114,10 @@ resource "null_resource" "openshift_post_install" {
             "oc create -f ${local.ocptemplates}/crio-mc.yaml",
             "oc create -f ${local.ocptemplates}/chrony-mc.yaml",
 
+            # multipath-machineconfig test
+            "cat > ${local.ocptemplates}/multipath-machineconfig.yaml <<EOL\n${data.template_file.multipath-mc.rendered}\nEOL",
+            "oc create -f ${local.ocptemplates}/multipath-machineconfig.yaml",
+
             # Create Registry Route
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
             "echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' ",
@@ -124,9 +128,6 @@ resource "null_resource" "openshift_post_install" {
         ]
     }
     depends_on = [
-#        null_resource.install_portworx,
-#        null_resource.install-nfs-server,
-#        null_resource.install_nfs_client,
         null_resource.install_openshift
     ]
 }
@@ -157,6 +158,47 @@ resource "null_resource" "install_portworx" {
             "sleep 5m",
             "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
             "echo $result"
+        ]
+    }
+    depends_on = [
+        null_resource.install_openshift,
+        null_resource.openshift_post_install
+    ]
+}
+
+resource "null_resource" "install_ocs" {
+    count    = var.storage == "ocs" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+    }
+    connection {
+        type = "ssh"
+        host = azurerm_public_ip.bootnode.ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.ocptemplates}/toolbox.yaml <<EOL\n${file("../ocs_module/toolbox.yaml")}\nEOL",
+            "sed -i s/\"namespace: rook-ceph\"/\"namespace: openshift-storage\"/g ${local.ocptemplates}/toolbox.yaml",
+            "cat > ${local.ocptemplates}/deploy-with-olm.yaml <<EOL\n${file("../ocs_module/deploy-with-olm.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/ocs-storagecluster.yaml <<EOL\n${file("../ocs_module/ocs-storagecluster.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
+            "cat > ocs-prereq.sh <<EOL\n${file("../ocs_module/ocs-prereq.sh")}\nEOL",
+            "sudo chmod +x ocs-prereq.sh",
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+
+            "oc create -f ${local.ocptemplates}/machineset-worker-ocs.yaml",
+            "sleep 420",
+            "./ocs-prereq.sh",
+            "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
+            "sleep 300",
+            "oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml",
+            "sleep 600",
+            "oc apply -f ${local.ocptemplates}/toolbox.yaml",
+            "sleep 60",
         ]
     }
     depends_on = [

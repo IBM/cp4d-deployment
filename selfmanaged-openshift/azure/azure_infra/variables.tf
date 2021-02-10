@@ -31,6 +31,10 @@ variable "dnszone-resource-group" {
 variable "dnszone" {
 }
 
+variable "privateBootnode" {
+  default = "no"
+}
+
 ### Network Config
 variable "new-or-existing" {
   default = "new"
@@ -147,6 +151,38 @@ variable "storage-disk-size" {
   default = 1024
 }
 
+variable "cp-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass Streams
+variable "streams-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp-allow"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass BigSQL
+variable "bigsql-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-dv-shared-gp"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
 variable "enableNFSBackup" {
   default = "no"
 }
@@ -165,7 +201,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.6.1"
 }
 
 variable "apikey" {
