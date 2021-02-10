@@ -47,20 +47,20 @@
 | `storage-type` | portworx | Storage management to be used for the cp4d installation. Allowed values `portworx / ocs / efs`. |
 | `portworx-spec-url` | Requires input | URL for generated portworx specification. Keep `default  = ""` when selecting `storage-type` as `ocs` or `efs`. See [Portworx documentation](PORTWORX.md) for more details. |
 | `efs-performance-mode` | Requires input | If storage-type is selected as `efs`, select one of the performance mode, default is `generalPurpose`. Allowed values are `generalPurpose / maxIO`. To read more about efs performance mode see [efs performance modes](https://docs.aws.amazon.com/efs/latest/ug/performance.html#performancemodes) |
-| `redhat-username` | Requires input | `(For disconnected istallation)` Username for your Red Hat account. |
-| `redhat-password` | Requires input | `(For disconnected istallation)` Password for your Red Hat account. |
-| `certificate-file-path` | Requires input | `(For disconnected istallation)` Path to the certificate `/opt/registry/certs/domain.crt` file that you copied from the RHEL server where Mirror Registry is created. |
-| `local-registry-repository` | Requires input |`(For disconnected istallation)` `<local_registry>/<local_repository_name>` values from the `imageContentSources` section, from the output of the command for creating mirror registry. Example `ip-0-0-0-0.eu-west-3.compute.internal:5000/ocp4/openshift4` |
-| `local-registry` | Requires input |`(For disconnected istallation)` `<local_registry>` values from the `imageContentSources` section, from the output of the command for creating mirror registry. Example `ip-0-0-0-0.eu-west-3.compute.internal:5000` |
-| `local-registry-username` | Requires input |`(For disconnected istallation)` Username that you provided for creating the mirror registry. |
-| `local-registry-pwd` | Requires input |`(For disconnected istallation)` Password that you provided for creating the mirror registry. |
-| `mirror-region` | Requires input |`(For disconnected istallation)` Region where mirror registry instance is created. |
-| `mirror-vpcid` | Requires input |`(For disconnected istallation)` VPC id of the mirror registry instance . |
-| `mirror-vpccidr` | Requires input |`(For disconnected istallation)` VPC CIDR range of the mirror registry instance . |
-| `mirror-sgid` | Requires input |`(For disconnected istallation)` Security Group id of the mirror registry instance . |
-| `mirror-routetable-id` | Requires input |`(For disconnected istallation)` Route table id of the route table associated with the subnet of the mirror registry instance. |
-| `cpdservices-to-install` | lite |`(For disconnected istallation)` Input all the comma separated list of CP4D Service that you want to install. For example, to install the Cloud Pak for Data control plane, Watson Studio and Data Virtualization, specify lite,wsl,dv. At a minimum, you must specify lite. CP4D service list currently supported: `lite,dv,spark,wkc,wsl,wml,aiopenscale,cde,streams,streams-flows,ds,db2wh,db2oltp,dmc,datagate,dods,ca,spss-modeler,big-sql,pa` |
-| `imageContentSourcePolicy-path` | Requires input |`(For disconnected istallation)` Path of the `imageContentSourcePolicy.yaml` file copied from the Mirror registry ec2 instance, which was generated during the mirroring of the catalog for redhat-operators. See step 5 in disconnected installation section [Readme file](./README.md). |
+| `redhat-username` | Requires input | `(Using Mirror Registry)` Username for your Red Hat account. |
+| `redhat-password` | Requires input | `(Using Mirror Registry)` Password for your Red Hat account. |
+| `certificate-file-path` | Requires input | `(Using Mirror Registry)` Path to the certificate `/opt/registry/certs/domain.crt` file that you copied from the RHEL server where Mirror Registry is created. |
+| `local-registry-repository` | Requires input |`(Using Mirror Registry)` `<local_registry>/<local_repository_name>` values from the `imageContentSources` section, from the output of the command for creating mirror registry. Example `ip-0-0-0-0.eu-west-3.compute.internal:5000/ocp4/openshift4` |
+| `local-registry` | Requires input |`(Using Mirror Registry)` `<local_registry>` values from the `imageContentSources` section, from the output of the command for creating mirror registry. Example `ip-0-0-0-0.eu-west-3.compute.internal:5000` |
+| `local-registry-username` | Requires input |`(Using Mirror Registry)` Username that you provided for creating the mirror registry. |
+| `local-registry-pwd` | Requires input |`(Using Mirror Registry)` Password that you provided for creating the mirror registry. |
+| `mirror-region` | Requires input |`(Using Mirror Registry)` Region where mirror registry instance is created. |
+| `mirror-vpcid` | Requires input |`(Using Mirror Registry)` VPC id of the mirror registry instance . |
+| `mirror-vpccidr` | Requires input |`(Using Mirror Registry)` VPC CIDR range of the mirror registry instance . |
+| `mirror-sgid` | Requires input |`(Using Mirror Registry)` Security Group id of the mirror registry instance . |
+| `mirror-routetable-id` | Requires input |`(Using Mirror Registry)` Route table id of the route table associated with the subnet of the mirror registry instance. |
+| `cpdservices-to-install` | lite |`(Using Mirror Registry)` Input all the comma separated list of CP4D Service that you want to install. For example, to install the Cloud Pak for Data control plane, Watson Studio and Data Virtualization, specify lite,wsl,dv. At a minimum, you must specify lite. CP4D service list currently supported: `lite,dv,spark,wkc,wsl,wml,aiopenscale,cde,streams,streams-flows,ds,db2wh,db2oltp,dmc,datagate,dods,ca,spss-modeler,big-sql,pa` |
+| `imageContentSourcePolicy-path` | Requires input |`(Using Mirror Registry)` Path of the `imageContentSourcePolicy.yaml` file copied from the Mirror registry ec2 instance, which was generated during the mirroring of the catalog for redhat-operators. See step 5 in disconnected installation section [Readme file](./README.md). |
 | `accept-cpd-license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
 | `cpd-namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `api-key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary) |

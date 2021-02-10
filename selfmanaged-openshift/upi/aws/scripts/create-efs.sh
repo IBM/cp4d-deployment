@@ -6,6 +6,7 @@ VPC_ID=$3
 PERFORMANCE_MODE=$4
 PRIVATE_SUBNET_TAG_NAME=$5
 PRIVATE_SUBNET_TAG_VALUE=$6
+VAR=`date '+%F-%H-%M-%S'`
 
 #Install aws CLI
 curl -O https://bootstrap.pypa.io/get-pip.py > /dev/null
@@ -15,7 +16,7 @@ source ~/.bash_profile > /dev/null
 pip install awscli --upgrade --user > /dev/null
 pip install pssh > /dev/null
 
-EFS_SG_GROUPID=`aws ec2 create-security-group --group-name EFSSecutityGroup --description "EFS security group" --vpc-id $VPC_ID | awk -F':' '{print $2}' | awk '{print $1}' | xargs | tr -d '"'`
+EFS_SG_GROUPID=`aws ec2 create-security-group --group-name EFSSecutityGroup-${VAR} --description "EFS security group" --vpc-id $VPC_ID | awk -F':' '{print $2}' | awk '{print $1}' | xargs | tr -d '"'`
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 2049 --cidr $VPC_CIDR
 aws ec2 authorize-security-group-ingress --group-id $EFS_SG_GROUPID --protocol tcp --port 22 --cidr $VPC_CIDR
 
