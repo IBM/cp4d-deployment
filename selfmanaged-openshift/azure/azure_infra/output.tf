@@ -1,6 +1,6 @@
 output "bootnode_ssh_command" {
   description = "The ip address allocated for the bootnode."
-  value       = "ssh ${var.admin-username}@${azurerm_public_ip.bootnode.ip_address}"
+  value       = "ssh ${var.admin-username}@${local.bootnode_ip_address}"
 }
 
 output "openshift_console_url" {
