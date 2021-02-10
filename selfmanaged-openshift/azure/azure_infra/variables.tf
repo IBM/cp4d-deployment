@@ -117,6 +117,10 @@ variable "fips" {
   default = true
 }
 
+variable "clusterAutoscaler" {
+  default = "no"
+}
+
 # Username for the bootnode VM
 variable "admin-username" {
   default = "core"
