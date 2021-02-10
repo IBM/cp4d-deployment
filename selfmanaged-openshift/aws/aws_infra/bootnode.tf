@@ -11,7 +11,7 @@ resource "aws_key_pair" "keypair" {
 resource "aws_instance" "bootnode" {
   ami                  = data.aws_ami.rhel.id
   instance_type        = var.bootnode-instance-type
-  subnet_id            = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
+  subnet_id            = local.bootnode-subnet-id
 
   vpc_security_group_ids = [
     aws_security_group.openshift-vpc.id,
@@ -32,13 +32,13 @@ resource "aws_instance" "bootnode" {
   key_name = aws_key_pair.keypair.key_name
 
   tags = {
-    Name = "bootnode"
+    "Name": join("-",[var.cluster-name,"bootnode"])
   }
 }
 
 resource "null_resource" "file_copy" {
   triggers = {
-      bootnode_public_ip      = aws_instance.bootnode.public_ip
+      bootnode_public_ip      = local.public-or-private-ip
       username                = var.admin-username
       private-key-file-path   = var.ssh-private-key-file-path
 
@@ -86,20 +86,8 @@ resource "null_resource" "file_copy" {
     destination = "/home/${var.admin-username}/delete-efs.sh"
   }
   provisioner "file" {
-    source      = "../scripts/efs-backup.sh"
-    destination = "/home/${var.admin-username}/efs-backup.sh"
-  }
-  provisioner "file" {
-    source      = "../scripts/delete-efs-backup.sh"
-    destination = "/home/${var.admin-username}/delete-efs-backup.sh"
-  }
-  provisioner "file" {
     source      = "../scripts/update-elb-timeout.sh"
     destination = "/home/${var.admin-username}/update-elb-timeout.sh"
-  }
-  provisioner "file" {
-    source      = "../scripts/delete-elb-outofservice.sh"
-    destination = "/home/${var.admin-username}/delete-elb-outofservice.sh"
   }
   provisioner "file" {
     source      = "../cpd_module/install-cpd-operator.sh"
@@ -113,11 +101,6 @@ resource "null_resource" "file_copy" {
     source      = "../portworx_module/px-storageclasses.sh"
     destination = "/home/${var.admin-username}/px-storageclasses.sh"
   }
-  provisioner "file" {
-    source      = "../cpd_module/ibm-cp-datacore-1.3.0.tgz"
-    destination = "/home/${var.admin-username}/ibm-cp-datacore-1.3.0.tgz"
-  }
-
 
   depends_on = [
     aws_instance.bootnode,
@@ -126,7 +109,7 @@ resource "null_resource" "file_copy" {
 
 resource "null_resource" "destroy_cluster" {
     triggers = {
-        bootnode_public_ip      = aws_instance.bootnode.public_ip
+        bootnode_public_ip      = local.public-or-private-ip
         username                = var.admin-username
         private-key-file-path   = var.ssh-private-key-file-path
         directory               = local.ocpdir

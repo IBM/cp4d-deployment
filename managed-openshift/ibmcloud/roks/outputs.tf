@@ -1,11 +1,12 @@
 output "cluster_id" {
-  value = ibm_container_vpc_cluster.this.id
+  value = data.ibm_container_cluster_config.this.id
+  depends_on = [ null_resource.make_kubeconfig_symlink ]
 }
 
-output "oc_host" {
-  value = data.ibm_container_cluster_config.this.host
+output "ingress_hostname" {
+  value = data.ibm_container_vpc_cluster.this.ingress_hostname
 }
 
-output "oc_token" {
-  value = data.ibm_container_cluster_config.this.token
+output "kube_config_path" {
+  value = data.ibm_container_cluster_config.this.config_file_path
 }

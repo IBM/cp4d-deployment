@@ -1,7 +1,5 @@
 provider "kubernetes" {
-  load_config_file = "false"
-  host             = var.oc_host
-  token            = var.oc_token
+  config_path = var.kube_config_path
 }
 
 ##################################################
@@ -133,25 +131,10 @@ resource "kubernetes_secret" "etcd" {
 ##################################
 # Install Portworx on the cluster
 ##################################
-resource "null_resource" "oc_login" {
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc login --token=${var.oc_token} --server=${var.oc_host} || exit $?"
-  }
-  
-  provisioner "local-exec" {
-    when = destroy
-    interpreter = ["/bin/bash", "-c"]
-    command = "oc logout || true"
-  }
-}
-
-# Install Portworx
 resource "ibm_resource_instance" "portworx" {
   depends_on = [
     null_resource.volume_attachment,
     kubernetes_secret.etcd,
-    null_resource.oc_login
   ]
 
   name              = "${var.unique_id}-pwx-service"

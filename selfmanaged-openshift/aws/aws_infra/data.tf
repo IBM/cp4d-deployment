@@ -14,11 +14,11 @@ data "template_file" "awsregion" {
 }
 
 data "template_file" "installconfig" {
-    count    = var.azlist == "multi_zone" ? 1 : 0
+    count    = var.azlist == "multi_zone" && var.only-private-subnets == "no" ? 1 : 0
     template = file("../openshift_module/install-config-multi-zone.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
@@ -29,9 +29,9 @@ data "template_file" "installconfig" {
         clusternetworkcidr          = var.cluster_network_cidr
         vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
-        az1                         = local.avzone[0]
-        az2                         = local.avzone[1]
-        az3                         = local.avzone[2]
+        az1                         = coalesce(var.availability-zone1, local.avzone[0])
+        az2                         = coalesce(var.availability-zone2, local.avzone[1])
+        az3                         = coalesce(var.availability-zone3, local.avzone[2])
         public-subnet-1             = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
         public-subnet-2             = coalesce(var.subnetid-public2,join("",aws_subnet.public2[*].id))
         public-subnet-3             = coalesce(var.subnetid-public3,join("",aws_subnet.public3[*].id))
@@ -43,11 +43,11 @@ data "template_file" "installconfig" {
 }
 
 data "template_file" "installconfig-1AZ" {
-    count    = var.azlist == "single_zone" ? 1 : 0
+    count    = var.azlist == "single_zone" && var.only-private-subnets == "no" ? 1 : 0
     template = file("../openshift_module/install-config-single-zone.tpl.yaml")
     vars = {
         region                      = var.region
-        pullSecret                  = file(var.pull-secret-file-path)
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
         sshKey                      = var.ssh-public-key
         baseDomain                  = var.dnszone
         master_replica_count        = var.master_replica_count
@@ -58,8 +58,56 @@ data "template_file" "installconfig-1AZ" {
         clusternetworkcidr          = var.cluster_network_cidr
         vpccidr                     = var.vpc_cidr
         fips-enable                 = var.fips-enable
-        az1                         = local.avzone[0]
+        az1                         = coalesce(var.availability-zone1, local.avzone[0])
         public-subnet-1             = coalesce(var.subnetid-public1,join("",aws_subnet.public1[*].id))
+        private-subnet-1            = coalesce(var.subnetid-private1,join("",aws_subnet.private1[*].id))
+        private-public              = var.private-or-public-cluster == "public" ? "External" : "Internal"
+    }
+}
+
+data "template_file" "installconfig-private" {
+    count    = var.azlist == "multi_zone" && var.only-private-subnets == "yes" ? 1 : 0
+    template = file("../openshift_module/install-config-multi-zone-private-subnet.tpl.yaml")
+    vars = {
+        region                      = var.region
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
+        sshKey                      = var.ssh-public-key
+        baseDomain                  = var.dnszone
+        master_replica_count        = var.master_replica_count
+        worker_replica_count        = var.worker_replica_count
+        worker-instance-type        = var.worker-instance-type
+        master-instance-type        = var.master-instance-type
+        clustername                 = var.cluster-name
+        clusternetworkcidr          = var.cluster_network_cidr
+        vpccidr                     = var.vpc_cidr
+        fips-enable                 = var.fips-enable
+        az1                         = coalesce(var.availability-zone1, local.avzone[0])
+        az2                         = coalesce(var.availability-zone2, local.avzone[1])
+        az3                         = coalesce(var.availability-zone3, local.avzone[2])
+        private-subnet-1            = coalesce(var.subnetid-private1,join("",aws_subnet.private1[*].id))
+        private-subnet-2            = coalesce(var.subnetid-private2,join("",aws_subnet.private2[*].id))
+        private-subnet-3            = coalesce(var.subnetid-private3,join("",aws_subnet.private3[*].id))
+        private-public              = var.private-or-public-cluster == "public" ? "External" : "Internal"
+    }
+}
+
+data "template_file" "installconfig-1AZ-private" {
+    count    = var.azlist == "single_zone" && var.only-private-subnets == "yes" ? 1 : 0
+    template = file("../openshift_module/install-config-single-zone-private-subnet.tpl.yaml")
+    vars = {
+        region                      = var.region
+        pullSecret                  = file(trimspace(var.pull-secret-file-path))
+        sshKey                      = var.ssh-public-key
+        baseDomain                  = var.dnszone
+        master_replica_count        = var.master_replica_count
+        worker_replica_count        = var.worker_replica_count
+        worker-instance-type        = var.worker-instance-type
+        master-instance-type        = var.master-instance-type
+        clustername                 = var.cluster-name
+        clusternetworkcidr          = var.cluster_network_cidr
+        vpccidr                     = var.vpc_cidr
+        fips-enable                 = var.fips-enable
+        az1                         = coalesce(var.availability-zone1, local.avzone[0])
         private-subnet-1            = coalesce(var.subnetid-private1,join("",aws_subnet.private1[*].id))
         private-public              = var.private-or-public-cluster == "public" ? "External" : "Internal"
     }
@@ -68,7 +116,7 @@ data "template_file" "installconfig-1AZ" {
 data "template_file" "clusterautoscaler" {
     template = file("../openshift_module/cluster-autoscaler.tpl.yaml")
     vars = {
-        max-total-nodes     = 24
+        max-total-nodes     = var.max-total-nodes
         pod-priority        = -10
         min-cores           = 48
         max-cores           = 128
@@ -83,35 +131,72 @@ data "template_file" "clusterautoscaler" {
 }
 
 data "template_file" "machineautoscaler" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/machine-autoscaler.tpl.yaml")
     vars = {
+        replica       = var.autoscaler-replica-count
         machinetype   = "worker"
         region        = var.region
-        az1           = local.avzone[0]
-        az2           = local.avzone[1]
-        az3           = local.avzone[2]
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
+        az2           = coalesce(var.availability-zone2, local.avzone[1])
+        az3           = coalesce(var.availability-zone3, local.avzone[2])
+    }
+}
+
+data "template_file" "machineautoscaler-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
+    template = file("../openshift_module/machine-autoscaler-1AZ.tpl.yaml")
+    vars = {
+        replica       = var.autoscaler-replica-count
+        machinetype   = "worker"
+        region        = var.region
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
     }
 }
 
 data "template_file" "workerocs" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/workerocs.tpl.yaml")
     vars = {
         region        = var.region
         instance-type = var.worker-ocs-instance-type
         ami_id        = lookup(var.images-rcos,var.region)
         cluster-name  = var.cluster-name
-        az1           = local.avzone[0]
-        az2           = local.avzone[1]
-        az3           = local.avzone[2]
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
+        az2           = coalesce(var.availability-zone2, local.avzone[1])
+        az3           = coalesce(var.availability-zone3, local.avzone[2])
+    }
+}
+
+data "template_file" "workerocs-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
+    template = file("../openshift_module/workerocs.tpl.yaml")
+    vars = {
+        region        = var.region
+        instance-type = var.worker-ocs-instance-type
+        ami_id        = lookup(var.images-rcos,var.region)
+        cluster-name  = var.cluster-name
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
+        az2           = coalesce(var.availability-zone1, local.avzone[0])
+        az3           = coalesce(var.availability-zone1, local.avzone[0])
     }
 }
 
 data "template_file" "machinehealthcheck" {
+    count    = var.azlist == "multi_zone" ? 1 : 0
     template = file("../openshift_module/machine-health-check.tpl.yaml")
     vars = {
-        az1           = local.avzone[0]
-        az2           = local.avzone[1]
-        az3           = local.avzone[2]
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
+        az2           = coalesce(var.availability-zone2, local.avzone[1])
+        az3           = coalesce(var.availability-zone3, local.avzone[2])
+    }
+}
+
+data "template_file" "machinehealthcheck-1AZ" {
+    count    = var.azlist == "single_zone" ? 1 : 0
+    template = file("../openshift_module/machine-health-check-1AZ.tpl.yaml")
+    vars = {
+        az1           = coalesce(var.availability-zone1, local.avzone[0])
     }
 }
 

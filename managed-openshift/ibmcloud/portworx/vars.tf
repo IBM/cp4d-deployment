@@ -1,8 +1,9 @@
 variable "cluster_id" {}
 variable "create_external_etcd" {}
 variable "ibmcloud_api_key" {}
-variable "oc_host" {}
-variable "oc_token" {}
+variable "kube_config_path" {
+  default = "~/.kube/config"
+}
 variable "region" {}
 variable "resource_group_id" {}
 variable "storage_capacity" {}

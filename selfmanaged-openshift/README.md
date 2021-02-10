@@ -5,11 +5,11 @@ Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations m
 
 Cloud Pak for Data uses cloud native services and features including VNets, VPCs, Availability Zones, security groups, Managed Disks, and Load Balancers to build a highly available, reliable, and scalable cloud platform.
 
-This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a Red Hat OpenShift Container Platform 4.5 cluster on AWS and Azure.
+This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a Red Hat OpenShift Container Platform 4.6 cluster on AWS and Azure.
 
-This reference deployment provides Terraform scripts to deploy Cloud Pak for Data on a new Red Hat OpenShift Container Platform 4.5 cluster on AWS and Azure. This cluster includes:
+This reference deployment provides Terraform scripts to deploy Cloud Pak for Data on a new Red Hat OpenShift Container Platform 4.6 cluster on AWS and Azure. This cluster includes:
 
- - A Red Hat OpenShift Container Platform cluster created in a new or existing VPC on Red Hat CoreOS (RHCOS)  instances, using the [Red Hat OpenShift Installer Provisioned Infrastructure](https://docs.openshift.com/container-platform/4.5/architecture/architecture-installation.html).
+ - A Red Hat OpenShift Container Platform cluster created in a new or existing VPC on Red Hat CoreOS (RHCOS)  instances, using the [Red Hat OpenShift Installer Provisioned Infrastructure](https://docs.openshift.com/container-platform/4.6/architecture/architecture-installation.html).
  - A highly available storage infrastructure with Portworx or OpenShift Container Storage. You also have the option to select NFS for Azure and Elastic File System for AWS.
  - Scalable OpenShift compute nodes running Cloud Pak for Data services. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
 
@@ -96,12 +96,12 @@ See [Azure deployment documentation](azure/README.md#requirements) for Azure dep
 
 ## Auto Scaling
 
-The number of compute nodes in the cluster is controlled by [MachineSets](https://docs.openshift.com/container-platform/4.5/scalability_and_performance/recommended-cluster-scaling-practices.html).
+The number of compute nodes in the cluster is controlled by [MachineSets](https://docs.openshift.com/container-platform/4.6/scalability_and_performance/recommended-cluster-scaling-practices.html).
 The cluster will create new compute nodes using the machineset if:
 * A pod is unschedulable due to a lack of resources.
 * A node fails health check for 300 seconds.<br>
 
-**Note**: Health Checks do not run on the master nodes. See the RedHat [documentation](https://docs.openshift.com/container-platform/4.5/scalability_and_performance/recommended-cluster-scaling-practices.html#machine-health-checks-about_cluster-scaling) for details.  
+**Note**: Health Checks do not run on the master nodes. See the RedHat [documentation](https://docs.openshift.com/container-platform/4.6/scalability_and_performance/recommended-cluster-scaling-practices.html#machine-health-checks-about_cluster-scaling) for details.  
 
 To manually scale up or scale down the cluster:
 * Find the MachineSet for the node in the region that you want to scale.
@@ -136,8 +136,10 @@ As part of the deployment, the following services can be enabled.
   - Db2 Data Gate
   - Decision Optimization
   - SPSS Modeler
-  - Watson Assistant
-  - Watson Discovery
+  - Db2 Big SQL
+  - Planning Analytics
+<!--  - Watson Assistant
+  - Watson Discovery -->
  
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).
