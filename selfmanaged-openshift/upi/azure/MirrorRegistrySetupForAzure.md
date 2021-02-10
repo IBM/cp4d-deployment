@@ -3,7 +3,7 @@
   
 You can mirror the contents of the OpenShift Container Platform registry and the images that are required to generate the installation program. The mirror registry is a key component that is required to complete an installation in a restricted network. You can create this mirror on a bastion host, which can access both the internet and your closed network, or by using other methods that meet your restrictions. 
 
-Because of the way that OpenShift Container Platform verifies integrity for the release payload, the image references in your local registry are identical to the ones that are hosted by Red Hat on Quay.io. During the bootstrapping process of installation, the images must have the same digests no matter which repository they are pulled from. To ensure that the release payload is identical, you mirror the images to your local repository. To know more about creating mirro registry in a restricted network [see here](https://docs.openshift.com/container-platform/4.5/installing/install_config/installing-restricted-networks-preparations.html).
+Because of the way that OpenShift Container Platform verifies integrity for the release payload, the image references in your local registry are identical to the ones that are hosted by Red Hat on Quay.io. During the bootstrapping process of installation, the images must have the same digests no matter which repository they are pulled from. To ensure that the release payload is identical, you mirror the images to your local repository. To know more about creating mirro registry in a restricted network [see here](https://docs.openshift.com/container-platform/4.6/installing/install_config/installing-restricted-networks-preparations.html).
 
 ## Creating a mirror registry
 
@@ -31,12 +31,12 @@ The following are the prerequisites for executing the script in your cluster.
    chmod +x createMirrorRegistry.sh
    chmod +x createSSL.sh
    ```
- Then execute the script by giving the follwing parameters in the same sequence "`emailid`, `any username`, `any password`, OCP version same as cluster's version (currently using `4.5.18`), `red hat account username`, `red hat account password`" as parameters.
+ Then execute the script by giving the follwing parameters in the same sequence "`emailid`, `any username`, `any password`, OCP version same as cluster's version (currently using `4.6.13`), `red hat account username`, `red hat account password`" as parameters.
 
 ##### Example:
 
   ```
-  ./createMirrorRegistry.sh "example@in.ibm.com" "testuser" "testPassword" "4.5.18" "RedHat account username" "RedHat account password"
+  ./createMirrorRegistry.sh "example@in.ibm.com" "testuser" "testPassword" "4.6.13" "RedHat account username" "RedHat account password"
   ```
    * This command pulls the release information as a digest, and its output includes the `imageContentSources` data that you require when you install your cluster.
    * Record the entire `imageContentSources` section, The information about your mirrors is unique to your mirrored repository, and you must add the `imageContentSources` section to the install-config.yaml file during installation.

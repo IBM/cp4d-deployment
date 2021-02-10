@@ -208,7 +208,7 @@ resource "null_resource" "vnet_creation" {
 
       "az storage account create -g $RESOURCE_GROUP --location ${var.region} --name ${var.cluster-name}sa --kind Storage --sku Standard_LRS",
       "ACCOUNT_KEY=`az storage account keys list -g $RESOURCE_GROUP --account-name ${var.cluster-name}sa --query '[0].value' -o tsv`",
-      "VHD_URL=`curl -s https://raw.githubusercontent.com/openshift/installer/release-4.5/data/data/rhcos.json | jq -r .azure.url`",
+      "VHD_URL=`curl -s https://raw.githubusercontent.com/openshift/installer/release-4.6/data/data/rhcos.json | jq -r .azure.url`",
       "echo --------$VHD_URL",
       "az storage container create --name vhd --account-name ${var.cluster-name}sa --account-key $ACCOUNT_KEY",
       "az storage blob copy start --account-name ${var.cluster-name}sa --account-key $ACCOUNT_KEY --destination-blob 'rhcos.vhd' --destination-container vhd --source-uri $VHD_URL",
@@ -335,7 +335,7 @@ resource "null_resource" "install_openshift" {
       "RESOURCE_GROUP=$INFRA_ID-rg",
 
       "ACCOUNT_KEY=`az storage account keys list -g $RESOURCE_GROUP --account-name ${var.cluster-name}sa --query '[0].value' -o tsv`",
-      "VHD_URL=`curl -s https://raw.githubusercontent.com/openshift/installer/release-4.5/data/data/rhcos.json | jq -r .azure.url`",
+      "VHD_URL=`curl -s https://raw.githubusercontent.com/openshift/installer/release-4.6/data/data/rhcos.json | jq -r .azure.url`",
       "echo --------$VHD_URL",
 
       #####################
@@ -361,14 +361,14 @@ resource "null_resource" "install_openshift" {
       ### 04.bootstrap ignition ###
       ##############################
       "BOOTSTRAP_URL=`az storage blob url --account-name ${var.cluster-name}sa --account-key $ACCOUNT_KEY -c 'files' -n 'bootstrap.ign' -o tsv`",
-      "BOOTSTRAP_IGNITION=`jq -rcnM --arg v '2.2.0' --arg url $BOOTSTRAP_URL '{ignition:{version:$v,config:{replace:{source:$url}}}}' | base64 -w0`",
+      "BOOTSTRAP_IGNITION=`jq -rcnM --arg v \"3.1.0\" --arg url $BOOTSTRAP_URL '{ignition:{version:$v,config:{replace:{source:$url}}}}' | base64 | tr -d '\n'`",
 
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/04_bootstrap.json' --parameters bootstrapIgnition=$BOOTSTRAP_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters baseName=$INFRA_ID",
 
       #############################
       ### 05.master ignition ###
       ##############################
-      "MASTER_IGNITION=`cat ${local.ocpdir}/master.ign | base64 -w0`",
+      "MASTER_IGNITION=`cat ${local.ocpdir}/master.ign | base64 | tr -d '\n'`",
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/05_masters.json' --parameters masterIgnition=$MASTER_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters privateDNSZoneName='${var.cluster-name}.${var.dnszone}' --parameters baseName=$INFRA_ID",
 
       "./openshift-install wait-for bootstrap-complete --dir=${local.ocpdir} --log-level debug",
@@ -389,7 +389,7 @@ resource "null_resource" "install_openshift" {
       #############################
       ### 06.worker ignition ###
       ##############################
-      "WORKER_IGNITION=`cat ${local.ocpdir}/worker.ign | base64 -w0`",
+      "WORKER_IGNITION=`cat ${local.ocpdir}/worker.ign | base64 | tr -d '\n'`",
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/06_workers.json' --parameters workerIgnition=$WORKER_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters baseName=$INFRA_ID",
 
       #############################

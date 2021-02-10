@@ -1,10 +1,16 @@
-# Cloud Pak for Data 3.5 on OCP 4.5 on Azure
+# Cloud Pak for Data 3.5 on OCP 4.6 on Azure (User Provisioned Infrastructure)
 
 ## Deployment Topology
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
-![Alt text](images/AzureCPD-Arch.png)
+#### CPD Installation using User Provisioned Infrastructure 
+
+![Alt text](images/AzureCPD-Arch-UPI.png)
+
+#### CPD Installation using Mirror Registry 
+
+![Alt text](images/AzureCPD-Arch-UPI-MirrorRegistry.png)
 
 The template sets up the following:
 
@@ -28,8 +34,9 @@ The template sets up the following:
 
 ### Note: 
 
-* This terraform script supports CPD 3.5 with OCP 4.5.18 version and storage type is nfs(currently). (Portworx will be supported in the next refresh) 
-### Steps to Deploy (UPI Installation)
+* This terraform script supports CPD 3.5 with OCP 4.6.13 version and storage type is nfs(currently). (Portworx will be supported in the next refresh) 
+
+### Steps to create Azure Service Principal
 
 1. Create an [App Service Domain](https://portal.azure.com/#create/Microsoft.Domain).
   + This will also create a DNS Zone needed for this deployment.
@@ -80,10 +87,13 @@ The template sets up the following:
      --api 00000002-0000-0000-c000-000000000000
   ``` 
     Replace appID with the AppId parameter value from your service principal.
+### Steps to Deploy (CPD Installation using User Provisioned Infrastructure)
 
-3. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
+Follow the below steps for installation using User Provisioned Infrastructure. 
 
-4. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
+1. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
+
+2. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
 
 <!-- * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.  -->
 
@@ -98,11 +108,13 @@ The template sets up the following:
   terraform apply
   ```
 
-### Steps to Deploy (Disconnected UPI Installation)
+### Steps to Deploy (CPD Installation using a Mirror Registry)
+
+Follow the below stesp for installation using Mirror-registry. 
 
 1. Create a Mirror Registry, follow the steps here [Mirror Registry Creation](./MirrorRegistrySetupForAzure.md).
-2. Follow steps 1-4 from the UPI installation method. 
-3. In step3, Convert the pull-secret file to json format by following the below steps. 
+2. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one. 
+3. Convert the pull-secret file to json format by following the below steps. 
 
     ```bash 
     Make a copy of your pull secret in JSON format:

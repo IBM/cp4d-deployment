@@ -56,7 +56,7 @@
 | `cpdservices-to-install` | lite | (For disconnected istallation) Input all the comma separated list of CP4D Service that you want to install. For example, to install the Cloud Pak for Data control plane, Watson Studio and Data Virtualization, specify lite, wsl, dv. At a minimum, you must specify lite. This variable is required to pre-load the images to mirror-registry. CP4D service list currently supported: lite, dv, spark, wkc, wsl, wml, aiopenscale, cde, streams, streams-flows, ds, db2wh, db2oltp, dmc, datagate, dods, ca, spss-modeler, big-sql, pa  |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
-| `ocp_version` | 4.5.18 | Openshift Container Platform version to install |
+| `ocp_version` | 4.6.13 | Openshift Container Platform version to install |
 | `cpd-version` | latest | CPD version to install |
 | `cloudctl_version` | v3.6.0 | cloudctl version to use |
 | `cpd-cli-version` | v3.5.0 | cpd-cli version to use |

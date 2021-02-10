@@ -213,7 +213,7 @@ variable "cpd-namespace" {
 }
 
 variable "ocp-version" {
-  default = "4.5.18"
+  default = "4.6.13"
 }
 
 variable "cpd-version" {
