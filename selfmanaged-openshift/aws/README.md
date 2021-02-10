@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 3.5 on OCP 4.5 on AWS
+# Cloud Pak for Data 3.5 on OCP 4.6 on AWS
 
 ## Deployment Topology:
 
@@ -34,7 +34,7 @@ The deployment sets up the following as shown in the diagram.
    Name the new folder differently in case you plan to build multiple infrastructures.
 * Change the current directory to aws_infra:
 ```
-cd cp4d-deployment-<your infrastructure name>/aws/aws_infra
+cd cp4d-deployment-<your infrastructure name>/selfmanaged-openshift/aws/aws_infra
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 * Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
@@ -57,15 +57,20 @@ secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
 * Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
 ```bash
 terraform init
-terraform apply -var-file="Path To osaws_var.tfvars file"
+terraform apply -var-file="Path To osaws_var.tfvars file | tee terraform.log"
 ```
 #### cp4d installation logs:
 After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
 ### Destroying the cluster:
-* Run:
+* When cluster created successfully, execute following commands to delete the cluster:
   ```bash
   terraform destroy -target null_resource.destroy_cluster -var-file="Path To osaws_var.tfvars file"
+  terraform destroy -var-file="Path To osaws_var.tfvars file"
+  ```
+* When cluster creation fails for some reason and only bootnode is created, execute following commands to delete the created resources:
+  ```bash
+  terraform state rm null_resource.destroy_cluster
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
 ### Note:

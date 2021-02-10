@@ -4,6 +4,20 @@
 
 This deployment guide provides instructions for deploying Cloud Pak for Data on managed Red Hat OpenShift on IBM Cloud (formerly known as ROKS) using Terraform.
 
+- [Costs and licenses](#costs-and-licenses)
+- [Deployment topology](#deployment-topology)
+- [Cloud Pak for Data services](#cloud-pak-for-data-services)
+- [Instructions](#instructions)
+  * [Building the Terraform environment container](#building-the-terraform-environment-container)
+  * [Installing Cloud Pak for Data](#installing-cloud-pak-for-data)
+  * [Securing your VPC and cluster](#securing-your-vpc-and-cluster)
+  * [Deploying in an existing VPC](#deploying-in-an-existing-vpc)
+  * [Deploying in an existing OpenShift cluster](#deploying-in-an-existing-openshift-cluster)
+- [Troubleshooting](#troubleshooting)
+  * [View detailed install logs](#view-detailed-install-logs)
+  * [Common errors](#common-errors)
+- [Coming soon](#coming-soon)
+
 ## Costs and licenses
 
 These scripts create resources on IBM Cloud. For cost estimates, see the pricing pages for each IBM Cloud service that will be enabled. This deployment lets you use the OpenShift license bundled with your Cloud Pak entitlement. Portworx Enterprise is installed from the IBM Cloud catalog and a separate subscription from Portworx is not required.
@@ -14,7 +28,9 @@ You must have a Cloud Pak for Data entitlement API key to download images from t
 
 ## Deployment topology
 
-The deployment creates the following resources:
+![architecture diagram](cpd_roks_diagram.png)
+
+The deployment creates the following resources.
 
 * A [Virtual Private Cloud (Gen 2)](https://cloud.ibm.com/docs/vpc/vpc-getting-started-with-ibm-cloud-virtual-private-cloud-infrastructure) spanning one or three zones with a public gateway and private subnet in each zone.
 
@@ -22,15 +38,19 @@ The deployment creates the following resources:
 
 * One [block storage](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-about) volume attached to each worker node.
 
-* [Portworx Enterprise](https://cloud.ibm.com/catalog/services/portworx-enterprise) running highly-available software-defined persistent storage.
+* [Portworx Enterprise](https://cloud.ibm.com/catalog/services/portworx-enterprise#about) running highly-available software-defined persistent storage.
 
-* A managed database service ([Databases for Etcd](https://cloud.ibm.com/docs/databases-for-etcd?topic=databases-for-etcd-getting-started)) for Portworx cluster metadata to keep the metadata separate from application data (optional).
+* A managed database service ([Databases for Etcd](https://cloud.ibm.com/docs/databases-for-etcd)) for Portworx cluster metadata to keep the metadata separate from application data (optional).
 
-* IBM Cloud Object Storage instance to back up the internal registry of your cluster.
+* A [Cloud Object Storage](https://cloud.ibm.com/docs/cloud-object-storage) instance to back up the internal registry of your cluster.
+
+Refer to [Quotas and service limits](https://cloud.ibm.com/docs/vpc?topic=vpc-quotas&locale=en) and ensure that your IBM Cloud account has sufficient resource quotas available.
+
+Refer to [User access permissions](https://cloud.ibm.com/docs/openshift?topic=openshift-access_reference&locale=en) to verify that your account has been assigned the necessary IBM Cloud IAM permissions to create the resources in the deployment.
 
 ## Cloud Pak for Data services
 
-As part of the deployment, the following services can be enabled. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
+As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
 
 * Lite (base)
 * Analytics Engine powered by Apache Spark
@@ -50,8 +70,14 @@ As part of the deployment, the following services can be enabled. For more infor
 * Decision Optimization
 * Cognos Analytics
 * SPSS Modeler
+* Db2 Big SQL
+* Watson Studio Local RStudio
+* Hadoop Execution Addon
+* Jupyter Python 3.7 Runtime Addon
 
 ## Instructions
+
+[![Link to video walkthrough](http://img.youtube.com/vi/QXxk7j1Pan8/0.jpg)](https://video.ibm.com/channel/23952663/video/cpd-deploy-terraform "Link to video walkthrough")
 
 ### Building the Terraform environment container
 
@@ -65,26 +91,51 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 3. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
-This directory on the host will be bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
+The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
 
-### Installing Cloud Pak for Data
+### Deploying Cloud Pak for Data
 
-1. Copy `terraform.tfvars.template` to `terraform.tfvars` and enter the values. This file can also be used to override the defaults in `vars.tf`.
+1. Copy `terraform.tfvars.template` to `terraform.tfvars`. This file can be used to define values for variables. Refer to [VARIABLES.md](VARIABLES.md) and [vars.tf](vars.tf) for a list of available variables.
 
-2. Log in to your container with `docker exec -it my-container bash`.
+2. Log in to your container with `docker exec -it my-container bash --login`.
 
 3. Run `terraform init`.
 
 4. Run `terraform apply`.
 
-
 ### Securing your VPC and cluster
 
-Currently, this deployment installs an OpenShift cluster in a VPC with permissive network access policies. To control traffic to your cluster, see [Securing the cluster network](https://cloud.ibm.com/docs/openshift?topic=openshift-vpc-network-policy).
+This deployment installs an OpenShift cluster in a VPC with permissive network access policies. To control traffic to your cluster, see [Securing the cluster network](https://cloud.ibm.com/docs/openshift?topic=openshift-vpc-network-policy).
+
+### Deploying in an existing VPC
+
+These templates can be used to install Cloud Pak for Data in an existing VPC on your account by providing values for the following variables.
+
+* `existing_vpc_id`
+* `existing_vpc_subnets` — A list of subnet IDs in your VPC in which to install the cluster. Every subnet must belong to a different zone. Thus, in a non-multizone deployment only supply one subnet in a list. Public gateways must be enabled on all provided subnets.
+* `multizone`
+
+When installing in an existing VPC, all other VPC configuration variables such as `enable_public_gateway`, `allowed_cidr_range`, `acl_rules` are ignored.
+
+### Deploying in an existing OpenShift cluster
+
+These templates can also deploy Cloud Pak for Data on an existing VPC Gen 2 OpenShift on IBM Cloud cluster. In addition to the values in the "Deploying in an existing VPC" section, provide values for the following variables.
+
+* `existing_roks_cluster` — Name or ID of the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
 
 ## Troubleshooting
 
 Open an Issue in this repo that describes the error.
+
+### View detailed logs
+
+Cloud Pak for Data installation logs can be viewed in the following locations. These will become available after Terraform creates the `module.cpd_install.null_resource.install_cpd_operator` resource successfully.
+
+* cpd-meta-operator: `oc -n cpd-meta-ops logs -f deploy/ibm-cp-data-operator`
+
+* cpd-install-operator: `oc -n cpd-tenant logs -f deploy/cpd-install-operator`
+
+**Note**: These logs may contain sensitive information such as your ICR entitlement key. Do not attach them to a GitHub Issue.
 
 ### Common errors
 
@@ -93,12 +144,6 @@ Resource provisioning can fail due to random errors such as latency timeouts, to
 * #### Errors with `docker` commands
 
   Ensure that your system has the latest version of Docker installed.
-
-* #### `exit status 1. Output: error: Missing or incomplete configuration info.  Please point to an existing, complete config file`
-
-  This can occur when the `oc` token has expired or has been invalidated for some reason.
-  1. Run `terraform state rm module.cpd_install.null_resource.oc_login module.cpd_install.null_resource.oc_login`.
-  2. Retry `terraform apply`.
 
 * #### `Error: timeout while waiting for state to become 'Ready'` for the resource `module.roks.ibm_container_vpc_cluster.this`
 
@@ -113,9 +158,8 @@ Resource provisioning can fail due to random errors such as latency timeouts, to
   2. Else, run `terraform untaint module.portworx.ibm_resource_instance.portworx` to mark the resource as successful.
   3. Run `terraform apply`. The deployment will continue onwards.
 
-### Coming soon
+## Coming soon
 
-* Support for deploying in an existing VPC
 * Support for application access restrictions based on `allowed_cidr_range`
 * Support for additional Cloud Pak for Data services
 * Support for IBM Key Protect volume encryption at deploy time.

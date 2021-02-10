@@ -1,7 +1,7 @@
 terraform {
   required_version = "v0.12.29"
   required_providers {
-    ibm = "1.14.0"
+    ibm = "1.20.1"
     kubernetes = "1.13.3"
     null = "~> 3.0"
   }
@@ -20,11 +20,15 @@ data "ibm_resource_group" "this" {
 module "vpc" {
   source = "./vpc"
   
-  acl_rules             = var.acl_rules
-  enable_public_gateway = var.enable_public_gateway
-  multizone             = var.multizone
-  resource_group_id     = data.ibm_resource_group.this.id
-  region                = var.region
+  # when this is not null, the module doesn't create any resources
+  existing_vpc_id           = var.existing_vpc_id
+  existing_vpc_subnets      = var.existing_vpc_subnets
+  
+  acl_rules                 = var.acl_rules
+  enable_public_gateway     = var.enable_public_gateway
+  multizone                 = var.multizone
+  resource_group_id         = data.ibm_resource_group.this.id
+  region                    = var.region
   subnet_ip_range_cidr      = var.subnet_ip_range_cidr
   unique_id                 = var.unique_id
   zone_address_prefix_cidr  = var.zone_address_prefix_cidr
@@ -34,6 +38,7 @@ module "roks" {
   source = "./roks"
   
   cos_instance_crn                = var.cos_instance_crn
+  existing_roks_cluster           = var.existing_roks_cluster
   disable_public_service_endpoint = var.disable_public_service_endpoint
   entitlement                     = var.entitlement
   kube_version                    = var.kube_version
@@ -42,10 +47,9 @@ module "roks" {
   resource_group_id               = data.ibm_resource_group.this.id
   unique_id                       = var.unique_id
   vpc_id                          = module.vpc.vpc_id
+  vpc_subnets                     = module.vpc.vpc_subnets
   worker_node_flavor              = var.worker_node_flavor
   worker_nodes_per_zone           = var.worker_nodes_per_zone
-  zone_subnet_id_map              = module.vpc.zone_subnet_id_map
-  
 }
 
 module "portworx" {
@@ -54,8 +58,7 @@ module "portworx" {
   cluster_id           = module.roks.cluster_id
   create_external_etcd = var.create_external_etcd
   ibmcloud_api_key     = var.ibmcloud_api_key
-  oc_host              = module.roks.oc_host
-  oc_token             = module.roks.oc_token
+  kube_config_path     = module.roks.kube_config_path
   region               = var.region
   resource_group_id    = data.ibm_resource_group.this.id
   storage_capacity     = var.storage_capacity
@@ -76,8 +79,6 @@ module "cpd_install" {
   cpd_registry_username = var.cpd_registry_username
   install_services      = var.install_services
   multizone             = var.multizone
-  oc_host               = module.roks.oc_host
-  oc_token              = module.roks.oc_token
   portworx_is_ready     = module.portworx.portworx_is_ready
   region                = var.region
   resource_group_id     = data.ibm_resource_group.this.id

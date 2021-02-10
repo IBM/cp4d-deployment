@@ -2,6 +2,10 @@ variable "acl_rules" {}
 
 variable "enable_public_gateway" {}
 
+variable "existing_vpc_id" {}
+
+variable "existing_vpc_subnets" {}
+
 variable "multizone" {}
 
 variable "resource_group_id" {}
