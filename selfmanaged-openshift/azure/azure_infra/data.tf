@@ -177,3 +177,10 @@ data "template_file" "chrony-mc" {
         chrony-config-data = base64encode(file("../openshift_module/chrony.conf"))
     }
 }
+
+data "template_file" "multipath-mc" {
+    template = file("../openshift_module/multipath-machineconfig.yaml")
+    vars = {
+        multipath-config-data = base64encode(file("../openshift_module/multipath.conf"))
+    }
+}

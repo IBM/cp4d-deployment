@@ -1,7 +1,7 @@
 resource "azurerm_virtual_machine" "bootnode" {
     name                  = "${var.cluster-name}-bootnode"
     location              = var.region
-    resource_group_name   = local.resource-group
+    resource_group_name   = var.resource-group
     network_interface_ids = [azurerm_network_interface.bootnode.id]
     vm_size               = var.bootnode-instance-type
 

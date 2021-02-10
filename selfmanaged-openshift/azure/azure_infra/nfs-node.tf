@@ -7,7 +7,7 @@ resource "azurerm_virtual_machine" "nfs" {
     count = var.storage == "nfs" ? 1 : 0
     name                  = "${var.cluster-name}-nfs"
     location              = var.region
-    resource_group_name   = local.resource-group
+    resource_group_name   = var.resource-group
     network_interface_ids = [azurerm_network_interface.nfs[count.index].id]
     vm_size               = local.nfs-instance-type
 
@@ -59,7 +59,7 @@ resource "azurerm_virtual_machine" "nfs" {
 resource "azurerm_recovery_services_vault" "cpd_vault" {
     count = var.enableNFSBackup == "yes" ? 1 : 0
     name                = "cpd-vault"
-    resource_group_name = local.resource-group
+    resource_group_name = var.resource-group
     location            = var.region
     sku                 = "Standard"
     depends_on = [
@@ -70,7 +70,7 @@ resource "azurerm_recovery_services_vault" "cpd_vault" {
 resource "azurerm_backup_policy_vm" "backup_policy" {
     count = var.enableNFSBackup == "yes" ? 1 : 0
     name                = "cpd-backup-policy"
-    resource_group_name = local.resource-group
+    resource_group_name = var.resource-group
     recovery_vault_name = azurerm_recovery_services_vault.cpd_vault[count.index].name
     
     timezone = "UTC"
@@ -91,7 +91,7 @@ resource "azurerm_backup_policy_vm" "backup_policy" {
 
 resource "azurerm_backup_protected_vm" "nfs_backup" {
     count = var.storage == "nfs" && var.enableNFSBackup == "yes" ? 1 : 0
-    resource_group_name = local.resource-group
+    resource_group_name = var.resource-group
     recovery_vault_name = azurerm_recovery_services_vault.cpd_vault[count.index].name
     source_vm_id        = azurerm_virtual_machine.nfs[count.index].id
     backup_policy_id    = azurerm_backup_policy_vm.backup_policy[count.index].id

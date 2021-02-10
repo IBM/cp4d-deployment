@@ -8,7 +8,7 @@ resource "random_id" "randomId" {
 
 resource "azurerm_storage_account" "allnodes" {
     name                        = "diag${random_id.randomId.hex}"
-    resource_group_name         = local.resource-group
+    resource_group_name         = var.resource-group
     location                    = var.region
     account_replication_type    = "LRS"
     account_tier                = "Standard"
@@ -19,7 +19,10 @@ resource "azurerm_storage_account" "allnodes" {
 
 resource "azurerm_template_deployment" "pid" {
 name                = "atrribute_tracking"
-resource_group_name = local.resource-group
+resource_group_name = var.resource-group
+depends_on = [
+    azurerm_resource_group.cpdrg,
+    ]
 template_body = <<DEPLOY
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",

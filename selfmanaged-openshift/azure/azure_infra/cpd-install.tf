@@ -34,14 +34,15 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-1.3.1.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            //"curl https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
+            "wget https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
             "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",

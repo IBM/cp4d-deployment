@@ -31,6 +31,10 @@ variable "dnszone-resource-group" {
 variable "dnszone" {
 }
 
+variable "privateBootnode" {
+  default = "no"
+}
+
 ### Network Config
 variable "new-or-existing" {
   default = "new"
@@ -197,7 +201,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.6.1"
 }
 
 variable "apikey" {

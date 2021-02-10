@@ -47,8 +47,8 @@ resource "null_resource" "install_openshift" {
             "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
-            "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
-            "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+            //"oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
+            //"oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
         ]
     }
@@ -114,6 +114,10 @@ resource "null_resource" "openshift_post_install" {
             "oc create -f ${local.ocptemplates}/crio-mc.yaml",
             "oc create -f ${local.ocptemplates}/chrony-mc.yaml",
 
+            # multipath-machineconfig test
+            "cat > ${local.ocptemplates}/multipath-machineconfig.yaml <<EOL\n${data.template_file.multipath-mc.rendered}\nEOL",
+            "oc create -f ${local.ocptemplates}/multipath-machineconfig.yaml",
+
             # Create Registry Route
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
             "echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' ",
@@ -124,9 +128,6 @@ resource "null_resource" "openshift_post_install" {
         ]
     }
     depends_on = [
-#        null_resource.install_portworx,
-#        null_resource.install-nfs-server,
-#        null_resource.install_nfs_client,
         null_resource.install_openshift
     ]
 }
