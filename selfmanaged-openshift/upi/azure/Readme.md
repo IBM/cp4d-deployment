@@ -21,7 +21,7 @@ The template sets up the following:
 -	In the private subnets:
 
     - OpenShift Container Platform master instances.
-    - OpenShift compute nodes with machine auto scaling features.
+    - OpenShift compute nodes with machine auto-scaling features.
 * An Azure Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser.
 <!-- * Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or on an exclusive node for NFS. -->
 * Storage disks with Azure Managed Disk mounted on an exclusive node for NFS.
@@ -34,7 +34,7 @@ The template sets up the following:
 
 ### Note: 
 
-* This terraform script supports CPD 3.5 with OCP 4.6.13 version and storage type is nfs(currently). (Portworx will be supported in the next refresh) 
+* This terraform script supports CPD 3.5 with OCP 4.6.13 version and storage type is NFS(currently). (Portworx will be supported in the next refresh) 
 
 ### Steps to create Azure Service Principal
 
@@ -42,7 +42,7 @@ The template sets up the following:
   + This will also create a DNS Zone needed for this deployment.
   + Note the DNS Zone name.
 2. Create an Azure Service Principal with `Contributor` and `User Access Administrator` roles.
-  + Create a Service Principal, using your Azure Subscription ID, named with a valid URL (e.g. http://john.doe.SP) and save the returned json:
+  + Create a Service Principal, using your Azure Subscription ID, named with a valid URL (e.g. http://john.doe.SP) and save the returned JSON:
 
     
 
@@ -110,11 +110,11 @@ Follow the below steps for installation using User Provisioned Infrastructure.
 
 ### Steps to Deploy (CPD Installation using a Mirror Registry)
 
-Follow the below stesp for installation using Mirror-registry. 
+Follow the below steps for installation using Mirror-registry. 
 
 1. Create a Mirror Registry, follow the steps here [Mirror Registry Creation](./MirrorRegistrySetupForAzure.md).
 2. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one. 
-3. Convert the pull-secret file to json format by following the below steps. 
+3. Convert the pull-secret file to JSON format by following the below steps. 
 
     ```bash 
     Make a copy of your pull secret in JSON format:
@@ -135,9 +135,9 @@ Follow the below stesp for installation using Mirror-registry.
 
       sed -i "s/you@example.com/<email_id_used_for_creating_certs>/g" pull-secret.json
 
-4. The above step will create the pull-secret.json file required for the disconnected install. This file can taken from the mirror-registry node setup as well. This file will be created as part of the createMirrorRegistry.sh script execution.
+4. The above step will create the pull-secret.json file required for the disconnected install. This file can be taken from the mirror-registry node setup as well. This file will be created as part of the createMirrorRegistry.sh script execution.
 
-5. Copy the domain.crt file from the mirror_registry node to your terrform execution machine. This file path needs to be specified during the execution. 
+5. Copy the domain.crt file from the mirror_registry node to your terraform execution machine. This file path needs to be specified during the execution. 
 
 6. Input all the required values in the variables.tf or create a tfvars files with the required values. Please refer [variables.md](./VARIABLES.md) file for more details. 
 
