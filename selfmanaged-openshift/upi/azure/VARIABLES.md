@@ -40,7 +40,7 @@
 | `storage` | nfs | nfs. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
 <!-- | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. | -->
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
-<!--| `enableNFSBackup` | no | backup NFS Vm data | -->
+<!-- | `enableNFSBackup` | no | backup NFS Vm data | -->
 | `disconnected-cluster` | no | For creating a disconnected cluster, select yes otherwise no, default if no. |
 | `certificate-file-path` | Requires Input | (For disconnected istallation) Path to the domain.crt file which is used while setting up the mirror-registry |
 | `local-registry-username` | Requires Input | (For disconnected istallation) Username that you provided for creating the mirror registry. |
