@@ -42,8 +42,7 @@ resource "null_resource" "install_openshift" {
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
             "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler-${var.single-or-multi-zone}.yaml",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
             "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
         ]
@@ -143,6 +142,8 @@ resource "null_resource" "cluster_autoscaler" {
     }
     provisioner "remote-exec" {
         inline = [
+            "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
             "cat > ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
             "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
@@ -204,16 +205,12 @@ resource "null_resource" "install_ocs" {
     provisioner "remote-exec" {
         inline = [
             "cat > ${local.ocptemplates}/toolbox.yaml <<EOL\n${file("../ocs_module/toolbox.yaml")}\nEOL",
-            "sed -i s/\"namespace: rook-ceph\"/\"namespace: openshift-storage\"/g ${local.ocptemplates}/toolbox.yaml",
             "cat > ${local.ocptemplates}/deploy-with-olm.yaml <<EOL\n${file("../ocs_module/deploy-with-olm.yaml")}\nEOL",
             "cat > ${local.ocptemplates}/ocs-storagecluster.yaml <<EOL\n${file("../ocs_module/ocs-storagecluster.yaml")}\nEOL",
-            "cat > ${local.ocptemplates}/machineset-worker-ocs.yaml <<EOL\n${data.template_file.workerocs.rendered}\nEOL",
             "cat > ocs-prereq.sh <<EOL\n${file("../ocs_module/ocs-prereq.sh")}\nEOL",
             "sudo chmod +x ocs-prereq.sh",
             "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
 
-            "oc create -f ${local.ocptemplates}/machineset-worker-ocs.yaml",
-            "sleep 420",
             "./ocs-prereq.sh",
             "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
             "sleep 300",

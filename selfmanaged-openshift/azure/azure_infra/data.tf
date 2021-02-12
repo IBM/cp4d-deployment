@@ -83,16 +83,6 @@ data "template_file" "htpasswd" {
     template = file("../openshift_module/auth.yaml")
 }
 
-data "template_file" "workerocs" {
-    template = "${file("../ocs_module/workerocs.tpl.yaml")}"
-    vars = {
-        clusterid = random_id.randomId.hex
-        machinetype = "worker"
-        region = "${var.region}"
-        instance-type = "${var.worker-instance-type}"
-    }
-}
-
 data "template_file" "px-install" {
     template = file("../portworx_module/px-install.yaml")
 }
