@@ -119,4 +119,5 @@ see [Elastic File System](https://docs.openshift.com/container-platform/4.3/stor
 ## Reference 
 
 The User Provisioned Infrastructure documentation from Redhat can be found here. 
+
 https://docs.openshift.com/container-platform/4.6/installing/installing_aws/installing-aws-user-infra.html
