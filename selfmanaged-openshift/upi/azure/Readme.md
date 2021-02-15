@@ -156,3 +156,8 @@ Follow the below steps for installation using Mirror-registry.
 ``` bash
   terraform destroy
   ```
+## Reference 
+
+The User Provisioned Infrastructure documentation from Redhat can be found here. 
+
+https://docs.openshift.com/container-platform/4.6/installing/installing_azure/installing-azure-user-infra.html 
