@@ -14,7 +14,7 @@ The template sets up the following:
     * OpenShift Container Platform master instances.
     * OpenShift compute nodes with machine auto scaling features.
 - An Azure Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser.
-- Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or OCS (OpenShift Container Storage) or on an exclusive node for NFS.
+- Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or OCS (OpenShift Container Storage) v4.5 or on an exclusive node for NFS.
 - An Azure domain as your public Domain Name System (DNS) zone for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Requirements
