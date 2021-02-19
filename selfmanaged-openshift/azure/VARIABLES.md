@@ -29,21 +29,23 @@
 | `worker-instance-type` | Standard_D16_v3 | Default has 16vcpus and 64gb RAM. Use [Azure VM sizing](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes) for more information. |
 | `pull-secret-file-path` | - | The pull secret that you obtained from the [Pull Secret](https://cloud.redhat.com/openshift/install/pull-secret) page on the Red Hat OpenShift Cluster Manager site. You use this pull secret to authenticate with the services that are provided by the included authorities, including Quay.io, which serves the container images for OpenShift Container Platform components. Example: "/path/to/file/" |
 | `fips` | true | If FIPS mode is enabled, the Red Hat Enterprise Linux CoreOS (RHCOS) machines that OpenShift Container Platform runs on bypass the default Kubernetes cryptography suite and use the cryptography modules that are provided with RHCOS instead. |
+| `clusterAutoscaler` | no | yes or no. If set to yes, a cluster Autoscaler will be installed which manages scaling of the cluster according to the resources needed. |
 | `admin-username` | core | Admin username for the bootnode |
 | `openshift-username` | - | Desired Openshift username |
 | `openshift-password` | - | Desired Openshift password |
 | `ssh-public-key` | - | SSH Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `ssh-private-key-file-path` | - | Path to the private key file of the corresponding SSH public key used to allow terraform run commands remotely. Example: "/path/to/file/" |
 | `private-or-public-cluster` | public | Public or Private. Set publish to Private to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_azure/installing-azure-private.html#private-clusters-default_installing-azure-private) for more details. |
-| `storage` | portworx | nfs or portworx. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
+| `privateBootnode` | no | yes or no. If set to yes, bootnode  will be deployed within the vnet and won't have public IP |
+| `storage` | portworx | ocs or nfs or portworx. Storage option to use. |
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
-| `ocp_version` | 4.5.18 | Openshift Container Platform version to install |
+| `ocp_version` | latest | Openshift Container Platform version to install. Currently, latest 4.6 |
 | `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.6.0 | cloudctl version to use |
+| `cloudctl_version` | v3.6.1 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |

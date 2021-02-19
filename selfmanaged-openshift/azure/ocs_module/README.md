@@ -1,1 +1,0 @@
-NOTE: There is currently no support for OCS on Azure
