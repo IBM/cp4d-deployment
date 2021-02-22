@@ -1,5 +1,7 @@
 locals {
     resource-group = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
+    bootnode_ip_address = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].private_ip_address : azurerm_public_ip.bootnode[0].ip_address
+    network_interface_id = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].id : azurerm_network_interface.bootnode-pub[0].id
 }
 
 resource "null_resource" "az_validation_check" {
@@ -11,6 +13,7 @@ resource "null_resource" "az_validation_check" {
     }
 }
 resource "azurerm_resource_group" "cpdrg" {
+    count = var.new-or-existing == "new" ? 1 : 0
     name = var.resource-group
     location = var.region
     depends_on = [
@@ -65,6 +68,7 @@ resource "azurerm_subnet" "workernode" {
 }
 
 resource "azurerm_public_ip" "bootnode" {
+    count = var.privateBootnode == "no" ? 1 : 0
     name                         = "bootnode-pip"
     location                     = var.region
     resource_group_name          = local.resource-group
@@ -74,7 +78,8 @@ resource "azurerm_public_ip" "bootnode" {
     ]
 }
 
-resource "azurerm_network_interface" "bootnode" {
+resource "azurerm_network_interface" "bootnode-pub" {
+    count = var.privateBootnode == "no" ? 1 : 0
     name                        = "bootnode-nic"
     location                    = var.region
     resource_group_name         = local.resource-group
@@ -83,11 +88,28 @@ resource "azurerm_network_interface" "bootnode" {
         name                          = "bootnode-nic-config"
         subnet_id                     = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${local.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.bootnode-subnet-name}"
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.bootnode.id
+        public_ip_address_id          = azurerm_public_ip.bootnode[count.index].id
     }
     depends_on = [
         azurerm_resource_group.cpdrg,
-        azurerm_subnet.bootnode
+        azurerm_subnet.bootnode,
+    ]
+}
+
+resource "azurerm_network_interface" "bootnode-pvt" {
+    count = var.privateBootnode == "yes" ? 1 : 0
+    name                        = "bootnode-nic"
+    location                    = var.region
+    resource_group_name         = local.resource-group
+
+    ip_configuration {
+        name                          = "bootnode-nic-config"
+        subnet_id                     = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${local.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.bootnode-subnet-name}"
+        private_ip_address_allocation = "Static"
+    }
+    depends_on = [
+        azurerm_resource_group.cpdrg,
+        azurerm_subnet.bootnode,
     ]
 }
 

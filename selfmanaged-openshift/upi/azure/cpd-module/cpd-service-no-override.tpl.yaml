@@ -1,0 +1,19 @@
+apiVersion: metaoperator.cpd.ibm.com/v1
+kind: CPDService
+metadata:
+  name: SERVICE-cpdservice
+  labels:
+    app.kubernetes.io/instance: ibm-cp-data-operator-SERVICE-cpdservice
+    app.kubernetes.io/managed-by: ibm-cp-data-operator
+    app.kubernetes.io/name: ibm-cp-data-operator-SERVICE-cpdservice
+spec:
+  serviceName: SERVICE
+  version: ${cpd-version} 
+  storageClass: STORAGECLASS
+  overrideConfig: ""
+  flags: ""
+  autoPatch: ${autopatch}
+  scale: ""
+  optionalModules: []
+  license: 
+    accept: ${license-accept}
