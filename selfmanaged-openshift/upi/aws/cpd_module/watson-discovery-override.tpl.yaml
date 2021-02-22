@@ -1,0 +1,17 @@
+global:
+  deploymentType: "Production"
+  contentIntelligence:
+    enabled: true
+  image:
+    pullSecret: "default-dockercfg-xxxxx"
+  imagePullSecret: "default-dockercfg-xxxxx"
+core:
+  ingestion:
+    mount:
+      storageClassName: "${storageclass}"
+wire:
+  kubernetesHost: "${k8_host}"
+  kubernetesIP: k8_host_ip
+elastic:
+  persistence:
+    storageClassName: "${storageclass}"

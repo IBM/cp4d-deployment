@@ -1,0 +1,50 @@
+[
+  {
+    "ParameterKey": "InfrastructureName", 
+    "ParameterValue": "INFRANAME" 
+  },
+  {
+    "ParameterKey": "RhcosAmi", 
+    "ParameterValue": "${amiid}" 
+  },
+  {
+    "ParameterKey": "AllowedBootstrapSshCidr", 
+    "ParameterValue": "0.0.0.0/0" 
+  },
+  {
+    "ParameterKey": "PublicSubnet", 
+    "ParameterValue": "${publicsubnet}" 
+  },
+  {
+    "ParameterKey": "MasterSecurityGroupId", 
+    "ParameterValue": "MASTER-SEC-GROUPID" 
+  },
+  {
+    "ParameterKey": "VpcId", 
+    "ParameterValue": "${vpcid}" 
+  },
+  {
+    "ParameterKey": "BootstrapIgnitionLocation", 
+    "ParameterValue": "s3://${bucket}/bootstrap.ign"
+  },
+  {
+    "ParameterKey": "AutoRegisterELB", 
+    "ParameterValue": "yes" 
+  },
+  {
+    "ParameterKey": "RegisterNlbIpTargetsLambdaArn", 
+    "ParameterValue": "REG-NLB-TGT-LMDARN" 
+  },
+  {
+    "ParameterKey": "ExternalApiTargetGroupArn", 
+    "ParameterValue": "EXT-API-TGT-GRPARN" 
+  },
+  {
+    "ParameterKey": "InternalApiTargetGroupArn", 
+    "ParameterValue": "INT-API-TGT-GRPARN"
+  },
+  {
+    "ParameterKey": "InternalServiceTargetGroupArn", 
+    "ParameterValue": "INT-SVC-TGT-GRPARN" 
+  }
+]

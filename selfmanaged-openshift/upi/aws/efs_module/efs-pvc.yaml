@@ -1,0 +1,17 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: efs-claim
+  namespace: efs-storage
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: openshift.org/aws-efs
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1024Gi
+  storageClassName: aws-efs
+  volumeMode: Filesystem

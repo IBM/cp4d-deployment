@@ -1,0 +1,33 @@
+apiVersion: v1
+baseDomain: ${baseDomain}
+controlPlane:
+  hyperthreading: Enabled
+  architecture: amd64
+  name: master
+  platform: {}
+  replicas: ${master_replica_count}
+compute:
+- hyperthreading: Enabled
+  architecture: amd64
+  name: worker
+  platform: {}
+  replicas: 0
+metadata:
+  creationTimestamp: null
+  name: ${clustername}
+networking:
+  clusterNetwork:
+  - cidr: ${clusternetworkcidr}
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: ${vpccidr}
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  aws:
+    region: ${region}
+pullSecret: '${pullSecret}'
+fips: ${fips-enable}
+publish: ${private-public}
+sshKey: ${sshKey}

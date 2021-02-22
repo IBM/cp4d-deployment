@@ -1,0 +1,19 @@
+[
+    {
+      "ParameterKey": "InfrastructureName", 
+      "ParameterValue": "INFRANAME" 
+    },
+    {
+      "ParameterKey": "VpcCidr", 
+      "ParameterValue": "${vpccidr}" 
+    },
+    {
+      "ParameterKey": "PrivateSubnets", 
+      "ParameterValue": "${privatesubnets}" 
+    },
+    {
+      "ParameterKey": "VpcId", 
+      "ParameterValue": "${vpcid}" 
+    }
+  ]
+  

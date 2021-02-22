@@ -1,0 +1,38 @@
+tags: 
+  sttAsync: true 
+  sttCustomization: true 
+  ttsCustomization: true 
+  sttRuntime: true 
+  ttsRuntime: true 
+  
+affinity: {} 
+  
+global: 
+  dockerRegistryPrefix: "image-registry.openshift-image-registry.svc:5000/${namespace}"
+  zenControlPlaneNamespace: "${namespace}"
+  image: 
+    pullSecret: "default-dockercfg-xxxxx"
+    pullPolicy: "IfNotPresent" 
+  
+datastores: 
+  minio: 
+    secretName: "minio" 
+  postgressql: 
+    auth: 
+      authSecretName: "user-provided-postgressql" 
+  
+sttModels: 
+  enUsBroadbandModel: 
+    enabled: true 
+  enUsNarrowbandModel: 
+    enabled: true 
+  enUsShortFormNarrowbandModel: 
+    enabled: true 
+  
+ttsVoices: 
+  enUSMichaelV3Voice: 
+    enabled: true 
+  enUSAllisonV3Voice: 
+    enabled: true 
+  enUSLisaV3Voice: 
+    enabled: true
