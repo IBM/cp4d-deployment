@@ -1,8 +1,8 @@
 resource "azurerm_virtual_machine" "bootnode" {
     name                  = "${var.cluster-name}-bootnode"
     location              = var.region
-    resource_group_name   = azurerm_resource_group.cpdrg.name
-    network_interface_ids = [azurerm_network_interface.bootnode.id]
+    resource_group_name   = var.resource-group
+    network_interface_ids = [local.network_interface_id]
     vm_size               = var.bootnode-instance-type
 
     storage_os_disk {

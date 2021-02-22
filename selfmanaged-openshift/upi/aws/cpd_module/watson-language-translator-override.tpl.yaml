@@ -1,0 +1,46 @@
+global:
+  # On uninstall do not preserve the datastores
+  keep: false
+
+  # The storage class used for datastores
+  storageClassName: "${storageclass}"
+
+  # Choose between "Development" and "Production"
+  deploymentType: "Production"
+
+  # The name of the secret for pulling images.
+  # The value for "global.image.pullSecret" below does not need to be changed for Development
+  # installations where pods will pull docker images directly from the Entitled Docker Registry.
+  # For Production installations where docker images will be pulled locally to the Openshift
+  # Docker Registry, "global.image.pullSecret" will need to be set to the value obtained by
+  # running oc get secrets | grep default-dockercfg in the namespace where IBM Cloud
+  # Pak for Data is installed.
+  
+  image:
+    pullSecret: "default-dockercfg-xxxxx"
+
+gateway:
+  addonService:
+    zenNamespace: ${namespace}
+
+# For Minio
+s3:
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# For Postgres
+postgres:
+  persistence:
+    enabled: true
+    size: 10Gi
+
+translationModels:
+  de-en:
+    enabled: true
+  en-de:
+    enabled: true
+  es-en:
+    enabled: true
+  en-es:
+    enabled: true
