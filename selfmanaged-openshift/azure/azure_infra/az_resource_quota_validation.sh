@@ -490,7 +490,7 @@ else
     loadBalancers_check="false"
 fi
 
-calculate_available_resource_quota publicIpAddresses '"localizedValue": "Public IP Addresses"' $network_limit_output_file $az_public_ip_address_quota_required
+calculate_available_resource_quota publicIpAddresses '"localizedValue": "Public IP Addresses - Basic"' $network_limit_output_file $az_public_ip_address_quota_required
 
 if [ $? -ne 1 ]; then
     publicIpAddresses_check="true"
