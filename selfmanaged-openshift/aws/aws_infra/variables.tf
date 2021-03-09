@@ -261,12 +261,23 @@ variable "accept-cpd-license" {
   default = "reject"
 }
 
-variable "cpd-namespace" {
-  default = "cpd-tenant"
+variable "cpd-external-registry" {
+  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
+}
+
+variable "cpd-external-username" {
+  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
 }
 
 variable "api-key" {
+  description = "Repository APIKey or Registry password"
   default = ""
+}
+
+variable "cpd-namespace" {
+  default = "cpd-tenant"
 }
 
 variable "data-virtualization" {
