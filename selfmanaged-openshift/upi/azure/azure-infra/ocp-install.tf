@@ -735,3 +735,38 @@ resource "null_resource" "install_nfs_client" {
     null_resource.install-nfs-server
   ]
 }
+
+resource "null_resource" "install_portworx" {
+    count = var.storage == "portworx" && var.disconnected-cluster == "no" ? 1 : 0
+    triggers = {
+        bootnode_ip_address   = azurerm_public_ip.bootnode.ip_address
+        username              = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+    }
+    connection {
+        type        = "ssh"
+        host        = self.triggers.bootnode_ip_address
+        user        = self.triggers.username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
+            "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
+            "sleep 60",
+            "echo $result",
+            "result=$(oc apply -f \"${var.portworx-spec-url}\")",
+            "echo $result",
+            "echo 'Sleeping for 5 mins to get portworx storage cluster up' ",
+            "sleep 5m",
+            "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+            "echo $result"
+        ]
+    }
+    depends_on = [
+        null_resource.install_openshift,
+        null_resource.openshift_post_install,
+        null_resource.create_network_related_artifacts,
+    ]
+}

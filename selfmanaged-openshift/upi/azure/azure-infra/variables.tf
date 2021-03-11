@@ -144,9 +144,11 @@ variable "private-or-public-cluster" {
 variable "storage" {
   default = "nfs"
 }
-# variable "portworx-spec-url" {
-#   default = ""
-# }
+
+variable "portworx-spec-url" {
+  default = ""
+}
+
 variable "storage-disk-size" {
   default = 1024
 }
