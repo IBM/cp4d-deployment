@@ -77,8 +77,12 @@ After openshift cluster installation is finished and cloud pak for data installa
 * Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
 see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
 [Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)
-* To use ECR to store CPD images, we have provided a script to create the required repositories and transfer the images.
+* To use ECR to store CPD images, we have provided a script (`scripts/ecr-upload.py`) to create the required repositories and transfer the images.
+Steps:
+  - Download the cpd-cli tar file [here](https://github.com/IBM/cpd-cli/releases) and extract it.
+  - Copy the script into the extracted folder.
+  - Add your CPD APIKey to the `repo.yaml` and run it with the usage shown below:
   ```
-  $ python3 scripts/ecr-upload.py
+  $ python3 ecr-upload.py
   Usage: python ecr-upload.py 'lite,wkc', <aws_repo_name>, <aws_region>, <aws_ecr_username>, <aws_ecr_password>
   ```
