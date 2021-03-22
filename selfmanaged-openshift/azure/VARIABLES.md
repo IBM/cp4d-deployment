@@ -42,6 +42,8 @@
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
+| `cpd-external-registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
+| `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
 | `ocp_version` | latest | Openshift Container Platform version to install. Currently, latest 4.6 |
 | `cpd-version` | latest | CPD version to install |

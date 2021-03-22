@@ -53,6 +53,7 @@ The template sets up the following:
 * Change to `azure_infra` folder:
 
 * Check that the roles are correctly assigned by executing the script `./validate_azure_subscription.sh`.
+* `[Optional]` If you choose to use the external registry for CPD installation with pre-loaded CPD images, please set the variables `cpd-external-registry`, `cpd-external-username` and the corresponding `apikey`. See the [Variables documentation](VARIABLES.md) for more details. If these values are not provided, by default the installation takes the images from the cp.icr.io/cp/cpd repo. In this case please ensure to provide the entitlement API key for variable `apikey`.
 * Enter configuration variables in `variables.tf` file. See the [Variables documentation](VARIABLES.md) for more details:
 * Deploy:
   ```bash
