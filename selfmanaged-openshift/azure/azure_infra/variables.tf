@@ -196,6 +196,15 @@ variable "cpd-namespace" {
   default = "zen"
 }
 
+variable "cpd-external-registry" {
+  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
+}
+
+variable "cpd-external-username" {
+  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
+}
 variable "ocp_version" {
   default = "4.5.18"
 }

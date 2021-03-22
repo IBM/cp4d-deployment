@@ -458,7 +458,7 @@ else
     vCPU_check="false"
 fi
 
-calculate_available_resource_quota vNet '"localizedValue": "Virtual Networks"' $network_limit_output_file $az_vnet_quota_required
+calculate_available_resource_quota vNet '"value": "VirtualNetworks"' $network_limit_output_file $az_vnet_quota_required
 
 if [ $? -ne 1 ]; then
     vNet_check="true"
@@ -466,7 +466,7 @@ else
     vNet_check="false"
 fi
 
-calculate_available_resource_quota networkInterface '"localizedValue": "Network Interfaces"' $network_limit_output_file $az_network_interface_quota_required
+calculate_available_resource_quota networkInterface '"value": "NetworkInterfaces"' $network_limit_output_file $az_network_interface_quota_required
 
 if [ $? -ne 1 ]; then
     networkInterface_check="true"
@@ -474,7 +474,7 @@ else
     networkInterface_check="false"
 fi
 
-calculate_available_resource_quota networkSecurityGroups '"localizedValue": "Network Security Groups"' $network_limit_output_file $az_network_security_groups_quota_required
+calculate_available_resource_quota networkSecurityGroups '"value": "NetworkSecurityGroups"' $network_limit_output_file $az_network_security_groups_quota_required
 
 if [ $? -ne 1 ]; then
     networkSecurityGroups_check="true"
@@ -482,7 +482,7 @@ else
     networkSecurityGroups_check="false"
 fi
 
-calculate_available_resource_quota loadBalancers '"localizedValue": "Load Balancers"' $network_limit_output_file $az_network_loadbalancer_quota_required
+calculate_available_resource_quota loadBalancers '"value": "LoadBalancers"' $network_limit_output_file $az_network_loadbalancer_quota_required
 
 if [ $? -ne 1 ]; then
     loadBalancers_check="true"
@@ -490,7 +490,7 @@ else
     loadBalancers_check="false"
 fi
 
-calculate_available_resource_quota publicIpAddresses '"localizedValue": "Public IP Addresses - Basic"' $network_limit_output_file $az_public_ip_address_quota_required
+calculate_available_resource_quota publicIpAddresses '"value": "PublicIPAddresses"' $network_limit_output_file $az_public_ip_address_quota_required
 
 if [ $? -ne 1 ]; then
     publicIpAddresses_check="true"
