@@ -46,7 +46,7 @@ resource "null_resource" "cpd_config" {
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",
-            "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops",
+            "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops ${var.cpd-external-registry} ${var.cpd-external-username}",
             "sleep 5m",
             "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
             "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
