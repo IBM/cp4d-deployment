@@ -39,14 +39,14 @@ resource "null_resource" "cpd_config" {
       #CPD Config
       "mkdir -p ${local.installerhome}",
       "mkdir -p ${local.operator}",
-      "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-1.3.1.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+      "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-${var.data-core-version}.tgz -o /home/${var.admin-username}/ibm-cp-datacore-${var.data-core-version}.tgz",
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
       "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
       "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
 
       "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-      "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+      "tar -xf /home/${var.admin-username}/ibm-cp-datacore-${var.data-core-version}.tgz",
       "oc new-project ${var.cpd-namespace}",
       "cat > wait-for-service-install.sh <<EOL\n${file("../cpd-module/wait-for-service-install.sh")}\nEOL",
       "sudo chmod +x wait-for-service-install.sh",
@@ -54,7 +54,8 @@ resource "null_resource" "cpd_config" {
   }
   depends_on = [
     null_resource.openshift_post_install,
-    # null_resource.install_portworx,
+    null_resource.install_portworx,
+    null_resource.install_portworx_disconnected,
     null_resource.install_nfs_client,
   ]
 }
@@ -117,8 +118,8 @@ resource "null_resource" "cpd_install_disconnected" {
       "sudo yum install -y podman httpd-tools",
 
       "cat > /home/${var.admin-username}/repo.yaml <<EOL\n${data.template_file.repo.rendered}\nEOL",
-      "wget https://github.com/IBM/cpd-cli/releases/download/${var.cpd-cli-version}/cpd-cli-linux-EE-3.5.1.tgz -O ${local.operator}/cpd-cli-linux-EE-3.5.1.tgz",
-      "tar -xf ${local.operator}/cpd-cli-linux-EE-3.5.1.tgz -C ${local.operator}",
+      "wget https://github.com/IBM/cpd-cli/releases/download/v${var.cpd-cli-version}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz -O ${local.operator}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz",
+      "tar -xf ${local.operator}/cpd-cli-linux-EE-${var.cpd-cli-version}.tgz -C ${local.operator}",
       "sudo mv ${local.operator}/cpd-cli ${local.operator}/plugins ${local.operator}/LICENSES /usr/local/bin",
       "mkdir -p /home/${var.admin-username}/offline",
       "chmod u+x /home/${var.admin-username}/install-cpd-operator-airgap.sh",

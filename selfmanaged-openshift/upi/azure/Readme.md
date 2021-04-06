@@ -34,7 +34,7 @@ The template sets up the following:
 
 ### Note: 
 
-* This terraform script supports CPD 3.5 with OCP 4.6.13 version and storage type is NFS(currently). (Portworx will be supported in the next refresh) 
+* This terraform script supports CPD 3.5 with OCP 4.6.13 version and storage type is NFS or Portworx 
 
 ### Steps to create Azure Service Principal
 

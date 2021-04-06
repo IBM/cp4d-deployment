@@ -73,6 +73,7 @@ data "template_file" "installconfig-disconnected" {
     masterNodeCount     = var.master-node-count
     certificate         = jsonencode(file(var.certificate-file-path))
     local_registry_repo = var.local-registry-repository
+    local_repo          = var.local-repository
 
   }
 }
@@ -173,9 +174,9 @@ data "template_file" "repo" {
 }
 
 data "template_file" "px-install" {
-    template = file("../portworx_module/px-install.yaml")
+  template = file("../portworx_module/px-install.yaml")
 }
 
 data "template_file" "px-storageclasses" {
-    template = file("../portworx_module/px-storageclasses.yaml")
+  template = file("../portworx_module/px-storageclasses.yaml")
 }

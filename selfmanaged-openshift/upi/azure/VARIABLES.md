@@ -37,16 +37,17 @@
 | `ssh-public-key` | - | SSH Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `ssh-private-key-file-path` | - | Path to the private key file of the corresponding SSH public key used to allow terraform run commands remotely. Example: "/path/to/file/" |
 | `private-or-public-cluster` | public | Public or Private. Set publish to Private to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_azure/installing-azure-private.html#private-clusters-default_installing-azure-private) for more details. |
-| `storage` | nfs | nfs. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
+| `storage` | nfs | nfs or portworx. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
+| `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. | 
 | `disconnected-cluster` | no | For creating a disconnected cluster, select yes otherwise no, default if no. |
 | `certificate-file-path` | Requires Input | (For disconnected istallation) Path to the domain.crt file which is used while setting up the mirror-registry |
 | `local-registry-username` | Requires Input | (For disconnected istallation) Username that you provided for creating the mirror registry. |
 | `local-registry-pwd` |  Requires Input  | (For disconnected istallation) Password that you provided for creating the mirror registry.  |
 | `local-registry-repository` | Requires Input | (For disconnected istallation) <local_registry>/<local_repository_name> values from the imageContentSources section, from the output of the command for creating mirror registry. Example mirror-node.eastus.cloudapp.azure.com:5000/ocp4/openshift4 |
 | `local-registry` | Requires Input | (For disconnected istallation) <local_registry> values from the imageContentSources section, from the output of the command for creating mirror registry. Example mirror-node.eastus.cloudapp.azure.com:5000 |
-| `local-repository` | Requires Input | (For disconnected istallation) <local_repository_name> value from you provided during the mirror regitry creation. Example ocp4/openshift4 |
-| `architecture` | Requires Input | (For disconnected istallation) architecture value from you provided during the mirror regitry creation. Example x86_64 |
+| `local-repository` | Requires Input | (For disconnected istallation) <local_repository_name> value you provided during the mirror regitry creation. Example ocp4/openshift4 |
+| `architecture` | Requires Input | (For disconnected istallation) architecture value you provided during the mirror regitry creation. Example x86_64 |
 | `mirror-node-resource-group` | Requires Input | (For disconnected istallation) Provide the resource group name where the mirror registry setup is done |
 | `mirror-node-vnet-name` | Requires Input | (For disconnected istallation) Provide the vnet name where the mirror registry setup is done |
 | `mirror-node-vnet-id` | Requires Input | (For disconnected istallation) Provide the vnet-id where the mirror registry setup is done. Example - subscriptions/(tenant-id)/resourceGroups/(mirror registry resource group name)/providers/Microsoft. Network/virtualNetworks/(mirror registry vnet name) |
@@ -56,8 +57,9 @@
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
 | `ocp_version` | 4.6.13 | Openshift Container Platform version to install |
 | `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.6.0 | cloudctl version to use |
-| `cpd-cli-version` | v3.5.0 | cpd-cli version to use |
+| `cloudctl_version` | v3.7.0 | cloudctl version to use |
+| `cpd-cli-version` | 3.5.3 | cpd-cli version to use |
+| `data-core-version` | 1.3.7 | cpd operator case packeage datacore version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
@@ -80,7 +82,6 @@
 | `planning-analytics` | no | Install the Planning Analytics Add-on |
 
 <!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
-| `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. | 
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
 | `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
