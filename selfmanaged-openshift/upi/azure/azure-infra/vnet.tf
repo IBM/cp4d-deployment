@@ -80,7 +80,7 @@ resource "azurerm_network_security_group" "bootnode" {
 
 resource "azurerm_virtual_network_peering" "bootnode2mirrornode" {
   count                        = var.disconnected-cluster == "yes" ? 1 : 0
-  name                         = "bootnodevnet2mirrornodevnet"
+  name                         = "${var.cluster-name}-bootnodevnet2mrrvnet"
   resource_group_name          = azurerm_resource_group.cpdrg.name
   virtual_network_name         = azurerm_virtual_network.cpdvirtualnetwork.name
   remote_virtual_network_id    = var.mirror-node-vnet-id
@@ -94,7 +94,7 @@ resource "azurerm_virtual_network_peering" "bootnode2mirrornode" {
 
 resource "azurerm_virtual_network_peering" "mirrornode2bootnode" {
   count                        = var.disconnected-cluster == "yes" ? 1 : 0
-  name                         = "mirrornodevnet2bootnodevnet"
+  name                         = "mirrvnet2-${var.cluster-name}-bootnodevnet"
   resource_group_name          = var.mirror-node-resource-group
   virtual_network_name         = var.mirror-node-vnet-name
   remote_virtual_network_id    = azurerm_virtual_network.cpdvirtualnetwork.id
