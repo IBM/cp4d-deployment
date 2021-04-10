@@ -88,7 +88,7 @@ spec:
   skipImageTransfer: false
   version: "latest"
   storageClass: ${local.storage_class}
-  overrideConfig: ${local.override}
+  overrideConfig: "${local.override}"
   flags: ""
   autoPatch: false
   scale: ""
