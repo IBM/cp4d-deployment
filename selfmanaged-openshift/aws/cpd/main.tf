@@ -138,7 +138,7 @@ echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#lite#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
-chmod + cpd/scripts/wait-for-service-install.sh
+chmod +x cpd/scripts/wait-for-service-install.sh
 bash cpd/scripts/wait-for-service-install.sh lite ${self.triggers.cpd_namespace} ; if [ $? -ne 0 ] ; then echo "Lite Installation Failed" ; exit 1 ; fi
 sed -i -e s#lite#SERVICE#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 EOF
@@ -151,7 +151,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice lite-cpdservice
+oc delete cpdservice lite-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -186,7 +186,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice dv-cpdservice
+oc delete cpdservice dv-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -222,7 +222,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice spark-cpdservice
+oc delete cpdservice spark-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -259,7 +259,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice wkc-cpdservice
+oc delete cpdservice wkc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -297,7 +297,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice wsl-cpdservice
+oc delete cpdservice wsl-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -336,7 +336,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice wml-cpdservice
+oc delete cpdservice wml-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -376,7 +376,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice aiopenscale-cpdservice
+oc delete cpdservice aiopenscale-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -417,7 +417,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice cde-cpdservice
+oc delete cpdservice cde-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -459,7 +459,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice streams-cpdservice
+oc delete cpdservice streams-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -502,7 +502,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice streams-flows-cpdservice
+oc delete cpdservice streams-flows-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -545,7 +545,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice ds-cpdservice
+oc delete cpdservice ds-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -590,7 +590,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice db2wh-cpdservice
+oc delete cpdservice db2wh-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -636,7 +636,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice db2oltp-cpdservice
+oc delete cpdservice db2oltp-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -683,7 +683,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice dmc-cpdservice
+oc delete cpdservice dmc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -731,7 +731,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice datagate-cpdservice
+oc delete cpdservice datagate-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -780,7 +780,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice dods-cpdservice
+oc delete cpdservice dods-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -830,7 +830,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice ca-cpdservice
+oc delete cpdservice ca-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -880,7 +880,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice spss-cpdservice
+oc delete cpdservice spss-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -932,7 +932,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice big-sql-cpdservice
+oc delete cpdservice big-sql-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }
@@ -985,7 +985,7 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
-oc delete cpdservice pa-cpdservice
+oc delete cpdservice pa-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
 }

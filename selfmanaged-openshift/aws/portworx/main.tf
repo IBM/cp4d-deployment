@@ -1,3 +1,7 @@
+# resource "aws_kms_key" "px_key" {
+#   description = "Key used to encrypt Portworx PVCs"
+# }
+
 resource "local_file" "portworx_subscription_yaml" {
   content  = data.template_file.portworx_subscription.rendered
   filename = "${var.installer_workspace}/portworx_subscription.yaml"

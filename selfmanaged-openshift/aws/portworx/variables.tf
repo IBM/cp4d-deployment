@@ -28,3 +28,9 @@ variable "region" {
   type = string
   description = "AWS Region the cluster is deployed in"
 }
+
+variable "px_encryption" {
+  type = bool
+  default = true
+  description = "Encrypt portworx volumes"
+}
