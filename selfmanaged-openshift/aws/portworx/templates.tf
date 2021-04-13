@@ -1,3 +1,49 @@
+data "template_file" "portworx_storagecluster" {
+  template = <<EOF
+kind: StorageCluster
+apiVersion: core.libopenstorage.org/v1
+metadata:
+  name: ${var.px_generated_cluster_name}
+  namespace: ${var.px_namespace}
+  annotations:
+    portworx.io/is-openshift: "true"
+spec:
+  image: portworx/oci-monitor:2.6.3
+  imagePullPolicy: Always
+  kvdb:
+    internal: true
+  cloudStorage:
+    deviceSpecs:
+    - type=gp2,size=${var.disk_size}
+    kvdbDeviceSpec: type=gp2,size=${var.kvdb_disk_size}
+  secretsProvider: ${var.secret_provider}
+  stork:
+    enabled: true
+    args:
+      webhook-controller: "false"
+  autopilot:
+    enabled: true
+    providers:
+    - name: default
+      type: prometheus
+      params:
+        url: http://prometheus:9090%{if var.px_enable_monitoring}${indent(2, "\nmonitoring:")}
+    prometheus:
+      enabled: true%{endif}
+      exportMetrics: true%{if var.px_enable_csi}${indent(2, "\nfeatureGates:")}
+    CSI: "true"%{endif}
+  env:
+  - name: "AWS_ACCESS_KEY_ID"
+    value: "${var.aws_access_key_id}"
+  - name: "AWS_SECRET_ACCESS_KEY"
+    value: "${var.aws_secret_access_key}"
+  - name: "AWS_CMK"
+    value: "${aws_kms_key.px_key.key_id}"
+  - name: "AWS_REGION"
+    value: "${var.region}"
+EOF
+}
+
 data "template_file" "portworx_subscription" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1

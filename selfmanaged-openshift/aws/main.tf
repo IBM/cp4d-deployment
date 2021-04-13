@@ -130,9 +130,11 @@ module "portworx" {
   openshift_username  = module.ocp.openshift_username
   openshift_password  = module.ocp.openshift_password
   openshift_token     = ""
-  portworx_spec_url   = var.portworx_spec_url
   installer_workspace = local.installer_workspace
   region              = var.region
+  aws_access_key_id        = var.access_key_id
+  aws_secret_access_key = var.secret_access_key
+  px_generated_cluster_name = var.px_generated_cluster_name
 
   depends_on = [
     module.ocp,
