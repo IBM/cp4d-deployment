@@ -105,19 +105,6 @@ sleep 60
 EOF
   }
 
-  provisioner "local-exec" {
-    when = destroy
-    command = <<EOF
-echo "Logging in.."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token='${self.triggers.openshift_token}'
-oc delete -f ${self.triggers.installer_workspace}/efs_provisioner.yaml
-oc delete -f ${self.triggers.installer_workspace}/efs_roles.yaml
-oc delete -f ${self.triggers.installer_workspace}/service_account.yaml
-oc delete -f ${self.triggers.installer_workspace}/efs_configmap.yaml
-oc delete -f ${self.triggers.installer_workspace}/efs_storageclass.yaml
-oc delete -f ${self.triggers.installer_workspace}/efs_namespace.yaml
-EOF
-  }
   depends_on = [
     local_file.efs_configmap_yaml,
     local_file.efs_namespace_yaml,
