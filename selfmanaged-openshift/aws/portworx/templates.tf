@@ -3,7 +3,7 @@ data "template_file" "portworx_storagecluster" {
 kind: StorageCluster
 apiVersion: core.libopenstorage.org/v1
 metadata:
-  name: ${var.px_generated_cluster_name}
+  name: ${var.px_generated_cluster_id}
   namespace: ${var.px_namespace}
   annotations:
     portworx.io/is-openshift: "true"

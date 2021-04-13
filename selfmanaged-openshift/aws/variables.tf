@@ -234,7 +234,7 @@ variable "openshift_password" {
   type = string
 } */
 
-variable "px_generated_cluster_name" {
+variable "px_generated_cluster_id" {
   type = string
 }
 

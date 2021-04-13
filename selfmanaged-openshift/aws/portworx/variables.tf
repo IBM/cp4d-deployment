@@ -31,8 +31,8 @@ variable "px_encryption" {
   description = "Encrypt portworx volumes"
 }
 
-variable "px_generated_cluster_name" {
-  description = "Storage Cluster name generated from install.portworx.com. See PORTWORX.md for more info"
+variable "px_generated_cluster_id" {
+  description = "Storage Cluster ID name generated from install.portworx.com. See PORTWORX.md for more info"
 }
 
 variable "px_namespace" {

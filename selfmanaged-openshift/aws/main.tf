@@ -134,7 +134,7 @@ module "portworx" {
   region              = var.region
   aws_access_key_id        = var.access_key_id
   aws_secret_access_key = var.secret_access_key
-  px_generated_cluster_name = var.px_generated_cluster_name
+  px_generated_cluster_id = var.px_generated_cluster_id
 
   depends_on = [
     module.ocp,
