@@ -11,7 +11,7 @@ resource "ibm_is_vpc" "this" {
 }
 
 resource "ibm_is_vpc_address_prefix" "this" {
-  count = local.create_resources ? length(local.zones) : 0
+  count = local.create_resources ? var.no_of_zones : 0
   
   cidr = var.zone_address_prefix_cidr[count.index]
   name = "${var.unique_id}-prefix-${count.index+1}"
@@ -20,7 +20,7 @@ resource "ibm_is_vpc_address_prefix" "this" {
 }
 
 resource "ibm_is_subnet" "this" {
-  count           = local.create_resources ? length(local.zones) : 0
+  count           = local.create_resources ? var.no_of_zones : 0
   depends_on      = [ibm_is_vpc_address_prefix.this]
   
   ipv4_cidr_block = var.subnet_ip_range_cidr[count.index]
@@ -33,7 +33,7 @@ resource "ibm_is_subnet" "this" {
 }
 
 resource "ibm_is_public_gateway" "this" {
-  count = local.create_resources && var.enable_public_gateway ? length(local.zones) : 0
+  count = local.create_resources && var.enable_public_gateway ? var.no_of_zones : 0
 
   name           = "${var.unique_id}-pgw-${count.index + 1}"
   resource_group = var.resource_group_id

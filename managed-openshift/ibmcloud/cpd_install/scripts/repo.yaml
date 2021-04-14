@@ -1,0 +1,75 @@
+registry:
+  -
+    apikey: CPD_REGISTRY_PASSWORD
+    name: base-registry
+    namespace: ""
+    url: cp.icr.io/cp/cpd
+    username: cp
+  # Watson Assistant
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp/watson-assistant"
+    name: wa-registry
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp/watson-assistant"
+    name: wa-registry-operator
+  # ElasticSearch
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp"
+    name: elasticsearch-registry
+  # Etcd
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp"
+    name: entitled-registry
+  # Gateway, Redis, Minio, ElasticSearch
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp"
+    name: prod-entitled-registry
+  # For EDB operator
+  - url: cp.icr.io
+    username: "cp"
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: "cp/cpd"
+    name: databases-registry
+  # ModelTrain Classic
+  - url: cp.icr.io
+    username: cp
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: cp/modeltrain
+    name: modeltrain-classic-registry
+  # Discovery
+  - url: cp.icr.io
+    username: cp
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: cp/watson-discovery
+    name: watson-discovery-registry
+  # WKS
+  - url: cp.icr.io
+    username: cp
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: cp/knowledge-studio
+    name: wks-registry
+  # LTS
+  - url: cp.icr.io
+    username: cp
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: cp/watson-lt
+    name: lt-registry
+  # Speech
+  - url: cp.icr.io
+    username: cp
+    apikey: CPD_REGISTRY_PASSWORD
+    namespace: cp/watson-speech
+    name: spch-registry  
+
+fileservers:
+  - url: https://raw.github.com/IBM/cloud-pak/master/repo/cpd/3.5

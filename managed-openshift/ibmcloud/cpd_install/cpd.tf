@@ -38,7 +38,6 @@ locals {
     "aiopenscale"        = "portworx-shared-gp3",
     "cde"                = "portworx-shared-gp3",
     "streams"            = "portworx-shared-gp-allow",
-    "streams-flows"      = "portworx-shared-gp3",
     "ds"                 = "portworx-shared-gp3",
     "dmc"                = "portworx-shared-gp3",
     "db2wh"              = "portworx-shared-gp3",
@@ -52,7 +51,7 @@ locals {
     "hadoop-addon"       = "portworx-shared-gp3",
     "mongodb"            = "portworx-shared-gp3",
     "runtime-addon-py37" = "portworx-shared-gp3",
-    # "runtime-addon-r36"  = "portworx-shared-gp3",
+
   }
   override = {
     "lite"               = "portworx",
@@ -64,7 +63,6 @@ locals {
     "aiopenscale"        = "portworx",
     "cde"                = "portworx",
     "streams"            = "portworx",
-    "streams-flows"      = "",
     "ds"                 = "portworx",
     "dmc"                = "portworx",
     "db2wh"              = "",
@@ -255,28 +253,6 @@ resource "null_resource" "install_streams" {
   ]
 }
 
-resource "null_resource" "install_streams_flows" {
-  count = var.accept_cpd_license == "yes" && var.install_services["streams-flows"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install_cpdservice_generic.sh ${var.cpd_project_name} streams-flows ${local.storageclass["streams-flows"]} ${local.override["streams-flows"]}"
-  }
-
-  depends_on = [
-    null_resource.install_lite,
-    null_resource.install_spark,
-    null_resource.install_dv,
-    null_resource.install_wkc,
-    null_resource.install_wsl,
-    null_resource.install_wml,
-    null_resource.install_aiopenscale,
-    null_resource.install_cde,
-    null_resource.install_streams,
-  ]
-}
-
 resource "null_resource" "install_ds" {
   count = var.accept_cpd_license == "yes" && var.install_services["ds"] ? 1 : 0
   
@@ -296,7 +272,6 @@ resource "null_resource" "install_ds" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
   ]
 }
 
@@ -319,7 +294,6 @@ resource "null_resource" "install_dmc" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
   ]
 }
@@ -343,7 +317,6 @@ resource "null_resource" "install_db2wh" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
   ]
@@ -368,7 +341,6 @@ resource "null_resource" "install_db2oltp" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -394,7 +366,6 @@ resource "null_resource" "install_datagate" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -421,7 +392,6 @@ resource "null_resource" "install_dods" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -449,7 +419,6 @@ resource "null_resource" "install_ca" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -478,7 +447,6 @@ resource "null_resource" "install_spss" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -508,7 +476,6 @@ resource "null_resource" "install_big_sql" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -539,7 +506,6 @@ resource "null_resource" "install_rstudio" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -571,7 +537,6 @@ resource "null_resource" "install_hadoop_addon" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -604,7 +569,6 @@ resource "null_resource" "install_hadoop_addon" {
 #     null_resource.install_aiopenscale,
 #     null_resource.install_cde,
 #     null_resource.install_streams,
-#     null_resource.install_streams_flows,
 #     null_resource.install_ds,
 #     null_resource.install_dmc,
 #     null_resource.install_db2wh,
@@ -638,7 +602,6 @@ resource "null_resource" "install_runtime_addon_py37" {
     null_resource.install_aiopenscale,
     null_resource.install_cde,
     null_resource.install_streams,
-    null_resource.install_streams_flows,
     null_resource.install_ds,
     null_resource.install_dmc,
     null_resource.install_db2wh,
@@ -654,38 +617,66 @@ resource "null_resource" "install_runtime_addon_py37" {
   ]
 }
 
-# resource "null_resource" "install_runtime_addon_r36" {
-#   count = var.accept_cpd_license == "yes" && var.install_services["runtime-addon-r36"] ? 1 : 0
-#
-#   provisioner "local-exec" {
-#     working_dir = "${path.module}/scripts/"
-#     interpreter = ["/bin/bash", "-c"]
-#     command = "./install_cpdservice_generic.sh ${var.cpd_project_name} runtime-addon-r36 ${local.storageclass["runtime-addon-r36"]} ${local.override["runtime-addon-r36"]}"
-#   }
-#
-#   depends_on = [
-#     null_resource.install_lite,
-#     null_resource.install_spark,
-#     null_resource.install_dv,
-#     null_resource.install_wkc,
-#     null_resource.install_wsl,
-#     null_resource.install_wml,
-#     null_resource.install_aiopenscale,
-#     null_resource.install_cde,
-#     null_resource.install_streams,
-#     null_resource.install_streams_flows,
-#     null_resource.install_ds,
-#     null_resource.install_dmc,
-#     null_resource.install_db2wh,
-#     null_resource.install_db2oltp,
-#     null_resource.install_datagate,
-#     null_resource.install_dods,
-#     null_resource.install_ca,
-#     null_resource.install_spss,
-#     null_resource.install_big_sql,
-#     null_resource.install_rstudio,
-#     null_resource.install_hadoop_addon,
-#     null_resource.install_mongodb,
-#     null_resource.install_runtime_addon_py37,
-#   ]
-# }
+
+resource "null_resource" "setup_cpd_cli" {
+  count = var.accept_cpd_license == "yes" && (var.install_services["watson-assistant"]) ? 1 : 0
+
+  provisioner "local-exec" {
+    environment = {
+      # CPD_REGISTRY = var.cpd_registry,
+      # CPD_REGISTRY_USER = var.cpd_registry_username,
+      CPD_REGISTRY_PASSWORD = var.cpd_registry_password,
+      # CPD_CASE_DIR = "../../" # point to templates root
+      TEMPLATES_DIR = abspath(path.root)
+    }
+
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./setup_cpd_cli.sh"
+  }
+  provisioner "local-exec" {
+    when = destroy
+    interpreter = ["/bin/bash", "-c"]
+    command = "rm -rf cpd-cli*"
+  }
+}
+
+resource "null_resource" "install_watson_assistant" {
+  count = var.accept_cpd_license == "yes" && var.install_services["watson-assistant"] ? 1 : 0
+
+  provisioner "local-exec" {
+    environment = {
+      TEMPLATES_DIR = abspath(path.root)
+    }
+
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install_watson_assistant.sh ${var.cpd_project_name}"
+  }
+
+  depends_on = [
+    null_resource.install_lite,
+    null_resource.install_spark,
+    null_resource.install_dv,
+    null_resource.install_wkc,
+    null_resource.install_wsl,
+    null_resource.install_wml,
+    null_resource.install_aiopenscale,
+    null_resource.install_cde,
+    null_resource.install_streams,
+    null_resource.install_ds,
+    null_resource.install_dmc,
+    null_resource.install_db2wh,
+    null_resource.install_db2oltp,
+    null_resource.install_datagate,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_spss,
+    null_resource.install_big_sql,
+    null_resource.install_rstudio,
+    null_resource.install_hadoop_addon,
+    # null_resource.install_mongodb,
+    null_resource.install_runtime_addon_py37,
+    null_resource.setup_cpd_cli,
+  ]
+}
