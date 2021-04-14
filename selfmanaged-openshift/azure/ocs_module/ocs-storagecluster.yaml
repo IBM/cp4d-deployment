@@ -1,18 +1,12 @@
 apiVersion: ocs.openshift.io/v1
 kind: StorageCluster
 metadata:
-  name: ocs-storagecluster
   namespace: openshift-storage
+  name: ocs-storagecluster
   finalizers:
     - storagecluster.ocs.openshift.io
 spec:
-  encryption: {}
   externalStorage: {}
-  managedResources:
-    cephBlockPools: {}
-    cephFilesystems: {}
-    cephObjectStoreUsers: {}
-    cephObjectStores: {}
   storageDeviceSets:
     - config: {}
       count: 1
@@ -25,12 +19,12 @@ spec:
           resources:
             requests:
               storage: 2Ti
-          storageClassName: gp2
+          storageClassName: managed-premium
           volumeMode: Block
         status: {}
-      name: ocs-deviceset-gp2
+      name: ocs-deviceset
       placement: {}
       portable: true
       replica: 3
       resources: {}
-  version: 4.6.0
+  version: 4.5.0

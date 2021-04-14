@@ -16,5 +16,5 @@ done
 sleep 30
 aws efs delete-file-system --file-system-id $FILESYSTEMID
 sleep 30
-SG_GROUPID=`aws ec2 describe-security-groups --filter "Name=group-name,Values=EFSSecutityGroup" --output text --query 'SecurityGroups[*].GroupId'`
+SG_GROUPID=`aws ec2 describe-security-groups --filter "Name=group-name,Values=$CLUSTERID-EFSSecutityGroup" --output text --query 'SecurityGroups[*].GroupId'`
 aws ec2 delete-security-group --group-id $SG_GROUPID

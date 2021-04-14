@@ -31,6 +31,10 @@ variable "dnszone-resource-group" {
 variable "dnszone" {
 }
 
+variable "privateBootnode" {
+  default = "no"
+}
+
 ### Network Config
 variable "new-or-existing" {
   default = "new"
@@ -113,6 +117,10 @@ variable "fips" {
   default = true
 }
 
+variable "clusterAutoscaler" {
+  default = "no"
+}
+
 # Username for the bootnode VM
 variable "admin-username" {
   default = "core"
@@ -147,6 +155,38 @@ variable "storage-disk-size" {
   default = 1024
 }
 
+variable "cp-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass Streams
+variable "streams-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp-allow"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
+# StorageClass BigSQL
+variable "bigsql-storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-dv-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+    "nfs"        = "nfs"
+  }
+}
+
 variable "enableNFSBackup" {
   default = "no"
 }
@@ -156,6 +196,15 @@ variable "cpd-namespace" {
   default = "zen"
 }
 
+variable "cpd-external-registry" {
+  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
+}
+
+variable "cpd-external-username" {
+  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  default = ""
+}
 variable "ocp_version" {
   default = "4.5.18"
 }
@@ -165,7 +214,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.6.1"
 }
 
 variable "apikey" {

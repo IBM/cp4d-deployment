@@ -1,7 +1,7 @@
 terraform {
   required_version = "v0.12.29"
   required_providers {
-    ibm = "1.17.0"
+    ibm = "1.20.1"
     kubernetes = "1.13.3"
     null = "~> 3.0"
   }
@@ -58,6 +58,7 @@ module "portworx" {
   cluster_id           = module.roks.cluster_id
   create_external_etcd = var.create_external_etcd
   ibmcloud_api_key     = var.ibmcloud_api_key
+  kube_config_path     = module.roks.kube_config_path
   region               = var.region
   resource_group_id    = data.ibm_resource_group.this.id
   storage_capacity     = var.storage_capacity

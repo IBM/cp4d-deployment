@@ -1,6 +1,6 @@
 #!/bin/bash
 
-oc new-project $NAMESPACE || return $?
+oc new-project $NAMESPACE || exit $?
 
 cloudctl case launch                        \
   --case ${CPD_CASE_DIR}/ibm-cp-datacore    \
@@ -8,4 +8,4 @@ cloudctl case launch                        \
   --inventory cpdMetaOperatorSetup          \
   --action install-operator                 \
   --tolerance=1                             \
-  --args "--entitledRegistry ${CPD_REGISTRY} --entitledUser ${CPD_REGISTRY_USER} --entitledPass ${CPD_REGISTRY_PASSWORD}" || return $?
+  --args "--entitledRegistry ${CPD_REGISTRY} --entitledUser ${CPD_REGISTRY_USER} --entitledPass ${CPD_REGISTRY_PASSWORD}" || exit $?

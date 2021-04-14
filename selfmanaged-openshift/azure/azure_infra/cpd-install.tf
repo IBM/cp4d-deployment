@@ -6,11 +6,11 @@ locals {
     operator = "/home/${var.admin-username}/operator"
 
     # Override
-    override-value = var.storage == "nfs" ? "\"\"" : "portworx"
+    override-value = var.storage == "nfs" ? "\"\"" : var.storage
     #Storage Classes
-    cp-storageclass = var.storage == "portworx" ? "portworx-shared-gp3" : "nfs"
-    streams-storageclass = var.storage == "portworx" ? "portworx-shared-gp-allow" : "nfs"
-    bigsql-storageclass = var.storage == "portworx" ? "portworx-dv-shared-gp" : "nfs"
+    cp-storageclass = lookup(var.cp-storageclass,var.storage)
+    streams-storageclass = lookup(var.streams-storageclass,var.storage)
+    bigsql-storageclass = lookup(var.bigsql-storageclass,var.storage)
 
     //watson-asst-storageclass = var.storage == "portworx" ? "portworx-assistant" : "managed-premium"
     //watson-discovery-storageclass = var.storage == "portworx" ? "portworx-db-gp3" : "managed-premium"
@@ -18,7 +18,7 @@ locals {
 
 resource "null_resource" "cpd_config" {
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -34,18 +34,19 @@ resource "null_resource" "cpd_config" {
             #CPD Config
             "mkdir -p ${local.installerhome}",
             "mkdir -p ${local.operator}",
-            "curl https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cp-datacore-1.3.1.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            //"curl https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz -o /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
+            "wget https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
             "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
             "sudo mv cloudctl-linux-amd64.tar.gz ${local.operator}",
             "sudo mv cloudctl-linux-amd64.tar.gz.sig ${local.operator}",
             
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
-            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.1.tgz",
+            "tar -xf /home/${var.admin-username}/ibm-cp-datacore-1.3.3.tgz",
             "oc new-project cpd-meta-ops",
             "cat > install-cpd-operator.sh <<EOL\n${file("../cpd_module/install-cpd-operator.sh")}\nEOL",
             "sudo chmod +x install-cpd-operator.sh",
-            "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops",
+            "./install-cpd-operator.sh ${var.apikey} cpd-meta-ops ${var.cpd-external-registry} ${var.cpd-external-username}",
             "sleep 5m",
             "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
             "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
@@ -57,6 +58,7 @@ resource "null_resource" "cpd_config" {
     depends_on = [
         null_resource.openshift_post_install,
         null_resource.install_portworx,
+        null_resource.install_ocs,
         null_resource.install_nfs_client,
     ]
 }
@@ -64,14 +66,14 @@ resource "null_resource" "cpd_config" {
 resource "null_resource" "install_lite" {
     count = var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
     }
     connection {
         type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
+        host = self.triggers.bootnode_ip_address
         user = var.admin-username
         private_key = file(self.triggers.private_key_file_path)
     }
@@ -93,14 +95,14 @@ resource "null_resource" "install_lite" {
 resource "null_resource" "install_dv" {
   count = var.data-virtualization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -122,14 +124,14 @@ resource "null_resource" "install_dv" {
 resource "null_resource" "install_spark" {
   count = var.apache-spark == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -152,14 +154,14 @@ resource "null_resource" "install_spark" {
 resource "null_resource" "install_wkc" {
   count = var.watson-knowledge-catalog == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -183,14 +185,14 @@ resource "null_resource" "install_wkc" {
 resource "null_resource" "install_wsl" {
   count = var.watson-studio-library == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -215,14 +217,14 @@ resource "null_resource" "install_wsl" {
 resource "null_resource" "install_wml" {
   count = var.watson-machine-learning == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -248,14 +250,14 @@ resource "null_resource" "install_wml" {
 resource "null_resource" "install_aiopenscale" {
   count = var.watson-ai-openscale == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -282,14 +284,14 @@ resource "null_resource" "install_aiopenscale" {
 resource "null_resource" "install_cde" {
   count = var.cognos-dashboard-embedded == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
   triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
   }
   connection {
       type = "ssh"
-      host = azurerm_public_ip.bootnode.ip_address
+      host = self.triggers.bootnode_ip_address
       user = var.admin-username
       private_key = file(self.triggers.private_key_file_path)
   }
@@ -316,7 +318,7 @@ resource "null_resource" "install_cde" {
 resource "null_resource" "install_streams" {
     count = var.streams == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-      bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+      bootnode_ip_address = local.bootnode_ip_address
       username = var.admin-username
       private_key_file_path = var.ssh-private-key-file-path
       namespace = var.cpd-namespace
@@ -352,7 +354,7 @@ resource "null_resource" "install_streams" {
 resource "null_resource" "install_streams_flows" {
     count = var.streams-flows == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -389,7 +391,7 @@ resource "null_resource" "install_streams_flows" {
 resource "null_resource" "install_ds" {
     count = var.datastage == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -427,7 +429,7 @@ resource "null_resource" "install_ds" {
 resource "null_resource" "install_db2wh" {
     count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -466,7 +468,7 @@ resource "null_resource" "install_db2wh" {
 resource "null_resource" "install_db2oltp" {
     count = var.db2_oltp == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -506,7 +508,7 @@ resource "null_resource" "install_db2oltp" {
 resource "null_resource" "install_dmc" {
     count = var.data-management-console == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -547,7 +549,7 @@ resource "null_resource" "install_dmc" {
 resource "null_resource" "install_datagate" {
     count = var.datagate == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -589,7 +591,7 @@ resource "null_resource" "install_datagate" {
 resource "null_resource" "install_dods" {
     count = var.decision-optimization == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -632,7 +634,7 @@ resource "null_resource" "install_dods" {
 resource "null_resource" "install_ca" {
     count = var.cognos-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -676,7 +678,7 @@ resource "null_resource" "install_ca" {
 resource "null_resource" "install_spss" {
     count = var.spss == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -721,7 +723,7 @@ resource "null_resource" "install_spss" {
 resource "null_resource" "install_bigsql" {
     count = var.bigsql == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace
@@ -767,7 +769,7 @@ resource "null_resource" "install_bigsql" {
 resource "null_resource" "install_pa" {
     count = var.planning-analytics == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         namespace = var.cpd-namespace

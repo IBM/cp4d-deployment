@@ -1,4 +1,6 @@
-provider "kubernetes" {}
+provider "kubernetes" {
+  config_path = var.kube_config_path
+}
 
 ##################################################
 # Create and attach block storage to worker nodes
@@ -155,7 +157,7 @@ resource "ibm_resource_instance" "portworx" {
     )
     etcd_secret      = var.create_external_etcd ? var.etcd_secret_name : null
     internal_kvdb    = var.create_external_etcd ? "external" : "internal"
-    portworx_version = "Portworx: 2.5.7 , Stork: 2.4.4"
+    portworx_version = "Portworx: 2.6.2.1 , Stork: 2.6.0"
     secret_type      = "k8s"
   }
 

@@ -8,7 +8,7 @@ locals {
 
 resource "null_resource" "install_openshift" {
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         directory = local.ocpdir
@@ -38,17 +38,12 @@ resource "null_resource" "install_openshift" {
             "./openshift-install create cluster --dir=${local.ocpdir} --log-level=debug",
             "mkdir -p /home/${var.admin-username}/.kube",
             "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
-            "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
             "cat > ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machine-health-check.rendered}\nEOL",
             "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
             "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
             "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-autoscaler-${var.single-or-multi-zone}.yaml",
-            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml",
             "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
-            "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
-            "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
             "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
         ]
     }
@@ -76,13 +71,13 @@ resource "null_resource" "install_openshift" {
 
 resource "null_resource" "openshift_post_install" {
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
     }
     connection {
         type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
+        host = self.triggers.bootnode_ip_address
         user = var.admin-username
         private_key = file(self.triggers.private_key_file_path)
     }
@@ -114,6 +109,10 @@ resource "null_resource" "openshift_post_install" {
             "oc create -f ${local.ocptemplates}/crio-mc.yaml",
             "oc create -f ${local.ocptemplates}/chrony-mc.yaml",
 
+            # multipath-machineconfig
+            "cat > ${local.ocptemplates}/multipath-machineconfig.yaml <<EOL\n${data.template_file.multipath-mc.rendered}\nEOL",
+            "oc create -f ${local.ocptemplates}/multipath-machineconfig.yaml",
+
             # Create Registry Route
             "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
             "echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' ",
@@ -124,9 +123,34 @@ resource "null_resource" "openshift_post_install" {
         ]
     }
     depends_on = [
-#        null_resource.install_portworx,
-#        null_resource.install-nfs-server,
-#        null_resource.install_nfs_client,
+        null_resource.install_openshift
+    ]
+}
+
+resource "null_resource" "cluster_autoscaler" {
+    count = var.clusterAutoscaler == "yes" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = local.bootnode_ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+    }
+    connection {
+        type = "ssh"
+        host = self.triggers.bootnode_ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
+            "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+            "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
+            "cat > ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
+            "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
+            "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
+        ]
+    }
+    depends_on = [
         null_resource.install_openshift
     ]
 }
@@ -134,13 +158,13 @@ resource "null_resource" "openshift_post_install" {
 resource "null_resource" "install_portworx" {
     count = var.storage == "portworx" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
     }
     connection {
         type = "ssh"
-        host = azurerm_public_ip.bootnode.ip_address
+        host = self.triggers.bootnode_ip_address
         user = var.admin-username
         private_key = file(self.triggers.private_key_file_path)
     }
@@ -165,10 +189,47 @@ resource "null_resource" "install_portworx" {
     ]
 }
 
+resource "null_resource" "install_ocs" {
+    count    = var.storage == "ocs" ? 1 : 0
+    triggers = {
+        bootnode_ip_address = local.bootnode_ip_address
+        username = var.admin-username
+        private_key_file_path = var.ssh-private-key-file-path
+    }
+    connection {
+        type = "ssh"
+        host = self.triggers.bootnode_ip_address
+        user = var.admin-username
+        private_key = file(self.triggers.private_key_file_path)
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "cat > ${local.ocptemplates}/toolbox.yaml <<EOL\n${file("../ocs_module/toolbox.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/deploy-with-olm.yaml <<EOL\n${file("../ocs_module/deploy-with-olm.yaml")}\nEOL",
+            "cat > ${local.ocptemplates}/ocs-storagecluster.yaml <<EOL\n${file("../ocs_module/ocs-storagecluster.yaml")}\nEOL",
+            "cat > ocs-prereq.sh <<EOL\n${file("../ocs_module/ocs-prereq.sh")}\nEOL",
+            "sudo chmod +x ocs-prereq.sh",
+            "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+
+            "./ocs-prereq.sh",
+            "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
+            "sleep 300",
+            "oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml",
+            "sleep 600",
+            "oc apply -f ${local.ocptemplates}/toolbox.yaml",
+            "sleep 60",
+        ]
+    }
+    depends_on = [
+        null_resource.install_openshift,
+        null_resource.openshift_post_install
+    ]
+}
+
 resource "null_resource" "install-nfs-server" {
     count = var.storage == "nfs" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
         nfsnode_ip_address = azurerm_network_interface.nfs[count.index].private_ip_address
@@ -195,7 +256,7 @@ resource "null_resource" "install-nfs-server" {
 resource "null_resource" "install_nfs_client" {
     count = var.storage == "nfs" ? 1 : 0
     triggers = {
-        bootnode_ip_address = azurerm_public_ip.bootnode.ip_address
+        bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
         private_key_file_path = var.ssh-private-key-file-path
     }

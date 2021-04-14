@@ -58,7 +58,7 @@ resource "null_resource" "cpd_config" {
             "sudo tar -xvf ${local.operator}/cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
             "tar -xf /home/${var.admin-username}/ibm-cp-datacore-${var.datacore-version}.tgz",
             "oc new-project cpd-meta-ops",
-            "./install-cpd-operator.sh ${var.api-key} cpd-meta-ops",
+            "./install-cpd-operator.sh ${var.api-key} cpd-meta-ops ${var.cpd-external-registry} ${var.cpd-external-username}",
             "sleep 5m",
             "OP_STATUS=$(oc get pods -n cpd-meta-ops -l name=ibm-cp-data-operator --no-headers | awk '{print $3}')",
             "if [ $OP_STATUS != 'Running' ] ; then echo \"CPD Operator Installation Failed\" ; exit 1 ; fi",
@@ -71,7 +71,7 @@ resource "null_resource" "cpd_config" {
             "oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry",
             "oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600",
             "sleep 2m",
-            "./update-elb-timeout.sh ${local.vpcid}",
+            "./update-elb-timeout.sh ${local.vpcid} ${var.classic-lb-timeout}",
         ]
     }
     depends_on = [
