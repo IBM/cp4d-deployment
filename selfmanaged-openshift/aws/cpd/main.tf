@@ -151,6 +151,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice lite-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -186,6 +188,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dv-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -222,6 +226,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice spark-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -259,6 +265,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wkc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -297,6 +305,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wsl-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -336,6 +346,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wml-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -376,6 +388,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice aiopenscale-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -417,6 +431,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice cde-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -459,6 +475,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice streams-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -502,6 +520,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice streams-flows-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -545,6 +565,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice ds-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -590,6 +612,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice db2wh-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -636,6 +660,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice db2oltp-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -683,6 +709,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dmc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -731,6 +759,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice datagate-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -780,6 +810,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dods-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -830,6 +862,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice ca-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -880,6 +914,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice spss-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -932,6 +968,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice big-sql-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
@@ -985,6 +1023,8 @@ EOF
   provisioner "local-exec" {
     when = destroy
     command = <<EOF
+echo "Logging in..."
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice pa-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
   }
