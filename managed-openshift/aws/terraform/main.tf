@@ -32,6 +32,10 @@ module "portworx" {
   ]
 }
 
+##################################
+# OCS IS NOT CURRENTLY SUPPORTED #
+##################################
+
 # module "ocs" {
 #   count               = var.storage_option == "ocs" ? 1 : 0
 #   source              = "./ocs"
