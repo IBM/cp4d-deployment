@@ -149,10 +149,8 @@ resource "null_resource" "vnet_creation" {
       "sudo pip3 install yq",
       "cat > ${local.ocpdir}/install-config.yaml <<EOL\n${local.install-config}\nEOL",
       "cp ${local.ocpdir}/install-config.yaml ${local.ocpdir}/install-config-backup.yaml",
-
       "mkdir -p /home/${var.admin-username}/.azure",
       "cat > /home/${var.admin-username}/.azure/osServicePrincipal.json <<EOL\n${data.template_file.azurecreds.rendered}\nEOL",
-
       "cat > ${local.ocpdir}/01_vnet.json <<EOL\n${data.template_file.vnet.rendered}\nEOL",
       "cat > ${local.ocpdir}/02_storage.json <<EOL\n${data.template_file.storage.rendered}\nEOL",
       "cat > ${local.ocpdir}/03_infra.json <<EOL\n${data.template_file.infra.rendered}\nEOL",
@@ -169,9 +167,7 @@ resource "null_resource" "vnet_creation" {
       "sed -i s/${local.str}/$schema/g ${local.ocpdir}/04_bootstrap.json",
       "sed -i s/${local.str}/$schema/g ${local.ocpdir}/05_masters.json",
       "sed -i s/${local.str}/$schema/g ${local.ocpdir}/06_workers.json",
-
       "SSH_KEY=`yq -r .sshKey ${local.ocpdir}/install-config.yaml | xargs`",
-
 
       ###########################
       ### Creating manifests ###
@@ -179,7 +175,6 @@ resource "null_resource" "vnet_creation" {
       "./openshift-install create manifests --dir=${local.ocpdir}",
       "rm -f ${local.ocpdir}/manifests/cluster-dns-02-config.yml",
       "cat > ${local.ocpdir}/manifests/cluster-dns-02-config.yml <<EOL\n${data.template_file.dnsconfig.rendered}\nEOL",
-
       "INFRA_ID=`yq -r .status.infrastructureName ${local.ocpdir}/manifests/cluster-infrastructure-02-config.yml | xargs`",
       "rm -f ${local.ocpdir}/openshift/99_openshift-cluster-api_master-machines-*.yaml",
       "rm -f ${local.ocpdir}/openshift/99_openshift-cluster-api_worker-machineset-*.yaml",
@@ -222,8 +217,8 @@ resource "null_resource" "vnet_creation" {
       ##########################
       ### 01.Vnet creation ###
       ###########################
-      "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/01_vnet.json' --parameters baseName=$INFRA_ID",
 
+      "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/01_vnet.json' --parameters baseName=$INFRA_ID",
       "az network private-dns link vnet create -g $RESOURCE_GROUP -z ${var.cluster-name}.${var.dnszone} -n $INFRA_ID-network-link -v $INFRA_ID-vnet -e false",
 
       #####################################################
@@ -275,9 +270,7 @@ resource "null_resource" "vnet_peering" {
       #######################################
 
       # expor the Infra id
-
       "export INFRA_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
-
       "RESOURCE_GROUP=$INFRA_ID-rg",
 
       #####################
@@ -329,11 +322,8 @@ resource "null_resource" "install_openshift" {
       #######################################
 
       ## export infra id 
-
       "export INFRA_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
-
       "RESOURCE_GROUP=$INFRA_ID-rg",
-
       "ACCOUNT_KEY=`az storage account keys list -g $RESOURCE_GROUP --account-name ${var.cluster-name}sa --query '[0].value' -o tsv`",
       "VHD_URL=`curl -s https://raw.githubusercontent.com/openshift/installer/release-4.6/data/data/rhcos.json | jq -r .azure.url`",
       "echo --------$VHD_URL",
@@ -352,25 +342,25 @@ resource "null_resource" "install_openshift" {
       ##########################
       ### 03.infra creation ###
       ###########################
-      "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/03_infra.json' --parameters privateDNSZoneName='${var.cluster-name}.${var.dnszone}' --parameters baseName=$INFRA_ID",
 
+      "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/03_infra.json' --parameters privateDNSZoneName='${var.cluster-name}.${var.dnszone}' --parameters baseName=$INFRA_ID",
       "PUBLIC_IP=`az network public-ip list -g $RESOURCE_GROUP --query \"${local.public_ip_query}\" -o tsv`",
       "az network dns record-set a add-record -g ${var.dnszone-resource-group} -z ${var.dnszone} -n api.${var.cluster-name} -a $PUBLIC_IP --ttl 60",
 
       #############################
       ### 04.bootstrap ignition ###
       ##############################
+
       "BOOTSTRAP_URL=`az storage blob url --account-name ${var.cluster-name}sa --account-key $ACCOUNT_KEY -c 'files' -n 'bootstrap.ign' -o tsv`",
       "BOOTSTRAP_IGNITION=`jq -rcnM --arg v \"3.1.0\" --arg url $BOOTSTRAP_URL '{ignition:{version:$v,config:{replace:{source:$url}}}}' | base64 | tr -d '\n'`",
-
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/04_bootstrap.json' --parameters bootstrapIgnition=$BOOTSTRAP_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters baseName=$INFRA_ID",
 
       #############################
       ### 05.master ignition ###
       ##############################
+
       "MASTER_IGNITION=`cat ${local.ocpdir}/master.ign | base64 | tr -d '\n'`",
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/05_masters.json' --parameters masterIgnition=$MASTER_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters privateDNSZoneName='${var.cluster-name}.${var.dnszone}' --parameters baseName=$INFRA_ID",
-
       "./openshift-install wait-for bootstrap-complete --dir=${local.ocpdir} --log-level debug",
 
       ##############################
@@ -389,12 +379,14 @@ resource "null_resource" "install_openshift" {
       #############################
       ### 06.worker ignition ###
       ##############################
+
       "WORKER_IGNITION=`cat ${local.ocpdir}/worker.ign | base64 | tr -d '\n'`",
       "az deployment group create -g $RESOURCE_GROUP --template-file '${local.ocpdir}/06_workers.json' --parameters workerIgnition=$WORKER_IGNITION --parameters sshKeyData=\"${local.ssh_key}\" --parameters baseName=$INFRA_ID",
 
       #############################
       ### CSR approvals  ###
       ##############################
+
       # Approving CSRs. Sometimes it is taking time to get the csr generated so repeating this step few times. 
       "export KUBECONFIG=${local.ocpdir}/auth/kubeconfig",
       "echo 'approving CSRs'",
@@ -410,7 +402,6 @@ resource "null_resource" "install_openshift" {
       "echo $CSR",
       "echo $CSR | xargs oc adm certificate approve",
       "sleep 30",
-
       "PUBLIC_IP_ROUTER=`oc -n openshift-ingress get service router-default --no-headers | awk '{print $4}'`",
       "az network dns record-set a add-record -g ${var.dnszone-resource-group} -z ${var.dnszone} -n *.apps.${var.cluster-name} -a $PUBLIC_IP_ROUTER --ttl 300",
       "az network private-dns record-set a create -g $RESOURCE_GROUP -z ${var.cluster-name}.${var.dnszone} -n *.apps --ttl 300",
@@ -419,15 +410,13 @@ resource "null_resource" "install_openshift" {
       ####################################
       ### Openshift install completion ###
       ####################################
+
       "./openshift-install --dir=${local.ocpdir} wait-for install-complete --log-level=debug",
       "CSR=$(oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{\"\\n\"}}{{end}}{{end}}')",
       "echo $CSR | xargs oc adm certificate approve",
-      //"./openshift-install --dir=${local.ocpdir} wait-for install-complete --log-level debug",
       "oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{\"\\n\"}}{{end}}{{end}}' | xargs oc adm certificate approve",
       "sleep 30",
-      //"sudo yum install -y podman",
       "sudo yum install -y httpd-tools",
-
       "mkdir -p /home/${var.admin-username}/.kube",
       "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
       "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
@@ -480,21 +469,16 @@ resource "null_resource" "openshift_post_install" {
       "oc apply -f ${local.ocptemplates}/auth.yaml",
       "oc adm policy add-cluster-role-to-user cluster-admin '${var.openshift-username}'",
 
-      #Delete kubeadmin
-      # "oc delete secrets kubeadmin -n kube-system",
-      # "rm /tmp/.htpasswd"
-
       # expor the clsuter id
 
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
 
       # For now commenting cluster autoscaler in UPI method. 
-      #      "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
+      # "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
       "cat > ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machine-health-check.rendered}\nEOL",
       "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/ocpfourxtemplates/machine-health-check-${var.single-or-multi-zone}.yaml",
-
       "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-      #      "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
+      #"oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
       "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml",
 
       # Create Registry Route
@@ -530,20 +514,16 @@ resource "null_resource" "create_network_related_artifacts" {
     inline = [
 
       # expor the clsuter id
-
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
 
-      # as login 
-
+      # az login 
       "az login --service-principal -u ${local.app_url} -p ${local.client_secret} --tenant ${local.tenant_id}",
       "az account set -s ${local.subscription_id}",
 
       ### Adding security rules to the group 
 
       # Cluster id nsg - rule ssh  
-
       "az network nsg rule create -g $CLUSTER_ID-rg --nsg-name $CLUSTER_ID-nsg -n sshBootnode2Mastersubnet --priority 110 --direction Inbound --access Allow --protocol Tcp --source-port-ranges '*' --destination-port-ranges 22 --source-address-prefixes '${var.bootnode-subnet-cidr}' --destination-address-prefixes '${var.master-subnet-cidr}'",
-
       "az network nsg rule create -g $CLUSTER_ID-rg --nsg-name $CLUSTER_ID-nsg -n sshBootnode2workersubnet --priority 111 --direction Inbound --access Allow --protocol Tcp --source-port-ranges '*' --destination-port-ranges 22 --source-address-prefixes '${var.bootnode-subnet-cidr}' --destination-address-prefixes '${var.worker-subnet-cidr}'",
 
     ]
@@ -573,11 +553,9 @@ resource "null_resource" "create_nfs_related_artifacts" {
     inline = [
 
       # expor the clsuter id
-
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
 
-      # as login 
-
+      # az login 
       "az login --service-principal -u ${local.app_url} -p ${local.client_secret} --tenant ${local.tenant_id}",
       "az account set -s ${local.subscription_id}",
 
@@ -585,9 +563,7 @@ resource "null_resource" "create_nfs_related_artifacts" {
       "az network nic create -g $CLUSTER_ID-rg --vnet-name $CLUSTER_ID-vnet --subnet $CLUSTER_ID-worker-subnet -n $CLUSTER_ID-nfs-nic",
 
       ### Adding security rules to the group 
-
       # cluster id nsg - rule nfsin 
-
       "az network nsg rule create -g $CLUSTER_ID-rg --nsg-name $CLUSTER_ID-nsg -n nfsin --priority 700 --direction Inbound --access Allow --protocol '*' --source-port-ranges '*' --destination-port-ranges 2049 --source-address-prefixes '*' --destination-address-prefixes '*'",
 
     ]
@@ -619,17 +595,12 @@ resource "null_resource" "provision_nfs_server" {
     inline = [
 
       # export the clsuter id
-
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
       "echo $CLUSTER_ID ",
-
-      # as login 
-
+      # az login 
       "az login --service-principal -u ${local.app_url} -p ${local.client_secret} --tenant ${local.tenant_id}",
       "az account set -s ${local.subscription_id}",
-
       ## Provision nfs serveer 
-
       "az vm create --name $CLUSTER_ID-nfs --resource-group $CLUSTER_ID-rg --location ${var.region} --nics \"/subscriptions/${var.azure-subscription-id}/resourceGroups/$CLUSTER_ID-rg/providers/Microsoft.Network/networkInterfaces/$CLUSTER_ID-nfs-nic\" --size Standard_D8s_v3 --os-disk-name $CLUSTER_ID-nfs-OsDisk --os-disk-caching ReadWrite --data-disk-sizes-gb ${var.storage-disk-size} --data-disk-caching ReadWrite --computer-name nfsnode --admin-username core --image RedHat:RHEL:7-RAW:latest --authentication-type ssh --ssh-dest-key-path '/home/${var.admin-username}/.ssh/authorized_keys' --ssh-key-values '${var.ssh-public-key}'",
 
     ]
@@ -659,15 +630,11 @@ resource "null_resource" "install-nfs-server" {
   provisioner "remote-exec" {
     inline = [
       # export the clsuter id
-
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
       "echo $CLUSTER_ID ",
-
-      # as login 
-
+      # az login 
       "az login --service-principal -u ${local.app_url} -p ${local.client_secret} --tenant ${local.tenant_id}",
       "az account set -s ${local.subscription_id}",
-
       # get the ip address of the nfs server 
       "nfs_ip_address=`az vm show -d -g $CLUSTER_ID-rg -n $CLUSTER_ID-nfs --query 'privateIps' -o tsv`",
       "echo $nfs_ip_address ",
@@ -701,19 +668,14 @@ resource "null_resource" "install_nfs_client" {
   provisioner "remote-exec" {
     inline = [
       # export the clsuter id
-
       "export CLUSTER_ID=`jq -r .infraID ${local.ocpdir}/metadata.json`",
       "echo $CLUSTER_ID ",
-
-      # as login 
-
+      # az login 
       "az login --service-principal -u ${local.app_url} -p ${local.client_secret} --tenant ${local.tenant_id}",
       "az account set -s ${local.subscription_id}",
-
       # get the ip address of the nfs server 
       "nfs_ip_address=`az vm show -d -g $CLUSTER_ID-rg -n $CLUSTER_ID-nfs --query 'privateIps' -o tsv`",
       "echo $nfs_ip_address ",
-
       # oc login 
       "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
       "echo add_policy_start",
@@ -733,5 +695,88 @@ resource "null_resource" "install_nfs_client" {
     null_resource.create_nfs_related_artifacts,
     null_resource.provision_nfs_server,
     null_resource.install-nfs-server
+  ]
+}
+
+resource "null_resource" "install_portworx_disconnected" {
+  count = var.storage == "portworx" && var.disconnected-cluster == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = azurerm_public_ip.bootnode.ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "file" {
+    source      = "../scripts/create-portworx-disconnected.sh"
+    destination = "/home/${var.admin-username}/create-portworx-disconnected.sh"
+  }
+
+  provisioner "file" {
+    source      = "../portworx_module/px-ag-install.sh"
+    destination = "/home/${var.admin-username}/px-ag-install.sh"
+  }
+
+  provisioner "file" {
+    source      = "../portworx_module/versions"
+    destination = "/home/${var.admin-username}/versions"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "cat > ${local.ocptemplates}/px-operator-disconnected.yaml <<EOL\n${file("../portworx_module/px-operator-disconnected.yaml")}\nEOL",
+      "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
+      "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
+      "sudo chmod +x /home/${var.admin-username}/px-ag-install.sh ",
+      "sudo chmod +x /home/${var.admin-username}/create-portworx-disconnected.sh",
+      "./create-portworx-disconnected.sh",
+      "result=$(oc apply -f \"${var.portworx-spec-url}\")",
+      "echo $result",
+      "sleep 6m",
+      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+      "echo $result"
+    ]
+  }
+  depends_on = [
+    null_resource.install_openshift,
+    null_resource.openshift_post_install,
+    null_resource.create_network_related_artifacts,
+  ]
+}
+resource "null_resource" "install_portworx" {
+  count = var.storage == "portworx" && var.disconnected-cluster == "no" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = azurerm_public_ip.bootnode.ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
+      "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
+      "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
+      "sleep 60",
+      "echo $result",
+      "result=$(oc apply -f \"${var.portworx-spec-url}\")",
+      "echo $result",
+      "echo 'Sleeping for 5 mins to get portworx storage cluster up' ",
+      "sleep 5m",
+      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+      "echo $result"
+    ]
+  }
+  depends_on = [
+    null_resource.install_openshift,
+    null_resource.openshift_post_install,
+    null_resource.create_network_related_artifacts,
   ]
 }

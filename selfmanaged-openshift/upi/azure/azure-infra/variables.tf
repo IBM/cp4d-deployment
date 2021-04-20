@@ -144,9 +144,11 @@ variable "private-or-public-cluster" {
 variable "storage" {
   default = "nfs"
 }
-# variable "portworx-spec-url" {
-#   default = ""
-# }
+
+variable "portworx-spec-url" {
+  default = ""
+}
+
 variable "storage-disk-size" {
   default = 1024
 }
@@ -221,11 +223,15 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.7.0"
 }
 
 variable "cpd-cli-version" {
-  default = "v3.5.0"
+  default = "3.5.3"
+}
+
+variable "data-core-version" {
+  default = "1.3.7"
 }
 
 variable "apikey" {
