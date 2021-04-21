@@ -34,8 +34,8 @@ sshKey: ${sshKey}
 additionalTrustBundle: ${certificate}
 imageContentSources:
 - mirrors:
-  - ${local_registry_repo}/release
+  - ${local_registry_repo}/${local_repo}
   source: quay.io/openshift-release-dev/ocp-release
 - mirrors:
-  - ${local_registry_repo}/release
-  source: registry.svc.ci.openshift.org/ocp/release
+  - ${local_registry_repo}/${local_repo}
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
