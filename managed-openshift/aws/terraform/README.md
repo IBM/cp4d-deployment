@@ -42,7 +42,7 @@ terraform apply
 ### Pricing Information for ROSA
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
 1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
-  1. This can be reduced by committing to a year in advance, $0.114 per 4vCPU/hour for a 1-year commit (~$998/node/year)
+    * This can be reduced by committing to a year in advance, $0.114 per 4vCPU/hour for a 1-year commit (~$998/node/year)
 
 Note: Pricing for ROSA is in addition to the costs of Amazon EC2 & AWS services used.
 
@@ -53,4 +53,4 @@ Cost would be,
   1. $0.171/node/hour X 10 worker nodes X 24 hours/day X 365 days/year = $14,990
   Total is approximately $15,253
 
-Note: Above pricing does not include infrastructure expenses. For more information [here] (https://aws.amazon.com/rosa/pricing/)
+Note: Above pricing does not include infrastructure expenses. For more information [here](https://aws.amazon.com/rosa/pricing/)
