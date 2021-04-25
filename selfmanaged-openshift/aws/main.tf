@@ -7,21 +7,6 @@ provider "aws" {
 
 data "aws_availability_zones" "azs" {}
 
-data "template_file" "awscreds" {
-  template = file("templates/aws_cred")
-  vars = {
-    access_key        = var.access_key_id
-    secret_access_key = var.secret_access_key
-  }
-}
-
-data "template_file" "awsregion" {
-  template = file("templates/aws_region")
-  vars = {
-    aws_region = var.region
-  }
-}
-
 locals {
   installer_workspace = "${path.root}/installer-files"
   availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
@@ -37,15 +22,35 @@ locals {
   multi_zone_subnets = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
 }
 
-/* resource "null_resource" "permission_resource_validation" {
+resource "null_resource" "aws_configuration" {
   provisioner "local-exec" {
-    command = <<EOF
-  mkdir -p $HOME/.aws
-  cat > $HOME/.aws/credentials <<EOL\n${data.template_file.awscreds.rendered}\nEOL
-  cat > $HOME/.aws/config <<EOL\n${data.template_file.awsregion.rendered}\nEOL
-  EOF
+    command = "mkdir -p ~/.aws"
   }
-  
+
+  provisioner "local-exec" {
+    command =<<EOF
+echo '${data.template_file.aws_credentials.rendered}' > ~/.aws/credentials
+echo '${data.template_file.aws_config.rendered}' > ~/.aws/config
+EOF
+  }
+}
+
+data "template_file" "aws_credentials" {
+  template = <<-EOF
+[default]
+aws_access_key_id = ${var.access_key_id}
+aws_secret_access_key = ${var.secret_access_key}
+EOF
+}
+
+data "template_file" "aws_config" {
+  template = <<-EOF
+[default]
+region = ${var.region}
+EOF
+}
+
+/* resource "null_resource" "permission_resource_validation" {
   provisioner "local-exec" {
     command = <<EOF
   chmod +x scripts/*.sh scripts/*.py
@@ -72,9 +77,9 @@ module "network" {
   availability_zone2  = local.availability_zone2
   availability_zone3  = local.availability_zone3
 
-  # depends_on = [
-  #   null_resource.permission_resource_validation,
-  # ]
+  depends_on = [
+    null_resource.aws_configuration,
+  ]
 }
 
 module "ocp" {
@@ -120,6 +125,7 @@ module "ocp" {
 
   depends_on = [
     module.network,
+    null_resource.aws_configuration,
   ]
 }
 
@@ -137,6 +143,7 @@ module "portworx" {
   depends_on = [
     module.ocp,
     module.network,
+    null_resource.aws_configuration,
   ]
 }
 
@@ -152,6 +159,7 @@ module "ocs" {
   depends_on = [
     module.ocp,
     module.network,
+    null_resource.aws_configuration,
   ]
 }
 
@@ -172,6 +180,7 @@ module "efs" {
   depends_on = [
     module.ocp,
     module.network,
+    null_resource.aws_configuration,
   ]
 }
 
@@ -218,5 +227,6 @@ module "cpd" {
     module.portworx,
     module.ocs,
     module.efs,
+    null_resource.aws_configuration,
   ]
 }

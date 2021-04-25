@@ -35,7 +35,7 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-rm -rf ${self.triggers.installer_workspace}
+#rm -rf ${self.triggers.installer_workspace}
 EOF
   }
 
