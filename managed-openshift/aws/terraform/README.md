@@ -39,6 +39,8 @@ $ rosa create cluster --cluster-name <cluster_name> --watch --compute-machine-ty
 terraform apply
 ```
 
+Note: Terraform version `0.15.0` or later are supported.
+
 ### Pricing Information for ROSA
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
 1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
