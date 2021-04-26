@@ -24,15 +24,6 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Download Openshift CLI and move to `/usr/local/bin`:
-```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.7.7.tar.gz
-tar -xvf openshift-client-linux-4.7.7.tar.gz
-chmod u+x oc kubectl
-sudo mv oc /usr/local/bin
-sudo mv kubectl /usr/local/bin
-oc version
-```
 * Install `wget` command:
   * MacOS:
   ```bash
@@ -42,6 +33,16 @@ oc version
   ```bash
   yum install wget
   ```
+* Download Openshift CLI and move to `/usr/local/bin`:
+```bash
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.7.7.tar.gz
+tar -xvf openshift-client-linux-4.7.7.tar.gz
+chmod u+x oc kubectl
+sudo mv oc /usr/local/bin
+sudo mv kubectl /usr/local/bin
+oc version
+```
+
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
 * Before deploying the infrastructure make sure you have `python3` installed in your local machine.
