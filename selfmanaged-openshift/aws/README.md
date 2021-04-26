@@ -24,14 +24,17 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget` command:
-  * MacOS:
+* Install `wget`, `htpasswd` and `aws` commands:
+  * MacOS (comes with `htpasswd`):
   ```bash
   brew install wget
+  pip install awscli --upgrade --user
   ```
   * RHEL:
   ```bash
   yum install wget
+  yum install httpd-tools
+  pip install awscli --upgrade --user
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash

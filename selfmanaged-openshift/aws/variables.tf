@@ -84,6 +84,9 @@ variable "worker_subnet_cidr3" {
 ##############################
 # Existing Network       
 ##############################
+variable "vpc_id" {
+  default = ""
+}
 variable "master_subnet1_id" {
   default = ""
 }
@@ -134,7 +137,34 @@ variable "availability_zone3" {
   default     = ""
 }
 
-# Openshift Module Variables
+#############################
+# Existing Openshift Cluster Variables
+#############################
+variable "existing_cluster" {
+  type = bool
+  description = "Set true if you already have a running Openshift Cluster and you only want to install CPD."
+  default = false
+}
+
+variable "existing_openshift_api" {
+  type = string
+  default = ""
+}
+
+variable "existing_openshift_username" {
+  type = string
+  default = ""
+}
+
+variable "existing_openshift_password" {
+  type = string
+  default = ""
+}
+##################################
+
+##################################
+# New Openshift Cluster Variables
+##################################
 variable "worker_instance_type" {
   type = string
   default = "m5.4xlarge"

@@ -1,5 +1,4 @@
 provider "aws" {
-  version    = "~> 2.0"
   region     = var.region
   access_key = var.access_key_id
   secret_key = var.secret_access_key
@@ -12,12 +11,13 @@ locals {
   availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
   availability_zone2  = var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
   availability_zone3  = var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
-  master_subnet1_id   = module.network[0].master_subnet1_id
-  master_subnet2_id   = var.az == "multi_zone" ? module.network[0].master_subnet2_id[0] : ""
-  master_subnet3_id   = var.az == "multi_zone" ? module.network[0].master_subnet3_id[0] : ""
-  worker_subnet1_id   = module.network[0].worker_subnet1_id
-  worker_subnet2_id   = var.az == "multi_zone" ? module.network[0].worker_subnet2_id[0] : ""
-  worker_subnet3_id   = var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : ""
+  vpc_id = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
+  master_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].master_subnet1_id : var.master_subnet1_id
+  master_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].master_subnet2_id[0] : var.master_subnet2_id
+  master_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].master_subnet3_id[0] : var.master_subnet3_id
+  worker_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].worker_subnet1_id : var.worker_subnet1_id
+  worker_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet2_id[0] : var.worker_subnet2_id
+  worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
   single_zone_subnets = [local.worker_subnet1_id]
   multi_zone_subnets = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
 }
@@ -61,7 +61,7 @@ EOF
 } */
 
 module "network" {
-  count               = var.new_or_existing_vpc_subnet == "new" ? 1 : 0
+  count               = var.new_or_existing_vpc_subnet == "new" && var.existing_cluster == false ? 1 : 0
   source              = "./network"
   vpc_cidr            = var.vpc_cidr
   network_tag_prefix  = var.cluster_name
@@ -83,6 +83,7 @@ module "network" {
 }
 
 module "ocp" {
+  count = var.existing_cluster ? 0 : 1
   source                      = "./ocp"
   openshift_installer_url     = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
   multi_zone                  = var.az == "multi_zone" ? true : false
@@ -107,12 +108,12 @@ module "ocp" {
   machine_network_cidr        = var.vpc_cidr
   service_network_cidr        = var.service_network_cidr
   /* implement existing networks */
-  master_subnet1_id               = var.new_or_existing_vpc_subnet == "new" ? local.master_subnet1_id : var.master_subnet1_id
-  master_subnet2_id               = var.new_or_existing_vpc_subnet == "new" ? local.master_subnet2_id : var.master_subnet2_id
-  master_subnet3_id               = var.new_or_existing_vpc_subnet == "new" ? local.master_subnet3_id : var.master_subnet3_id
-  worker_subnet1_id               = var.new_or_existing_vpc_subnet == "new" ? local.worker_subnet1_id : var.worker_subnet1_id
-  worker_subnet2_id               = var.new_or_existing_vpc_subnet == "new" ? local.worker_subnet2_id : var.worker_subnet2_id
-  worker_subnet3_id               = var.new_or_existing_vpc_subnet == "new" ? local.worker_subnet3_id : var.worker_subnet3_id
+  master_subnet1_id               = local.master_subnet1_id
+  master_subnet2_id               = local.master_subnet2_id
+  master_subnet3_id               = local.master_subnet3_id
+  worker_subnet1_id               = local.worker_subnet1_id
+  worker_subnet2_id               = local.worker_subnet2_id
+  worker_subnet3_id               = local.worker_subnet3_id
   private_cluster                 = var.private_cluster
   openshift_pull_secret_file_path = var.openshift_pull_secret_file_path
   public_ssh_key                  = var.public_ssh_key
@@ -132,9 +133,9 @@ module "ocp" {
 module "portworx" {
   count               = var.storage_option == "portworx" ? 1 : 0
   source              = "./portworx"
-  openshift_api       = module.ocp.openshift_api
-  openshift_username  = module.ocp.openshift_username
-  openshift_password  = module.ocp.openshift_password
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = ""
   portworx_spec_url   = var.portworx_spec_url
   installer_workspace = local.installer_workspace
@@ -150,9 +151,9 @@ module "portworx" {
 module "ocs" {
   count               = var.storage_option == "ocs" ? 1 : 0
   source              = "./ocs"
-  openshift_api       = module.ocp.openshift_api
-  openshift_username  = module.ocp.openshift_username
-  openshift_password  = module.ocp.openshift_password
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = ""
   installer_workspace = local.installer_workspace
 
@@ -166,12 +167,12 @@ module "ocs" {
 module "efs" {
   count               = var.storage_option == "efs" ? 1 : 0
   source              = "./efs"
-  vpc_id              = module.network[0].vpcid
+  vpc_id              = local.vpc_id
   vpc_cidr            = var.vpc_cidr
   efs_name            = "${var.cluster_name}-efs"
-  openshift_api       = module.ocp.openshift_api
-  openshift_username  = module.ocp.openshift_username
-  openshift_password  = module.ocp.openshift_password
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = ""
   installer_workspace = local.installer_workspace
   region              = var.region
@@ -187,9 +188,9 @@ module "efs" {
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
-  openshift_api             = module.ocp.openshift_api
-  openshift_username        = module.ocp.openshift_username
-  openshift_password        = module.ocp.openshift_password
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token           = ""
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
@@ -200,7 +201,7 @@ module "cpd" {
   cloudctl_version          = var.cloudctl_version
   datacore_version          = var.datacore_version
   storage_option            = var.storage_option
-  vpc_id                    = module.network[0].vpcid
+  vpc_id                    = local.vpc_id
   data_virtualization       = var.data_virtualization
   apache_spark              = var.apache_spark
   watson_knowledge_catalog  = var.watson_knowledge_catalog
