@@ -22,7 +22,26 @@ The deployment sets up the following as shown in the diagram.
  - A Network Load Balancer spanning the private subnets for routing internal OpenShift application programming interface (API) traffic to the OCP master instances.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
-
+### Prerequisites
+* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+* Download Openshift CLI and move to `/usr/local/bin`:
+```bash
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.7.7.tar.gz
+tar -xvf openshift-client-linux-4.7.7.tar.gz
+chmod u+x oc kubectl
+sudo mv oc /usr/local/bin
+sudo mv kubectl /usr/local/bin
+oc version
+```
+* Install `wget` command:
+  * MacOS:
+  ```bash
+  brew install wget
+  ```
+  * RHEL:
+  ```bash
+  yum install wget
+  ```
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
 * Before deploying the infrastructure make sure you have `python3` installed in your local machine.
@@ -30,11 +49,13 @@ The deployment sets up the following as shown in the diagram.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
 * [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
-* Since the infrastructure to be build is described by terraform files which are specific to that infrasturcture, it is recommented to copy the cloned repository to a separate folder.
-   Name the new folder differently in case you plan to build multiple infrastructures.
+* Clone this repository:
+```bash
+git clone <repo_url>
+```
 * Change the current directory to aws_infra:
 ```
-cd cp4d-deployment-<your infrastructure name>/selfmanaged-openshift/aws/aws_infra
+cd cp4d-deployment/<your infrastructure name>/selfmanaged-openshift/aws/
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 * Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
@@ -54,7 +75,7 @@ cat osaws_var.tfvars
 access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
 secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
 ```
-* Deploy scripts by executing the following command from the `cp4d-deployment-master/aws/aws_infra` directory:
+* Deploy scripts by executing the following command from the `cp4d-deployment/aws/` directory:
 ```bash
 terraform init
 terraform apply -var-file="Path To osaws_var.tfvars file | tee terraform.log"
