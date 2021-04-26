@@ -91,7 +91,7 @@ After openshift cluster installation is finished and cloud pak for data installa
   ```
 * When cluster creation fails for some reason and only bootnode is created, execute following commands to delete the created resources:
   ```bash
-  terraform state rm null_resource.destroy_cluster
+  cd installer-files && ./openshift destroy cluster
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
 ### Note:
