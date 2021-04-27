@@ -41,6 +41,12 @@ terraform apply
 
 Note: Terraform version `0.15.0` or later are supported.
 
+### Scale Up the cluster
+* Select your ROSA cluster from the link in Openshift Cluster Manager. [here](https://cloud.redhat.com/openshift/?plan_id=ROSA)
+* `Machine Pools` tab → Choose options of the machine pool (3 dots on the right side) → `Scale`
+* Increase the edit Node count to scale up your cluster. (Note: It will take some time to scale up. You can check the status using `oc project openshift-machine-api` → `oc get machineset` → number of Ready/Available machine sets should be equal to Desired machine sets)
+
+
 ### Pricing Information for ROSA
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
 1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
