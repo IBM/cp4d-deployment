@@ -160,6 +160,11 @@ variable "existing_openshift_password" {
   type = string
   default = ""
 }
+
+variable "existing_openshift_token" {
+  type = string
+  default = ""
+}
 ##################################
 
 ##################################
