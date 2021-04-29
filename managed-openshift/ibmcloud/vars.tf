@@ -199,7 +199,7 @@ variable "entitlement" {
 }
 
 variable "kube_version" {
-  default = "4.5_openshift"
+  default = "4.6_openshift"
 }
 
 variable "worker_node_flavor" {
