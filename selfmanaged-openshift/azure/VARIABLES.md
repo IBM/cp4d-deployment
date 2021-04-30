@@ -59,7 +59,7 @@
 | `streams-flows` | no | Install the Streams Flow Add-on  |
 | `datastage` | no | Install the datastage Add-on |
 | `db2-warehouse` | no | Install the DB2Warehouse Add-on  |
-| `db2_oltp` | no | Install the db2 advanced edition Add-on |
+| `db2-advanced-edition` | no | Install the db2 advanced edition Add-on |
 | `data-management-console` | no | Install the data management console Add-on  |
 | `decision-optimization` | no | Install the Decision Optimization Add-on  |
 | `cognos-analytics` | no | Install the Cognos Analytics Add-on  |

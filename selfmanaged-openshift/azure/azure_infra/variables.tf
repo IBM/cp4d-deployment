@@ -265,7 +265,7 @@ variable "db2-warehouse" {
   default = "no"
 }
 
-variable "db2_oltp" {
+variable "db2-advanced-edition" {
   default = "no"
 }
 
@@ -285,11 +285,11 @@ variable "cognos-analytics" {
   default = "no"
 }
 
-variable "spss"{
+variable "spss-modeler"{
   default = "no"
 }
 
-variable "bigsql"{
+variable "db2-bigsql"{
   default = "no"
 }
 
