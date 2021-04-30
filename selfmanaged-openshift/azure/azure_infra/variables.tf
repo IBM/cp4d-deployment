@@ -261,7 +261,7 @@ variable "datastage" {
   default = "no"
 }
 
-variable "db2_warehouse" {
+variable "db2-warehouse" {
   default = "no"
 }
 

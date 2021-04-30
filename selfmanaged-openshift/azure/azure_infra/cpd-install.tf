@@ -427,7 +427,7 @@ resource "null_resource" "install_ds" {
 }
 
 resource "null_resource" "install_db2wh" {
-    count = var.db2_warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
+    count = var.db2-warehouse == "yes" && var.accept-cpd-license == "accept" ? 1 : 0
     triggers = {
         bootnode_ip_address = local.bootnode_ip_address
         username = var.admin-username
