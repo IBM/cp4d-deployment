@@ -19,6 +19,10 @@ variable "resource-group" {
   default = "mycpd-rg"
 }
 
+variable "existing-resource-group" {
+  default = "no"
+}
+
 variable "cluster-name" {
   default = "myocp-cluster"
 }
@@ -206,7 +210,7 @@ variable "cpd-external-username" {
   default = ""
 }
 variable "ocp_version" {
-  default = "4.5.18"
+  default = "4.6.26"
 }
 
 variable "cpd-version" {
@@ -214,7 +218,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.1"
+  default = "v3.7.0"
 }
 
 variable "apikey" {
