@@ -61,7 +61,6 @@ As part of the deployment, any of the following services can be installed. For m
 * Watson OpenScale
 * Cognos Dashboard Engine
 * Streams
-* Streams Flows
 * DataStage
 * Db2 Data Management Console
 * Db2 Warehouse
