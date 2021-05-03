@@ -6,6 +6,7 @@
 | `azure-tenant-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `tenant` in the json after the `az ad sp create-for-rbac` command goes here.  |
 | `region` | eastus | Choose a region that supports availability zones. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region) |
 | `resource-group` | mycpd-rg | Resource Group to contain deployment related resources. |
+| `existing-resource-group` | no | yes or no. if deployment Resource Group is already present. |
 | `cluster-name` | mycpd-cluster | All resources created by the Openshift Installer will have this name as prefix |
 | `dnszone-resource-group` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the resource group created. |
 | `dnszone` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the dnszone name here |
