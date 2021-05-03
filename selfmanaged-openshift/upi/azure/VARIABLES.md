@@ -39,7 +39,9 @@
 | `private-or-public-cluster` | public | Public or Private. Set publish to Private to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_azure/installing-azure-private.html#private-clusters-default_installing-azure-private) for more details. |
 | `storage` | nfs | nfs or portworx. Storage option to use. For Watson Assistant and Watson Discovery, selecting 'nfs' will install the service on azure-disk storageclass. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
-| `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. | 
+| `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
+| `portworx-encryption` | no | Set this variable to `yes` if you want to encrypt the volumes using a secret key. For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
+| `portworx-encryption-key` | Required if `portworx-encryption` is set to 'yes' | Please provide the encryption key that will be used as cluster-wide-secret key for the portworx cluster . For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
 | `disconnected-cluster` | no | For creating a disconnected cluster, select yes otherwise no, default if no. |
 | `certificate-file-path` | Requires Input | (For disconnected istallation) Path to the domain.crt file which is used while setting up the mirror-registry |
 | `local-registry-username` | Requires Input | (For disconnected istallation) Username that you provided for creating the mirror registry. |

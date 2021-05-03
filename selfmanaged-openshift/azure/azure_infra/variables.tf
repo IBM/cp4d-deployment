@@ -151,6 +151,14 @@ variable "portworx-spec-url" {
   default = ""
 }
 
+variable "portworx-encryption" {
+  default = "no"
+}
+
+variable "portworx-encryption-key" {
+  default = ""
+}
+
 variable "storage-disk-size" {
   default = 1024
 }

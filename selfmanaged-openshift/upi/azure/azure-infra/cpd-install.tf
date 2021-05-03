@@ -56,6 +56,8 @@ resource "null_resource" "cpd_config" {
     null_resource.openshift_post_install,
     null_resource.install_portworx,
     null_resource.install_portworx_disconnected,
+    null_resource.setup_sc_with_pwx_encryption,
+    null_resource.setup_sc_without_pwx_encryption,
     null_resource.install_nfs_client,
   ]
 }
