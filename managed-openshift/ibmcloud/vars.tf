@@ -213,5 +213,5 @@ variable "worker_nodes_per_zone" {
 
 variable "no_of_zones" {
   description = "Number of Zones for the ROKS cluster"
-  default = "2"
+  default = "3"
 }

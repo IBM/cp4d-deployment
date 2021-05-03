@@ -29,4 +29,4 @@
 |`kube_version`                     | `4.5_openshift`                                          |
 |`worker_node_flavor`               | `bx2.16x64`                                              |
 |`worker_nodes_per_zone`            | `3`                                                      | Number of initial worker nodes per zone for the ROKS cluster. Select at least 3 for single zone and 2 for multizone clusters.
-|`no_of_zones`            | `2`                                                      | Number of zones for the ROKS cluster. The deployment might fail, if this variable is not set correctly.
+|`no_of_zones`            | `3`                                                      | Number of zones for the ROKS cluster. The deployment might fail, if this variable is not set correctly.
