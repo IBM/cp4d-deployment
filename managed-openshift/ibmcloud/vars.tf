@@ -60,7 +60,6 @@ variable "install_services" {
     aiopenscale        = false, # Watson OpenScale
     cde                = false, # Cognos Dashboard Engine
     streams            = false, # Streams
-    streams-flows      = false, # Streams Flows
     ds                 = false, # DataStage
     dmc                = false, # Db2 Data Management Console
     db2wh              = false, # Db2 Warehouse
@@ -74,7 +73,10 @@ variable "install_services" {
     hadoop-addon       = false, # Hadoop Execution Addon
     # mongodb            = false, # MongoDB Enterprise
     runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
-    # runtime-addon-r36  = false, # Jupyter R 3.6 Runtime Addon
+    watson-assistant   = false, # Watson Assistant
+    # watson-discovery   = false, # Watson Discovery
+    # watson-knowledge-studio = false, # Watson Knowledge Studio
+    # watson-speech = false, # Watson Speech
   }
 }
 
@@ -197,15 +199,19 @@ variable "entitlement" {
 }
 
 variable "kube_version" {
-  default = "4.5_openshift"
+  default = "4.6_openshift"
 }
 
 variable "worker_node_flavor" {
   default = "bx2.16x64"
 }
 
-
 variable "worker_nodes_per_zone" {
   description = "Number of initial worker nodes per zone for the ROKS cluster. Select at least 3 for single zone and 2 for multizone clusters."
+  default = "3"
+}
+
+variable "no_of_zones" {
+  description = "Number of Zones for the ROKS cluster"
   default = "3"
 }

@@ -11,6 +11,7 @@ cpd_registry_password = "<entitled registry password>" # retrieve from https://m
 
 # multizone = <true|false>
 # worker_nodes_per_zone = "3"
+# no_of_zones = "3"
 
 # existing_vpc_id = ""
 # existing_vpc_subnets = ["xyz"]
@@ -27,7 +28,6 @@ install_services = {
   aiopenscale        = false, # Watson OpenScale
   cde                = false, # Cognos Dashboard Engine
   streams            = false, # Streams
-  streams-flows      = false, # Streams Flows
   ds                 = false, # DataStage
   dmc                = false, # Db2 Data Management Console
   db2wh              = false, # Db2 Warehouse
@@ -40,4 +40,8 @@ install_services = {
   rstudio            = false, # Watson Studio Local RStudio
   hadoop-addon       = false, # Hadoop Execution Addon
   runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
+  watson-assistant   = false, # Watson Assistant
+  # watson-discovery   = false, # Watson Discovery
+  # watson-knowledge-studio = false, # Watson Knowledge Studio
+  # watson-speech = false, # Watson Speech
 }
