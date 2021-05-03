@@ -17,7 +17,7 @@ RUN wget --no-verbose https://releases.hashicorp.com/terraform/0.12.29/terraform
  && echo 'alias tf=terraform' >> $HOME/.profile
 
 # cloudctl
-RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.6.1-2002/cloudctl-linux-amd64.tar.gz \
+RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.0/cloudctl-linux-amd64.tar.gz \
  && tar -xzf cloudctl-linux-amd64.tar.gz \
  && mv cloudctl-linux-amd64 /usr/bin/cloudctl
 
@@ -28,7 +28,7 @@ RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releas
  && mv terraform-provider-ibm_v1.20.1 $HOME/.terraform.d/plugins/
 
 # oc and kubectl
-RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.6/openshift-client-linux.tar.gz \
  && tar -xzf openshift-client-linux.tar.gz \
  && mv oc /usr/bin/ \
  && mv kubectl /usr/bin/
