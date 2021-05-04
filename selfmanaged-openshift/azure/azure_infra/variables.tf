@@ -226,7 +226,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.7.0"
 }
 
 variable "apikey" {
