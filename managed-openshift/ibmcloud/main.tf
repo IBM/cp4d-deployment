@@ -32,6 +32,7 @@ module "vpc" {
   subnet_ip_range_cidr      = var.subnet_ip_range_cidr
   unique_id                 = var.unique_id
   zone_address_prefix_cidr  = var.zone_address_prefix_cidr
+  no_of_zones                 = var.no_of_zones
 }
 
 module "roks" {
@@ -65,7 +66,7 @@ module "portworx" {
   storage_iops         = var.storage_iops
   storage_profile      = var.storage_profile
   unique_id            = var.unique_id
-  worker_nodes         = var.multizone ? 3*var.worker_nodes_per_zone : var.worker_nodes_per_zone
+  worker_nodes         = var.multizone ? var.no_of_zones*var.worker_nodes_per_zone : var.worker_nodes_per_zone
 }
 
 module "cpd_install" {

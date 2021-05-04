@@ -17,3 +17,5 @@ variable "subnet_ip_range_cidr" {}
 variable "unique_id" {}
 
 variable "zone_address_prefix_cidr" {}
+
+variable "no_of_zones" {}

@@ -26,6 +26,7 @@
 |`existing_roks_cluster`            | `null`                                                   | ID or name of an existing OpenShift on IBM Cloud (VPC Gen 2) cluster, should you wish to install in an existing cluster.
 |`disable_public_service_endpoint`  | `false`                                                  | Disable the ROKS public service endpoint? [true/false]. Currently not supported.
 |`entitlement`                      | `cloud_pak`                                              | Set this argument to 'cloud_pak' only if you use the cluster with a Cloud Pak that has an OpenShift entitlement.
-|`kube_version`                     | `4.5_openshift`                                          |
+|`kube_version`                     | `4.6_openshift`                                          |
 |`worker_node_flavor`               | `bx2.16x64`                                              |
 |`worker_nodes_per_zone`            | `3`                                                      | Number of initial worker nodes per zone for the ROKS cluster. Select at least 3 for single zone and 2 for multizone clusters.
+|`no_of_zones`            | `3`                                                      | Number of zones for the ROKS cluster. The deployment might fail, if this variable is not set correctly.

@@ -28,7 +28,7 @@ RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releas
  && mv terraform-provider-ibm_v1.20.1 $HOME/.terraform.d/plugins/
 
 # oc and kubectl
-RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.6/openshift-client-linux.tar.gz \
  && tar -xzf openshift-client-linux.tar.gz \
  && mv oc /usr/bin/ \
  && mv kubectl /usr/bin/

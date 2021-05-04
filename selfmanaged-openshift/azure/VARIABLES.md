@@ -1,14 +1,15 @@
 | Variables             | Default       | Description          |
 | --------------------- | :-----------: | -------------------- |
-| `azure-subscription-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `id` in the json after the `az login` command goes here. |
-| `azure-client-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `appId` in the json after the `az ad sp create-for-rbac` command goes here. |
-| `azure-client-secret` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `password` in the json after the `az ad sp create-for-rbac` command goes here. |
-| `azure-tenant-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy). The `tenant` in the json after the `az ad sp create-for-rbac` command goes here.  |
+| `azure-subscription-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy). The `id` in the json after the `az login` command goes here. |
+| `azure-client-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy). The `appId` in the json after the `az ad sp create-for-rbac` command goes here. |
+| `azure-client-secret` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy). The `password` in the json after the `az ad sp create-for-rbac` command goes here. |
+| `azure-tenant-id` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy). The `tenant` in the json after the `az ad sp create-for-rbac` command goes here.  |
 | `region` | eastus | Choose a region that supports availability zones. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region) |
 | `resource-group` | mycpd-rg | Resource Group to contain deployment related resources. |
+| `existing-resource-group` | no | yes or no. if deployment Resource Group is already present. |
 | `cluster-name` | mycpd-cluster | All resources created by the Openshift Installer will have this name as prefix |
-| `dnszone-resource-group` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the resource group created. |
-| `dnszone` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) to create an App Service Domain. Enter the dnszone name here |
+| `dnszone-resource-group` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) to create an App Service Domain. Enter the resource group created. |
+| `dnszone` | - | Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) to create an App Service Domain. Enter the dnszone name here |
 | `new-or-existing` | new | Deploy cluster into new or existing network. NOTE: If using existing, you must deploy the cluster into the same region as the network |
 | `existing-vnet-resource-group` | vnet-rg | If existing network is to be used, enter it's resource group here |
 | `virtual-network-name` | ocpfourx-vnet | Name of new or existing virtual network |
@@ -46,10 +47,10 @@
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `cpd-external-registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
 | `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
-| `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/azure#steps-to-deploy) |
-| `ocp_version` | latest | Openshift Container Platform version to install. Currently, latest 4.6 |
+| `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) |
+| `ocp_version` | latest | Openshift Container Platform version to install. Currently, 4.6.13 |
 | `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.6.1 | cloudctl version to use |
+| `cloudctl_version` | v3.6.0 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
@@ -60,8 +61,8 @@
 | `streams` | no | Install the Streams Add-on |
 | `streams-flows` | no | Install the Streams Flow Add-on  |
 | `datastage` | no | Install the datastage Add-on |
-| `db2_warehouse` | no | Install the DB2Warehouse Add-on  |
-| `db2_oltp` | no | Install the db2 advanced edition Add-on |
+| `db2-warehouse` | no | Install the DB2Warehouse Add-on  |
+| `db2-advanced-edition` | no | Install the db2 advanced edition Add-on |
 | `data-management-console` | no | Install the data management console Add-on  |
 | `decision-optimization` | no | Install the Decision Optimization Add-on  |
 | `cognos-analytics` | no | Install the Cognos Analytics Add-on  |
