@@ -1,4 +1,4 @@
-# Cloud Pak for Data 3.5 on OCP 4.5 on Azure
+# Cloud Pak for Data 3.5 on OCP 4.6 on Azure
 
 ## Deployment Topology
 

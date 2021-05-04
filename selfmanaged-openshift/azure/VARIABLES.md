@@ -48,9 +48,9 @@
 | `cpd-external-registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
 | `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) |
-| `ocp_version` | latest | Openshift Container Platform version to install. Currently, latest 4.6 |
+| `ocp_version` | latest | Openshift Container Platform version to install. Currently, 4.6.13 |
 | `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.6.1 | cloudctl version to use |
+| `cloudctl_version` | v3.6.0 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
