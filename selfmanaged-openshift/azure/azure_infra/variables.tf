@@ -164,34 +164,34 @@ variable "storage-disk-size" {
 }
 
 variable "cp-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
 # StorageClass Streams
 variable "streams-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-shared-gp-allow"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-shared-gp-allow"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
 # StorageClass BigSQL
 variable "bigsql-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-dv-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-dv-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
@@ -206,12 +206,12 @@ variable "cpd-namespace" {
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 
 variable "cpd-external-username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 variable "ocp_version" {
   default = "4.5.18"
@@ -293,15 +293,15 @@ variable "cognos-analytics" {
   default = "no"
 }
 
-variable "spss"{
+variable "spss" {
   default = "no"
 }
 
-variable "bigsql"{
+variable "bigsql" {
   default = "no"
 }
 
-variable "planning-analytics"{
+variable "planning-analytics" {
   default = "no"
 }
 
@@ -315,5 +315,5 @@ variable "planning-analytics"{
 
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
-  default = "reject"
+  default     = "reject"
 }
