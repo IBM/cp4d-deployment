@@ -17,7 +17,7 @@ RUN wget --no-verbose https://releases.hashicorp.com/terraform/0.12.29/terraform
  && echo 'alias tf=terraform' >> $HOME/.profile
 
 # cloudctl
-RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.1/cloudctl-linux-amd64.tar.gz \
+RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.6.1-2002/cloudctl-linux-amd64.tar.gz \
  && tar -xzf cloudctl-linux-amd64.tar.gz \
  && mv cloudctl-linux-amd64 /usr/bin/cloudctl
 

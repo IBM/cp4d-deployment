@@ -210,7 +210,7 @@ variable "cpd-external-username" {
   default = ""
 }
 variable "ocp_version" {
-  default = "4.6.26"
+  default = "4.6.13"
 }
 
 variable "cpd-version" {
@@ -218,7 +218,7 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.7.0"
+  default = "v3.6.0"
 }
 
 variable "apikey" {

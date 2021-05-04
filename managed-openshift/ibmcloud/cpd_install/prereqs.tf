@@ -65,7 +65,7 @@ resource "null_resource" "annotate_registry_route" {
 resource "null_resource" "retrieve_ibm_cp_datacore" {
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "rm -rf ibm-cp-datacore* && wget --no-verbose https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.8/ibm-cp-datacore-1.3.8.tgz && tar -xf ibm-cp-datacore-*.tgz"
+    command = "rm -rf ibm-cp-datacore* && wget --no-verbose https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-cp-datacore/1.3.3/ibm-cp-datacore-1.3.3.tgz && tar -xf ibm-cp-datacore-*.tgz"
   }
   provisioner "local-exec" {
     when = destroy
