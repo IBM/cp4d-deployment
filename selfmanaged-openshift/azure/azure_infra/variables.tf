@@ -155,39 +155,47 @@ variable "portworx-spec-url" {
   default = ""
 }
 
+variable "portworx-encryption" {
+  default = "no"
+}
+
+variable "portworx-encryption-key" {
+  default = ""
+}
+
 variable "storage-disk-size" {
   default = 1024
 }
 
 variable "cp-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
 # StorageClass Streams
 variable "streams-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-shared-gp-allow"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-shared-gp-allow"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
 # StorageClass BigSQL
 variable "bigsql-storageclass" {
-  type        = map
+  type = map
 
-  default     = {
-    "portworx"   = "portworx-dv-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "nfs"        = "nfs"
+  default = {
+    "portworx" = "portworx-dv-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
@@ -202,15 +210,15 @@ variable "cpd-namespace" {
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 
 variable "cpd-external-username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 variable "ocp_version" {
-  default = "4.6.26"
+  default = "4.6.13"
 }
 
 variable "cpd-version" {
@@ -297,7 +305,7 @@ variable "db2-bigsql"{
   default = "no"
 }
 
-variable "planning-analytics"{
+variable "planning-analytics" {
   default = "no"
 }
 
@@ -311,5 +319,5 @@ variable "planning-analytics"{
 
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
-  default = "reject"
+  default     = "reject"
 }

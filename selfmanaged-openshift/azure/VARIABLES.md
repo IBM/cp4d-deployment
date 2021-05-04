@@ -40,15 +40,17 @@
 | `privateBootnode` | no | yes or no. If set to yes, bootnode  will be deployed within the vnet and won't have public IP |
 | `storage` | portworx | ocs or nfs or portworx. Storage option to use. |
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
+| `portworx-encryption` | no | Set this variable to `yes` if you want to encrypt the volumes using a secret key. For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
+| `portworx-encryption-key` | Required if `portworx-encryption` is set to 'yes' | Please provide the encryption key that will be used as cluster-wide-secret key for the portworx cluster . For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `cpd-external-registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
 | `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) |
-| `ocp_version` | latest | Openshift Container Platform version to install. Currently, latest 4.6 |
+| `ocp_version` | latest | Openshift Container Platform version to install. Currently, 4.6.13 |
 | `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.6.1 | cloudctl version to use |
+| `cloudctl_version` | v3.7.0 | cloudctl version to use |
 | `data-virtualization` | no | Install Data Virtualization Add-On |
 | `watson-studio-library` | no | Install Watson Studio Library Add-On |
 | `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |

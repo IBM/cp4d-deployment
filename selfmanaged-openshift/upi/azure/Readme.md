@@ -23,8 +23,7 @@ The template sets up the following:
     - OpenShift Container Platform master instances.
     - OpenShift compute nodes with machine auto-scaling features.
 * An Azure Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser.
-<!-- * Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or on an exclusive node for NFS. -->
-* Storage disks with Azure Managed Disk mounted on an exclusive node for NFS.
+* Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or on an exclusive node for NFS.
 * An Azure domain as your public Domain Name System (DNS) zone for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Requirements
@@ -95,7 +94,7 @@ Follow the below steps for installation using User Provisioned Infrastructure.
 
 2. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
 
-<!-- * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.  -->
+* If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
 
 * Read and agree to the [license terms](https://ibm.biz/Bdq6KP).
 * The ARM templates can be found [here](https://github.ibm.com/IIG/cpd_terraform/tree/master/UPI/azure/openshift_module) which can be customized as per the requirement.
