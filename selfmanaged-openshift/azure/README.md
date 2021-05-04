@@ -9,7 +9,7 @@ Deploying this template builds the following Cloud Pak for Data cluster in singl
 The template sets up the following:
 - A highly available architecture that spans up to three Availability Zones.
 - A Virtual network configured with public and private subnets.
--  In a public subnet, a bastion host to allow inbound Secure Shell (SSH) access to compute instances in private subnets.
+- In a public subnet, a bastion host to allow inbound Secure Shell (SSH) access to compute instances in private subnets.
 -	In the private subnets:
     * OpenShift Container Platform master instances.
     * OpenShift compute nodes with machine auto scaling features.

@@ -40,6 +40,8 @@
 | `privateBootnode` | no | yes or no. If set to yes, bootnode  will be deployed within the vnet and won't have public IP |
 | `storage` | portworx | ocs or nfs or portworx. Storage option to use. |
 | `portworx-spec-url` | - | Generate a specification file the [portworx-central](https://central.portworx.com/dashboard). See PORTWORX.md. |
+| `portworx-encryption` | no | Set this variable to `yes` if you want to encrypt the volumes using a secret key. For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
+| `portworx-encryption-key` | Required if `portworx-encryption` is set to 'yes' | Please provide the encryption key that will be used as cluster-wide-secret key for the portworx cluster . For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `enableNFSBackup` | no | backup NFS Vm data |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |

@@ -171,16 +171,13 @@ resource "null_resource" "install_portworx" {
     provisioner "remote-exec" {
         inline = [
             "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
-            "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
             "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
             "sleep 60",
             "echo $result",
             "result=$(oc apply -f \"${var.portworx-spec-url}\")",
             "echo $result",
             "echo 'Sleeping for 5 mins to get portworx storage cluster up' ",
-            "sleep 5m",
-            "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
-            "echo $result"
+            "sleep 5m"
         ]
     }
     depends_on = [
@@ -189,6 +186,68 @@ resource "null_resource" "install_portworx" {
     ]
 }
 
+resource "null_resource" "setup_sc_with_pwx_encryption" {
+  count = var.storage == "portworx" && var.portworx-encryption == "yes" && var.portworx-encryption-key != "" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = azurerm_public_ip.bootnode.ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      # Creating a cluster wide secret key and using it for portworx encryption
+      "result=$(oc -n kube-system create secret generic px-vol-encryption --from-literal=cluster-wide-secret-key=${var.portworx-encryption-key})",
+      "echo $result",
+      "PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')",
+      "echo $PX_POD",
+      "result=$(oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets set-cluster-key --secret cluster-wide-secret-key)",
+      "echo $result",
+      # Create storageclasse with secure flag as true. 
+      "cat > ${local.ocptemplates}/px-storageclasses-secure.yaml <<EOL\n${data.template_file.px-storageclasses-secure.rendered}\nEOL",
+      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses-secure.yaml)",
+      "echo $result"
+    ]
+  }
+  depends_on = [
+    null_resource.install_openshift,
+    null_resource.openshift_post_install,
+    null_resource.install_portworx
+  ]
+}
+
+
+resource "null_resource" "setup_sc_without_pwx_encryption" {
+  count = var.storage == "portworx" && var.portworx-encryption == "no" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = azurerm_public_ip.bootnode.ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
+      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
+      "echo $result"
+    ]
+  }
+  depends_on = [
+    null_resource.install_openshift,
+    null_resource.openshift_post_install,
+    null_resource.install_portworx
+  ]
+}
 resource "null_resource" "install_ocs" {
     count    = var.storage == "ocs" ? 1 : 0
     triggers = {
