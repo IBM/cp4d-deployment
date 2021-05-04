@@ -1,7 +1,7 @@
 locals {
-    resource-group = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
-    bootnode_ip_address = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].private_ip_address : azurerm_public_ip.bootnode[0].ip_address
-    network_interface_id = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].id : azurerm_network_interface.bootnode-pub[0].id
+  resource-group       = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
+  bootnode_ip_address  = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].private_ip_address : azurerm_public_ip.bootnode[0].ip_address
+  network_interface_id = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].id : azurerm_network_interface.bootnode-pub[0].id
 }
 
 resource "null_resource" "az_validation_check" {
@@ -138,20 +138,20 @@ resource "azurerm_network_security_group" "bootnode" {
     location            = var.region
     resource_group_name = var.resource-group
 
-    security_rule {
-        name                       = "allSSHin"
-        priority                   = 100
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "22"
-        source_address_prefix      = var.bootnode-source-cidr
-        destination_address_prefix = var.bootnode-subnet-cidr
-    }
-    depends_on = [
-        azurerm_resource_group.cpdrg,
-    ]
+  security_rule {
+    name                       = "allSSHin"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = var.bootnode-source-cidr
+    destination_address_prefix = var.bootnode-subnet-cidr
+  }
+  depends_on = [
+    azurerm_resource_group.cpdrg,
+  ]
 }
 
 resource "azurerm_network_security_group" "master" {
@@ -160,32 +160,33 @@ resource "azurerm_network_security_group" "master" {
     location            = var.region
     resource_group_name = var.resource-group
 
-    security_rule {
-        name                       = "apiServer"
-        priority                   = 100
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "6443"
-        source_address_prefix      = "*"
-        destination_address_prefix = "*"
-    }
-    security_rule {
-        name                       = "ssh"
-        priority                   = 101
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "22"
-        source_address_prefix      = var.bootnode-subnet-cidr
-        destination_address_prefix = var.master-subnet-cidr
-    }
-    depends_on = [
-        azurerm_resource_group.cpdrg,
-        azurerm_virtual_network.cpdvirtualnetwork
-    ]
+
+  security_rule {
+    name                       = "apiServer"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "6443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "ssh"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = var.bootnode-subnet-cidr
+    destination_address_prefix = var.master-subnet-cidr
+  }
+  depends_on = [
+    azurerm_resource_group.cpdrg,
+    azurerm_virtual_network.cpdvirtualnetwork
+  ]
 }
 
 resource "azurerm_network_security_group" "worker" {
@@ -194,10 +195,10 @@ resource "azurerm_network_security_group" "worker" {
     location            = var.region
     resource_group_name = var.resource-group
 
-    depends_on = [
-        azurerm_resource_group.cpdrg,
-        azurerm_virtual_network.cpdvirtualnetwork
-    ]
+  depends_on = [
+    azurerm_resource_group.cpdrg,
+    azurerm_virtual_network.cpdvirtualnetwork
+  ]
 }
 
 resource "azurerm_network_security_rule" "nfsin" {
