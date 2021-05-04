@@ -24,9 +24,12 @@ Enter value for `Size(GB)` as `500` and then press Next.
 * Use this spec file for setting up portworx. 
 * To enable encryption please update the variables `porworx-encryption` with value `yes` and  `portworx-encryption-key` with the desired key value.
 * Also the required storage classes are created with `secure` flag as `true`. 
-* After the terraform scrips is completed the portworx encryption can be verified as below. 
 
-* In your Storage Class manifest file, specify `secure: "true"` under the parameters:
+### Verify Portworx Encryption is Enabled:
+
+* After the terraform script is completed the portworx encryption can be verified as below. 
+
+* In the below Storage Class manifest file, specify `secure: "true"` under the parameters:
 
 
 ```bash 
