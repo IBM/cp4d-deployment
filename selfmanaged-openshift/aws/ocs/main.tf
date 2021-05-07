@@ -41,7 +41,7 @@ echo "Sleeping for 5mins"
 sleep 300
 EOF
   }
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when    = destroy
     command = <<EOF
 echo "Logging in.."
@@ -53,7 +53,7 @@ oc delete -f ${self.triggers.installer_workspace}/ocs_storagecluster.yaml
 echo "Delete Operator Group and Subscription."
 oc delete -f ${self.triggers.installer_workspace}/ocs_olm.yaml
 EOF
-  }
+  } */
   depends_on = [
     local_file.ocs_olm_yaml,
     local_file.ocs_storagecluster_yaml,

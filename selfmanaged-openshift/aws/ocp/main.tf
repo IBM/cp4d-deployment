@@ -32,13 +32,12 @@ rm -f ${self.triggers.installer_workspace}/*.tar.gz ${self.triggers.installer_wo
 EOF
   }
 
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-#rm -rf ${self.triggers.installer_workspace}
+rm -rf ${self.triggers.installer_workspace}
 EOF
-  }
-
+  } */
 }
 
 resource "null_resource" "install_openshift" {
@@ -79,14 +78,14 @@ sleep 60
 EOF
   }
 
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
-#rm -f /tmp/.htpasswd
-#oc delete secret htpass-secret -n openshift-config --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
-#oc delete -f ${self.triggers.installer_workspace}/htpasswd.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+rm -f /tmp/.htpasswd
+oc delete secret htpass-secret -n openshift-config --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc delete -f ${self.triggers.installer_workspace}/htpasswd.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 EOF
-  }
+  } */
   depends_on = [
     null_resource.download_binaries,
     null_resource.install_openshift,
@@ -105,16 +104,16 @@ resource "null_resource" "enable_autoscaler" {
 echo "Creating Cluster Autoscaler"
 oc create -f ${self.triggers.installer_workspace}/cluster_autoscaler.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 CLUSTERID=$(oc get machineset -n openshift-machine-api --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}')
-sed -i s/CLUSTERID/$CLUSTERID/g ${self.triggers.installer_workspace}/machine_autoscaler.yaml
+sed -i -e s/CLUSTERID/$CLUSTERID/g ${self.triggers.installer_workspace}/machine_autoscaler.yaml
 echo "Creating Machine Autoscaler"
 oc create -f ${self.triggers.installer_workspace}/machine_autoscaler.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 echo "Creating Machine Health Check"
-sed -i s/CLUSTERID/$CLUSTERID/g ${self.triggers.installer_workspace}/machine_health_check.yaml
+sed -i -e s/CLUSTERID/$CLUSTERID/g ${self.triggers.installer_workspace}/machine_health_check.yaml
 oc create -f ${self.triggers.installer_workspace}/machine_health_check.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 EOF
   }
 
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Deleting Machine Health Check"
@@ -124,7 +123,7 @@ oc delete -f ${self.triggers.installer_workspace}/machine_autoscaler.yaml --kube
 echo "Deleting Cluster Autoscaler"
 oc delete -f ${self.triggers.installer_workspace}/cluster_autoscaler.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 EOF
-  }
+  } */
   depends_on = [
     local_file.cluster_autoscaler_yaml,
     local_file.machine_autoscaler_yaml,

@@ -37,7 +37,7 @@ oc apply -f "${self.triggers.portworx_spec_url}"
 oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
 EOF
   }
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when    = destroy
     command = <<EOF
 echo "Logging in.."
@@ -50,7 +50,7 @@ echo "Delete Operator Group and Subscription."
 oc delete -f ${self.triggers.installer_workspace}/portworx_operator_group.yaml
 oc delete -f ${self.triggers.installer_workspace}/portworx_subscription.yaml
 EOF
-  }
+  } */
   depends_on = [
     local_file.portworx_subscription_yaml,
     local_file.portworx_operator_group_yaml,

@@ -107,7 +107,7 @@ if [ $OP_STATUS != 'Running' ] ; then echo "CPD Operator Installation Failed" ; 
 oc new-project ${self.triggers.cpd_namespace}
 EOF
   }
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when    = destroy
     command = <<EOF
 echo "Uninstall Operator"
@@ -119,7 +119,7 @@ EOF
   }
   depends_on = [
     null_resource.configure_cluster,
-  ]
+  ] */
 }
 
 resource "null_resource" "install_lite" {
@@ -148,14 +148,14 @@ EOF
     null_resource.configure_cluster,
     null_resource.install_operator,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice lite-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_dv" {
@@ -185,14 +185,14 @@ EOF
     null_resource.install_operator,
     null_resource.install_lite,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dv-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_spark" {
@@ -223,14 +223,14 @@ EOF
     null_resource.install_lite,
     null_resource.install_dv,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice spark-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_wkc" {
@@ -262,14 +262,14 @@ EOF
     null_resource.install_dv,
     null_resource.install_spark,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wkc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_wsl" {
@@ -302,14 +302,14 @@ EOF
     null_resource.install_spark,
     null_resource.install_wkc,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wsl-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_wml" {
@@ -343,14 +343,14 @@ EOF
     null_resource.install_wkc,
     null_resource.install_wsl,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice wml-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_aiopenscale" {
@@ -385,14 +385,14 @@ EOF
     null_resource.install_wsl,
     null_resource.install_wml,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice aiopenscale-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_cde" {
@@ -428,14 +428,14 @@ EOF
     null_resource.install_wml,
     null_resource.install_aiopenscale,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice cde-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_streams" {
@@ -472,14 +472,14 @@ EOF
     null_resource.install_aiopenscale,
     null_resource.install_cde,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice streams-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_streams_flows" {
@@ -517,14 +517,14 @@ EOF
     null_resource.install_cde,
     null_resource.install_streams,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice streams-flows-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_ds" {
@@ -562,14 +562,14 @@ EOF
     null_resource.install_cde,
     null_resource.install_streams_flows,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice ds-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_db2wh" {
@@ -609,14 +609,14 @@ EOF
     null_resource.install_streams_flows,
     null_resource.install_ds,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice db2wh-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_db2oltp" {
@@ -657,14 +657,14 @@ EOF
     null_resource.install_ds,
     null_resource.install_db2wh,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice db2oltp-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_dmc" {
@@ -706,14 +706,14 @@ EOF
     null_resource.install_db2wh,
     null_resource.install_db2oltp,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dmc-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_datagate" {
@@ -756,14 +756,14 @@ EOF
     null_resource.install_db2oltp,
     null_resource.install_dmc,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice datagate-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_dods" {
@@ -807,14 +807,14 @@ EOF
     null_resource.install_dmc,
     null_resource.install_datagate,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice dods-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_ca" {
@@ -859,14 +859,14 @@ EOF
     null_resource.install_datagate,
     null_resource.install_dods,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice ca-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_spss" {
@@ -911,14 +911,14 @@ EOF
     null_resource.install_datagate,
     null_resource.install_ca,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice spss-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_bigsql" {
@@ -965,14 +965,14 @@ EOF
     null_resource.install_ca,
     null_resource.install_spss,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice big-sql-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
 
 resource "null_resource" "install_pa" {
@@ -1020,12 +1020,12 @@ EOF
     null_resource.install_spss,
     null_resource.install_bigsql,
   ]
-  provisioner "local-exec" {
+  /* provisioner "local-exec" {
     when = destroy
     command = <<EOF
 echo "Logging in..."
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc delete cpdservice pa-cpdservice -n ${self.triggers.cpd_namespace}
 EOF
-  }
+  } */
 }
