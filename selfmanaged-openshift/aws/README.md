@@ -98,6 +98,7 @@ After openshift cluster installation is finished and cloud pak for data installa
   terraform destroy -var-file="Path To osaws_var.tfvars file"
   ```
 ### Note:
+* For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
 * Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
 see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
 [Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)
@@ -110,3 +111,5 @@ Steps:
   $ python3 ecr-upload.py
   Usage: python ecr-upload.py 'lite,wkc', <aws_repo_name>, <aws_region>, <aws_ecr_username>, <aws_ecr_password>
   ```
+  ### Changelog
+  * Removes the bastion node
