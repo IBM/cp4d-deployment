@@ -27,7 +27,7 @@ variable "region" {
 
 variable "px_encryption" {
   type = bool
-  default = false
+  default = true
   description = "Encrypt portworx volumes"
 }
 

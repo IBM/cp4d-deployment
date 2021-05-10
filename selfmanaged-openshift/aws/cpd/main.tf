@@ -116,10 +116,10 @@ echo "Delete Both Namespaces (meta-ops and cpd)"
 
 echo "#rm -rf ${self.triggers.cpd_workspace}"
 EOF
-  }
+  } */
   depends_on = [
     null_resource.configure_cluster,
-  ] */
+  ]
 }
 
 resource "null_resource" "install_lite" {
