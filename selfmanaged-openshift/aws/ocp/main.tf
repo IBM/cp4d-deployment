@@ -54,7 +54,7 @@ EOF
     when    = destroy
     command = <<EOF
 cd ${self.triggers.installer_workspace} && ./openshift-install destroy cluster --log-level=debug
-sleep 30
+sleep 5
 EOF
   }
   depends_on = [

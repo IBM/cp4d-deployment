@@ -1,3 +1,7 @@
+resource "aws_kms_key" "px_key" {
+  description = "Key used to encrypt Portworx PVCs"
+}
+
 resource "local_file" "portworx_subscription_yaml" {
   content  = data.template_file.portworx_subscription.rendered
   filename = "${var.installer_workspace}/portworx_subscription.yaml"
@@ -13,6 +17,11 @@ resource "local_file" "storage_classes_yaml" {
   filename = "${var.installer_workspace}/storage_classes.yaml"
 }
 
+resource "local_file" "portworx_storagecluster_yaml" {
+  content  = data.template_file.portworx_storagecluster.rendered
+  filename = "${var.installer_workspace}/portworx_storagecluster.yaml"
+}
+
 resource "null_resource" "install_portworx" {
   triggers = {
     openshift_api       = var.openshift_api
@@ -20,7 +29,6 @@ resource "null_resource" "install_portworx" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
-    portworx_spec_url   = var.portworx_spec_url
     region              = var.region
   }
   provisioner "local-exec" {
@@ -33,7 +41,13 @@ oc create -f ${self.triggers.installer_workspace}/portworx_operator_group.yaml
 oc create -f ${self.triggers.installer_workspace}/portworx_subscription.yaml
 echo "Sleeping for 5mins"
 sleep 300
-oc apply -f "${self.triggers.portworx_spec_url}"
+echo "Deploying StorageCluster"
+oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
+sleep 300
+echo "Enabling encryption"
+PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')
+oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets aws login
+echo "Create storage classes"
 oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
 EOF
   }
@@ -45,7 +59,7 @@ oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}'
 echo "Delete storage classes"
 oc delete -f ${self.triggers.installer_workspace}/storage_classes.yaml
 echo "Delete Storage Cluster"
-oc delete -f "${self.triggers.portworx_spec_url}"
+oc delete -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
 echo "Delete Operator Group and Subscription."
 oc delete -f ${self.triggers.installer_workspace}/portworx_operator_group.yaml
 oc delete -f ${self.triggers.installer_workspace}/portworx_subscription.yaml
@@ -54,6 +68,7 @@ EOF
   depends_on = [
     local_file.portworx_subscription_yaml,
     local_file.portworx_operator_group_yaml,
-    local_file.storage_classes_yaml
+    local_file.storage_classes_yaml,
+    local_file.portworx_storagecluster_yaml,
   ]
 }

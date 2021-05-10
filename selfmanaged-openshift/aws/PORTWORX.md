@@ -13,5 +13,7 @@ Enter value for `Size(GB)` as `1000` and then press Next.
 ![Alt text](images/openshift-version.png)
 * In the `Advanced Settings` tab select all three options and press Finish:
 ![Alt text](images/Advanced_settings.png)
-* Copy Spec URL:
+* Copy Spec URL and Paste in a browser:
 ![Alt text](images/spec-url.png)
+* Copy the Cluster ID highlighted in red. This will be the value for the `px_generated_cluster_id` variable.
+![Alt text](images/cluster-id.png)
