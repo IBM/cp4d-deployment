@@ -265,10 +265,6 @@ variable "openshift_password" {
   type = string
 }
 
-/* variable "portworx_spec_url" {
-  type = string
-} */
-
 variable "px_generated_cluster_id" {
   type = string
 }

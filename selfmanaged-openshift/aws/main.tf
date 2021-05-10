@@ -136,7 +136,6 @@ module "portworx" {
   openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
   openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = var.existing_openshift_token
-  portworx_spec_url   = var.portworx_spec_url
   installer_workspace = local.installer_workspace
   region              = var.region
   aws_access_key_id        = var.access_key_id
