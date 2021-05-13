@@ -24,16 +24,23 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd` and `aws` commands:
+* Install `wget`, `htpasswd`, `aws` and `podman` commands:
   * MacOS (comes with `htpasswd`):
   ```bash
   brew install wget
   pip install awscli --upgrade --user
   ```
+    * `podman` on MacOS could be tricky to setup, a workaround is to install docker and create a symbolic link to podman:
+      * Install docker [here](https://docs.docker.com/docker-for-mac/install/)
+      * Create symbolic link:
+      ```bash
+      ln -s /usr/local/bin/docker /usr/local/bin/podman 
+      ```
   * RHEL:
   ```bash
   yum install wget
   yum install httpd-tools
+  yum install podman
   pip install awscli --upgrade --user
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:

@@ -1,15 +1,97 @@
+data "template_file" "portworx_operator" {
+    template = <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portworx-operator
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: portworx-operator
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: portworx-operator
+subjects:
+  - kind: ServiceAccount
+    name: portworx-operator
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: portworx-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portworx-operator
+  namespace: kube-system
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      name: portworx-operator
+  template:
+    metadata:
+      labels:
+        name: portworx-operator
+    spec:
+      containers:
+      - name: portworx-operator
+        image: ${local.priv_image_registry}/px-operator:1.4.4
+        imagePullPolicy: IfNotPresent
+        command:
+        - /operator
+        - --verbose
+        - --driver=portworx
+        - --leader-elect=true
+        env:
+        - name: OPERATOR_NAME
+          value: portworx-operator
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "name"
+                    operator: In
+                    values:
+                    - portworx-operator
+              topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: portworx-operator
+EOF
+}
+
 data "template_file" "portworx_storagecluster" {
   template = <<EOF
 kind: StorageCluster
 apiVersion: core.libopenstorage.org/v1
 metadata:
-  name: ${var.px_generated_cluster_id}
-  namespace: ${var.px_namespace}
+  name: px-storage-cluster
+  namespace: kube-system
   annotations:
+    portworx.io/misc-args: "--oem ibm-icp4d"
     portworx.io/is-openshift: "true"
 spec:
-  image: portworx/oci-monitor:2.6.3
-  imagePullPolicy: Always
+  image: kube-system/oci-monitor:2.7.0
+  customImageRegistry: ${local.priv_image_registry}
+  imagePullPolicy: IfNotPresent
   kvdb:
     internal: true
   cloudStorage:
@@ -43,40 +125,6 @@ spec:
     value: "${aws_kms_key.px_key.key_id}"
   - name: "AWS_REGION"
     value: "${var.region}"
-EOF
-}
-
-data "template_file" "portworx_subscription" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  generation: 1
-  name: portworx-certified
-  namespace: kube-system
-spec:
-  channel: stable
-  installPlanApproval: Automatic
-  name: portworx-certified
-  source: certified-operators
-  sourceNamespace: openshift-marketplace
-  startingCSV:  portworx-operator.v1.4.2
-EOF
-}
-
-data "template_file" "portworx_operator_group" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: kube-system-operatorgroup
-  namespace: kube-system
-spec:
-  serviceAccount:
-    metadata:
-      creationTimestamp: null
-  targetNamespaces:
-  - kube-system
 EOF
 }
 

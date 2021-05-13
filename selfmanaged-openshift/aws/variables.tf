@@ -267,10 +267,12 @@ variable "openshift_password" {
 
 variable "px_generated_cluster_id" {
   type = string
+  description = "If you want to use the PX trial/Essentials, see PORTWORX.md on how to get this variable"
+  default = ""
 }
 
 variable "storage_option" {
-  description = "portworx / ocs / efs"
+  description = "portworx / ocs / efs / ibm-portworx"
   default     = "portworx"
 }
 
