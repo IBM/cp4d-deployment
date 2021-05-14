@@ -1,5 +1,4 @@
 locals {
-  classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
 }
 
@@ -29,22 +28,11 @@ resource "null_resource" "configure_cluster" {
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
-    vpc_id              = var.vpc_id
     installer_workspace = var.installer_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
-oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
-oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"managementState":"Unmanaged"}}'
-echo 'Sleeping for 3m'
-sleep 3m
-oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
-oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600
-echo 'Sleeping for 2m'
-sleep 2m
-bash cpd/scripts/update-elb-timeout.sh ${self.triggers.vpc_id} ${local.classic_lb_timeout}
 echo "Creating MachineConfig files"
 oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml

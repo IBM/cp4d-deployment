@@ -128,10 +128,6 @@ variable "datacore_version" {
   default = "1.3.3"
 }
 
-variable "vpc_id" {
-  type = string
-}
-
 variable "storage_option" {
   type = string
 }
@@ -143,5 +139,6 @@ variable "cpd_storageclass" {
     "portworx"   = "portworx-shared-gp3"
     "ocs"        = "ocs-storagecluster-cephfs"
     "efs"        = "aws-efs"
+    "ibm-portworx"   = "portworx-shared-gp3"
   }
 }

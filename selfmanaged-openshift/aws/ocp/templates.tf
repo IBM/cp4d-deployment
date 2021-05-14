@@ -240,3 +240,22 @@ resource "local_file" "machine_health_check_yaml" {
   content  = data.template_file.machine_health_check.rendered
   filename = "${local.installer_workspace}/machine_health_check.yaml"
 }
+
+data "template_file" "aws_nlb" {
+  template =<<EOF
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: default
+  namespace: openshift-ingress-operator
+spec:
+  endpointPublishingStrategy:
+    type: LoadBalancerService
+    loadBalancer:
+      scope: ${var.private_cluster ? "Internal" : "External"}
+      providerParameters:
+        type: AWS
+        aws:
+          type: NLB
+EOF
+}

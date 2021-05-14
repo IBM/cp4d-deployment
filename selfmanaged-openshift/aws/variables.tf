@@ -273,7 +273,7 @@ variable "px_generated_cluster_id" {
 
 variable "storage_option" {
   description = "portworx / ocs / efs / ibm-portworx"
-  default     = "portworx"
+  default     = "ibm-portworx"
 }
 
 variable "enable_autoscaler" {
@@ -315,7 +315,8 @@ variable "datacore_version" {
 }
 
 variable "openshift_version" {
-  default = "4.6.17"
+  description = "Version >= 4.6.27"
+  default = "4.7.5"
 }
 
 variable "data_virtualization" {

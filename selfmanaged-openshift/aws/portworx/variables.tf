@@ -33,6 +33,7 @@ variable "px_encryption" {
 
 variable "px_generated_cluster_id" {
   description = "Storage Cluster ID name generated from install.portworx.com. See PORTWORX.md for more info"
+  default = ""
 }
 
 variable "px_namespace" {

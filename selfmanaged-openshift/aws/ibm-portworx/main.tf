@@ -4,23 +4,23 @@ resource "aws_kms_key" "px_key" {
 
 resource "local_file" "storage_classes_yaml" {
   content  = data.template_file.storage_classes.rendered
-  filename = "${var.installer_workspace}/storage_classes.yaml"
+  filename = "${local.px_workspace}/storage_classes.yaml"
 }
 
 resource "local_file" "portworx_operator_yaml" {
   content  = data.template_file.portworx_operator.rendered
-  filename = "${var.installer_workspace}/portworx_operator.yaml"
+  filename = "${local.px_workspace}/portworx_operator.yaml"
 }
 
 resource "local_file" "portworx_storagecluster_yaml" {
   content  = data.template_file.portworx_storagecluster.rendered
-  filename = "${var.installer_workspace}/portworx_storagecluster.yaml"
+  filename = "${local.px_workspace}/portworx_storagecluster.yaml"
 }
 
 resource "null_resource" "download_and_extract_packages" {
   count = local.download_and_extract_packages ? 1 : 0
   triggers = {
-    installer_workspace = local.installer_workspace
+    installer_workspace = local.px_workspace
   }
   provisioner "local-exec" {
     when    = create
@@ -50,21 +50,22 @@ resource "null_resource" "push_ibm_px_images" {
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
+    installer_workspace = local.px_workspace
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-cd ibm-portworx/cpd-portworx/px-images
+cd ${self.triggers.installer_workspace}/cpd-portworx/px-images
 echo "cleaning up stale images"
-PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./podman-rm-local-images.sh
+sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./podman-rm-local-images.sh
 echo "Processing images"
-PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./process-px-images.sh -r $(oc registry info -n openshift-image-registry) -u $(oc whoami) -p $(oc whoami -t) -s kube-system -c podman -t ./px_*-dist.tgz
+sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./process-px-images.sh -r $(oc registry info -n openshift-image-registry) -u $(oc whoami) -p $(oc whoami -t) -s kube-system -c podman -t ./px_*-dist.tgz
 EOF
-    depends_on = [
-        null_resource.download_and_extract_packages
-    ]
   }
+  depends_on = [
+    null_resource.download_and_extract_packages
+  ]
 }
 
 resource "null_resource" "install_ibm_portworx" {
@@ -73,7 +74,7 @@ resource "null_resource" "install_ibm_portworx" {
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
-    installer_workspace = var.installer_workspace
+    installer_workspace = local.px_workspace
     region              = var.region
   }
   provisioner "local-exec" {
@@ -83,12 +84,12 @@ oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}'
 chmod +x portworx/scripts/portworx-prereq.sh
 bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
 oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
-echo "Sleeping for 5mins"
-sleep 300
+echo "Sleeping for 3mins"
+sleep 180
 echo "Deploying StorageCluster"
 oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
+echo "Sleeping for 5mins"
 sleep 300
-echo "Enabling encryption"
 PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')
 oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets aws login
 echo "Create storage classes"
@@ -108,5 +109,6 @@ EOF
 locals {
   px_cluster_id = "px-storage-cluster"
   priv_image_registry = "image-registry.openshift-image-registry.svc:5000/kube-system"
-  download_and_extract_packages = false
+  download_and_extract_packages = true
+  px_workspace = "${var.installer_workspace}/ibm-px"
 }

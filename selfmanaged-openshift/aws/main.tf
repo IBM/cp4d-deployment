@@ -221,7 +221,6 @@ module "cpd" {
   cloudctl_version          = var.cloudctl_version
   datacore_version          = var.datacore_version
   storage_option            = var.storage_option
-  vpc_id                    = local.vpc_id
   data_virtualization       = var.data_virtualization
   apache_spark              = var.apache_spark
   watson_knowledge_catalog  = var.watson_knowledge_catalog
@@ -246,6 +245,7 @@ module "cpd" {
     module.ocp,
     module.network,
     module.portworx,
+    module.ibm-portworx,
     module.ocs,
     module.efs,
     null_resource.aws_configuration,

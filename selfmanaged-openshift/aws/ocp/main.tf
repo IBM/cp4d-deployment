@@ -63,6 +63,28 @@ EOF
   ]
 }
 
+resource "local_file" "aws_nlb_yaml" {
+  content  = data.template_file.aws_nlb.rendered
+  filename = "${local.installer_workspace}/aws_nlb.yaml"
+}
+
+resource "null_resource" "change_clb_to_nlb" {
+  triggers = {
+    installer_workspace = local.installer_workspace
+  }
+  provisioner "local-exec" {
+    command =<<EOF
+oc replace --force --wait -f ${self.triggers.installer_workspace}/aws_nlb.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+echo "Sleeping 10mins to create new network load balancer"
+sleep 600
+EOF
+}
+  depends_on = [
+    null_resource.install_openshift,
+    local_file.aws_nlb_yaml,
+  ]
+}
+
 resource "null_resource" "create_openshift_user" {
   triggers = {
     installer_workspace = local.installer_workspace
@@ -94,7 +116,7 @@ EOF
 }
 
 resource "null_resource" "enable_autoscaler" {
-  count = var.enable_autoscaler == true ? 1 : 0
+  count = var.enable_autoscaler ? 1 : 0
   triggers = {
     installer_workspace     = local.installer_workspace
   }
@@ -129,6 +151,26 @@ EOF
     local_file.machine_autoscaler_yaml,
     local_file.machine_health_check_yaml,
     null_resource.download_binaries,
+    null_resource.install_openshift,
+  ]
+}
+
+resource "null_resource" "configure_image_registry" {
+  triggers = {
+    installer_workspace     = local.installer_workspace
+  }
+  provisioner "local-exec" {
+    command =<<EOF
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"managementState":"Unmanaged"}}' --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+echo 'Sleeping for 3m'
+sleep 3m
+oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600 --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+EOF
+  }
+  depends_on = [
     null_resource.install_openshift,
   ]
 }
