@@ -141,6 +141,7 @@ module "portworx" {
   aws_access_key_id        = var.access_key_id
   aws_secret_access_key = var.secret_access_key
   px_generated_cluster_id = var.px_generated_cluster_id
+  px_encryption = var.px_encryption
 
   depends_on = [
     module.ocp,

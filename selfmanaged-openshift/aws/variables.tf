@@ -271,6 +271,12 @@ variable "px_generated_cluster_id" {
   default = ""
 }
 
+variable "px_encryption" {
+  type = bool
+  default = false
+  description = "Encrypt portworx volumes. Note encryption is fully supported on the enterprise license only"
+}
+
 variable "storage_option" {
   description = "portworx / ocs / efs / ibm-portworx"
   default     = "ibm-portworx"
