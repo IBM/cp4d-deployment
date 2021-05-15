@@ -111,6 +111,7 @@ EOF
   depends_on = [
     null_resource.download_binaries,
     null_resource.install_openshift,
+    null_resource.change_clb_to_nlb,
     local_file.htpasswd_yaml,
   ]
 }
@@ -152,6 +153,7 @@ EOF
     local_file.machine_health_check_yaml,
     null_resource.download_binaries,
     null_resource.install_openshift,
+    null_resource.change_clb_to_nlb,
   ]
 }
 
@@ -172,5 +174,6 @@ EOF
   }
   depends_on = [
     null_resource.install_openshift,
+    null_resource.change_clb_to_nlb,
   ]
 }
