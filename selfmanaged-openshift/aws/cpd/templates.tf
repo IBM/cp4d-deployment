@@ -3,7 +3,8 @@ locals {
   limits_config_data = base64encode(file("cpd/config/limits.conf"))
   sysctl_config_data = base64encode(file("cpd/config/sysctl.conf"))
   license = var.accept_cpd_license == "accept" ? true : false
-  override = var.storage_option == "efs" ? "" : var.storage_option
+  i_override = var.storage_option == "efs" ? "" : var.storage_option
+  override = var.storage_option == "ibm-portworx" ? "portworx" : local.i_override
   storage_class = lookup(var.cpd_storageclass, var.storage_option)
 }
 

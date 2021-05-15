@@ -84,8 +84,8 @@ oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}'
 chmod +x portworx/scripts/portworx-prereq.sh
 bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
 oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
-echo "Sleeping for 3mins"
-sleep 180
+echo "Sleeping for 5mins"
+sleep 300
 echo "Deploying StorageCluster"
 oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
 echo "Sleeping for 5mins"
