@@ -74,9 +74,9 @@ resource "null_resource" "change_clb_to_nlb" {
   }
   provisioner "local-exec" {
     command =<<EOF
-oc replace --force --wait -f ${self.triggers.installer_workspace}/aws_nlb.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
-echo "Sleeping 10mins to create new network load balancer"
-sleep 600
+#oc replace --force --wait -f ${self.triggers.installer_workspace}/aws_nlb.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+#echo "Sleeping 10mins to create new network load balancer"
+#sleep 600
 EOF
 }
   depends_on = [
