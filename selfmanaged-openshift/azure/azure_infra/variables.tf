@@ -321,3 +321,16 @@ variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default     = "reject"
 }
+
+
+
+##############################
+### CPD4.0 variables
+##############################
+variable "artifactory-username" {
+   default = "xxx@in.ibm.com"
+}
+
+variable "artifactory-apikey" {
+   default = "xxxxyyyyzzzzz"
+}
