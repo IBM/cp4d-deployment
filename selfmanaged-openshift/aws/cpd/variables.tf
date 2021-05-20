@@ -139,6 +139,5 @@ variable "cpd_storageclass" {
     "portworx"   = "portworx-shared-gp3"
     "ocs"        = "ocs-storagecluster-cephfs"
     "efs"        = "aws-efs"
-    "ibm-portworx"   = "portworx-shared-gp3"
   }
 }

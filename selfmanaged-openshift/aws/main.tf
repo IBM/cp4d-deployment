@@ -130,7 +130,7 @@ module "ocp" {
 }
 
 module "portworx" {
-  count               = var.storage_option == "portworx" ? 1 : 0
+  count               = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
   source              = "./portworx"
   openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
   openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
@@ -140,27 +140,9 @@ module "portworx" {
   region              = var.region
   aws_access_key_id        = var.access_key_id
   aws_secret_access_key = var.secret_access_key
-  px_generated_cluster_id = var.px_generated_cluster_id
-  px_encryption = var.px_encryption
-
-  depends_on = [
-    module.ocp,
-    module.network,
-    null_resource.aws_configuration,
-  ]
-}
-
-module "ibm-portworx" {
-  count               = var.storage_option == "ibm-portworx" ? 1 : 0
-  source              = "./ibm-portworx"
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  openshift_token     = var.existing_openshift_token
-  installer_workspace = local.installer_workspace
-  region              = var.region
-  aws_access_key_id        = var.access_key_id
-  aws_secret_access_key = var.secret_access_key
+  portworx_enterprise = var.portworx_enterprise
+  portworx_essentials = var.portworx_essentials
+  portworx_ibm = var.portworx_ibm
 
   depends_on = [
     module.ocp,
@@ -170,34 +152,13 @@ module "ibm-portworx" {
 }
 
 module "ocs" {
-  count               = var.storage_option == "ocs" ? 1 : 0
+  count               = var.ocs.enable ? 1 : 0
   source              = "./ocs"
   openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
   openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
   openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = var.existing_openshift_token
   installer_workspace = local.installer_workspace
-
-  depends_on = [
-    module.ocp,
-    module.network,
-    null_resource.aws_configuration,
-  ]
-}
-
-module "efs" {
-  count               = var.storage_option == "efs" ? 1 : 0
-  source              = "./efs"
-  vpc_id              = local.vpc_id
-  vpc_cidr            = var.vpc_cidr
-  efs_name            = "${var.cluster_name}-efs"
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  openshift_token     = var.existing_openshift_token
-  installer_workspace = local.installer_workspace
-  region              = var.region
-  subnets             = var.az == "multi_zone" ? local.multi_zone_subnets : local.single_zone_subnets
 
   depends_on = [
     module.ocp,
@@ -221,7 +182,7 @@ module "cpd" {
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   datacore_version          = var.datacore_version
-  storage_option            = var.storage_option
+  storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
   apache_spark              = var.apache_spark
   watson_knowledge_catalog  = var.watson_knowledge_catalog
@@ -246,9 +207,7 @@ module "cpd" {
     module.ocp,
     module.network,
     module.portworx,
-    module.ibm-portworx,
     module.ocs,
-    module.efs,
     null_resource.aws_configuration,
   ]
 }
