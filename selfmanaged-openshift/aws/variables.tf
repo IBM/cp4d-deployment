@@ -277,7 +277,9 @@ variable "ocs" {
   type = map(string)
   default = {
     enable = true
-    version = "4.6.4"
+    version = "4.7.0"
+    dedicated_nodes = true
+    dedicated_node_instance_type = "m5.4xlarge"
   }
 }
 

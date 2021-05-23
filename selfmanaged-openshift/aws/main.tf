@@ -130,19 +130,19 @@ module "ocp" {
 }
 
 module "portworx" {
-  count               = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
-  source              = "./portworx"
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  openshift_token     = var.existing_openshift_token
-  installer_workspace = local.installer_workspace
-  region              = var.region
-  aws_access_key_id        = var.access_key_id
+  count                 = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
+  source                = "./portworx"
+  openshift_api         = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username    = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password    = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_token       = var.existing_openshift_token
+  installer_workspace   = local.installer_workspace
+  region                = var.region
+  aws_access_key_id     = var.access_key_id
   aws_secret_access_key = var.secret_access_key
-  portworx_enterprise = var.portworx_enterprise
-  portworx_essentials = var.portworx_essentials
-  portworx_ibm = var.portworx_ibm
+  portworx_enterprise   = var.portworx_enterprise
+  portworx_essentials   = var.portworx_essentials
+  portworx_ibm          = var.portworx_ibm
 
   depends_on = [
     module.ocp,
@@ -159,6 +159,15 @@ module "ocs" {
   openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = var.existing_openshift_token
   installer_workspace = local.installer_workspace
+  ocs = {
+    enable                       = var.ocs.enable
+    version                      = var.ocs.version
+    dedicated_nodes              = var.ocs.dedicated_nodes
+    dedicated_node_instance_type = var.ocs.dedicated_node_instance_type
+    dedicated_node_zones         = var.az == "single_zone" ? [local.availability_zone1] : [local.availability_zone1, local.availability_zone2, local.availability_zone3]
+    dedicated_node_subnet_ids    = var.az == "single_zone" ? local.single_zone_subnets : local.multi_zone_subnets
+  }
+  region = var.region
 
   depends_on = [
     module.ocp,
