@@ -260,3 +260,80 @@ resource "null_resource" "install-ccs" {
     null_resource.bedrock_zen_operator,
   ]
 }
+
+
+resource "null_resource" "install-wsl" {
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/wsl-files",
+
+      ## Copy the required yaml files for ccs setup .. 
+
+      "cd /home/${var.admin-username}/wsl-files",
+
+      "cat > wsl-catalog-source.yaml <<EOL\n${file("../cpd4_module/wsl-catalog-source.yaml")}\nEOL",
+      "cat > wsl-sub.yaml <<EOL\n${file("../cpd4_module/wsl-sub.yaml")}\nEOL",
+      "cat > wsl-cr.yaml <<EOL\n${file("../cpd4_module/wsl-cr.yaml")}\nEOL",
+
+      
+      # create wsl catalog source 
+
+      "echo '*** executing **** oc create -f wsl-catalog-source.yaml'",
+      "result=$(oc create -f wsl-catalog-source.yaml)",
+      "echo $result",
+      "sleep 1m",
+
+      # Create wsl subscription. This will deploy the wsl: 
+
+      "echo '*** executing **** oc create -f wsl-sub.yaml'",
+      "result=$(oc create -f wsl-sub.yaml -n ibm-common-services)",
+      "echo $result",
+      "sleep 1m",
+
+      # Checking if the wsl operator pods are ready and running. 
+
+      # checking status of ibm-cpd-ws-operator
+
+      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+      "sudo chmod +x pod-status-check.sh",
+      "OPERATOR_POD_NAME=$(oc get pods -n ibm-common-services | grep ibm-cpd-ws-operator | awk '{print $1}')",
+      "./pod-status-check.sh $OPERATOR_POD_NAME ibm-common-services",
+
+      # switch zen namespace
+
+      "oc project zen",
+
+      # Create wsl CR: 
+
+      "echo '*** executing **** oc create -f wsl-cr.yaml'",
+      "result=$(oc create -f wsl-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+
+      "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+      "sudo mv jq /usr/local/bin",
+      "sudo chmod +x /usr/local/bin/jq",
+      "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+      "sudo chmod +x check-cr-status.sh",
+      "./check-cr-status.sh ws ws-cr zen wsStatus",
+    ]
+  }
+  depends_on = [
+    null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+  ]
+}
