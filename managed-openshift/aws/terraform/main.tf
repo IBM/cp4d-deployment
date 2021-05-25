@@ -18,15 +18,20 @@ EOF
 }
 
 module "portworx" {
-  count               = var.storage_option == "portworx" ? 1 : 0
-  source              = "./portworx"
-  openshift_api       = var.openshift_api
-  openshift_username  = var.openshift_username
-  openshift_password  = var.openshift_password
-  openshift_token     = var.openshift_token
-  portworx_spec_url   = var.portworx_spec_url
-  installer_workspace = local.installer_workspace
-  region              = var.region
+  count                 = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
+  source                = "./portworx"
+  openshift_api         = var.openshift_api
+  openshift_username    = var.openshift_username
+  openshift_password    = var.openshift_password
+  openshift_token       = var.openshift_token
+  installer_workspace   = local.installer_workspace
+  region                = var.region
+  aws_access_key_id     = var.access_key_id
+  aws_secret_access_key = var.secret_access_key
+  portworx_enterprise   = var.portworx_enterprise
+  portworx_essentials   = var.portworx_essentials
+  portworx_ibm          = var.portworx_ibm
+
   depends_on = [
     null_resource.create_workspace,
   ]
@@ -105,7 +110,7 @@ module "cpd" {
   depends_on = [
     null_resource.create_workspace,
     module.portworx,
-    module.ocs,
+    # module.ocs,
     module.efs,
   ]
 }

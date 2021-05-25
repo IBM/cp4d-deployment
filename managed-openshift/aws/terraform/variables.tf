@@ -54,9 +54,36 @@ variable "storage_option" {
 #####################
 # If using portworx
 ########################
-variable "portworx_spec_url" {
-  type = string
+variable "portworx_enterprise" {
+  type = map(string)
+  description = "See PORTWORX.md on how to get the Cluster ID."
+  default = {
+    enable = false
+    cluster_id = ""
+    enable_encryption = true
+  }
 }
+
+variable "portworx_essentials" {
+  type = map(string)
+  description = "See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint"
+  default = {
+    enable = false
+    cluster_id = ""
+    user_id = ""
+    osb_endpoint = ""
+  }
+}
+
+variable "portworx_ibm" {
+  type = map(string)
+  description = "This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes"
+  default = {
+    enable = false
+    ibm_px_package_url = "http://158.85.173.111/repos/zen/cp4d-builds/3.0.1/misc/portworx/cpd-ocp46x-portworx-v2.7.0.0.tgz"
+  }
+}
+
 ################################
 
 #########################
