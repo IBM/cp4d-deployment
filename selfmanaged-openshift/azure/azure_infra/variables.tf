@@ -334,3 +334,11 @@ variable "artifactory-username" {
 variable "artifactory-apikey" {
    default = "xxxxyyyyzzzzz"
 }
+
+variable "staging-username" {
+   default = "xxx@in.ibm.com"
+}
+
+variable "staging-apikey" {
+   default = "xxxxyyyyzzzzz"
+}

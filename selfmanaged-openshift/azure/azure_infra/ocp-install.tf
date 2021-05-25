@@ -33,6 +33,7 @@ resource "null_resource" "install_openshift" {
       "chmod +x openshift-install",
       "sudo chmod +x /usr/bin/oc",
       "sudo chmod +x /usr/bin/kubectl",
+      "sudo yum update -y --disablerepo=* --enablerepo=\"*microsoft*\"",
       "sudo yum install -y podman",
       "sudo yum install -y httpd-tools",
       "./openshift-install create cluster --dir=${local.ocpdir} --log-level=debug",

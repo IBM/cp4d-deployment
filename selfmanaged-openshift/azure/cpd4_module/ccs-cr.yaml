@@ -1,0 +1,11 @@
+apiVersion: ccs.cpd.ibm.com/v1beta1
+kind: CCS
+metadata:
+  name: ccs-cr
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageClass: nfs
+  license:
+    accept: true
+  docker_registry_prefix: cp.stg.icr.io/cp/cpd

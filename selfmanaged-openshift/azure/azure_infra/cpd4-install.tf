@@ -93,17 +93,17 @@ resource "null_resource" "bedrock_zen_operator" {
 
       # checking status of ibm-namespace-scope-operator
 
-      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
-      "sudo chmod +x pod-status-check.sh",
-      "./pod-status-check.sh ibm-namespace-scope-operator ibm-common-services",
+      "cat > bedrock-pod-status-check.sh <<EOL\n${file("../cpd4_module/bedrock-pod-status-check.sh")}\nEOL",
+      "sudo chmod +x bedrock-pod-status-check.sh",
+      "./bedrock-pod-status-check.sh ibm-namespace-scope-operator ibm-common-services",
 
       # checking status of operand-deployment-lifecycle-manager
 
-      "./pod-status-check.sh operand-deployment-lifecycle-manager ibm-common-services",
+      "./bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ibm-common-services",
 
       # checking status of ibm-common-service-operator
 
-      "./pod-status-check.sh ibm-common-service-operator ibm-common-services",
+      "./bedrock-pod-status-check.sh ibm-common-service-operator ibm-common-services",
 
       # Creating zen catalog source 
 
@@ -137,8 +137,8 @@ resource "null_resource" "bedrock_zen_operator" {
 
       # check if the zen operator pod is up and running.
 
-      "./pod-status-check.sh ibm-zen-operator ibm-common-services",
-      "./pod-status-check.sh ibm-cert-manager-operator ibm-common-services",
+      "./bedrock-pod-status-check.sh ibm-zen-operator ibm-common-services",
+      "./bedrock-pod-status-check.sh ibm-cert-manager-operator ibm-common-services",
 
       # Create lite CR: 
 
@@ -163,5 +163,100 @@ resource "null_resource" "bedrock_zen_operator" {
     null_resource.setup_sc_without_pwx_encryption,
     null_resource.install_ocs,
     null_resource.install_nfs_client,
+  ]
+}
+
+### Installing CCS service. 
+
+
+resource "null_resource" "install-ccs" {
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/ccs-files",
+
+      ## Copy the required yaml files for ccs setup .. 
+
+      "cd /home/${var.admin-username}/ccs-files",
+
+      "cat > ccs-mirror.yaml <<EOL\n${file("../cpd4_module/ccs-mirror.yaml")}\nEOL",
+      "cat > ccs-catalog-source.yaml <<EOL\n${file("../cpd4_module/ccs-catalog-source.yaml")}\nEOL",
+      "cat > ccs-sub.yaml <<EOL\n${file("../cpd4_module/ccs-sub.yaml")}\nEOL",
+      "cat > ccs-cr.yaml <<EOL\n${file("../cpd4_module/ccs-cr.yaml")}\nEOL",
+
+      # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+
+      "echo  '*************************************'",
+      "echo 'setting up imagecontentsource policy for ccs'",
+      "echo  '*************************************'",
+
+      "echo '*** executing **** oc create -f ccs-mirror.yaml'",
+      "result=$(oc create -f ccs-mirror.yaml)",
+      "echo $result",
+      "sleep 5m",
+      
+      ##Setup global_pull secret 
+
+      "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
+      "sudo chmod +x setup-global-pull-secret-ccs.sh",
+      "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
+
+      # create ccs catalog source 
+
+      "echo '*** executing **** oc create -f ccs-catalog-source.yaml'",
+      "result=$(oc create -f ccs-catalog-source.yaml)",
+      "echo $result",
+      "sleep 1m",
+
+      # Create ccs subscription. This will deploy the ccs: 
+
+      "echo '*** executing **** oc create -f ccs-sub.yaml'",
+      "result=$(oc create -f ccs-sub.yaml -n ibm-common-services)",
+      "echo $result",
+      "sleep 1m",
+
+      # Checking if the ccs operator pods are ready and running. 
+
+      # checking status of ibm-cpc-ccs-operator
+
+      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+      "sudo chmod +x pod-status-check.sh",
+      "OPERATOR_POD_NAME=$(oc get pods -n ibm-common-services | grep ibm-cpd-ccs-operator | awk '{print $1}')",
+      "./pod-status-check.sh $OPERATOR_POD_NAME ibm-common-services",
+
+      # switch zen namespace
+
+      "oc project zen",
+
+      # Create CCS CR: 
+
+      "echo '*** executing **** oc create -f ccs-cr.yaml'",
+      "result=$(oc create -f ccs-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+
+      "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+      "sudo mv jq /usr/local/bin",
+      "sudo chmod +x /usr/local/bin/jq",
+      "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+      "sudo chmod +x check-cr-status.sh",
+      "./check-cr-status.sh ccs ccs-cr zen ccsStatus",
+    ]
+  }
+  depends_on = [
+    null_resource.bedrock_zen_operator,
   ]
 }
