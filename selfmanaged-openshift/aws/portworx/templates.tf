@@ -14,7 +14,7 @@ spec:
     internal: true
   cloudStorage:
     deviceSpecs:
-    - type=gp2,size=${var.disk_size}
+    - type=gp2,size=${var.disk_size},enc=true,kms=${aws_kms_key.px_key.key_id}
     kvdbDeviceSpec: type=gp2,size=${var.kvdb_disk_size}
   secretsProvider: ${local.secret_provider}
   stork:
