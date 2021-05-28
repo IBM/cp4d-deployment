@@ -56,7 +56,7 @@ variable "watson_knowledge_catalog" {
   default = "no"
 }
 
-variable "watson_studio_library" {
+variable "watson_studio_local" {
   default = "no"
 }
 

@@ -25,7 +25,7 @@ def get_terraform_configuration():
     print("\nCluster configuration")
     print("=====================")
 
-    tf_var_file = os.path.dirname(os.path.abspath(__file__)) + '/variables.tf'
+    tf_var_file = os.path.dirname(os.path.abspath(__file__)) + '/../variables.tf'
     print("  The cluster configuration will be derived from terraform " +
           f"configuration: '{tf_var_file}'\n")
 

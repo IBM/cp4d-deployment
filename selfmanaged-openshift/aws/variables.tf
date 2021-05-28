@@ -1,7 +1,7 @@
 ##### AWS Configuration #####
 variable "region" {
   description = "The region to deploy the cluster in, e.g: us-west-2."
-  default     = "eu-west-2"
+  default     = "eu-west-1"
 }
 
 variable "key_name" {
@@ -12,41 +12,21 @@ variable "key_name" {
 variable "tenancy" {
   description = "Amazon EC2 instances tenancy type, default/dedicated"
   default     = "default"
-
-  validation {
-    condition     = var.tenancy == "default" || var.tenancy == "dedicated"
-    error_message = "Amazon EC2 instances tenancy type can only default/dedicated."
-  }
 }
 
 variable "access_key_id" {
   type        = string
   description = "Access Key ID for the AWS account"
-
-  validation {
-    condition     = length(var.access_key_id) > 0
-    error_message = "Access Key ID must be provided."
-  }
 }
 
 variable "secret_access_key" {
   type        = string
   description = "Secret Access Key for the AWS account"
-
-  validation {
-    condition     = length(var.secret_access_key) > 0
-    error_message = "Secret Access Key must be provided."
-  }
 }
 
 variable "new_or_existing_vpc_subnet" {
   description = "For existing VPC and SUBNETS use 'exist' otherwise use 'new' to create new VPC and SUBNETS, default is 'new' "
   default     = "new"
-
-  validation {
-    condition     = var.new_or_existing_vpc_subnet == "new" || var.new_or_existing_vpc_subnet == "exist"
-    error_message = "For existing VPC and SUBNETS use 'exist' otherwise use 'new' to create new VPC and SUBNETS, default is 'new'."
-  }
 }
 
 ##############################
@@ -277,7 +257,6 @@ variable "ocs" {
   type = map(string)
   default = {
     enable = true
-    version = "4.7.0"
     dedicated_nodes = true
     dedicated_node_instance_type = "m5.4xlarge"
   }
@@ -365,7 +344,7 @@ variable "watson_knowledge_catalog" {
   default = "no"
 }
 
-variable "watson_studio_library" {
+variable "watson_studio_local" {
   default = "no"
 }
 

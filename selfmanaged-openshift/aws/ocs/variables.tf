@@ -95,7 +95,6 @@ variable "aws_amis" {
 variable "ocs" {
   default = {
     enable = true
-    version = "4.7.0"
     dedicated_nodes = false
     dedicated_node_instance_type = "m5.4xlarge"
     dedicated_node_zones = []

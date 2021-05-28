@@ -31,7 +31,7 @@ spec:
   name: ocs-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: ocs-operator.v${var.ocs.version}
+  startingCSV: ocs-operator.v4.7.0
 EOF
 }
 
@@ -67,7 +67,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 2Ti
+              storage: 6Ti
           storageClassName: gp2
           volumeMode: Block
         status: {}
@@ -76,7 +76,7 @@ spec:
       portable: true
       replica: 3
       resources: {}
-  version: ${var.ocs.version}
+  version: 4.7.0
 EOF
 }
 

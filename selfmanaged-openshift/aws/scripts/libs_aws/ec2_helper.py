@@ -192,18 +192,17 @@ class EC2Helper():
         tf_config['node_type'] = {}
         tf_config['node_type']['master'] = {}
         tf_config['node_type']['worker'] = {}
-        tf_config['node_type']['bootnode'] = {}
+        tf_config['node_type']['ocs'] = {}
 
         tf_config_json = AWSGenericHelper.get_terraform_config_json(terraform_var_file)
 
         # get specified instance types from terraform config
         tf_config['region'] = tf_config_json['variable']['region']['default']
-        tf_config['storage-type'] = tf_config_json['variable']['storage-type']['default']
-        tf_config['node_type']['master']['instance_type'] = tf_config_json['variable']['master-instance-type']['default']
-        tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker-instance-type']['default']
-        if tf_config['storage-type'] == 'ocs':
-            tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker-ocs-instance-type']['default']
-        tf_config['node_type']['bootnode']['instance_type'] = tf_config_json['variable']['bootnode-instance-type']['default']
+        tf_config['storage_type'] = 'ocs' if tf_config_json['variable']['ocs']['default']['enable'] else 'portworx'
+        tf_config['node_type']['master']['instance_type'] = tf_config_json['variable']['master_instance_type']['default']
+        tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker_instance_type']['default']
+        if tf_config['storage_type'] == 'ocs':
+            tf_config['node_type']['ocs']['instance_type'] = tf_config_json['variable']['ocs']['default']['dedicated_node_instance_type']
 
         # pprint(tf_config)
 
@@ -277,7 +276,7 @@ class EC2Helper():
 
         # Table - print out
         print(f"  Selected AWS Region  :  {tf_config['region']}")
-        print(f"  Selected Storage type:  {tf_config['storage-type'].upper()}\n")
+        print(f"  Selected Storage type:  {tf_config['storage_type'].upper()}\n")
         print(table_header)
         print(table_header_separator)
 

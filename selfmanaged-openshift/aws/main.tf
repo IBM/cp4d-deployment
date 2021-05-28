@@ -50,7 +50,7 @@ region = ${var.region}
 EOF
 }
 
-/* resource "null_resource" "permission_resource_validation" {
+resource "null_resource" "permission_resource_validation" {
   provisioner "local-exec" {
     command = <<EOF
   chmod +x scripts/*.sh scripts/*.py
@@ -58,7 +58,10 @@ EOF
   echo file | scripts/aws_resource_quota_validation.sh ; if [ $? -ne 0 ] ; then echo \"Resource Quota Validation Failed\" ; exit 1 ; fi
   EOF
   }
-} */
+  depends_on = [
+    null_resource.aws_configuration,
+  ]
+}
 
 module "network" {
   count               = var.new_or_existing_vpc_subnet == "new" && var.existing_cluster == false ? 1 : 0
@@ -79,6 +82,7 @@ module "network" {
 
   depends_on = [
     null_resource.aws_configuration,
+    null_resource.permission_resource_validation,
   ]
 }
 
@@ -126,6 +130,7 @@ module "ocp" {
   depends_on = [
     module.network,
     null_resource.aws_configuration,
+    null_resource.permission_resource_validation,
   ]
 }
 
@@ -161,7 +166,6 @@ module "ocs" {
   installer_workspace = local.installer_workspace
   ocs = {
     enable                       = var.ocs.enable
-    version                      = var.ocs.version
     dedicated_nodes              = var.ocs.dedicated_nodes
     dedicated_node_instance_type = var.ocs.dedicated_node_instance_type
     dedicated_node_zones         = var.az == "single_zone" ? [local.availability_zone1] : [local.availability_zone1, local.availability_zone2, local.availability_zone3]
@@ -195,7 +199,7 @@ module "cpd" {
   data_virtualization       = var.data_virtualization
   apache_spark              = var.apache_spark
   watson_knowledge_catalog  = var.watson_knowledge_catalog
-  watson_studio_library     = var.watson_studio_library
+  watson_studio_local     = var.watson_studio_local
   watson_machine_learning   = var.watson_machine_learning
   watson_ai_openscale       = var.watson_ai_openscale
   cognos_dashboard_embedded = var.cognos_dashboard_embedded

@@ -17,28 +17,6 @@ class AWSGenericHelper():
     # OpenShift required resources
     # instances are handeled separately
     ocp = {
-        'efs': {
-                'single_zone': {
-                                    'vpcs': 1,
-                                    'network-interfaces': 13,
-                                    'nat-gateways': 1,
-                                    'security-groups': 7,
-                                    'elastic-ips': 1,
-                                    'application-load-ballancer': 2,
-                                    'classic-load-ballancer': 1,
-                                    's3-buckets': 1
-                                },
-                'multi_zone':  {
-                                    'vpcs': 1,
-                                    'network-interfaces': 22,
-                                    'nat-gateways': 3,
-                                    'security-groups': 7,
-                                    'elastic-ips': 3,
-                                    'application-load-ballancer': 2,
-                                    'classic-load-ballancer': 1,
-                                    's3-buckets': 1
-                                }
-                },
         'ocs': {
                 'single_zone': {
                                     'vpcs': 1,
@@ -88,25 +66,25 @@ class AWSGenericHelper():
     # CP4D services required vCPUs according to:
     # https://github.com/IBM/cp4d-deployment#resource-requirements-for-each-service
     cpd_services_vcpu = {
-        'watson-studio-library': 12,
-        'watson-knowledge-catalog': 27,
-        'watson-machine-learning': 16,
-        'data-virtualization': 16,
-        'watson-ai-openscale': 30,
-        'apache-spark': 7,
-        'cognos-dashboard-embedded': 4,
+        'watson_studio_local': 12,
+        'watson_knowledge_catalog': 27,
+        'watson_machine_learning': 16,
+        'data_virtualization': 16,
+        'watson_ai_openscale': 30,
+        'apache_spark': 7,
+        'cognos_dashboard_embedded': 4,
         'streams': 1,
-        'streams-flows': 1,
-        'db2-warehouse': 9,
+        'streams_flows': 1,
+        'db2_warehouse': 9,
         'datastage': 6,
-        'cognos-analytics': 11,
-        'db2-advanced-edition': 5,
+        'cognos_analytics': 11,
+        'db2_advanced_edition': 5,
         'datagate': 4,
-        'decision-optimization': 1,
-        'spss-modeler': 11,
-        'db2-bigsql': 48,
-        'planning-analytics': 13,
-        'data-management-console': 0
+        'decision_optimization': 1,
+        'spss_modeler': 11,
+        'db2_bigsql': 48,
+        'planning_analytics': 13,
+        'data_management_console': 0
     }
 
     def __init__(self, aws_config):

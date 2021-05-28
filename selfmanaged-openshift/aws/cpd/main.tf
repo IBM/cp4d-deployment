@@ -261,7 +261,7 @@ EOF
 }
 
 resource "null_resource" "install_wsl" {
-  count = var.accept_cpd_license == "accept" && var.watson_studio_library == "yes" ? 1 : 0
+  count = var.accept_cpd_license == "accept" && var.watson_studio_local == "yes" ? 1 : 0
   triggers = {
     openshift_api         = var.openshift_api
     openshift_username    = var.openshift_username

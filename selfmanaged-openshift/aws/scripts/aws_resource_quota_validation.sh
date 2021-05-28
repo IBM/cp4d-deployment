@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [[ $# -ge 1 && "-h" == $1 ]] ; then
-	echo
-	echo "USAGE: `basename $0` [<user_profile_name>]" 
-	echo 
-	exit 0;
-fi
-
 DEPLOY_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 VENV="$HOME/.aws_python_venv"
 
@@ -40,10 +33,4 @@ else
 fi
 
 # Run the python program itself
-if [ $# -gt 0 ]; then
-	USER_PARAM="-p $1"
-else
-	USER_PARAM=""
-fi 
-
-python $DEPLOY_HOME/aws_permission_validation.py -f $DEPLOY_HOME/resource_actions.txt -c $USER_PARAM
+python $DEPLOY_HOME/aws_resource_quota_validation.py
