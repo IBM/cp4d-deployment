@@ -22,7 +22,7 @@
          - command:
              - sh
              - -c
-             - sysctl -w kernel.sem="250 1024000 100 16384"; sysctl -w kernel.msgmax="65536"; sysctl -w kernel.msgmnb="65536"; sysctl -w kernel.msgmni="32768"; sysctl -w kernel.shmmni="16384"; sysctl -w vm.max_map_count="262144"; sysctl -w kernel.shmall="33554432"; sysctl -w kernel.shmmax="68719476736"; sysctl -p;
+             - sysctl -w kernel.sem="250 1024000 100 32768"; sysctl -w kernel.msgmax="65536"; sysctl -w kernel.msgmnb="65536"; sysctl -w kernel.msgmni="32768"; sysctl -w kernel.shmmni="32768"; sysctl -w vm.max_map_count="262144"; sysctl -w kernel.shmall="33554432"; sysctl -w kernel.shmmax="68719476736"; sysctl -p;
            image: alpine:3.6
            imagePullPolicy: IfNotPresent
            name: sysctl
