@@ -24,6 +24,28 @@ variable "secret_access_key" {
   }
 }
 
+##########
+# ROSA
+##########
+variable "cluster_name" {
+  type = string
+  default = "myrosa"
+}
+
+variable "rosa_token" {
+  type = string
+}
+
+variable "worker_machine_type" {
+  type = string
+  default = "m5.4xlarge"
+}
+
+variable "worker_machine_count" {
+  type = number
+  default = 3
+}
+
 variable "vpcid" {
   description = "VPC ID of the network ROSA is deployed in. This is needed for setting the timeout for the LB and also for EFS (if chosen)"
   type = string

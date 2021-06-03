@@ -7,14 +7,106 @@ provider "aws" {
 
 locals {
   installer_workspace = "${path.root}/installer-files"
+  availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
+  availability_zone2  = var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
+  availability_zone3  = var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
+  vpc_id              = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
+  public_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].public_subnet1_id : var.public_subnet1_id
+  public_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].public_subnet2_id[0] : var.public_subnet2_id
+  public_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].public_subnet3_id[0] : var.public_subnet3_id
+  private_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].private_subnet1_id : var.private_subnet1_id
+  private_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet2_id[0] : var.private_subnet2_id
+  private_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet3_id[0] : var.private_subnet3_id
+  single_zone_subnets = [local.private_subnet1_id]
+  multi_zone_subnets  = [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id]
 }
-
 resource "null_resource" "create_workspace" {
   provisioner "local-exec" {
     command = <<EOF
 test -e ${local.installer_workspace} || mkdir -p ${local.installer_workspace}
 EOF
   }
+}
+
+resource "null_resource" "aws_configuration" {
+  provisioner "local-exec" {
+    command = "mkdir -p ~/.aws"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+echo '${data.template_file.aws_credentials.rendered}' > ~/.aws/credentials
+echo '${data.template_file.aws_config.rendered}' > ~/.aws/config
+EOF
+  }
+}
+
+data "template_file" "aws_credentials" {
+  template = <<-EOF
+[default]
+aws_access_key_id = ${var.access_key_id}
+aws_secret_access_key = ${var.secret_access_key}
+EOF
+}
+
+data "template_file" "aws_config" {
+  template = <<-EOF
+[default]
+region = ${var.region}
+EOF
+}
+
+module "network" {
+  count               = var.new_or_existing_vpc_subnet == "new" ? 1 : 0
+  source              = "./network"
+  vpc_cidr            = var.vpc_cidr
+  network_tag_prefix  = var.cluster_name
+  tenancy             = var.tenancy
+  master_subnet_cidr1 = var.master_subnet_cidr1
+  master_subnet_cidr2 = var.master_subnet_cidr2
+  master_subnet_cidr3 = var.master_subnet_cidr3
+  worker_subnet_cidr1 = var.worker_subnet_cidr1
+  worker_subnet_cidr2 = var.worker_subnet_cidr2
+  worker_subnet_cidr3 = var.worker_subnet_cidr3
+  az                  = var.az
+  availability_zone1  = local.availability_zone1
+  availability_zone2  = local.availability_zone2
+  availability_zone3  = local.availability_zone3
+
+  depends_on = [
+    null_resource.aws_configuration,
+  ]
+}
+
+module "ocp" {
+  source = "./ocp"
+  rosa_token = var.rosa_token
+  worker_machine_type = var.worker_machine_type
+  worker_machine_count = var.worker_machine_count
+  cluster_name = var.cluster_name
+  region = var.region
+  multi_zone                      = var.az == "multi_zone" ? true : false
+  public_subnet1_id               = local.public_subnet1_id
+  public_subnet2_id               = local.public_subnet2_id
+  public_subnet3_id               = local.public_subnet3_id
+  private_subnet1_id               = local.private_subnet1_id
+  private_subnet2_id               = local.private_subnet2_id
+  private_subnet3_id               = local.private_subnet3_id
+  private_cluster                 = var.private_cluster
+  cluster_network_cidr            = var.cluster_network_cidr
+  cluster_network_host_prefix     = var.cluster_network_host_prefix
+  machine_network_cidr            = var.vpc_cidr
+  service_network_cidr            = var.service_network_cidr
+  openshift_username              = var.openshift_username
+  openshift_password              = var.openshift_password
+  enable_autoscaler               = var.enable_autoscaler
+  installer_workspace             = local.installer_workspace
+  openshift_version               = var.openshift_version
+
+  depends_on = [
+    null_resource.aws_configuration,
+    module.network,
+  ]
 }
 
 module "portworx" {
@@ -34,6 +126,7 @@ module "portworx" {
 
   depends_on = [
     null_resource.create_workspace,
+    module.ocp,
   ]
 }
 
@@ -50,25 +143,6 @@ module "portworx" {
 #   openshift_token     = var.openshift_token
 #   installer_workspace = local.installer_workspace
 # }
-
-module "efs" {
-  count               = var.storage_option == "efs" ? 1 : 0
-  source              = "./efs"
-  vpc_id              = var.vpcid
-  vpc_cidr            = var.vpc_cidr
-  efs_name            = var.efs_name
-  openshift_api       = var.openshift_api
-  openshift_username  = var.openshift_username
-  openshift_password  = var.openshift_password
-  openshift_token     = var.openshift_token
-  installer_workspace = local.installer_workspace
-  region              = var.region
-  subnets             = var.subnets
-
-  depends_on = [
-    null_resource.create_workspace,
-  ]
-}
 
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
@@ -110,7 +184,7 @@ module "cpd" {
   depends_on = [
     null_resource.create_workspace,
     module.portworx,
-    # module.ocs,
+    module.ocp,
     module.efs,
   ]
 }
