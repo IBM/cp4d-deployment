@@ -2,6 +2,11 @@ variable "rosa_token" {
   type = string
 }
 
+variable "openshift_version" {
+  type = string
+  default = "4.7.12"
+}
+
 variable "worker_machine_type" {
   type = string
   default = "m5.4xlarge"
@@ -24,28 +29,8 @@ variable "multi_zone" {
   type = bool
 }
 
-variable "public_subnet1_id" {
-  type = string
-}
-
-variable "public_subnet2_id" {
-  type = string
-}
-
-variable "public_subnet3_id" {
-  type = string
-}
-
-variable "private_subnet1_id" {
-  type = string
-}
-
-variable "private_subnet2_id" {
-  type = string
-}
-
-variable "private_subnet3_id" {
-  type = string
+variable "subnet_ids" {
+  type = list
 }
 
 variable "private_cluster" {
@@ -66,16 +51,4 @@ variable "machine_network_cidr" {
 
 variable "service_network_cidr" {
   type    = string
-}
-
-variable "openshift_username" {
-  type = string
-}
-
-variable "openshift_password" {
-  type = string
-}
-
-variable "enable_autoscaler" {
-  type = bool
 }

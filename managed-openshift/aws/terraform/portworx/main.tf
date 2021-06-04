@@ -83,7 +83,7 @@ resource "null_resource" "install_portworx" {
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 chmod +x portworx/scripts/portworx-prereq.sh
 bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
 oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
@@ -148,4 +148,5 @@ locals {
   download_and_extract_packages = true
   secret_provider = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
   px_workspace = "${var.installer_workspace}/ibm-px"
+  login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds"))
 }

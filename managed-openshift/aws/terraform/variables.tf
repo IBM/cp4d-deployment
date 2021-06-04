@@ -23,6 +23,75 @@ variable "secret_access_key" {
     error_message = "Secret Access Key must be provided."
   }
 }
+##############################
+
+variable "new_or_existing_vpc_subnet" {
+  description = "For existing VPC and SUBNETS use 'exist' otherwise use 'new' to create new VPC and SUBNETS, default is 'new' "
+  default     = "new"
+}
+
+##############################
+# New Network
+##############################
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC, e.g: 10.0.0.0/16"
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr1" {
+  default = "10.0.0.0/20"
+}
+
+variable "public_subnet_cidr2" {
+  default = "10.0.16.0/20"
+}
+
+variable "public_subnet_cidr3" {
+  default = "10.0.32.0/20"
+}
+
+variable "private_subnet_cidr1" {
+  default = "10.0.128.0/20"
+}
+
+variable "private_subnet_cidr2" {
+  default = "10.0.144.0/20"
+}
+
+variable "private_subnet_cidr3" {
+  default = "10.0.160.0/20"
+}
+
+##############################
+# Existing Network       
+##############################
+variable "vpc_id" {
+  default = ""
+}
+variable "public_subnet1_id" {
+  default = ""
+}
+
+variable "public_subnet2_id" {
+  default = ""
+}
+
+variable "public_subnet3_id" {
+  default = ""
+}
+
+variable "private_subnet1_id" {
+  default = ""
+}
+
+variable "private_subnet2_id" {
+  default = ""
+}
+
+variable "private_subnet3_id" {
+  default = ""
+}
+#############################
 
 ##########
 # ROSA
@@ -46,36 +115,17 @@ variable "worker_machine_count" {
   default = 3
 }
 
-variable "vpcid" {
-  description = "VPC ID of the network ROSA is deployed in. This is needed for setting the timeout for the LB and also for EFS (if chosen)"
-  type = string
+###################################
+# Enable only one Storage option
+###################################
+variable "ocs" {
+  type = map(string)
+  default = {
+    enable = true
+    ocs_instance_type = "m5.4xlarge"
+  }
 }
 
-variable "openshift_api" {
-  type = string
-}
-
-variable "openshift_username" {
-  type = string
-}
-
-variable "openshift_password" {
-  type = string
-}
-
-variable "openshift_token" {
-  type        = string
-  description = "For cases where you don't have the password but a token can be generated (e.g SSO is being used)"
-}
-
-variable "storage_option" {
-  description = "portworx / ocs / efs"
-  default     = "portworx"
-}
-
-#####################
-# If using portworx
-########################
 variable "portworx_enterprise" {
   type = map(string)
   description = "See PORTWORX.md on how to get the Cluster ID."
@@ -107,26 +157,6 @@ variable "portworx_ibm" {
 }
 
 ################################
-
-#########################
-# If using EFS
-##########################
-variable "efs_name" {
-  default = "rosa-efs"
-}
-
-variable "vpc_cidr" {
-  description = "VPC CIDR of the netwokr ROSA is deployed in"
-  type = string
-  default = ""
-}
-
-variable "subnets" {
-  type = list
-  description = "List of subnet ids for the compute nodes to set as mount targets"
-  default = []
-}
-#############################
 
 #############
 # CPD Variables

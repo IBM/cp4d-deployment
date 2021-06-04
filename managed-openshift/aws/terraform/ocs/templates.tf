@@ -26,12 +26,12 @@ metadata:
   labels:
     operators.coreos.com/ocs-operator.openshift-storage: ''
 spec:
-  channel: stable-4.6
+  channel: stable-4.7
   installPlanApproval: Automatic
   name: ocs-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: ocs-operator.v4.6.3
+  startingCSV: ocs-operator.v4.7.0
 EOF
 }
 
@@ -45,7 +45,8 @@ metadata:
   finalizers:
     - storagecluster.ocs.openshift.io
 spec:
-  encryption: {}
+  encryption:
+    enable: true
   externalStorage: {}
   managedResources:
     cephBlockPools: {}
@@ -72,7 +73,7 @@ spec:
       portable: true
       replica: 3
       resources: {}
-  version: 4.6.0
+  version: 4.7.0
 EOF
 }
 
@@ -98,43 +99,39 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-ceph-tools
-        image: rook/ceph:v1.1.9
+        image: rook/ceph:master
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         imagePullPolicy: IfNotPresent
         env:
-          - name: ROOK_ADMIN_SECRET
+          - name: ROOK_CEPH_USERNAME
             valueFrom:
               secretKeyRef:
                 name: rook-ceph-mon
-                key: admin-secret
-        securityContext:
-          privileged: true
+                key: ceph-username
+          - name: ROOK_CEPH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: rook-ceph-mon
+                key: ceph-secret
         volumeMounts:
-          - mountPath: /dev
-            name: dev
-          - mountPath: /sys/bus
-            name: sysbus
-          - mountPath: /lib/modules
-            name: libmodules
+          - mountPath: /etc/ceph
+            name: ceph-config
           - name: mon-endpoint-volume
             mountPath: /etc/rook
-      hostNetwork: true
       volumes:
-        - name: dev
-          hostPath:
-            path: /dev
-        - name: sysbus
-          hostPath:
-            path: /sys/bus
-        - name: libmodules
-          hostPath:
-            path: /lib/modules
         - name: mon-endpoint-volume
           configMap:
             name: rook-ceph-mon-endpoints
             items:
             - key: data
               path: mon-endpoints
+        - name: ceph-config
+          emptyDir: {}
+      tolerations:
+        - key: "node.kubernetes.io/unreachable"
+          operator: "Exists"
+          effect: "NoExecute"
+          tolerationSeconds: 5
 EOF
 }

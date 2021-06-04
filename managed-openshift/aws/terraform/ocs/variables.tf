@@ -19,3 +19,11 @@ variable "installer_workspace" {
   type        = string
   description = "Folder to store/find the installation files"
 }
+
+variable "cluster_name" {
+  type = string
+}
+
+variable "ocs_instance_type" {
+  type = string
+}

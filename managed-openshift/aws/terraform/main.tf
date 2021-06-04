@@ -17,8 +17,8 @@ locals {
   private_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].private_subnet1_id : var.private_subnet1_id
   private_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet2_id[0] : var.private_subnet2_id
   private_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet3_id[0] : var.private_subnet3_id
-  single_zone_subnets = [local.private_subnet1_id]
-  multi_zone_subnets  = [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id]
+  single_zone_subnets = [local.public_subnet1_id, local.private_subnet1_id]
+  multi_zone_subnets  = [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
 }
 resource "null_resource" "create_workspace" {
   provisioner "local-exec" {
@@ -62,12 +62,12 @@ module "network" {
   vpc_cidr            = var.vpc_cidr
   network_tag_prefix  = var.cluster_name
   tenancy             = var.tenancy
-  master_subnet_cidr1 = var.master_subnet_cidr1
-  master_subnet_cidr2 = var.master_subnet_cidr2
-  master_subnet_cidr3 = var.master_subnet_cidr3
-  worker_subnet_cidr1 = var.worker_subnet_cidr1
-  worker_subnet_cidr2 = var.worker_subnet_cidr2
-  worker_subnet_cidr3 = var.worker_subnet_cidr3
+  public_subnet_cidr1 = var.public_subnet_cidr1
+  public_subnet_cidr2 = var.public_subnet_cidr2
+  public_subnet_cidr3 = var.public_subnet_cidr3
+  private_subnet_cidr1 = var.private_subnet_cidr1
+  private_subnet_cidr2 = var.private_subnet_cidr2
+  private_subnet_cidr3 = var.private_subnet_cidr3
   az                  = var.az
   availability_zone1  = local.availability_zone1
   availability_zone2  = local.availability_zone2
@@ -97,11 +97,9 @@ module "ocp" {
   cluster_network_host_prefix     = var.cluster_network_host_prefix
   machine_network_cidr            = var.vpc_cidr
   service_network_cidr            = var.service_network_cidr
-  openshift_username              = var.openshift_username
-  openshift_password              = var.openshift_password
-  enable_autoscaler               = var.enable_autoscaler
   installer_workspace             = local.installer_workspace
   openshift_version               = var.openshift_version
+  subnets = var.az == "multi_zone" ? local.multi_zone_subnets : local.single_zone_subnets
 
   depends_on = [
     null_resource.aws_configuration,
@@ -130,19 +128,17 @@ module "portworx" {
   ]
 }
 
-##################################
-# OCS IS NOT CURRENTLY SUPPORTED #
-##################################
-
-# module "ocs" {
-#   count               = var.storage_option == "ocs" ? 1 : 0
-#   source              = "./ocs"
-#   openshift_api       = var.openshift_api
-#   openshift_username  = var.openshift_username
-#   openshift_password  = var.openshift_password
-#   openshift_token     = var.openshift_token
-#   installer_workspace = local.installer_workspace
-# }
+module "ocs" {
+  count               = var.ocs.enable == "ocs" ? 1 : 0
+  source              = "./ocs"
+  openshift_username  = var.openshift_username
+  openshift_password  = var.openshift_password
+  openshift_api       = var.openshift_api
+  openshift_token     = var.openshift_token
+  installer_workspace = local.installer_workspace
+  cluster_name = var.cluster_name
+  ocs_instance_type = var.ocs.ocs_instance_type
+}
 
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0

@@ -25,27 +25,27 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "master_subnet_cidr1" {
+variable "public_subnet_cidr1" {
   default = "10.0.0.0/20"
 }
 
-variable "master_subnet_cidr2" {
+variable "public_subnet_cidr2" {
   default = "10.0.16.0/20"
 }
 
-variable "master_subnet_cidr3" {
+variable "public_subnet_cidr3" {
   default = "10.0.32.0/20"
 }
 
-variable "worker_subnet_cidr1" {
+variable "private_subnet_cidr1" {
   default = "10.0.128.0/20"
 }
 
-variable "worker_subnet_cidr2" {
+variable "private_subnet_cidr2" {
   default = "10.0.144.0/20"
 }
 
-variable "worker_subnet_cidr3" {
+variable "private_subnet_cidr3" {
   default = "10.0.160.0/20"
 }
 

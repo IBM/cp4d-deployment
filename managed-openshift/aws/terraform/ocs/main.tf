@@ -13,6 +13,27 @@ resource "local_file" "ocs_toolbox_yaml" {
   filename = "${var.installer_workspace}/ocs_toolbox.yaml"
 }
 
+resource "null_resource" "create_ocs_machinepool" {
+  triggers = {
+    installer_workspace = var.installer_workspace
+    cluster_name = var.cluster_name
+  }  
+  provisioner "local-exec" {
+    when    = create
+    command = <<EOF
+${self.triggers.installer_workspace}/rosa create machinepool --cluster=${self.triggers.cluster_name} --name=workerocs --instance-type='${var.ocs_instance_type}' --replicas=3 --labels='cluster.ocs.openshift.io/openshift-storage=,node-role.kubernetes.io/infra=' --taints='node.ocs.openshift.io/storage=true:NoSchedule'
+echo "Sleeping 5mins for new OCS nodes to become ready"
+sleep 300
+EOF
+  }
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+${self.triggers.installer_workspace}/rosa delete machinepool --cluster=${self.triggers.cluster_name} --name=workerocs 
+EOF
+  }
+}
+
 resource "null_resource" "install_ocs" {
   triggers = {
     openshift_api       = var.openshift_api
@@ -20,21 +41,21 @@ resource "null_resource" "install_ocs" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
+    login_cmd = local.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
 echo "Attempting login.."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-echo "Label worker nodes as storage nodes"
-chmod +x ocs/scripts/ocs-prereqs.sh
-bash ocs/scripts/ocs-prereqs.sh
+${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 echo "Creating namespace, operator group and subscription"
 oc create -f ${self.triggers.installer_workspace}/ocs_olm.yaml
 echo "Sleeping for 5mins"
 sleep 300
 echo "Creating storagecluster"
 oc create -f ${self.triggers.installer_workspace}/ocs_storagecluster.yaml
+echo "Sleeping for 2min"
+sleep 120
 echo "Creating OCS toolbox"
 oc create -f ${self.triggers.installer_workspace}/ocs_toolbox.yaml
 echo "Sleeping for 5mins"
@@ -45,7 +66,7 @@ EOF
     when    = destroy
     command = <<EOF
 echo "Logging in.."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
+${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
 echo "Delete OCS toolbox"
 oc delete -f ${self.triggers.installer_workspace}/ocs_toolbox.yaml
 echo "Delete storagecluster"
@@ -57,6 +78,11 @@ EOF
   depends_on = [
     local_file.ocs_olm_yaml,
     local_file.ocs_storagecluster_yaml,
-    local_file.ocs_toolbox_yaml
+    local_file.ocs_toolbox_yaml,
+    null_resource.create_ocs_machinepool
   ]
+}
+
+locals {
+  login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds"))
 }

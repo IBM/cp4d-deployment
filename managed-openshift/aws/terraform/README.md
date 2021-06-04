@@ -18,7 +18,10 @@ $ rosa login --token=<rosa_token>
 ## Starts the cluster creation process (~30-40minutes) and watches the logs
 $ rosa create cluster --cluster-name <cluster_name> --watch --compute-machine-type "m5.4xlarge" --compute-nodes 3
 ```
-
+### Creating a temporary cluster-admin user
+```bash
+$ rosa create admin --cluster <cluster_name>
+```
 ### Configuring your IDP (GitHub Enterprise)
 * Click Settings → Developer settings → OAuth Apps → Register a new OAuth application.
 * Enter an application name.
@@ -31,8 +34,8 @@ $ rosa create cluster --cluster-name <cluster_name> --watch --compute-machine-ty
 * Grant admin priviledges to a user in the github org/team you provided through the admin page.
 
 ### Installing Portworx and CPD
-* Login to the cluster using your IDP, generate a login command (top right corner) and get the token and server url. 
-* Set the `openshift_api` and `openshift_token` variables with the server url and token respectively.
+* If using the temporary cluster-admin user, set the `openshift_username` and `openshift_password` variables from the generated credentials of the `rosa create admin` command earlier.
+* If using an IDP Login to the cluster using your IDP, generate a login command (top right corner) and get the token and server url. Set the `openshift_api` and `openshift_token` variables with the server url and token respectively.
 * Fill out the `variables.tf` in the root folder or create an `.tfvars` file for your variables.
 * Deploy, using:
 ```bash
@@ -41,11 +44,21 @@ terraform apply
 
 Note: Terraform version `0.15.0` or later are supported.
 
-### Scale Up the cluster
-* Select your ROSA cluster from the link in Openshift Cluster Manager. [here](https://cloud.redhat.com/openshift/?plan_id=ROSA)
-* `Machine Pools` tab → Choose options of the machine pool (3 dots on the right side) → `Scale`
-* Increase the edit Node count to scale up your cluster. (Note: It will take some time to scale up. You can check the status using `oc project openshift-machine-api` → `oc get machineset` → number of Ready/Available machine sets should be equal to Desired machine sets)
-
+### Helpful Commands
+* Scale up worker nodes:
+```bash
+$ rosa list machinepools --cluster=<cluster_name>
+$ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --replicas=<number>
+```
+* Enable Autoscaling:
+```bash
+$ rosa list machinepools --cluster=<cluster_name>
+$ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autoscaling --min-replicas=<number> --max-replicas=<number>
+```
+* Disable Autoscaling:
+```bash
+$ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autoscaling=false --replicas=<number>
+```
 
 ### Pricing Information for ROSA
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
