@@ -31,10 +31,11 @@ resource "null_resource" "configure_cluster" {
     openshift_token     = var.openshift_token
     vpc_id              = var.vpc_id
     installer_workspace = var.installer_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"managementState":"Unmanaged"}}'
@@ -73,11 +74,12 @@ resource "null_resource" "install_operator" {
     cloudctl_version      = var.cloudctl_version
     cpd_external_registry = var.cpd_external_registry
     cpd_external_username = var.cpd_external_username
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 mkdir -p ${self.triggers.cpd_workspace}
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 case $(uname -s) in
   Darwin)
     wget https://github.com/IBM/cloud-pak-cli/releases/download/${self.triggers.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -O ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64.tar.gz
@@ -131,11 +133,12 @@ resource "null_resource" "install_lite" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#lite#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -165,11 +168,12 @@ resource "null_resource" "install_dv" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#dv#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -200,11 +204,12 @@ resource "null_resource" "install_spark" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#spark#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -236,11 +241,12 @@ resource "null_resource" "install_wkc" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#wkc#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -273,11 +279,12 @@ resource "null_resource" "install_wsl" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#wsl#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -311,11 +318,12 @@ resource "null_resource" "install_wml" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#wml#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -350,11 +358,12 @@ resource "null_resource" "install_aiopenscale" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#aiopenscale#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -390,11 +399,12 @@ resource "null_resource" "install_cde" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#cde#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -431,11 +441,12 @@ resource "null_resource" "install_streams" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#streams#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -473,11 +484,12 @@ resource "null_resource" "install_streams_flows" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#streams-flows#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -516,11 +528,12 @@ resource "null_resource" "install_ds" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#ds#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -559,11 +572,12 @@ resource "null_resource" "install_db2wh" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#db2wh#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -604,11 +618,12 @@ resource "null_resource" "install_db2oltp" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#db2oltp#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -650,11 +665,12 @@ resource "null_resource" "install_dmc" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#dmc#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -697,11 +713,12 @@ resource "null_resource" "install_datagate" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#datagate#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -745,11 +762,12 @@ resource "null_resource" "install_dods" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#dods#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -794,11 +812,12 @@ resource "null_resource" "install_ca" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#ca#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -844,11 +863,12 @@ resource "null_resource" "install_spss" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#spss#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -894,11 +914,12 @@ resource "null_resource" "install_bigsql" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#big-sql#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh
@@ -946,11 +967,12 @@ resource "null_resource" "install_pa" {
     openshift_token       = var.openshift_token
     cpd_namespace         = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Logging in..."
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 sed -i -e s#SERVICE#pa#g ${self.triggers.cpd_workspace}/cpd_service.yaml
 oc create -f ${self.triggers.cpd_workspace}/cpd_service.yaml -n ${self.triggers.cpd_namespace}
 chmod + cpd/scripts/wait-for-service-install.sh

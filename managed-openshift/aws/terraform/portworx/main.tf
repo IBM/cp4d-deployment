@@ -148,5 +148,5 @@ locals {
   download_and_extract_packages = true
   secret_provider = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
   px_workspace = "${var.installer_workspace}/ibm-px"
-  login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds"))
+  /* login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds")) */
 }

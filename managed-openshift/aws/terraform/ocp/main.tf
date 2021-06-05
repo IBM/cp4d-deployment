@@ -6,7 +6,7 @@ locals {
 
 resource "null_resource" "download_binaries" {
   triggers = {
-    installer_workspace = local.installer_workspace
+    installer_workspace = var.installer_workspace
   }
   provisioner "local-exec" {
     when    = create
@@ -40,7 +40,7 @@ EOF
 
 resource "null_resource" "install_rosa" {
   triggers = {
-    installer_workspace = local.installer_workspace
+    installer_workspace = var.installer_workspace
     cluster_name = var.cluster_name
   }
   provisioner "local-exec" {
@@ -56,7 +56,7 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-#${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}'
+${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
 EOF
   }
   depends_on = [
@@ -66,15 +66,22 @@ EOF
 
 resource "null_resource" "create_rosa_user" {
   triggers = {
-    installer_workspace = local.installer_workspace
+    installer_workspace = var.installer_workspace
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > .creds
+${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
 EOF
   }
   depends_on = [
     null_resource.install_rosa,
+  ]
+}
+
+data "local_file" "creds" {
+  filename = "${var.installer_workspace}/.creds"
+  depends_on = [
+    null_resource.create_rosa_user
   ]
 }

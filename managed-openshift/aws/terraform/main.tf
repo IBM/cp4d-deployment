@@ -6,7 +6,8 @@ provider "aws" {
 }
 
 locals {
-  installer_workspace = "${path.root}/installer-files"
+  rootpath = abspath(path.root)
+  installer_workspace = "${local.rootpath}/installer-files"
   availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
   availability_zone2  = var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
   availability_zone3  = var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
@@ -20,6 +21,9 @@ locals {
   single_zone_subnets = [local.public_subnet1_id, local.private_subnet1_id]
   multi_zone_subnets  = [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
 }
+
+data "aws_availability_zones" "azs" {}
+
 resource "null_resource" "create_workspace" {
   provisioner "local-exec" {
     command = <<EOF
@@ -86,12 +90,6 @@ module "ocp" {
   cluster_name = var.cluster_name
   region = var.region
   multi_zone                      = var.az == "multi_zone" ? true : false
-  public_subnet1_id               = local.public_subnet1_id
-  public_subnet2_id               = local.public_subnet2_id
-  public_subnet3_id               = local.public_subnet3_id
-  private_subnet1_id               = local.private_subnet1_id
-  private_subnet2_id               = local.private_subnet2_id
-  private_subnet3_id               = local.private_subnet3_id
   private_cluster                 = var.private_cluster
   cluster_network_cidr            = var.cluster_network_cidr
   cluster_network_host_prefix     = var.cluster_network_host_prefix
@@ -99,7 +97,7 @@ module "ocp" {
   service_network_cidr            = var.service_network_cidr
   installer_workspace             = local.installer_workspace
   openshift_version               = var.openshift_version
-  subnets = var.az == "multi_zone" ? local.multi_zone_subnets : local.single_zone_subnets
+  subnet_ids = var.az == "multi_zone" ? local.multi_zone_subnets : local.single_zone_subnets
 
   depends_on = [
     null_resource.aws_configuration,
@@ -110,10 +108,6 @@ module "ocp" {
 module "portworx" {
   count                 = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
   source                = "./portworx"
-  openshift_api         = var.openshift_api
-  openshift_username    = var.openshift_username
-  openshift_password    = var.openshift_password
-  openshift_token       = var.openshift_token
   installer_workspace   = local.installer_workspace
   region                = var.region
   aws_access_key_id     = var.access_key_id
@@ -131,23 +125,21 @@ module "portworx" {
 module "ocs" {
   count               = var.ocs.enable == "ocs" ? 1 : 0
   source              = "./ocs"
-  openshift_username  = var.openshift_username
-  openshift_password  = var.openshift_password
-  openshift_api       = var.openshift_api
-  openshift_token     = var.openshift_token
   installer_workspace = local.installer_workspace
   cluster_name = var.cluster_name
   ocs_instance_type = var.ocs.ocs_instance_type
+  login_cmd = module.ocp.login_cmd
+
+  depends_on = [
+    null_resource.create_workspace,
+    module.ocp,
+  ]
 }
 
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
-  vpc_id                    = var.vpcid
-  openshift_api             = var.openshift_api
-  openshift_username        = var.openshift_username
-  openshift_password        = var.openshift_password
-  openshift_token           = var.openshift_token
+  vpc_id                    = var.vpc_id
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
   cpd_external_registry     = ""
@@ -156,7 +148,7 @@ module "cpd" {
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   datacore_version          = var.datacore_version
-  storage_option            = var.storage_option
+  storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
   apache_spark              = var.apache_spark
   watson_knowledge_catalog  = var.watson_knowledge_catalog
@@ -176,11 +168,12 @@ module "cpd" {
   spss_modeler              = var.spss_modeler
   db2_bigsql                = var.db2_bigsql
   planning_analytics        = var.planning_analytics
+  login_cmd = module.ocp.login_cmd
 
   depends_on = [
     null_resource.create_workspace,
     module.portworx,
     module.ocp,
-    module.efs,
+    module.ocs,
   ]
 }

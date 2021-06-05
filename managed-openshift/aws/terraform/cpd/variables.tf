@@ -1,18 +1,26 @@
 variable "openshift_api" {
   type = string
+  default = ""
 }
 
 variable "openshift_username" {
   type = string
+  default = ""
 }
 
 variable "openshift_password" {
   type = string
+  default = ""
 }
 
 variable "openshift_token" {
   type        = string
   description = "For cases where you don't have the password but a token can be generated (e.g SSO is being used)"
+  default = ""
+}
+
+variable "login_cmd" {
+  type = string
 }
 
 variable "installer_workspace" {

@@ -41,13 +41,13 @@ resource "null_resource" "install_ocs" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
-    login_cmd = local.login_cmd
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
 echo "Attempting login.."
-${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 echo "Creating namespace, operator group and subscription"
 oc create -f ${self.triggers.installer_workspace}/ocs_olm.yaml
 echo "Sleeping for 5mins"
@@ -66,7 +66,7 @@ EOF
     when    = destroy
     command = <<EOF
 echo "Logging in.."
-${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
 echo "Delete OCS toolbox"
 oc delete -f ${self.triggers.installer_workspace}/ocs_toolbox.yaml
 echo "Delete storagecluster"
@@ -83,6 +83,8 @@ EOF
   ]
 }
 
+
+
 locals {
-  login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds"))
+  login_cmd = var.login_cmd
 }

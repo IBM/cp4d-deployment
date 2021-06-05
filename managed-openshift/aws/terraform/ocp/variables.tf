@@ -52,3 +52,8 @@ variable "machine_network_cidr" {
 variable "service_network_cidr" {
   type    = string
 }
+
+variable "installer_workspace" {
+  type        = string
+  description = "Folder to store/find the installation files"
+}

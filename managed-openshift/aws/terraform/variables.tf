@@ -4,6 +4,11 @@ variable "region" {
   default     = "eu-west-2"
 }
 
+variable "tenancy" {
+  description = "Amazon EC2 instances tenancy type, default/dedicated"
+  default     = "default"
+}
+
 variable "access_key_id" {
   type        = string
   description = "Access Key ID for the AWS account"
@@ -113,6 +118,48 @@ variable "worker_machine_type" {
 variable "worker_machine_count" {
   type = number
   default = 3
+}
+
+variable "private_cluster" {
+  type        = bool
+  description = "Endpoints should resolve to Private IPs"
+  default = false
+}
+
+variable "cluster_network_cidr" {
+  type    = string
+  default = "10.128.0.0/14"
+}
+
+variable "cluster_network_host_prefix" {
+  type    = number
+  default = 23
+}
+
+variable "service_network_cidr" {
+  type    = string
+  default = "172.30.0.0/16"
+}
+
+# Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
+variable "az" {
+  description = "single_zone / multi_zone"
+  default     = "multi_zone"
+}
+
+variable "availability_zone1" {
+  description = "example eu-west-2a"
+  default     = ""
+}
+
+variable "availability_zone2" {
+  description = "example eu-west-2b"
+  default     = ""
+}
+
+variable "availability_zone3" {
+  description = "example eu-west-2c"
+  default     = ""
 }
 
 ###################################
