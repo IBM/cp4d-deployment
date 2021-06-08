@@ -35,3 +35,8 @@ variable "ocs_instance_type" {
 variable "login_cmd" {
   type = string
 }
+
+variable "cluster_api" {
+  type    = string
+  default = ""
+}

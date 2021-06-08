@@ -29,7 +29,7 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-${self.triggers.installer_workspace}/rosa delete machinepool --cluster=${self.triggers.cluster_name} --name=workerocs 
+#${self.triggers.installer_workspace}/rosa delete machinepool --cluster=${self.triggers.cluster_name} workerocs 
 EOF
   }
 }
@@ -82,8 +82,6 @@ EOF
     null_resource.create_ocs_machinepool
   ]
 }
-
-
 
 locals {
   login_cmd = var.login_cmd

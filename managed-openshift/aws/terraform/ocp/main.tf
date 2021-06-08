@@ -56,7 +56,7 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
+#${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
 EOF
   }
   depends_on = [
@@ -72,6 +72,7 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
+${self.triggers.installer_workspace}/rosa describe cluster --cluster='${var.cluster_name}' | grep "API URL" | awk '{print $3}' >> ${self.triggers.installer_workspace}/.creds
 echo "Sleeping for 3mins"
 sleep 180
 EOF

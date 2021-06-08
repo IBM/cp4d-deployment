@@ -58,7 +58,7 @@ resource "null_resource" "push_ibm_px_images" {
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 cd ${self.triggers.installer_workspace}/cpd-portworx/px-images
 echo "cleaning up stale images"
 sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./podman-rm-local-images.sh
@@ -70,7 +70,6 @@ EOF
     null_resource.download_and_extract_packages
   ]
 }
-
 
 resource "null_resource" "install_portworx" {
   triggers = {
@@ -85,7 +84,7 @@ resource "null_resource" "install_portworx" {
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 chmod +x portworx/scripts/portworx-prereq.sh
 bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
 oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml

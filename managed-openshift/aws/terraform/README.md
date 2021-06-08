@@ -30,6 +30,10 @@ $ rosa create admin --cluster <cluster_name>
 * Grant admin priviledges to a user in the github org/team you provided through the admin page.
 
 ### Helpful Commands
+* RedHat Cluster management url:
+```bash
+rosa describe cluster --cluster <cluster_name> | grep Details
+```
 * Scale up worker nodes:
 ```bash
 $ rosa list machinepools --cluster=<cluster_name>
