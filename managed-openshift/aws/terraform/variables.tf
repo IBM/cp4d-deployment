@@ -101,9 +101,13 @@ variable "private_subnet3_id" {
 ##########
 # ROSA
 ##########
+variable "openshift_version" {
+  default = "4.6.17"
+}
+
 variable "cluster_name" {
-  type = string
-  default = "myrosa"
+  type    = string
+  default = "ibmrosa"
 }
 
 variable "rosa_token" {
@@ -111,19 +115,19 @@ variable "rosa_token" {
 }
 
 variable "worker_machine_type" {
-  type = string
+  type    = string
   default = "m5.4xlarge"
 }
 
 variable "worker_machine_count" {
-  type = number
+  type    = number
   default = 3
 }
 
 variable "private_cluster" {
   type        = bool
   description = "Endpoints should resolve to Private IPs"
-  default = false
+  default     = false
 }
 
 variable "cluster_network_cidr" {
@@ -168,37 +172,37 @@ variable "availability_zone3" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable = true
+    enable            = true
     ocs_instance_type = "m5.4xlarge"
   }
 }
 
 variable "portworx_enterprise" {
-  type = map(string)
+  type        = map(string)
   description = "See PORTWORX.md on how to get the Cluster ID."
   default = {
-    enable = false
-    cluster_id = ""
+    enable            = false
+    cluster_id        = ""
     enable_encryption = true
   }
 }
 
 variable "portworx_essentials" {
-  type = map(string)
+  type        = map(string)
   description = "See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint"
   default = {
-    enable = false
-    cluster_id = ""
-    user_id = ""
+    enable       = false
+    cluster_id   = ""
+    user_id      = ""
     osb_endpoint = ""
   }
 }
 
 variable "portworx_ibm" {
-  type = map(string)
+  type        = map(string)
   description = "This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes"
   default = {
-    enable = false
+    enable             = false
     ibm_px_package_url = "http://158.85.173.111/repos/zen/cp4d-builds/3.0.1/misc/portworx/cpd-ocp46x-portworx-v2.7.0.0.tgz"
   }
 }
@@ -210,27 +214,27 @@ variable "portworx_ibm" {
 ###############
 variable "accept_cpd_license" {
   description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
-  default = "reject"
+  default     = "reject"
 }
 
 variable "cpd_external_registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 
 variable "cpd_external_username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = ""
 }
 
 variable "api_key" {
   description = "Repository APIKey or Registry password"
-  default = ""
+  default     = ""
 }
 
 variable "cpd_namespace" {
   description = "Openshift Namespace to deploy CPD into"
-  default = "cpd-tenant"
+  default     = "cpd-tenant"
 }
 
 variable "cloudctl_version" {
@@ -239,10 +243,6 @@ variable "cloudctl_version" {
 
 variable "datacore_version" {
   default = "1.3.3"
-}
-
-variable "openshift_version" {
-  default = "4.6.17"
 }
 
 variable "data_virtualization" {

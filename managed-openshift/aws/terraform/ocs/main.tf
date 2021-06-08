@@ -16,8 +16,8 @@ resource "local_file" "ocs_toolbox_yaml" {
 resource "null_resource" "create_ocs_machinepool" {
   triggers = {
     installer_workspace = var.installer_workspace
-    cluster_name = var.cluster_name
-  }  
+    cluster_name        = var.cluster_name
+  }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
@@ -41,7 +41,7 @@ resource "null_resource" "install_ocs" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
-    login_cmd = var.login_cmd
+    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create

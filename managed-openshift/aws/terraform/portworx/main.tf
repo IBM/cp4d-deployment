@@ -21,7 +21,7 @@ resource "null_resource" "download_and_extract_packages" {
   count = var.portworx_ibm.enable && local.download_and_extract_packages ? 1 : 0
   triggers = {
     installer_workspace = local.px_workspace
-    ibm_px_package_url = var.portworx_ibm.ibm_px_package_url
+    ibm_px_package_url  = var.portworx_ibm.ibm_px_package_url
   }
   provisioner "local-exec" {
     when    = create
@@ -53,11 +53,12 @@ resource "null_resource" "push_ibm_px_images" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     installer_workspace = local.px_workspace
+    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 cd ${self.triggers.installer_workspace}/cpd-portworx/px-images
 echo "cleaning up stale images"
 sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./podman-rm-local-images.sh
@@ -79,6 +80,7 @@ resource "null_resource" "install_portworx" {
     openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
     region              = var.region
+    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
@@ -143,10 +145,9 @@ EOF
 }
 
 locals {
-  px_cluster_id = var.portworx_ibm.enable ? "px-storage-cluster" : var.portworx_enterprise.cluster_id
-  priv_image_registry = "image-registry.openshift-image-registry.svc:5000/kube-system"
+  px_cluster_id                 = var.portworx_ibm.enable ? "px-storage-cluster" : var.portworx_enterprise.cluster_id
+  priv_image_registry           = "image-registry.openshift-image-registry.svc:5000/kube-system"
   download_and_extract_packages = true
-  secret_provider = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
-  px_workspace = "${var.installer_workspace}/ibm-px"
-  /* login_cmd = regex("oc\\s.*", file("${var.installer_workspace}/.creds")) */
+  secret_provider               = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
+  px_workspace                  = "${var.installer_workspace}/ibm-px"
 }

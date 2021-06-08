@@ -1,7 +1,7 @@
 locals {
   installer_workspace = "${path.root}/installer-files"
   rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.0.8"
-  subnet_ids = join(",", var.subnet_ids)  
+  subnet_ids          = join(",", var.subnet_ids)
 }
 
 resource "null_resource" "download_binaries" {
@@ -41,7 +41,7 @@ EOF
 resource "null_resource" "install_rosa" {
   triggers = {
     installer_workspace = var.installer_workspace
-    cluster_name = var.cluster_name
+    cluster_name        = var.cluster_name
   }
   provisioner "local-exec" {
     when    = create
@@ -72,6 +72,8 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
+echo "Sleeping for 3mins"
+sleep 180
 EOF
   }
   depends_on = [

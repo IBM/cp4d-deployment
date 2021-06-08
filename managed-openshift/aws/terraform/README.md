@@ -7,17 +7,13 @@
 * Download `rosa` cli [here](https://github.com/openshift/rosa/releases)
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
-* Run the following steps:
-```bash
-## Configures your AWS account and ensures everything is setup correctly
-$ rosa init
+* Fill out the `variables.tf` in the root folder (or create a `terraform.tfvars` file) for your variables using the VARIABLES.md as a reference
+  * Deploy, using:
+  ```bash
+  terraform apply
+  ```
+Note: Terraform version `0.15.0` or later are supported.
 
-## Login
-$ rosa login --token=<rosa_token>
-
-## Starts the cluster creation process (~30-40minutes) and watches the logs
-$ rosa create cluster --cluster-name <cluster_name> --watch --compute-machine-type "m5.4xlarge" --compute-nodes 3
-```
 ### Creating a temporary cluster-admin user
 ```bash
 $ rosa create admin --cluster <cluster_name>
@@ -32,17 +28,6 @@ $ rosa create admin --cluster <cluster_name>
 * In your terminal, run `rosa describe cluster --cluster <cluster_name> | grep Details` to view the admin page of the cluster. Follow the link to the cluster and create OAuth using these generated information.
   * For the Hostname field enter the Enterprise hostname, e.g. github.ibm.com
 * Grant admin priviledges to a user in the github org/team you provided through the admin page.
-
-### Installing Portworx and CPD
-* If using the temporary cluster-admin user, set the `openshift_username` and `openshift_password` variables from the generated credentials of the `rosa create admin` command earlier.
-* If using an IDP Login to the cluster using your IDP, generate a login command (top right corner) and get the token and server url. Set the `openshift_api` and `openshift_token` variables with the server url and token respectively.
-* Fill out the `variables.tf` in the root folder or create an `.tfvars` file for your variables.
-* Deploy, using:
-```bash
-terraform apply
-```
-
-Note: Terraform version `0.15.0` or later are supported.
 
 ### Helpful Commands
 * Scale up worker nodes:
