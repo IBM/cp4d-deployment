@@ -122,6 +122,15 @@ These templates can also deploy Cloud Pak for Data on an existing VPC Gen 2 Open
 
 * `existing_roks_cluster` — Name or ID of the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
 
+### Replace / Upgrading worker nodes
+
+In VPC Gen2 clusters, if you want to replace/upgrade the worker node which has block storage attached, this script can be used instead of doing it from IBM cloud console.
+https://github.com/mumutyal/px-utils/blob/master/px_vpc_upgrade/vpc_upgrade_util.sh
+
+usage: ./vpc_upgrade.sh clustername replace/upgrade workerid
+
+If we do replace/upgrade from IBM cloud console, block storage would get detached and portwox will consider that node as storageless. The data stored in the block storage would not be available to the application
+
 ## Troubleshooting
 
 Open an Issue in this repo that describes the error.
