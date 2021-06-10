@@ -5,6 +5,9 @@ metadata:
 spec:
   repositoryDigestMirrors:
   - mirrors:
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
     - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
     source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: icr.io/cpopen

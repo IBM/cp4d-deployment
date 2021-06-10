@@ -7,7 +7,8 @@ spec:
   displayName: IBMCS Test Operators
   publisher: IBM
   sourceType: grpc
-  image: docker.io/ibmcom/ibm-common-service-catalog:latest # alternatively use hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom/ibm-common-service-catalog:latest for a dev untested bedrock build
+  image: hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom/ibm-common-service-catalog:latest-validated 
+  # Alternatively use docker.io/ibmcom/ibm-common-service-catalog:latest for GA untested bedrock build
   updateStrategy:
     registryPoll:
       interval: 45m

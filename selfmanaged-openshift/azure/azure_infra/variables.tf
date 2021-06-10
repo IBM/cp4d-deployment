@@ -297,11 +297,11 @@ variable "cognos-analytics" {
   default = "no"
 }
 
-variable "spss-modeler"{
+variable "spss-modeler" {
   default = "no"
 }
 
-variable "db2-bigsql"{
+variable "db2-bigsql" {
   default = "no"
 }
 
@@ -328,17 +328,53 @@ variable "accept-cpd-license" {
 ### CPD4.0 variables
 ##############################
 variable "artifactory-username" {
-   default = "xxx@in.ibm.com"
+  default = "xxx@in.ibm.com"
 }
 
 variable "artifactory-apikey" {
-   default = "xxxxyyyyzzzzz"
+  default = "xxxxyyyyzzzzz"
 }
 
 variable "staging-username" {
-   default = "xxx@in.ibm.com"
+  default = "xxx@in.ibm.com"
 }
 
 variable "staging-apikey" {
-   default = "xxxxyyyyzzzzz"
+  default = "xxxxyyyyzzzzz"
+}
+
+variable "gituser" {
+  default = "xxx"
+}
+
+variable "gittoken" {
+  default = "xxxxyyyyzzzzz"
+}
+
+############################################
+# CPD 4.0 service variables 
+###########################################
+
+variable "cpd-platform-operator" {
+  default = "no"
+}
+
+variable "bedrock-zen-operator" {
+  default = "yes"
+}
+
+variable "ccs" {
+  default = "no"
+}
+
+variable "wsl" {
+  default = "no"
+}
+
+variable "aiopenscale" {
+  default = "no"
+}
+
+variable "spss" {
+  default = "no"
 }

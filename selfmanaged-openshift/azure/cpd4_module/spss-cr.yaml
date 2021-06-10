@@ -1,0 +1,12 @@
+apiVersion: spssmodeler.cpd.ibm.com/v1
+kind: Spss
+metadata:
+  name: spss-cr
+spec:    
+  version: "4.0.0"
+  storageClass: "nfs"
+  scaleConfig: "small"
+  architecture: "amd64"
+  namespace: "zen"
+  operation: "install"
+  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"  

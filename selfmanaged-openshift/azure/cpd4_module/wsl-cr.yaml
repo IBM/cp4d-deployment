@@ -10,6 +10,6 @@ spec:
   license:
     accept: true
     license: Enterprise
-  architecture: "amd64"
-  cloudpak_instance_id: "cloudpakid"
+  # architecture: "amd64"
+  # cloudpak_instance_id: "cloudpakid"
   docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
