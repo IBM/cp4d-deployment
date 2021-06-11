@@ -5,7 +5,7 @@ variable "openshift_installer_url" {
 
 variable "openshift_version" {
   type = string
-  default = "4.6.17"
+  default = "4.6.31"
 }
 
 variable "cluster_name" {
@@ -14,9 +14,6 @@ variable "cluster_name" {
 
 variable "base_domain" {
   type = string
-  /* validation {
-    error_message = "Must be a valid domain or subdomain url"
-  } */
 }
 
 variable "availability_zone1" {
