@@ -87,3 +87,24 @@ data "local_file" "creds" {
     null_resource.create_rosa_user
   ]
 }
+
+resource "null_resource" "configure_image_registry" {
+  triggers = {
+    login_cmd     = regex("oc\\s.*", data.local_file.creds.content)
+  }
+  provisioner "local-exec" {
+    command =<<EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
+oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
+echo 'Sleeping for 3m'
+sleep 3m
+oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
+oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000
+EOF
+  }
+  depends_on = [
+    local_file.creds,
+    local_file.create_rosa_user,
+  ]
+}

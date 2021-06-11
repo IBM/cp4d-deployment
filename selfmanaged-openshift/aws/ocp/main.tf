@@ -169,7 +169,7 @@ oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"
 echo 'Sleeping for 3m'
 sleep 3m
 oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
-oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600 --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000 --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 EOF
   }
   depends_on = [
