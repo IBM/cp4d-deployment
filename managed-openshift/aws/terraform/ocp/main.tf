@@ -21,7 +21,7 @@ case $(uname -s) in
   Linux)
     wget -r -l1 -np -nd -q ${local.rosa_installer_url}/rosa-linux-amd64 -P ${self.triggers.installer_workspace} -A 'rosa-linux-amd64'
     chmod u+x ${self.triggers.installer_workspace}/rosa-linux-amd64
-    mv ${self.triggers.installer_workspace}/rosa-darwin-amd64 ${self.triggers.installer_workspace}/rosa
+    mv ${self.triggers.installer_workspace}/rosa-linux-amd64 ${self.triggers.installer_workspace}/rosa
     ;;
   *)
     echo 'Supports only Linux and Mac OS at this time'
@@ -72,7 +72,6 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
-${self.triggers.installer_workspace}/rosa describe cluster --cluster='${var.cluster_name}' | grep "API URL" | awk '{print $3}' >> ${self.triggers.installer_workspace}/.creds
 echo "Sleeping for 3mins"
 sleep 180
 EOF
