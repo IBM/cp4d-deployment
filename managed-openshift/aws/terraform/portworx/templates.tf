@@ -8,7 +8,7 @@ metadata:
   annotations:%{if var.portworx_essentials.enable}${indent(4, "\nportworx.io/misc-args: \"--oem esse\"")}%{endif}
     portworx.io/is-openshift: "true"%{if var.portworx_ibm.enable}${indent(4, "\nportworx.io/misc-args: \"--oem ibm-icp4d\"")}%{endif}
 spec:
-  image: portworx/oci-monitor:2.7.0%{if var.portworx_ibm.enable}${indent(2, "customImageRegistry: ${local.priv_image_registry}")}%{endif}
+  image: portworx/oci-monitor:2.7.0%{if var.portworx_ibm.enable}${indent(2, "\ncustomImageRegistry: ${local.priv_image_registry}")}%{endif}
   imagePullPolicy: Always
   kvdb:
     internal: true
