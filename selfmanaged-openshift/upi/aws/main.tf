@@ -26,28 +26,28 @@ module "iam" {
 module "installer" {
   source = "./install"
 
-  ami = aws_ami_copy.main.id
-  dns_public_id = module.dns.public_dns_id
-  infrastructure_id = var.cluster_id
-  clustername = var.clustername
-  domain = var.base_domain
-  aws_region = var.aws_region
-  aws_access_key_id = var.aws_access_key_id
-  aws_secret_access_key = var.aws_secret_access_key
-  vpc_cidr_block = var.machine_cidr
-  master_count = length(var.aws_azs)
-  openshift_pull_secret = var.openshift_pull_secret
-  openshift_installer_url = var.openshift_installer_url
-  aws_worker_root_volume_iops = var.aws_worker_root_volume_iops
-  aws_worker_root_volume_size = var.aws_worker_root_volume_size
-  aws_worker_root_volume_type = var.aws_worker_root_volume_type
+  ami                           = aws_ami_copy.main.id
+  dns_public_id                 = module.dns.public_dns_id
+  infrastructure_id             = var.cluster_id
+  clustername                   = var.clustername
+  domain                        = var.base_domain
+  aws_region                    = var.aws_region
+  aws_access_key_id             = var.aws_access_key_id
+  aws_secret_access_key         = var.aws_secret_access_key
+  vpc_cidr_block                = var.machine_cidr
+  master_count                  = length(var.aws_azs)
+  openshift_pull_secret         = var.openshift_pull_secret
+  openshift_installer_url       = var.openshift_installer_url
+  aws_worker_root_volume_iops   = var.aws_worker_root_volume_iops
+  aws_worker_root_volume_size   = var.aws_worker_root_volume_size
+  aws_worker_root_volume_type   = var.aws_worker_root_volume_type
   aws_worker_availability_zones = var.aws_azs
-  aws_worker_instance_type = var.aws_worker_instance_type
-  airgapped = var.airgapped
-  download_binaries = var.download_binaries
-  publish_strategy = var.airgapped.enabled ? "Internal" : var.aws_publish_strategy
-  openshift_version = var.openshift_version
-  
+  aws_worker_instance_type      = var.aws_worker_instance_type
+  airgapped                     = var.airgapped
+  download_binaries             = var.download_binaries
+  publish_strategy              = var.airgapped.enabled ? "Internal" : var.aws_publish_strategy
+  openshift_version             = var.openshift_version
+
   depends_on = [
     module.vpc,
   ]
@@ -56,14 +56,14 @@ module "installer" {
 module "vpc" {
   source = "./vpc"
 
-  cidr_block       = var.machine_cidr
-  cluster_id       = var.cluster_id
-  region           = var.aws_region
-  vpc              = var.aws_vpc
-  public_subnets   = var.aws_public_subnets
-  private_subnets  = var.aws_private_subnets
-  publish_strategy = var.aws_publish_strategy
-  airgapped = var.airgapped
+  cidr_block         = var.machine_cidr
+  cluster_id         = var.cluster_id
+  region             = var.aws_region
+  vpc                = var.aws_vpc
+  public_subnets     = var.aws_public_subnets
+  private_subnets    = var.aws_private_subnets
+  publish_strategy   = var.aws_publish_strategy
+  airgapped          = var.airgapped
   availability_zones = var.aws_azs
 
   tags = local.tags
