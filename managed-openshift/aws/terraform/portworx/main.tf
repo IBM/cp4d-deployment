@@ -144,7 +144,8 @@ EOF
 }
 
 locals {
-  px_cluster_id                 = var.portworx_ibm.enable ? "px-storage-cluster" : var.portworx_enterprise.cluster_id
+  i_px_cluster_id               = var.portworx_ibm.enable ? "px-storage-cluster" : var.portworx_enterprise.cluster_id
+  px_cluster_id                 = var.portworx_essentials.enable ? var.portworx_essentials.cluster_id : local.i_px_cluster_id
   priv_image_registry           = "image-registry.openshift-image-registry.svc:5000/kube-system"
   download_and_extract_packages = true
   secret_provider               = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
