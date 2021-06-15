@@ -7,7 +7,7 @@ spec:
   displayName: Cloud Pak for Data
   publisher: IBM
   sourceType: grpc
-  image: hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com/cpd-platform-operator-catalog:1.0.0-amd64-147
+  image: hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com/cpd-platform-operator-catalog:2.0.0-amd64-122
   updateStrategy:
     registryPoll:
       interval: 45m

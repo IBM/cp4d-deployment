@@ -45,6 +45,8 @@ resource "null_resource" "install-cloudctl" {
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.1/cloudctl-linux-amd64.tar.gz",
       "wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.1/cloudctl-linux-amd64.tar.gz.sig",
       "sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
+      "sudo mv /usr/local/bin/cloudctl-linux-amd64 /usr/local/bin/cloudctl",
+      "cloudctl version"
     ]
   }
   depends_on = [
@@ -83,19 +85,13 @@ resource "null_resource" "install-cpd-platform-operator" {
       "cd /home/${var.admin-username}/cpd-platform-operator",
 
       "cat > bedrock-catalog-source.yaml <<EOL\n${file("../cpd4_module/bedrock-catalog-source.yaml")}\nEOL",
+      "cat > zen-catalog-source.yaml <<EOL\n${file("../cpd4_module/zen-catalog-source.yaml")}\nEOL",
       "cat > bedrock-edge-mirror-cpd-platform-operator.yaml <<EOL\n${file("../cpd4_module/bedrock-edge-mirror-cpd-platform-operator.yaml")}\nEOL",
       "cat > cpd-platform-operator-catalogsource.yaml <<EOL\n${file("../cpd4_module/cpd-platform-operator-catalogsource.yaml")}\nEOL",
       "cat > cpd-platform-operator-og.yaml <<EOL\n${file("../cpd4_module/cpd-platform-operator-og.yaml")}\nEOL",
       "cat > cpd-platform-operator-sub.yaml <<EOL\n${file("../cpd4_module/cpd-platform-operator-sub.yaml")}\nEOL",
       "cat > cpd-platform-operator-operandrequest.yaml <<EOL\n${file("../cpd4_module/cpd-platform-operator-operandrequest.yaml")}\nEOL",
       "cat > ibmcpd-cr.yaml <<EOL\n${file("../cpd4_module/ibmcpd-cr.yaml")}\nEOL",
-
-      # create bedrock catalog source 
-
-      "echo '*** executing **** oc create -f bedrock-catalog-source.yaml'",
-      "result=$(oc create -f bedrock-catalog-source.yaml)",
-      "echo $result",
-      "sleep 1m",
 
       # Setup global_pull secret 
 
@@ -114,6 +110,19 @@ resource "null_resource" "install-cpd-platform-operator" {
       "echo 'Waiting 15 minutes for the nodes to get ready'",
       "sleep 15m",
 
+      # create bedrock catalog source 
+
+      "echo '*** executing **** oc create -f bedrock-catalog-source.yaml'",
+      "result=$(oc create -f bedrock-catalog-source.yaml)",
+      "echo $result",
+      "sleep 1m",
+
+      # Waiting and checking till the opencloud operator is ready in the openshift-marketplace namespace 
+
+      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+      "sudo chmod +x pod-status-check.sh",
+      "./pod-status-check.sh opencloud-operator openshift-marketplace",
+
       # create cpd-platform catalog source 
 
       "echo '*** executing **** oc create -f cpd-platform-operator-catalogsource.yaml'",
@@ -121,6 +130,21 @@ resource "null_resource" "install-cpd-platform-operator" {
       "echo $result",
       "sleep 1m",
 
+      # Waiting and checking till the cpd-platform operator is ready in the openshift-marketplace namespace 
+
+      "./pod-status-check.sh cpd-platform openshift-marketplace",
+
+      # Creating zen catalog source 
+
+      "echo '*** executing **** oc create -f zen-catalog-source.yaml'",
+      "result=$(oc create -f zen-catalog-source.yaml)",
+      "echo $result",
+      "sleep 1m",
+      
+      # Waiting and checking till the ibm-zen-operator-catalog is ready in the openshift-marketplace namespace 
+
+      "./pod-status-check.sh ibm-zen-operator-catalog openshift-marketplace",
+      
       # Creating the ibm-common-services namespace: 
 
       "oc new-project ibm-common-services",
@@ -142,6 +166,10 @@ resource "null_resource" "install-cpd-platform-operator" {
       "echo $result",
       "sleep 1m",
 
+      # Waiting and checking till the cpd-platform-operator-manager pod is up in ibm-common-services namespace.  
+      
+      "./pod-status-check.sh cpd-platform-operator-manager ibm-common-services",
+
       # Checking if the bedrock operator pods are ready and running. 
 
       # checking status of ibm-namespace-scope-operator
@@ -158,6 +186,16 @@ resource "null_resource" "install-cpd-platform-operator" {
 
       "./bedrock-pod-status-check.sh ibm-common-service-operator ibm-common-services",
 
+      # (Important) Edit operand registry *** 
+
+      "oc get operandregistry -n ibm-common-services -o yaml > operandregistry.yaml",
+      "cp operandregistry.yaml operandregistry.yaml_original",
+      "sed -i '/\\s\\s\\s\\s\\s\\spackageName: ibm-zen-operator/{n;n;s/.*/      sourceName: ibm-zen-operator-catalog/}' operandregistry.yaml ",
+      "sed -zEi 's/    - channel: v3([^\\n]*\\n[^\\n]*name: ibm-zen-operator)/    - channel: stable-v1\\1/' operandregistry.yaml",
+
+      "echo '*** executing **** oc create -f operandregistry.yaml'",
+      "result=$(oc apply -f operandregistry.yaml)",
+      "echo $result",
 
       # Create cpd-platform-operator operand request. This creates the zen operator.
 
@@ -355,6 +393,8 @@ resource "null_resource" "bedrock_zen_operator" {
     null_resource.setup_sc_without_pwx_encryption,
     null_resource.install_ocs,
     null_resource.install_nfs_client,
+    null_resource.install-cloudctl,
+    null_resource.install-cpd-platform-operator
   ]
 }
 
@@ -378,7 +418,7 @@ resource "null_resource" "install-ccs" {
   provisioner "remote-exec" {
     inline = [
       # #Create directory
-      # "mkdir -p /home/${var.admin-username}/ccs-files",
+      "mkdir -p /home/${var.admin-username}/ccs-files",
 
       ## Copy the required yaml files for ccs setup .. 
 
@@ -391,31 +431,31 @@ resource "null_resource" "install-ccs" {
 
       ## Download the case package for CCS
 
-      "curl -s https://${var.gituser}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-ccs/1.0.0-737/ibm-ccs-1.0.0-737.tgz -o ibm-ccs-1.0.0-737.tgz",
+      "curl -s https://${var.gituser-short}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-ccs/1.0.0-746/ibm-ccs-1.0.0-746.tgz -o ibm-ccs-1.0.0-746.tgz",
 
       # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-      "echo  '*************************************'",
-      "echo 'setting up imagecontentsource policy for ccs'",
-      "echo  '*************************************'",
+      # "echo  '*************************************'",
+      # "echo 'setting up imagecontentsource policy for ccs'",
+      # "echo  '*************************************'",
 
-      "echo '*** executing **** oc create -f ccs-mirror.yaml'",
-      "result=$(oc create -f ccs-mirror.yaml)",
-      "echo $result",
+      # "echo '*** executing **** oc create -f ccs-mirror.yaml'",
+      # "result=$(oc create -f ccs-mirror.yaml)",
+      # "echo $result",
 
-      ##Setup global_pull secret 
+      # ##Setup global_pull secret 
 
-      "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
-      "sudo chmod +x setup-global-pull-secret-ccs.sh",
-      "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
-      "echo 'sleeping 15 minutest untill the nodes get ready'",
-      "sleep 15m",
+      # "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
+      # "sudo chmod +x setup-global-pull-secret-ccs.sh",
+      # "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
+      # "echo 'sleeping 15 minutest untill the nodes get ready'",
+      # "sleep 15m",
 
       # Install ccs operator using CLI (OLM)
 
       "cat > install-ccs-operator.sh <<EOL\n${file("../cpd4_module/install-ccs-operator.sh")}\nEOL",
       "sudo chmod +x install-ccs-operator.sh",
-      "./install-ccs-operator.sh ibm-ccs-1.0.0-737.tgz ibm-common-services",
+      "./install-ccs-operator.sh ibm-ccs-1.0.0-746.tgz ibm-common-services",
 
       # Checking if the ccs operator pods are ready and running. 
 
@@ -449,6 +489,7 @@ resource "null_resource" "install-ccs" {
   depends_on = [
     null_resource.install-cloudctl,
     null_resource.install-cpd-platform-operator,
+    null_resource.bedrock_zen_operator
 
   ]
 }
@@ -472,6 +513,7 @@ resource "null_resource" "install-wsl" {
     inline = [
       #Create directory
       "mkdir -p /home/${var.admin-username}/wsl-files",
+      "mkdir -p /home/${var.admin-username}/wsl-files/offline",
 
       ## Copy the required yaml files for ccs setup .. 
 
@@ -480,10 +522,14 @@ resource "null_resource" "install-wsl" {
       # "cat > wsl-catalog-source.yaml <<EOL\n${file("../cpd4_module/wsl-catalog-source.yaml")}\nEOL",
       # "cat > wsl-sub.yaml <<EOL\n${file("../cpd4_module/wsl-sub.yaml")}\nEOL",
       "cat > wsl-cr.yaml <<EOL\n${file("../cpd4_module/wsl-cr.yaml")}\nEOL",
+      "cat > resolvers.yaml <<EOL\n${file("../cpd4_module/wsl-resolvers.yaml")}\nEOL",
+      "cat > resolversAuth.yaml <<EOL\n${data.template_file.wslresolversAuth.rendered}\nEOL",
+
+      
 
       ## Download the case package for wsl
 
-      "curl -s https://${var.gituser}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-wsl/2.0.0-372/ibm-wsl-2.0.0-372.tgz -o ibm-wsl-2.0.0-372.tgz",
+      #"curl -s https://${var.gituser}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-wsl/2.0.0-372/ibm-wsl-2.0.0-372.tgz -o ibm-wsl-2.0.0-372.tgz",
 
       # # create wsl catalog source 
 
@@ -500,10 +546,10 @@ resource "null_resource" "install-wsl" {
       # "sleep 1m",
 
       # Install wsl operator using CLI (OLM)
-
+      "cd /home/${var.admin-username}/wsl-files/offline",
       "cat > install-wsl-operator.sh <<EOL\n${file("../cpd4_module/install-wsl-operator.sh")}\nEOL",
       "sudo chmod +x install-wsl-operator.sh",
-      "./install-wsl-operator.sh ibm-wsl-2.0.0-372.tgz ibm-common-services",
+      "./install-wsl-operator.sh ibm-wsl-2.0.0-372.tgz ibm-common-services ${var.gituser-full} ${var.gittoken}",
 
       # Checking if the wsl operator pods are ready and running. 
 
@@ -519,7 +565,7 @@ resource "null_resource" "install-wsl" {
       "oc project zen",
 
       # Create wsl CR: 
-
+      "cd /home/${var.admin-username}/wsl-files",
       "echo '*** executing **** oc create -f wsl-cr.yaml'",
       "result=$(oc create -f wsl-cr.yaml)",
       "echo $result",
@@ -535,8 +581,9 @@ resource "null_resource" "install-wsl" {
     ]
   }
   depends_on = [
-    null_resource.install-cloudctl,
+    null_resource.install-cloudctl, 
     null_resource.install-cpd-platform-operator,
+    null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
   ]
 }
@@ -569,7 +616,7 @@ resource "null_resource" "install-aiopenscale" {
 
       # Case package. 
 
-      "curl -s https://${var.gituser}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-190/ibm-watson-openscale-2.0.0-190.tgz -o ibm-watson-openscale-2.0.0-190.tgz",
+      "curl -s https://${var.gituser-short}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-190/ibm-watson-openscale-2.0.0-190.tgz -o ibm-watson-openscale-2.0.0-190.tgz",
 
 
       # Install OpenScale operator using CLI (OLM)
@@ -608,8 +655,9 @@ resource "null_resource" "install-aiopenscale" {
     ]
   }
   depends_on = [
-    null_resource.install-cloudctl,
+    null_resource.install-cloudctl, 
     null_resource.install-cpd-platform-operator,
+    null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
   ]
@@ -642,14 +690,14 @@ resource "null_resource" "install-spss" {
 
       # Case package. 
 
-      # "curl -s https://${var.gituser}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-spss/1.0.0-148/ibm-spss-1.0.0-148.tgz -o ibm-spss-1.0.0-148.tgz",
+      "curl -s https://${var.gituser-short}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-spss/1.0.0-153/ibm-spss-1.0.0-153.tgz -o ibm-spss-1.0.0-153.tgz",
 
 
       # # Install spss operator using CLI (OLM)
 
-      # "cat > install-spss-operator.sh <<EOL\n${file("../cpd4_module/install-spss-operator.sh")}\nEOL",
-      # "sudo chmod +x install-spss-operator.sh",
-      # "./install-spss-operator.sh ibm-spss-1.0.0-148.tgz ibm-common-services",
+      "cat > install-spss-operator.sh <<EOL\n${file("../cpd4_module/install-spss-operator.sh")}\nEOL",
+      "sudo chmod +x install-spss-operator.sh",
+      "./install-spss-operator.sh ibm-spss-1.0.0-153.tgz ibm-common-services",
 
       # Checking if the spss operator pods are ready and running. 
 
@@ -681,9 +729,99 @@ resource "null_resource" "install-spss" {
     ]
   }
   depends_on = [
-    null_resource.install-cloudctl,
+    null_resource.install-cloudctl, 
     null_resource.install-cpd-platform-operator,
+    null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+  ]
+}
+
+resource "null_resource" "install-wml" {
+  count = var.wml == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+
+    provisioner "file" {
+    source      = "../cpd4_module/ibm-wml-cpd-4.0.0-1380.tgz"
+    destination = "/home/core/ocpfourx/ibm-wml-cpd-4.0.0-1380.tgz"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/wml-files",
+
+      ## Copy the required yaml files for wml setup .. 
+
+      "cd /home/${var.admin-username}/wml-files",
+
+      "cat > wml-cr.yaml <<EOL\n${file("../cpd4_module/wml-cr.yaml")}\nEOL",
+
+      # Case package. 
+      ### Currently the case package is in ibm internal site. Hence downloading it and keeping it as part of the repo.
+
+      # "curl -s https://${var.gituser-short}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wml/1.0.0-153/ibm-wml-1.0.0-153.tgz -o ibm-wml-1.0.0-153.tgz",
+
+      "cp /home/core/ocpfourx/ibm-wml-cpd-4.0.0-1380.tgz .",
+      # "cat > ibm-wml-cpd-4.0.0-1380.tgz	 <<EOL\n${file("../cpd4_module/ibm-wml-cpd-4.0.0-1380.tgz")}\nEOL",
+      
+      ###### If CCS is installed already , the ccs catalog source would be already created. 
+      ###### If not we need to create CCS catalog source as the first step before we proceed here. 
+      ######
+
+      # # Install wml operator using CLI (OLM)
+
+      "cat > install-wml-operator.sh <<EOL\n${file("../cpd4_module/install-wml-operator.sh")}\nEOL",
+      "sudo chmod +x install-wml-operator.sh",
+      "./install-wml-operator.sh ibm-wml-cpd-4.0.0-1380.tgz ibm-common-services",
+
+      # Checking if the wml operator pods are ready and running. 
+
+      # checking status of ibm-watson-wml-operator
+
+      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+      "sudo chmod +x pod-status-check.sh",
+      # "OPERATOR_POD_NAME=$(oc get pods -n ibm-common-services | grep ibm-watson-wml-operator | awk '{print $1}')",
+      "./pod-status-check.sh ibm-cpd-wml-operator ibm-common-services",
+
+      # switch zen namespace
+
+      "oc project zen",
+
+      # Create wml CR: 
+
+      "echo '*** executing **** oc create -f wml-cr.yaml'",
+      "result=$(oc create -f wml-cr.yaml)",
+      "echo $result",
+
+      # check the WML cr status
+
+      "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+      "sudo mv jq /usr/local/bin",
+      "sudo chmod +x /usr/local/bin/jq",
+      "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+      "sudo chmod +x check-cr-status.sh",
+      "./check-cr-status.sh WmlBase wml-cr zen wmlStatus",
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl, 
+    null_resource.install-cpd-platform-operator,
+    null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
   ]
 }

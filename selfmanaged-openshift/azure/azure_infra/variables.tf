@@ -343,10 +343,13 @@ variable "staging-apikey" {
   default = "xxxxyyyyzzzzz"
 }
 
-variable "gituser" {
+variable "gituser-short" {
   default = "xxx"
 }
 
+variable "gituser-full" {
+  default = "xxx@abc.com"
+}
 variable "gittoken" {
   default = "xxxxyyyyzzzzz"
 }
@@ -360,7 +363,7 @@ variable "cpd-platform-operator" {
 }
 
 variable "bedrock-zen-operator" {
-  default = "yes"
+  default = "no"
 }
 
 variable "ccs" {
@@ -376,5 +379,9 @@ variable "aiopenscale" {
 }
 
 variable "spss" {
+  default = "no"
+}
+
+variable "wml" {
   default = "no"
 }

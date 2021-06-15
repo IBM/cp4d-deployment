@@ -103,15 +103,15 @@ data "template_file" "nfs-template" {
   }
 }
 
-data "template_file" "cpd-service" {
-  template = file("../cpd_module/cpd-service.tpl.yaml")
-  vars = {
-    cpd-version    = var.cpd-version
-    overrideValue  = local.override-value
-    autopatch      = "false"
-    license-accept = "true"
-  }
-}
+# data "template_file" "cpd-service" {
+#   template = file("../cpd_module/cpd-service.tpl.yaml")
+#   vars = {
+#     cpd-version    = var.cpd-version
+#     overrideValue  = local.override-value
+#     autopatch      = "false"
+#     license-accept = "true"
+#   }
+# }
 
 data "template_file" "cpd-service-no-override" {
   template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
@@ -175,5 +175,14 @@ data "template_file" "multipath-mc" {
   template = file("../openshift_module/multipath-machineconfig.yaml")
   vars = {
     multipath-config-data = base64encode(file("../openshift_module/multipath.conf"))
+  }
+}
+
+
+data "template_file" "wslresolversAuth" {
+  template = file("../cpd4_module/wsl-resolversAuth.yaml")
+  vars = {
+    git-user = var.gituser-full
+    git-token = var.gittoken
   }
 }

@@ -1,0 +1,20 @@
+apiVersion: wml.cpd.ibm.com/v1beta1
+kind: WmlBase
+metadata:
+  name: wml-cr
+  labels:
+    app.kubernetes.io/instance: wml-cr
+    app.kubernetes.io/managed-by: ibm-cpd-wml-operator
+    app.kubernetes.io/name: ibm-cpd-wml-operator
+spec:
+  scaleConfig: small
+  is_35_upgrade: false
+  ignoreForMaintenance: false
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  storageClass: nfs
+  storageVendor: ""
+  wmlStatus: InProgress
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
