@@ -104,7 +104,6 @@ oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAG
 EOF
   }
   depends_on = [
-    local_file.creds,
-    local_file.create_rosa_user,
+    null_resource.create_rosa_user,
   ]
 }
