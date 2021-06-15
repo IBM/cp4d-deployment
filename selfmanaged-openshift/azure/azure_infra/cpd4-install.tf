@@ -435,21 +435,21 @@ resource "null_resource" "install-ccs" {
 
       # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-      # "echo  '*************************************'",
-      # "echo 'setting up imagecontentsource policy for ccs'",
-      # "echo  '*************************************'",
+      "echo  '*************************************'",
+      "echo 'setting up imagecontentsource policy for ccs'",
+      "echo  '*************************************'",
 
-      # "echo '*** executing **** oc create -f ccs-mirror.yaml'",
-      # "result=$(oc create -f ccs-mirror.yaml)",
-      # "echo $result",
+      "echo '*** executing **** oc create -f ccs-mirror.yaml'",
+      "result=$(oc create -f ccs-mirror.yaml)",
+      "echo $result",
 
-      # ##Setup global_pull secret 
+      ##Setup global_pull secret 
 
-      # "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
-      # "sudo chmod +x setup-global-pull-secret-ccs.sh",
-      # "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
-      # "echo 'sleeping 15 minutest untill the nodes get ready'",
-      # "sleep 15m",
+      "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
+      "sudo chmod +x setup-global-pull-secret-ccs.sh",
+      "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
+      "echo 'sleeping 15 minutest untill the nodes get ready'",
+      "sleep 15m",
 
       # Install ccs operator using CLI (OLM)
 
