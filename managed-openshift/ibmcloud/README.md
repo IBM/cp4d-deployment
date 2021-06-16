@@ -82,6 +82,8 @@ As part of the deployment, any of the following services can be installed. For m
 
 It is recommended that these scripts be executed from a Docker container to ensure that the required tools and packages are available. Docker can be installed for your system using instructions found [here](https://docs.docker.com/get-docker/). This deployment has been tested using Docker version 19.03.13.
 
+**To create mulitple clusters, clone the repo again in a new directory and create a new container (with a --name other than 'my-container'). Do not bind multiple containers to the same host template directory.**
+
 1. Clone this repo.
 
 2. Navigate to the directory containing this README.
@@ -90,7 +92,7 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 3. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
-The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
+The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa.
 
 ### Deploying Cloud Pak for Data
 
