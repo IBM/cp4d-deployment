@@ -178,11 +178,16 @@ data "template_file" "multipath-mc" {
   }
 }
 
-
+data "template_file" "ibmcpd-cr-file" {
+  template = file("../cpd4_module/ibmcpd-cr.tpl.yaml")
+  vars = {
+    NAMESPACE = var.cpd-namespace
+  }
+}
 data "template_file" "wslresolversAuth" {
   template = file("../cpd4_module/wsl-resolversAuth.yaml")
   vars = {
-    git-user = var.gituser-full
+    git-user  = var.gituser
     git-token = var.gittoken
   }
 }

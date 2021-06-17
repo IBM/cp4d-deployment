@@ -204,9 +204,6 @@ variable "enableNFSBackup" {
 }
 
 # Openshift namespace/project to deploy cloud pak into
-variable "cpd-namespace" {
-  default = "zen"
-}
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
@@ -343,16 +340,41 @@ variable "staging-apikey" {
   default = "xxxxyyyyzzzzz"
 }
 
-variable "gituser-short" {
+variable "gituser" {
   default = "xxx"
 }
 
-variable "gituser-full" {
-  default = "xxx@abc.com"
-}
 variable "gittoken" {
   default = "xxxxyyyyzzzzz"
 }
+
+variable "cpd-namespace" {
+  default = "zen"
+}
+
+variable "operator-namespace" {
+  default = "ibm-common-services"
+}
+
+variable "cpd-storageclass" {
+  type = map
+
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "nfs"      = "nfs"
+  }
+}
+
+
+variable "ccs-storageclass-value" {
+  type = map
+
+  default = {
+    "portworx" = "storageVendor: portworx"
+    "nfs"      = "storageClass: nfs"
+  }
+}
+
 
 ############################################
 # CPD 4.0 service variables 
@@ -383,5 +405,9 @@ variable "spss" {
 }
 
 variable "wml" {
+  default = "no"
+}
+
+variable "cde" {
   default = "no"
 }

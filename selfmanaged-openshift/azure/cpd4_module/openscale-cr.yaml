@@ -4,7 +4,7 @@ metadata:
   name: aiopenscale
 spec:
   scaleConfig: small
-  storageClass: nfs
+  storageClass: STORAGECLASS
   version: 4.0.0
   type: service
   license:
