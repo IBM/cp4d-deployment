@@ -133,6 +133,8 @@ usage: ./vpc_upgrade.sh clustername replace/upgrade workerid
 
 If we do replace/upgrade from IBM cloud console, block storage would get detached and portwox will consider that node as storageless. The data stored in the block storage would not be available to the application
 
+IBM Cloud documentation for this issue - https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_limitations
+
 ## Troubleshooting
 
 Open an Issue in this repo that describes the error.
