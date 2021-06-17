@@ -51,7 +51,7 @@ variable "api_key" {
 }
 
 variable "cpd_namespace" {
-  default = "cpd-tenant"
+  default = "zen"
 }
 
 variable "vpc_id" {
@@ -61,7 +61,6 @@ variable "vpc_id" {
 
 variable "storage_option" {
   type = string
-  default = "portworx"
 }
 
 variable "cpd_storageclass" {
@@ -78,6 +77,7 @@ variable "cpd_version" {
   default = "4.0.0"
 }
 
+#TO BE DELETED
 variable "artifactory_username" {
   type = string
   default = ""
@@ -86,4 +86,90 @@ variable "artifactory_username" {
 variable "artifactory_apikey" {
   type = string
   default = ""
+}
+
+###########
+
+variable "cloudctl_version" {
+  default = "v3.6.0"
+}
+
+variable "datacore_version" {
+  default = "1.3.3"
+}
+
+variable "data_virtualization" {
+  default = "no"
+}
+
+variable "apache_spark" {
+  default = "no"
+}
+
+variable "watson_knowledge_catalog" {
+  default = "no"
+}
+
+variable "watson_studio_library" {
+  default = "no"
+}
+
+variable "watson_machine_learning" {
+  default = "no"
+}
+
+variable "watson_ai_openscale" {
+  default = "no"
+}
+
+variable "cognos_dashboard_embedded" {
+  default = "no"
+}
+
+variable "streams" {
+  default = "no"
+}
+
+variable "streams_flows" {
+  default = "no"
+}
+
+variable "datastage" {
+  default = "no"
+}
+
+variable "db2_warehouse" {
+  default = "no"
+}
+
+variable "db2_advanced_edition" {
+  default = "no"
+}
+
+variable "data_management_console" {
+  default = "no"
+}
+
+variable "datagate" {
+  default = "no"
+}
+
+variable "decision_optimization" {
+  default = "no"
+}
+
+variable "cognos_analytics" {
+  default = "no"
+}
+
+variable "spss_modeler" {
+  default = "no"
+}
+
+variable "db2_bigsql" {
+  default = "no"
+}
+
+variable "planning_analytics" {
+  default = "no"
 }

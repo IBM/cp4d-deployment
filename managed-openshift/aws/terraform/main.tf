@@ -140,11 +140,11 @@ module "ocs" {
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
-  vpc_id                    = var.vpc_id
+  vpc_id                    = local.vpc_id
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
-  cpd_external_registry     = ""
-  cpd_external_username     = ""
+  cpd_external_registry     = var.cpd_external_registry
+  cpd_external_username     = var.cpd_external_username
   api_key                   = var.api_key
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
@@ -170,6 +170,9 @@ module "cpd" {
   db2_bigsql                = var.db2_bigsql
   planning_analytics        = var.planning_analytics
   login_cmd                 = module.ocp.login_cmd
+  #TO BE DELETED
+  artifactory_username = var.artifactory_username
+  artifactory_apikey = var.artifactory_apikey
 
   depends_on = [
     null_resource.create_workspace,

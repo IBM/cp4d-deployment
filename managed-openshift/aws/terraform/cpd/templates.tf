@@ -1,7 +1,7 @@
 locals {
-  crio_config_data = base64encode(file("config/crio.conf"))
-  limits_config_data = base64encode(file("config/limits.conf"))
-  sysctl_config_data = base64encode(file("config/sysctl.conf"))
+  crio_config_data = base64encode(file("cpd/config/crio.conf"))
+  limits_config_data = base64encode(file("cpd/config/limits.conf"))
+  sysctl_config_data = base64encode(file("cpd/config/sysctl.conf"))
   license = var.accept_cpd_license == "accept" ? true : false
   override = var.storage_option == "efs" ? "" : var.storage_option
   storage_class = lookup(var.cpd_storageclass, var.storage_option)
@@ -159,7 +159,11 @@ spec:
   imagePullPolicy: Always
   displayName: Cloud Pak for Data
   publisher: IBM
----
+EOF
+}
+
+data "template_file" "zen_operand_request" {
+  template = <<EOF
 apiVersion: operator.ibm.com/v1alpha1
 kind: OperandRequest
 metadata:
@@ -186,9 +190,9 @@ spec:
   csNamespace: ibm-common-services
   iamIntegration: true
   version: ${var.cpd_version}
-  storageClass: ${var.storage_option}
+  storageClass: ${lookup(var.cpd_storageclass, var.storage_option)}
   cloudpakfordata: true 
-  zenCoreMetaDbStorageClass: ${var.storage_option}
+  zenCoreMetaDbStorageClass: ${lookup(var.cpd_storageclass, var.storage_option)}
   #cert_manager_enabled: false
 EOF
 }

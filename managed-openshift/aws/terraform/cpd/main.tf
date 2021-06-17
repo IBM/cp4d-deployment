@@ -33,6 +33,11 @@ resource "local_file" "zen_setup_yaml" {
   filename = "${local.cpd_workspace}/zen_setup.yaml"
 }
 
+resource "local_file" "zen_operand_request_yaml" {
+  content  = data.template_file.zen_operand_request.rendered
+  filename = "${local.cpd_workspace}/zen_operand_request.yaml"
+}
+
 resource "local_file" "zen_service_lite_yaml" {
   content  = data.template_file.zen_service_lite.rendered
   filename = "${local.cpd_workspace}/zen_service_lite.yaml"
@@ -60,7 +65,7 @@ resource "local_file" "zen_service_lite_yaml" {
 # oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600
 # echo 'Sleeping for 20s'
 # sleep 20
-# bash scripts/update-elb-timeout.sh ${self.triggers.vpc_id} ${local.classic_lb_timeout}
+# bash cpd/scripts/update-elb-timeout.sh ${self.triggers.vpc_id} ${local.classic_lb_timeout}
 # echo "Creating MachineConfig files"
 # oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
 # oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
@@ -93,31 +98,33 @@ resource "null_resource" "bedrock_zen_operator" {
   provisioner "local-exec" {
     command = <<-EOF
 ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-bash scripts/setup-global-pull-secret-bedrock.sh ${var.artifactory_username} ${var.artifactory_apikey}
-echo 'Waiting 15 minutes for the nodes to get ready'
-sleep 15m
+bash cpd/scripts/setup-global-pull-secret-bedrock.sh ${var.artifactory_username} ${var.artifactory_apikey}
+echo 'Waiting 10 minutes for the nodes to get ready'
+sleep 600
 echo "Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)"
 oc create -f ${self.triggers.cpd_workspace}/bedrock_setup.yaml
 echo "Checking if the bedrock operator pods are ready and running."
-bash scripts/pod-status-check.sh opencloud-operator openshift-marketplace
+bash cpd/scripts/pod-status-check.sh opencloud-operator openshift-marketplace
 echo "checking status of ibm-common-service-operator"
-bash scripts/pod-status-check.sh ibm-common-service-operator ibm-common-services
+bash cpd/scripts/pod-status-check.sh ibm-common-service-operator ibm-common-services
 echo "checking status of operand-deployment-lifecycle-manager"
-bash scripts/pod-status-check.sh operand-deployment-lifecycle-manager ibm-common-services
+bash cpd/scripts/pod-status-check.sh operand-deployment-lifecycle-manager ibm-common-services
 echo "checking status of ibm-namespace-scope-operator"
-bash scripts/pod-status-check.sh ibm-namespace-scope-operator ibm-common-services
+bash cpd/scripts/pod-status-check.sh ibm-namespace-scope-operator ibm-common-services
 echo "Edit Operand Registry"
 oc apply -f ${self.triggers.cpd_workspace}/operand_registry.yaml
 echo "Setup Zen artifacts: Namespace, CatalogSource and OperandRequest"
 oc create -f ${self.triggers.cpd_workspace}/zen_setup.yaml
-echo "Sleeping for 5 mins"
-sleep 5m
-echo "check if the zen operator pod is up and running."
-bash scripts/pod-status-check.sh ibm-zen-operator ibm-common-services
-bash scripts/pod-status-check.sh ibm-cert-manager-operator ibm-common-services
+echo "Sleeping for 4 mins"
+sleep 240
+echo "Creating operand request"
+oc create -f ${self.triggers.cpd_workspace}/zen_operand_request.yaml
+echo "Sleeping for 4 mins"
+sleep 240
 oc project zen
 echo "Create Lite CR"
 oc create -f ${self.triggers.cpd_workspace}/zen_service_lite.yaml
+bash cpd/scripts/check-cr-status.sh zenservice lite zen zenStatus
 EOF
   }
   depends_on = [

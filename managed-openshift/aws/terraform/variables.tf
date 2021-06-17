@@ -102,7 +102,7 @@ variable "private_subnet3_id" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.7.12"
+  default = "4.6.31"
 }
 
 variable "cluster_name" {
@@ -203,7 +203,7 @@ variable "portworx_ibm" {
   description = "This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes"
   default = {
     enable             = false
-    ibm_px_package_url = "http://158.85.173.111/repos/zen/cp4d-builds/3.0.1/misc/portworx/cpd-ocp46x-portworx-v2.7.0.0.tgz"
+    ibm_px_package_path = "" # absolute file path to the folder containing the cpd*-portworx*.tgz package
   }
 }
 
@@ -218,12 +218,12 @@ variable "accept_cpd_license" {
 }
 
 variable "cpd_external_registry" {
-  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  description = "(OPTIONAL) URL to external registry for CPD install. Note: CPD images must already exist in the repo"
   default     = ""
 }
 
 variable "cpd_external_username" {
-  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  description = "(OPTIONAL) URL to external username for CPD install. Note: CPD images must already exist in the repo"
   default     = ""
 }
 
@@ -319,4 +319,16 @@ variable "db2_bigsql" {
 
 variable "planning_analytics" {
   default = "no"
+}
+
+
+#TO BE DELETED
+variable "artifactory_username" {
+  type = string
+  default = ""
+}
+
+variable "artifactory_apikey" {
+  type = string
+  default = ""
 }

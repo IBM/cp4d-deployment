@@ -17,11 +17,11 @@ resource "local_file" "portworx_storagecluster_yaml" {
   filename = "${var.installer_workspace}/portworx_storagecluster.yaml"
 }
 
-resource "null_resource" "download_and_extract_packages" {
-  count = var.portworx_ibm.enable && local.download_and_extract_packages ? 1 : 0
+resource "null_resource" "extract_packages" {
+  count = var.portworx_ibm.enable && local.extract_packages ? 1 : 0
   triggers = {
     installer_workspace = local.px_workspace
-    ibm_px_package_url  = var.portworx_ibm.ibm_px_package_url
+    ibm_px_package_path  = var.portworx_ibm.ibm_px_package_path
   }
   provisioner "local-exec" {
     when    = create
@@ -29,18 +29,15 @@ resource "null_resource" "download_and_extract_packages" {
 test -e ${self.triggers.installer_workspace} || mkdir ${self.triggers.installer_workspace}
 case $(uname -s) in
   Darwin)
-    wget -r -l1 -np -nd -q ${self.triggers.ibm_px_package_url} -P ${self.triggers.installer_workspace} -A 'cpd*-portworx*.tgz'
-    tar zxvf ${self.triggers.installer_workspace}/cpd*-portworx*.tgz -C ${self.triggers.installer_workspace}
+    tar zxvf ${self.triggers.ibm_px_package_path}/cpd*-portworx*.tgz -C ${self.triggers.installer_workspace}
     ;;
   Linux)
-    wget -r -l1 -np -nd -q ${self.triggers.ibm_px_package_url} -P ${self.triggers.installer_workspace} -A 'cpd*-portworx*.tgz'
-    tar zxvf ${self.triggers.installer_workspace}/cpd*-portworx*.tgz -C ${self.triggers.installer_workspace}
+    tar zxvf ${self.triggers.ibm_px_package_path}/cpd*-portworx*.tgz -C ${self.triggers.installer_workspace}
     ;;
   *)
     echo 'Supports only Linux and Mac OS at this time'
     exit 1;;
 esac
-rm -f ${self.triggers.installer_workspace}/*.tgz
 EOF
   }
 }
@@ -67,7 +64,7 @@ sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false
 EOF
   }
   depends_on = [
-    null_resource.download_and_extract_packages
+    null_resource.extract_packages
   ]
 }
 
@@ -85,16 +82,16 @@ resource "null_resource" "install_portworx" {
     when    = create
     command = <<EOF
 ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-chmod +x portworx/scripts/portworx-prereq.sh
-bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
-oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
-echo "Sleeping for 5mins"
-sleep 300
-echo "Deploying StorageCluster"
-oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
-sleep 300
-echo "Create storage classes"
-oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
+#chmod +x portworx/scripts/portworx-prereq.sh
+#bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
+#oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
+#echo "Sleeping for 5mins"
+#sleep 300
+#echo "Deploying StorageCluster"
+#oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
+#sleep 300
+#echo "Create storage classes"
+#oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
 EOF
   }
   /* provisioner "local-exec" {
@@ -112,7 +109,7 @@ oc delete -f ${self.triggers.installer_workspace}/portworx_subscription.yaml
 EOF
   } */
   depends_on = [
-    null_resource.download_and_extract_packages,
+    null_resource.extract_packages,
     null_resource.push_ibm_px_images,
     local_file.portworx_operator_yaml,
     local_file.storage_classes_yaml,
@@ -147,7 +144,7 @@ locals {
   i_px_cluster_id               = var.portworx_ibm.enable ? "px-storage-cluster" : var.portworx_enterprise.cluster_id
   px_cluster_id                 = var.portworx_essentials.enable ? var.portworx_essentials.cluster_id : local.i_px_cluster_id
   priv_image_registry           = "image-registry.openshift-image-registry.svc:5000/kube-system"
-  download_and_extract_packages = true
+  extract_packages              = true
   secret_provider               = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? "aws-kms" : "k8s"
   px_workspace                  = "${var.installer_workspace}/ibm-px"
 }
