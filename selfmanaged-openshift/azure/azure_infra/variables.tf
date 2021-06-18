@@ -215,7 +215,7 @@ variable "cpd-external-username" {
   default     = ""
 }
 variable "ocp_version" {
-  default = "4.6.13"
+  default = "4.6.30"
 }
 
 variable "cpd-version" {
@@ -384,9 +384,9 @@ variable "cpd-platform-operator" {
   default = "no"
 }
 
-variable "bedrock-zen-operator" {
-  default = "no"
-}
+# variable "bedrock-zen-operator" {
+#   default = "no"
+# }
 
 variable "ccs" {
   default = "no"
@@ -409,5 +409,9 @@ variable "wml" {
 }
 
 variable "cde" {
+  default = "no"
+}
+
+variable "dods" {
   default = "no"
 }

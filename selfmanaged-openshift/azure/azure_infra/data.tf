@@ -191,3 +191,12 @@ data "template_file" "wslresolversAuth" {
     git-token = var.gittoken
   }
 }
+
+data "template_file" "dodsresolversAuth" {
+  template = file("../cpd4_module/dods-resolversAuth.yaml")
+  vars = {
+    git-user    = var.gituser
+    git-token   = var.gittoken
+    STAGING_KEY = var.staging-apikey
+  }
+}

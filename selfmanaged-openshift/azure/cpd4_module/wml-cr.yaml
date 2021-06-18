@@ -11,8 +11,8 @@ spec:
   is_35_upgrade: false
   ignoreForMaintenance: false
   docker_registry_prefix: "cp.icr.io/cp/cpd"
-  storageClass: nfs
-  storageVendor: ""
+  storageClass: STORAGECLASS
+  storageVendor: STORAGEVENDOR
   wmlStatus: InProgress
   version: "4.0.0"
   license:

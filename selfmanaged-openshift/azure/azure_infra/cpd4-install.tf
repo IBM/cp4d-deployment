@@ -8,10 +8,10 @@ locals {
   # Override
   override-value = var.storage == "nfs" ? "\"\"" : var.storage
   #Storage Classes
-  cpd-storageclass = lookup(var.cpd-storageclass, var.storage)
-  ccs-class-or-vendor = var.storage == "nfs" ? "Class" : "Vendor"
+  cpd-storageclass       = lookup(var.cpd-storageclass, var.storage)
+  ccs-class-or-vendor    = var.storage == "nfs" ? "Class" : "Vendor"
   ccs-storageclass-value = var.storage == "nfs" ? "nfs" : "portworx"
-  storagevendor = var.storage == "nfs" ? "\"\"" : var.storage
+  storagevendor          = var.storage == "nfs" ? "\"\"" : var.storage
   # streams-storageclass = lookup(var.streams-storageclass, var.storage)
   # bigsql-storageclass  = lookup(var.bigsql-storageclass, var.storage)
 
@@ -62,6 +62,56 @@ resource "null_resource" "install-cloudctl" {
   ]
 }
 
+resource "null_resource" "cpd-setup-pull-secret-and-mirror-config" {
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      "cd /home/${var.admin-username}/cpd-common-files",
+
+      # Download Common files  
+
+      "cat > cpd-mirror-config.yaml <<EOL\n${file("../cpd4_module/cpd-mirror-config.yaml")}\nEOL",
+      "cat > setup-global-pull-secret-cpd.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-cpd.sh")}\nEOL",
+
+      # Setup global_pull secret 
+
+      "sudo chmod +x setup-global-pull-secret-cpd.sh",
+      "./setup-global-pull-secret-cpd.sh ${var.artifactory-username} ${var.artifactory-apikey} ${var.staging-username} ${var.staging-apikey}",
+      # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+
+      "echo  '************************************************'",
+      "echo  ' setting up imagecontentsource policy for CPD '",
+      "echo  '************************************************'",
+
+      "echo '*** executing **** oc create -f cpd-mirror-config.yaml'",
+      "result=$(oc create -f cpd-mirror-config.yaml)",
+      "echo $result",
+      "echo 'Waiting 15 minutes for the nodes to get ready'",
+      "sleep 15m",
+    ]
+  }
+  depends_on = [
+    null_resource.openshift_post_install,
+    null_resource.install_portworx,
+    null_resource.setup_sc_with_pwx_encryption,
+    null_resource.setup_sc_without_pwx_encryption,
+    null_resource.install_ocs,
+    null_resource.install_nfs_client,
+    null_resource.install-cloudctl,
+  ]
+}
 
 resource "null_resource" "install-cpd-platform-operator" {
   count = var.cpd-platform-operator == "yes" ? 1 : 0
@@ -96,22 +146,23 @@ resource "null_resource" "install-cpd-platform-operator" {
       "cat > cpd-platform-operator-operandrequest.yaml <<EOL\n${file("../cpd4_module/cpd-platform-operator-operandrequest.yaml")}\nEOL",
       "cat > ibmcpd-cr.yaml <<EOL\n${data.template_file.ibmcpd-cr-file.rendered}\nEOL",
 
-      # Setup global_pull secret 
+      ### *** To be deleted 
+      # # Setup global_pull secret 
 
-      "cat > setup-global-pull-secret-bedrock-cpd-po.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-bedrock-cpd-po.sh")}\nEOL",
-      "sudo chmod +x setup-global-pull-secret-bedrock-cpd-po.sh",
-      "./setup-global-pull-secret-bedrock-cpd-po.sh ${var.artifactory-username} ${var.artifactory-apikey}",
-      # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+      # "cat > setup-global-pull-secret-bedrock-cpd-po.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-bedrock-cpd-po.sh")}\nEOL",
+      # "sudo chmod +x setup-global-pull-secret-bedrock-cpd-po.sh",
+      # "./setup-global-pull-secret-bedrock-cpd-po.sh ${var.artifactory-username} ${var.artifactory-apikey}",
+      # # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-      "echo  '*************************************************************'",
-      "echo  ' setting up imagecontentsource policy for platform operator  '",
-      "echo  '*************************************************************'",
+      # "echo  '*************************************************************'",
+      # "echo  ' setting up imagecontentsource policy for platform operator  '",
+      # "echo  '*************************************************************'",
 
-      "echo '*** executing **** oc create -f bedrock-edge-mirror-cpd-platform-operator.yaml'",
-      "result=$(oc create -f bedrock-edge-mirror-cpd-platform-operator.yaml)",
-      "echo $result",
-      "echo 'Waiting 15 minutes for the nodes to get ready'",
-      "sleep 15m",
+      # "echo '*** executing **** oc create -f bedrock-edge-mirror-cpd-platform-operator.yaml'",
+      # "result=$(oc create -f bedrock-edge-mirror-cpd-platform-operator.yaml)",
+      # "echo $result",
+      # "echo 'Waiting 15 minutes for the nodes to get ready'",
+      # "sleep 15m",
 
       # create bedrock catalog source 
 
@@ -237,170 +288,172 @@ resource "null_resource" "install-cpd-platform-operator" {
     null_resource.setup_sc_without_pwx_encryption,
     null_resource.install_ocs,
     null_resource.install_nfs_client,
-    null_resource.install-cloudctl
-  ]
-}
-
-
-resource "null_resource" "bedrock_zen_operator" {
-  count = var.bedrock-zen-operator == "yes" ? 1 : 0
-  triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
-    username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
-    namespace             = var.cpd-namespace
-  }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      #Create directory
-      "mkdir -p /home/${var.admin-username}/bedrock-zen",
-
-      ## Copy the required yaml files for bedrock zen operator setup .. 
-
-      "cd /home/${var.admin-username}/bedrock-zen",
-
-      "cat > bedrock-edge-mirror.yaml <<EOL\n${file("../cpd4_module/bedrock-edge-mirror.yaml")}\nEOL",
-      "cat > bedrock-catalog-source.yaml <<EOL\n${file("../cpd4_module/bedrock-catalog-source.yaml")}\nEOL",
-      "cat > bedrock-operator-group.yaml <<EOL\n${file("../cpd4_module/bedrock-operator-group.yaml")}\nEOL",
-      "cat > bedrock-sub.yaml <<EOL\n${file("../cpd4_module/bedrock-sub.yaml")}\nEOL",
-      "cat > zen-catalog-source.yaml <<EOL\n${file("../cpd4_module/zen-catalog-source.yaml")}\nEOL",
-      "cat > zen-operandrequest.yaml <<EOL\n${file("../cpd4_module/zen-operandrequest.yaml")}\nEOL",
-      "cat > zen-lite-cr.yaml <<EOL\n${file("../cpd4_module/zen-lite-cr.yaml")}\nEOL",
-
-
-      # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
-
-      "echo  '*************************************'",
-      "echo 'setting up imagecontentsource policy for bedrock'",
-      "echo  '*************************************'",
-
-      "echo '*** executing **** oc create -f bedrock-edge-mirror.yaml'",
-      "result=$(oc create -f bedrock-edge-mirror.yaml)",
-      "echo $result",
-      # Setup global_pull secret 
-
-      "cat > setup-global-pull-secret-bedrock.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-bedrock.sh")}\nEOL",
-      "sudo chmod +x setup-global-pull-secret-bedrock.sh",
-      "./setup-global-pull-secret-bedrock.sh ${var.artifactory-username} ${var.artifactory-apikey}",
-      "echo 'Waiting 15 minutes for the nodes to get ready'",
-      "sleep 15m",
-
-      # create bedrock catalog source 
-
-      "echo '*** executing **** oc create -f bedrock-catalog-source.yaml'",
-      "result=$(oc create -f bedrock-catalog-source.yaml)",
-      "echo $result",
-      "sleep 1m",
-
-      # Waiting and checking till the opencloud operator is ready in the openshift-marketplace namespace 
-
-      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
-      "sudo chmod +x pod-status-check.sh",
-      "./pod-status-check.sh opencloud-operator openshift-marketplace",
-
-      # Creating the ibm-common-services namespace: 
-
-      "oc new-project ${var.operator-namespace}",
-      "oc project ${var.operator-namespace}",
-
-      # Create bedrock operator group: 
-
-      "echo '*** executing **** oc create -f bedrock-operator-group.yaml'",
-      "result=$(oc create -f bedrock-operator-group.yaml)",
-      "echo $result",
-      "sleep 1m",
-
-      # Create bedrock subscription. This will deploy the bedrock: 
-
-      "echo '*** executing **** oc create -f bedrock-sub.yaml'",
-      "result=$(oc create -f bedrock-sub.yaml)",
-      "echo $result",
-      "sleep 1m",
-
-      # Checking if the bedrock operator pods are ready and running. 
-
-      # checking status of ibm-common-service-operator
-
-      "cat > bedrock-pod-status-check.sh <<EOL\n${file("../cpd4_module/bedrock-pod-status-check.sh")}\nEOL",
-      "sudo chmod +x bedrock-pod-status-check.sh",
-      "./bedrock-pod-status-check.sh -n ${var.cpd-namespace} ibm-common-service-operator  ${var.operator-namespace}",
-
-      # checking status of operand-deployment-lifecycle-manager
-
-      "./bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${var.operator-namespace}",
-
-      # checking status of ibm-namespace-scope-operator
-
-      "./bedrock-pod-status-check.sh ibm-namespace-scope-operator  ${var.operator-namespace}",
-
-      # Creating zen catalog source 
-
-      "echo '*** executing **** oc create -f zen-catalog-source.yaml'",
-      "result=$(oc create -f zen-catalog-source.yaml)",
-      "echo $result",
-      "sleep 1m",
-
-      # (Important) Edit operand registry *** 
-
-      "oc get operandregistry -n ${var.operator-namespace} -o yaml > operandregistry.yaml",
-      "cp operandregistry.yaml operandregistry.yaml_original",
-      "sed -i '/\\s\\s\\s\\s\\s\\spackageName: ibm-zen-operator/{n;n;s/.*/      sourceName: ibm-zen-operator-catalog/}' operandregistry.yaml ",
-      "sed -zEi 's/    - channel: v3([^\\n]*\\n[^\\n]*name: ibm-zen-operator)/    - channel: stable-v1\\1/' operandregistry.yaml",
-
-      "echo '*** executing **** oc create -f operandregistry.yaml'",
-      "result=$(oc apply -f operandregistry.yaml)",
-      "echo $result",
-
-      # Create zen namespace
-
-      "oc new-project ${var.cpd-namespace}",
-      "oc project ${var.cpd-namespace}",
-
-      # Create the zen operator 
-
-      "echo '*** executing **** oc create -f zen-operandrequest.yaml'",
-      "result=$(oc create -f zen-operandrequest.yaml)",
-      "echo $result",
-      "sleep 5m",
-
-      # check if the zen operator pod is up and running.
-
-      "./bedrock-pod-status-check.sh ibm-zen-operator ${var.operator-namespace}",
-      "./bedrock-pod-status-check.sh ibm-cert-manager-operator ${var.operator-namespace}",
-
-      # Create lite CR: 
-
-      "echo '*** executing **** oc create -f zen-lite-cr.yaml'",
-      "result=$(oc create -f zen-lite-cr.yaml)",
-      "echo $result",
-
-      # check the lite cr status
-
-      "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
-      "sudo mv jq /usr/local/bin",
-      "sudo chmod +x /usr/local/bin/jq",
-      "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
-      "sudo chmod +x check-cr-status.sh",
-      "./check-cr-status.sh zenservice lite-cr ${var.cpd-namespace} zenStatus",
-    ]
-  }
-  depends_on = [
-    null_resource.openshift_post_install,
-    null_resource.install_portworx,
-    null_resource.setup_sc_with_pwx_encryption,
-    null_resource.setup_sc_without_pwx_encryption,
-    null_resource.install_ocs,
-    null_resource.install_nfs_client,
     null_resource.install-cloudctl,
-    null_resource.install-cpd-platform-operator
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
   ]
 }
+
+
+# resource "null_resource" "bedrock_zen_operator" {
+#   count = var.bedrock-zen-operator == "yes" ? 1 : 0
+#   triggers = {
+#     bootnode_ip_address   = local.bootnode_ip_address
+#     username              = var.admin-username
+#     private_key_file_path = var.ssh-private-key-file-path
+#     namespace             = var.cpd-namespace
+#   }
+#   connection {
+#     type        = "ssh"
+#     host        = self.triggers.bootnode_ip_address
+#     user        = self.triggers.username
+#     private_key = file(self.triggers.private_key_file_path)
+#   }
+#   provisioner "remote-exec" {
+#     inline = [
+#       #Create directory
+#       "mkdir -p /home/${var.admin-username}/bedrock-zen",
+
+#       ## Copy the required yaml files for bedrock zen operator setup .. 
+
+#       "cd /home/${var.admin-username}/bedrock-zen",
+
+#       "cat > bedrock-edge-mirror.yaml <<EOL\n${file("../cpd4_module/bedrock-edge-mirror.yaml")}\nEOL",
+#       "cat > bedrock-catalog-source.yaml <<EOL\n${file("../cpd4_module/bedrock-catalog-source.yaml")}\nEOL",
+#       "cat > bedrock-operator-group.yaml <<EOL\n${file("../cpd4_module/bedrock-operator-group.yaml")}\nEOL",
+#       "cat > bedrock-sub.yaml <<EOL\n${file("../cpd4_module/bedrock-sub.yaml")}\nEOL",
+#       "cat > zen-catalog-source.yaml <<EOL\n${file("../cpd4_module/zen-catalog-source.yaml")}\nEOL",
+#       "cat > zen-operandrequest.yaml <<EOL\n${file("../cpd4_module/zen-operandrequest.yaml")}\nEOL",
+#       "cat > zen-lite-cr.yaml <<EOL\n${file("../cpd4_module/zen-lite-cr.yaml")}\nEOL",
+
+
+#       # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+
+#       "echo  '*************************************'",
+#       "echo 'setting up imagecontentsource policy for bedrock'",
+#       "echo  '*************************************'",
+
+#       "echo '*** executing **** oc create -f bedrock-edge-mirror.yaml'",
+#       "result=$(oc create -f bedrock-edge-mirror.yaml)",
+#       "echo $result",
+#       # Setup global_pull secret 
+
+#       "cat > setup-global-pull-secret-bedrock.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-bedrock.sh")}\nEOL",
+#       "sudo chmod +x setup-global-pull-secret-bedrock.sh",
+#       "./setup-global-pull-secret-bedrock.sh ${var.artifactory-username} ${var.artifactory-apikey}",
+#       "echo 'Waiting 15 minutes for the nodes to get ready'",
+#       "sleep 15m",
+
+#       # create bedrock catalog source 
+
+#       "echo '*** executing **** oc create -f bedrock-catalog-source.yaml'",
+#       "result=$(oc create -f bedrock-catalog-source.yaml)",
+#       "echo $result",
+#       "sleep 1m",
+
+#       # Waiting and checking till the opencloud operator is ready in the openshift-marketplace namespace 
+
+#       "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+#       "sudo chmod +x pod-status-check.sh",
+#       "./pod-status-check.sh opencloud-operator openshift-marketplace",
+
+#       # Creating the ibm-common-services namespace: 
+
+#       "oc new-project ${var.operator-namespace}",
+#       "oc project ${var.operator-namespace}",
+
+#       # Create bedrock operator group: 
+
+#       "echo '*** executing **** oc create -f bedrock-operator-group.yaml'",
+#       "result=$(oc create -f bedrock-operator-group.yaml)",
+#       "echo $result",
+#       "sleep 1m",
+
+#       # Create bedrock subscription. This will deploy the bedrock: 
+
+#       "echo '*** executing **** oc create -f bedrock-sub.yaml'",
+#       "result=$(oc create -f bedrock-sub.yaml)",
+#       "echo $result",
+#       "sleep 1m",
+
+#       # Checking if the bedrock operator pods are ready and running. 
+
+#       # checking status of ibm-common-service-operator
+
+#       "cat > bedrock-pod-status-check.sh <<EOL\n${file("../cpd4_module/bedrock-pod-status-check.sh")}\nEOL",
+#       "sudo chmod +x bedrock-pod-status-check.sh",
+#       "./bedrock-pod-status-check.sh -n ${var.cpd-namespace} ibm-common-service-operator  ${var.operator-namespace}",
+
+#       # checking status of operand-deployment-lifecycle-manager
+
+#       "./bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${var.operator-namespace}",
+
+#       # checking status of ibm-namespace-scope-operator
+
+#       "./bedrock-pod-status-check.sh ibm-namespace-scope-operator  ${var.operator-namespace}",
+
+#       # Creating zen catalog source 
+
+#       "echo '*** executing **** oc create -f zen-catalog-source.yaml'",
+#       "result=$(oc create -f zen-catalog-source.yaml)",
+#       "echo $result",
+#       "sleep 1m",
+
+#       # (Important) Edit operand registry *** 
+
+#       "oc get operandregistry -n ${var.operator-namespace} -o yaml > operandregistry.yaml",
+#       "cp operandregistry.yaml operandregistry.yaml_original",
+#       "sed -i '/\\s\\s\\s\\s\\s\\spackageName: ibm-zen-operator/{n;n;s/.*/      sourceName: ibm-zen-operator-catalog/}' operandregistry.yaml ",
+#       "sed -zEi 's/    - channel: v3([^\\n]*\\n[^\\n]*name: ibm-zen-operator)/    - channel: stable-v1\\1/' operandregistry.yaml",
+
+#       "echo '*** executing **** oc create -f operandregistry.yaml'",
+#       "result=$(oc apply -f operandregistry.yaml)",
+#       "echo $result",
+
+#       # Create zen namespace
+
+#       "oc new-project ${var.cpd-namespace}",
+#       "oc project ${var.cpd-namespace}",
+
+#       # Create the zen operator 
+
+#       "echo '*** executing **** oc create -f zen-operandrequest.yaml'",
+#       "result=$(oc create -f zen-operandrequest.yaml)",
+#       "echo $result",
+#       "sleep 5m",
+
+#       # check if the zen operator pod is up and running.
+
+#       "./bedrock-pod-status-check.sh ibm-zen-operator ${var.operator-namespace}",
+#       "./bedrock-pod-status-check.sh ibm-cert-manager-operator ${var.operator-namespace}",
+
+#       # Create lite CR: 
+
+#       "echo '*** executing **** oc create -f zen-lite-cr.yaml'",
+#       "result=$(oc create -f zen-lite-cr.yaml)",
+#       "echo $result",
+
+#       # check the lite cr status
+
+#       "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+#       "sudo mv jq /usr/local/bin",
+#       "sudo chmod +x /usr/local/bin/jq",
+#       "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+#       "sudo chmod +x check-cr-status.sh",
+#       "./check-cr-status.sh zenservice lite-cr ${var.cpd-namespace} zenStatus",
+#     ]
+#   }
+#   depends_on = [
+#     null_resource.openshift_post_install,
+#     null_resource.install_portworx,
+#     null_resource.setup_sc_with_pwx_encryption,
+#     null_resource.setup_sc_without_pwx_encryption,
+#     null_resource.install_ocs,
+#     null_resource.install_nfs_client,
+#     null_resource.install-cloudctl,
+#     null_resource.cpd-setup-pull-secret-and-mirror-config,
+#     null_resource.install-cpd-platform-operator
+#   ]
+# }
 
 ### Installing CCS service. 
 
@@ -439,21 +492,22 @@ resource "null_resource" "install-ccs" {
 
       # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-      "echo  '*************************************'",
-      "echo 'setting up imagecontentsource policy for ccs'",
-      "echo  '*************************************'",
+      #### **** To be deleted 
+      # "echo  '*************************************'",
+      # "echo 'setting up imagecontentsource policy for ccs'",
+      # "echo  '*************************************'",
 
-      "echo '*** executing **** oc create -f ccs-mirror.yaml'",
-      "result=$(oc create -f ccs-mirror.yaml)",
-      "echo $result",
+      # "echo '*** executing **** oc create -f ccs-mirror.yaml'",
+      # "result=$(oc create -f ccs-mirror.yaml)",
+      # "echo $result",
 
-      ##Setup global_pull secret 
+      # ##Setup global_pull secret 
 
-      "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
-      "sudo chmod +x setup-global-pull-secret-ccs.sh",
-      "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
-      "echo 'sleeping 15 minutest untill the nodes get ready'",
-      "sleep 15m",
+      # "cat > setup-global-pull-secret-ccs.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-ccs.sh")}\nEOL",
+      # "sudo chmod +x setup-global-pull-secret-ccs.sh",
+      # "./setup-global-pull-secret-ccs.sh ${var.staging-username} ${var.staging-apikey}",
+      # "echo 'sleeping 15 minutest untill the nodes get ready'",
+      # "sleep 15m",
 
       # Install ccs operator using CLI (OLM)
 
@@ -475,7 +529,7 @@ resource "null_resource" "install-ccs" {
       "oc project ${var.cpd-namespace}",
 
       # Create CCS CR: 
-      
+
       "sed -i -e s#CLASS_OR_VENDOR#${local.ccs-class-or-vendor}#g /home/${var.admin-username}/ccs-files/ccs-cr.yaml",
       "sed -i -e s#STORAGECLASS#${local.ccs-storageclass-value}#g /home/${var.admin-username}/ccs-files/ccs-cr.yaml",
       "echo '*** executing **** oc create -f ccs-cr.yaml'",
@@ -494,8 +548,9 @@ resource "null_resource" "install-ccs" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator
+    #null_resource.bedrock_zen_operator
 
   ]
 }
@@ -590,8 +645,9 @@ resource "null_resource" "install-wsl" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator,
+    #null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
   ]
 }
@@ -665,8 +721,9 @@ resource "null_resource" "install-aiopenscale" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator,
+    #null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
   ]
@@ -722,7 +779,7 @@ resource "null_resource" "install-spss" {
       "oc project ${var.cpd-namespace}",
 
       # Create spss CR: 
-
+      "sed -i -e s#STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/spss-files/spss-cr.yaml",
       "echo '*** executing **** oc create -f spss-cr.yaml'",
       "result=$(oc create -f spss-cr.yaml)",
       "echo $result",
@@ -739,8 +796,9 @@ resource "null_resource" "install-spss" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator,
+    #null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
     null_resource.install-aiopenscale,
@@ -809,7 +867,8 @@ resource "null_resource" "install-wml" {
       "oc project ${var.cpd-namespace}",
 
       # Create wml CR: 
-
+      "sed -i -e s#STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/wml-files/wml-cr.yaml",
+      "sed -i -e s#STORAGEVENDOR#${local.storagevendor}#g /home/${var.admin-username}/wml-files/wml-cr.yaml",
       "echo '*** executing **** oc create -f wml-cr.yaml'",
       "result=$(oc create -f wml-cr.yaml)",
       "echo $result",
@@ -826,8 +885,9 @@ resource "null_resource" "install-wml" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator,
+    #null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
     null_resource.install-aiopenscale,
@@ -863,23 +923,23 @@ resource "null_resource" "install-cde" {
       "cat > cde-mirror.yaml <<EOL\n${file("../cpd4_module/cde-mirror.yaml")}\nEOL",
       "cat > cde-cr.yaml <<EOL\n${file("../cpd4_module/cde-cr.yaml")}\nEOL",
 
-      # Setup global_pull secret 
+      # # Setup global_pull secret 
 
-      "cat > setup-global-pull-secret-cde.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-cde.sh")}\nEOL",
-      "sudo chmod +x setup-global-pull-secret-cde.sh",
-      "./setup-global-pull-secret-cde.sh ${var.artifactory-username} ${var.artifactory-apikey}",
+      # "cat > setup-global-pull-secret-cde.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-cde.sh")}\nEOL",
+      # "sudo chmod +x setup-global-pull-secret-cde.sh",
+      # "./setup-global-pull-secret-cde.sh ${var.artifactory-username} ${var.artifactory-apikey}",
 
-      # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+      # # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-      "echo  '*************************************************************'",
-      "echo  ' setting up imagecontentsource policy for cde operator  '",
-      "echo  '*************************************************************'",
+      # "echo  '*************************************************************'",
+      # "echo  ' setting up imagecontentsource policy for cde operator  '",
+      # "echo  '*************************************************************'",
 
-      "echo '*** executing **** oc create -f cde-mirror.yaml'",
-      "result=$(oc create -f cde-mirror.yaml)",
-      "echo $result",
-      "echo 'Waiting 15 minutes for the nodes to get ready'",
-      "sleep 15m",
+      # "echo '*** executing **** oc create -f cde-mirror.yaml'",
+      # "result=$(oc create -f cde-mirror.yaml)",
+      # "echo $result",
+      # "echo 'Waiting 15 minutes for the nodes to get ready'",
+      # "sleep 15m",
 
 
       # Case package. 
@@ -906,7 +966,7 @@ resource "null_resource" "install-cde" {
       "oc project ${var.cpd-namespace}",
 
       # Create cde CR: 
-
+      "sed -i -e s#STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/cde-files/cde-cr.yaml",
       "echo '*** executing **** oc create -f cde-cr.yaml'",
       "result=$(oc create -f cde-cr.yaml)",
       "echo $result",
@@ -923,8 +983,9 @@ resource "null_resource" "install-cde" {
   }
   depends_on = [
     null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
     null_resource.install-cpd-platform-operator,
-    null_resource.bedrock_zen_operator,
+    #null_resource.bedrock_zen_operator,
     null_resource.install-ccs,
     null_resource.install-wsl,
     null_resource.install-aiopenscale,
@@ -932,3 +993,184 @@ resource "null_resource" "install-cde" {
     null_resource.install-wml,
   ]
 }
+
+
+### *** This module will need changes after GA as the image will be pulled from a public repo .
+resource "null_resource" "install-dods" {
+  count = var.dods == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/dods-files",
+      "mkdir -p /home/${var.admin-username}/dods-files/case-saved",
+
+      ## Copy the required yaml files for ccs setup .. 
+
+      "cd /home/${var.admin-username}/dods-files",
+
+      "cat > dods-cr.yaml <<EOL\n${file("../cpd4_module/dods-cr.yaml")}\nEOL",
+      "cat > resolvers.yaml <<EOL\n${file("../cpd4_module/dods-resolvers.yaml")}\nEOL",
+      "cat > resolversAuth.yaml <<EOL\n${data.template_file.dodsresolversAuth.rendered}\nEOL",
+
+      # Download the case package for dods
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-dods/4.0.0-175/ibm-dods-4.0.0-175.tgz -o ibm-dods-4.0.0-175.tgz",
+
+      # Install dods operator using CLI (OLM)
+      "cd /home/${var.admin-username}/dods-files/case-saved",
+      "cat > install-dods-operator.sh <<EOL\n${file("../cpd4_module/install-dods-operator.sh")}\nEOL",
+      "sudo chmod +x install-dods-operator.sh",
+      "./install-dods-operator.sh ibm-dods-4.0.0-175.tgz ${var.operator-namespace}",
+
+      # Checking if the dods operator pods are ready and running. 
+
+      # checking status of ibm-cpd-ws-operator
+
+      "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+      "sudo chmod +x pod-status-check.sh",
+      "./pod-status-check.sh ibm-cpd-dods-operator ${var.operator-namespace}",
+
+      # switch zen namespace
+
+      "oc project ${var.cpd-namespace}",
+
+      # Create dods CR: 
+      "cd /home/${var.admin-username}/dods-files",
+      "echo '*** executing **** oc create -f dods-cr.yaml'",
+      "result=$(oc create -f dods-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+
+      "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+      "sudo mv jq /usr/local/bin",
+      "sudo chmod +x /usr/local/bin/jq",
+      "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+      "sudo chmod +x check-cr-status.sh",
+      "./check-cr-status.sh DODS dods-cr ${var.cpd-namespace} dodsStatus",
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+  ]
+}
+
+# resource "null_resource" "install-spark" {
+#   count = var.spark == "yes" ? 1 : 0
+#   triggers = {
+#     bootnode_ip_address   = local.bootnode_ip_address
+#     username              = var.admin-username
+#     private_key_file_path = var.ssh-private-key-file-path
+#     namespace             = var.cpd-namespace
+#   }
+#   connection {
+#     type        = "ssh"
+#     host        = self.triggers.bootnode_ip_address
+#     user        = self.triggers.username
+#     private_key = file(self.triggers.private_key_file_path)
+#   }
+
+#   provisioner "remote-exec" {
+#     inline = [
+#       #Create directory
+#       "mkdir -p /home/${var.admin-username}/spark-files",
+
+#       ## Copy the required yaml files for spark setup .. 
+
+#       "cd /home/${var.admin-username}/spark-files",
+
+#       "cat > spark-mirror.yaml <<EOL\n${file("../cpd4_module/spark-mirror.yaml")}\nEOL",
+#       "cat > spark-cr.yaml <<EOL\n${file("../cpd4_module/spark-cr.yaml")}\nEOL",
+
+#       # # Setup global_pull secret 
+
+#       # "cat > setup-global-pull-secret-spark.sh <<EOL\n${file("../cpd4_module/setup-global-pull-secret-spark.sh")}\nEOL",
+#       # "sudo chmod +x setup-global-pull-secret-spark.sh",
+#       # "./setup-global-pull-secret-spark.sh ${var.artifactory-username} ${var.artifactory-apikey}",
+
+#       # # Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
+
+#       # "echo  '*************************************************************'",
+#       # "echo  ' setting up imagecontentsource policy for spark operator  '",
+#       # "echo  '*************************************************************'",
+
+#       # "echo '*** executing **** oc create -f spark-mirror.yaml'",
+#       # "result=$(oc create -f spark-mirror.yaml)",
+#       # "echo $result",
+#       # "echo 'Waiting 15 minutes for the nodes to get ready'",
+#       # "sleep 15m",
+
+
+#       # Case package. 
+
+#       "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-spark/2.0.0-17/ibm-spark-2.0.0-17.tgz -o ibm-spark-2.0.0-17.tgz",
+
+#       # # Install spark operator using CLI (OLM)
+
+#       "cat > install-spark-operator.sh <<EOL\n${file("../cpd4_module/install-spark-operator.sh")}\nEOL",
+#       "sudo chmod +x install-spark-operator.sh",
+#       "./install-spark-operator.sh ibm-spark-2.0.0-17.tgz ${var.operator-namespace}",
+
+#       # Checking if the spark operator pods are ready and running. 
+
+#       # checking status of ibm-watson-spark-operator
+
+#       "cat > pod-status-check.sh <<EOL\n${file("../cpd4_module/pod-status-check.sh")}\nEOL",
+#       "sudo chmod +x pod-status-check.sh",
+#       # "OPERATOR_POD_NAME=$(oc get pods -n ${var.operator-namespace} | grep ibm-watson-spark-operator | awk '{print $1}')",
+#       "./pod-status-check.sh ibm-spark-operator ${var.operator-namespace}",
+
+#       # switch zen namespace
+
+#       "oc project ${var.cpd-namespace}",
+
+#       # Create spark CR: 
+#       "sed -i -e s#STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/spark-files/spark-cr.yaml",
+#       "echo '*** executing **** oc create -f spark-cr.yaml'",
+#       "result=$(oc create -f spark-cr.yaml)",
+#       "echo $result",
+
+#       # check the spark cr status
+
+#       "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O jq",
+#       "sudo mv jq /usr/local/bin",
+#       "sudo chmod +x /usr/local/bin/jq",
+#       "cat > check-cr-status.sh <<EOL\n${file("../cpd4_module/check-cr-status.sh")}\nEOL",
+#       "sudo chmod +x check-cr-status.sh",
+#       "./check-cr-status.sh sparkProxyService spark-cr ${var.cpd-namespace} sparkStatus",
+#     ]
+#   }
+#   depends_on = [
+#     null_resource.install-cloudctl,
+#     null_resource.cpd-setup-pull-secret-and-mirror-config,
+#     null_resource.install-cpd-platform-operator,
+#     #null_resource.bedrock_zen_operator,
+#     null_resource.install-ccs,
+#     null_resource.install-wsl,
+#     null_resource.install-aiopenscale,
+#     null_resource.install-spss,
+#     null_resource.install-wml,
+#     null_resource.install-cde,
+#     null_resource.install-dods,
+#   ]
+# }

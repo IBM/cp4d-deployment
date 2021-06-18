@@ -1,0 +1,18 @@
+apiVersion: dods.cpd.ibm.com/v1beta1
+kind: DODS
+metadata:
+  name: dods-cr
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-dods
+    app.kubernetes.io/managed-by: ibm-cpd-dods
+    app.kubernetes.io/name: ibm-cpd-dods
+  annotations:
+    "ansible.sdk.operatorframework.io/verbosity": "3"
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  version: 4.0.0
+  desiredState: present
+  scaleConfig: small
+  installDependencies: false
