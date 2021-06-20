@@ -13,7 +13,16 @@ sed -i -e 's|:{|:{"hyc-cloud-private-daily-docker-local.artifactory.swg-devops.c
 sed -i -e 's|:{|:{"hyc-cp4d-team-cde-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
 sed -i -e 's|:{|:{"cp.stg.icr.io/cp/cpd":{"auth":"'\$staging_pull_secret'"\},|' /tmp/dockerconfig.json
 sed -i -e 's|:{|:{"cp.stg.icr.io":{"auth":"'\$staging_pull_secret'"\},|' /tmp/dockerconfig.json
+## For DV
+sed -ie 's|:{|:{"hyc-dv-team-dev-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
+sed -ie 's|:{|:{"hyc-cp4d-team-dv-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
+sed -ie 's|:{|:{"bi-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+
+
+sed -ie 's|:{|:{"hyc-dv-team-dev-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
+sed -ie 's|:{|:{"hyc-cp4d-team-dv-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
+sed -ie 's|:{|:{"bi-docker-local.artifactory.swg-devops.com":{"auth":"'\$artifactory_pull_secret'"\},|' /tmp/dockerconfig.json
 
 
 

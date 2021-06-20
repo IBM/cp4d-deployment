@@ -415,3 +415,15 @@ variable "cde" {
 variable "dods" {
   default = "no"
 }
+
+variable "spark" {
+  default = "no"
+}
+
+variable "dv" {
+  default = "no"
+}
+
+variable "bigsql" {
+  default = "no"
+}

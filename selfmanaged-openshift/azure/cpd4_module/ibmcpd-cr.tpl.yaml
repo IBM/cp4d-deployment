@@ -7,7 +7,7 @@ spec:
   license:
     accept: true
     license: Enterprise
-  storageClass: STORAGECLASS
+  storageClass: "REPLACE_STORAGECLASS"
   version: "4.0.0"
 
   #iamIntegration: true #default is false

@@ -4,7 +4,7 @@ metadata:
   name: aiopenscale
 spec:
   scaleConfig: small
-  storageClass: STORAGECLASS
+  storageClass: "REPLACE_STORAGECLASS"
   version: 4.0.0
   type: service
   license:

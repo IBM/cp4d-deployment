@@ -200,3 +200,25 @@ data "template_file" "dodsresolversAuth" {
     STAGING_KEY = var.staging-apikey
   }
 }
+
+data "template_file" "wmlcrnfsfile" {
+  template = file("../cpd4_module/wml-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wmlcrpwxocsfile" {
+  template = file("../cpd4_module/wml-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wslcrnfsfile" {
+  template = file("../cpd4_module/wsl-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wslcrpwxocsfile" {
+  template = file("../cpd4_module/wsl-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}

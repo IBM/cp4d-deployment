@@ -4,7 +4,7 @@ metadata:
   name: spss-cr
 spec:    
   version: "4.0.0"
-  storageClass: "STORAGECLASS"
+  storageClass: "REPLACE_STORAGECLASS"
   scaleConfig: "small"
   architecture: "amd64"
   namespace: "zen"
