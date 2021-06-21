@@ -222,3 +222,14 @@ data "template_file" "wslcrpwxocsfile" {
     STORAGE_VENDOR = var.storage
   }
 }
+
+data "template_file" "wkccrnfsfile" {
+  template = file("../cpd4_module/wkc-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkccrpwxocsfile" {
+  template = file("../cpd4_module/wkc-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}

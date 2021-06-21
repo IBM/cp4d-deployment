@@ -427,3 +427,7 @@ variable "dv" {
 variable "bigsql" {
   default = "no"
 }
+
+variable "wkc" {
+  default = "no"
+}

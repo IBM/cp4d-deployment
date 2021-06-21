@@ -15,6 +15,7 @@ locals {
 
   wml-cr-file = var.storage == "nfs" ? data.template_file.wmlcrnfsfile.rendered : data.template_file.wmlcrpwxocsfile.rendered
   wsl-cr-file = var.storage == "nfs" ? data.template_file.wslcrnfsfile.rendered : data.template_file.wslcrpwxocsfile.rendered
+  wkc-cr-file = var.storage == "nfs" ? data.template_file.wkccrnfsfile.rendered : data.template_file.wkccrpwxocsfile.rendered
 
   # streams-storageclass = lookup(var.streams-storageclass, var.storage)
   # bigsql-storageclass  = lookup(var.bigsql-storageclass, var.storage)
@@ -1147,5 +1148,122 @@ resource "null_resource" "install-bigsql" {
     null_resource.install-dods,
     null_resource.install-spark,
     null_resource.install-dv,
+  ]
+}
+
+resource "null_resource" "install-wkc" {
+  count = var.wkc == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/wkc-files",
+
+      # Copy the required yaml files for wkc setup .. 
+      "cd /home/${var.admin-username}/wkc-files",
+      "cat > wkc-cr.yaml <<EOL\n${local.wkc-cr-file}\nEOL",
+      "cat > db2aaservice-cr.yaml <<EOL\n${file("../cpd4_module/db2aaservice-cr.yaml")}\nEOL",
+
+      ## Creating the db2 sysctl config shell script.
+
+      "cat > sysctl-config-db2.sh <<EOL\n${file("../cpd4_module/sysctl-config-db2.sh")}\nEOL",
+      "sudo chmod +x sysctl-config-db2.sh",
+      "./sysctl-config-db2.sh",
+
+      # Case package. 
+      ## Db2u Operator 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2uoperator/4.0.0-3731.2361/ibm-db2uoperator-4.0.0-3731.2361.tgz -o ibm-db2uoperator-4.0.0-3731.2361.tgz",
+
+      # Case package. 
+      ## Db2asaservice 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2aaservice/4.0.0-1228.749/ibm-db2aaservice-4.0.0-1228.749.tgz -o ibm-db2aaservice-4.0.0-1228.749.tgz",
+
+
+      # ## wkc case package 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wkc/4.0.0-416/ibm-wkc-4.0.0-416.tgz -o ibm-wkc-4.0.0-416.tgz",
+
+      # # Install db2u operator using CLI (OLM)
+      "cat > install-db2u-operator.sh <<EOL\n${file("../cpd4_module/install-db2u-operator.sh")}\nEOL",
+      "sudo chmod +x install-db2u-operator.sh",
+      "./install-db2u-operator.sh ibm-db2uoperator-4.0.0-3731.2361.tgz ${var.operator-namespace}",
+
+      # Checking if the db2u operator pods are ready and running. 
+      # checking status of db2u-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh db2u-operator ${var.operator-namespace}",
+
+      # # Install db2aaservice operator using CLI (OLM)
+      "cat > install-db2aaservice-operator.sh <<EOL\n${file("../cpd4_module/install-db2aaservice-operator.sh")}\nEOL",
+      "sudo chmod +x install-db2aaservice-operator.sh",
+      "./install-db2aaservice-operator.sh ibm-db2aaservice-4.0.0-1228.749.tgz ${var.operator-namespace}",
+
+      # Checking if the db2aaservice operator pods are ready and running. 
+      # checking status of db2aaservice-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-db2aaservice-cp4d-operator-controller-manager ${var.operator-namespace}",
+
+      # switch to zen namespace
+
+      "oc project ${var.cpd-namespace}",
+
+      # Install db2aaservice Customer Resource
+
+      "echo '*** executing **** oc create -f db2aaservice-cr.yaml'",
+      "result=$(oc create -f db2aaservice-cr.yaml)",
+      "echo $result",
+
+      # check the db2aaservice cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh Db2aaserviceService db2aaservice-cr ${var.cpd-namespace} db2aaserviceStatus",
+
+      # # Install wkc operator using CLI (OLM)
+      "cat > install-wkc-operator.sh <<EOL\n${file("../cpd4_module/install-wkc-operator.sh")}\nEOL",
+      "sudo chmod +x install-wkc-operator.sh",
+      "./install-wkc-operator.sh ibm-wkc-4.0.0-416.tgz ${var.operator-namespace}",
+
+      # Checking if the wkc operator pods are ready and running. 
+      # checking status of ibm-wkc-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-cpd-wkc-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+
+      "oc project ${var.cpd-namespace}",
+
+      # # Install wkc Customer Resource
+
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/wkc-files/wkc-cr.yaml",
+      "echo '*** executing **** oc create -f wkc-cr.yaml'",
+      "result=$(oc create -f wkc-cr.yaml)",
+      "echo $result",
+
+      # check the wkc cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh wkc wkc-cr ${var.cpd-namespace} wkcStatus",
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+    null_resource.install-dods,
+    null_resource.install-spark,
+    null_resource.install-dv,
+    null_resource.install-bigsql,
   ]
 }

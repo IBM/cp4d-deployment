@@ -57,3 +57,25 @@ spec:
   - mirrors:
     - cp.stg.icr.io/cp
     source: cp.icr.io/cp/cpd
+### WKC mirrors 
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: docker.io/ibmcom
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    source: cp.icr.io/cp
+  - mirrors:
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
