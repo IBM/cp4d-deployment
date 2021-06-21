@@ -75,7 +75,7 @@ spec:
       portable: true
       replica: 3
       resources: {}
-  version: 4.6.4
+  version: 4.6.0
 EOF
 }
 
