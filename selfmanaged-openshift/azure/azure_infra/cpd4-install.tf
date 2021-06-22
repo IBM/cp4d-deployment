@@ -1303,3 +1303,63 @@ resource "null_resource" "install-wkc" {
     null_resource.install-bigsql,
   ]
 }
+
+
+resource "null_resource" "install-ca" {
+  count = var.ca == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/ca-files",
+
+      ## Copy the required yaml files for ca setup .. 
+      "cd /home/${var.admin-username}/ca-files",
+      "cat > ca-cr.yaml <<EOL\n${file("../cpd4_module/ca-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-cognos-analytics-prod/4.0.0-591/ibm-cognos-analytics-prod-4.0.0-591.tgz -o ibm-cognos-analytics-prod-4.0.0-591.tgz
+
+      # Install ca operator using CLI (OLM)
+      "cat > install-ca-operator.sh <<EOL\n${file("../cpd4_module/install-ca-operator.sh")}\nEOL",
+      "sudo chmod +x install-ca-operator.sh",
+      "./install-ca-operator.sh ibm-cognos-analytics-prod-4.0.0-591.tgz ${var.operator-namespace}",
+
+      # Checking if the ca operator pods are ready and running. 
+      # checking status of ca-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ca-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create ca CR: 
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/ca-files/ca-cr.yaml",
+      "echo '*** executing **** oc create -f ca-cr.yaml'",
+      "result=$(oc create -f ca-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh CAService ca-cr ${var.cpd-namespace} caAddonStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+  ]
+}
