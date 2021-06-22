@@ -467,15 +467,35 @@ data "template_file" "wsl_cr" {
 apiVersion: ws.cpd.ibm.com/v1beta1
 kind: WS
 metadata:
-  name: ws-cr
+  name: ws-cr
 spec:
-  version: "4.0.0"
-  size: "small"
-  storageClass: ${local.storageclasee}
-  storageVendor: ${var.storage_option}
-  license:
-    accept: true
-    license: Enterprise
-  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
+  version: "4.0.0"
+  size: "small"
+  storageClass: ${local.storageclasee}
+  storageVendor: ${var.storage_option}
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
+EOF
+}
+
+data "template_file" "spss_cr" {
+  template = <<EOF
+apiVersion: spssmodeler.cpd.ibm.com/v1
+kind: Spss
+metadata: 
+  name: spss-cr
+spec:
+  architecture: amd64
+  docker_registry_prefix: cp.stg.icr.io/cp/cpd
+  license:
+    accept: true
+    license: Enterprise
+  namespace: "${var.cpd_namespace}"
+  operation: install
+  scaleConfig: small
+  storageClass: "${local.storage_class}"
+  version: "4.0.0"
 EOF
 }

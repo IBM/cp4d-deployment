@@ -210,7 +210,7 @@ EOF
     local_file.cpd_platform_operator_operandrequest_yaml,
     local_file.zen_catalog_source_yaml,
     local_file.ibm_cpd_lite_yaml,
-    # null_resource.configure_cluster,
+    null_resource.configure_cluster,
     null_resource.append_custom_pull_secret,
   ]
 }
@@ -288,7 +288,7 @@ EOF
     local_file.cpd_platform_operator_operandrequest_yaml,
     local_file.zen_catalog_source_yaml,
     local_file.ibm_cpd_lite_yaml,
-    # null_resource.configure_cluster,
+    null_resource.configure_cluster,
     null_resource.append_custom_pull_secret,
     null_resource.bedrock_zen_operator,
     local_file.ccs_cr,
@@ -330,16 +330,16 @@ bash cpd/scripts/pod-status-check.sh ibm-cpd-wos-operator ${local.operator_names
 echo "switch to ${var.cpd_namespace} namespace"
 oc project ${var.cpd_namespace}
 
-echo 'Create WOS CR'
+echo 'Create aiopenscale CR'
 oc create -f ${self.triggers.cpd_workspace}/openscale_cr.yaml
 
-# check the CCS cr status
+# check the aiopenscale cr status
 bash cpd/scripts/check-cr-status.sh WOService aiopenscale ${var.cpd_namespace} wosStatus
 EOF
   }
     depends_on = [
     local_file.openscale_cr_yaml,
-    # null_resource.configure_cluster,
+    null_resource.configure_cluster,
     null_resource.append_custom_pull_secret,
     null_resource.install_ccs,
     null_resource.download_cloudctl,
@@ -382,16 +382,16 @@ bash cpd/scripts/pod-status-check.sh ibm-cpd-wml-operator ${local.operator_names
 echo "switch to ${var.cpd_namespace} namespace"
 oc project ${var.cpd_namespace}
 
-echo 'Create WOS CR'
+echo 'Create wml CR'
 oc create -f ${self.triggers.cpd_workspace}/wml_cr.yaml
 
-# check the CCS cr status
+# check the wml cr status
 bash cpd/scripts/check-cr-status.sh WmlBase wml-cr ${var.cpd_namespace} wmlStatus
 EOF
   }
     depends_on = [
     local_file.openscale_cr_yaml,
-    # null_resource.configure_cluster,
+    null_resource.configure_cluster,
     null_resource.append_custom_pull_secret,
     null_resource.install_ccs,
     null_resource.download_cloudctl,
@@ -447,19 +447,74 @@ bash cpd/scripts/pod-status-check.sh ibm-cpd-ws-operator ${local.operator_namesp
 echo "switch to ${var.cpd_namespace} namespace"
 oc project ${var.cpd_namespace}
 
-echo 'Create WOS CR'
+echo 'Create wsl CR'
 oc create -f ${self.triggers.cpd_workspace}/wsl_cr.yaml
 
-# check the CCS cr status
+# check the wsl cr status
 bash cpd/scripts/check-cr-status.sh WS ws-cr ${var.cpd_namespace} wsStatus
 EOF
   }
     depends_on = [
     local_file.openscale_cr_yaml,
-    # null_resource.configure_cluster,
+    null_resource.configure_cluster,
     null_resource.append_custom_pull_secret,
     null_resource.install_ccs,
     null_resource.download_cloudctl,
     null_resource.install_aiopenscale,
+    null_resource.install_wml,
+  ]
+}
+
+resource "local_file" "spss_cr_yaml" {
+  content  = data.template_file.spss_cr.rendered
+  filename = "${local.cpd_workspace}/spss_cr.yaml"
+}
+
+resource "null_resource" "install_spss" {
+  count = var.spss_modeler == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Download Case package"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-spss/1.0.0-107/ibm-spss-1.0.0-107.tgz -o ${self.triggers.cpd_workspace}/ibm-spss-1.0.0-107.tgz
+
+echo "Install spss operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-spss-1.0.0-153.tgz --tolerance 1  --namespace openshift-marketplace --inventory spssSetup --action installCatalog
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-spss-1.0.0-153.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory spssSetup --args "--registry cp.stg.icr.io"
+
+echo "Checking if the spss operator pods are ready and running."
+echo "checking status of spss-controller-manager"
+bash cpd/scripts/pod-status-check.sh spss-controller-manager ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create SPSS CR'
+oc create -f ${self.triggers.cpd_workspace}/spss_cr.yaml
+
+echo 'check the SPSS cr status'
+bash cpd/scripts/check-cr-status.sh Spss spss-cr ${var.cpd_namespace} spssmodelerStatus
+EOF
+  }
+  depends_on = [
+    local_file.spss_cr_yaml,
+    null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
+    null_resource.download_cloudctl,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_wsl,
   ]
 }
