@@ -427,3 +427,55 @@ spec:
     license: "Enterprise"
 EOF
 }
+
+data "template_file" "wsl_resolvers" {
+  template = <<EOF
+resolvers:
+  resources:
+    cases:
+      repositories:
+        ibmGithub:
+          repositoryInfo:
+            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev"
+      caseRepositoryMap:
+      - cases:
+        - case: "ibm-ccs"
+          version: "*"
+        - case: "ibm-datarefinery"
+          version: "*"
+        repositories:
+        - ibmGithub
+EOF
+}
+
+data "template_file" "wsl_resolverAuth" {
+  template = <<EOF
+resolversAuth:
+  resources:
+    cases:
+      repositories:
+        ibmGithub:
+          credentials:
+            basic:
+              username: ${var.gituser}
+              password: "${var.gittoken}"
+EOF
+}
+
+data "template_file" "wsl_cr" {
+  template = <<EOF
+apiVersion: ws.cpd.ibm.com/v1beta1
+kind: WS
+metadata:
+  name: ws-cr
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageClass: ${local.storageclasee}
+  storageVendor: ${var.storage_option}
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
+EOF
+}
