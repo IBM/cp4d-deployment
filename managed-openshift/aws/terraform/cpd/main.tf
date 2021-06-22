@@ -1,6 +1,7 @@
 locals {
   classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
+  operator_namespace = "ibm-common-services"
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
@@ -18,9 +19,24 @@ resource "local_file" "crio_machineconfig_yaml" {
   filename = "${var.installer_workspace}/crio_machineconfig.yaml"
 }
 
-resource "local_file" "bedrock_setup_yaml" {
-  content  = data.template_file.bedrock_setup.rendered
-  filename = "${local.cpd_workspace}/bedrock_setup.yaml"
+resource "local_file" "cpd_mirror_yaml" {
+  content  = data.template_file.cpd_mirror.rendered
+  filename = "${local.cpd_workspace}/cpd_mirror.yaml"
+}
+
+resource "local_file" "bedrock_catalog_source_yaml" {
+  content  = data.template_file.bedrock_catalog_source.rendered
+  filename = "${local.cpd_workspace}/bedrock_catalog_source.yaml"
+}
+
+resource "local_file" "cpd_platform_operator_catalogsource_yaml" {
+  content  = data.template_file.cpd_platform_operator_catalogsource.rendered
+  filename = "${local.cpd_workspace}/cpd_platform_operator_catalogsource.yaml"
+}
+
+resource "local_file" "cpd_platform_operator_setup_yaml" {
+  content  = data.template_file.cpd_platform_operator_setup.rendered
+  filename = "${local.cpd_workspace}/cpd_platform_operator_setup.yaml"
 }
 
 resource "local_file" "operand_registry_yaml" {
@@ -28,69 +44,99 @@ resource "local_file" "operand_registry_yaml" {
   filename = "${local.cpd_workspace}/operand_registry.yaml"
 }
 
-resource "local_file" "zen_setup_yaml" {
-  content  = data.template_file.zen_setup.rendered
-  filename = "${local.cpd_workspace}/zen_setup.yaml"
+resource "local_file" "cpd_platform_operator_operandrequest_yaml" {
+  content  = data.template_file.cpd_platform_operator_operandrequest.rendered
+  filename = "${local.cpd_workspace}/cpd_platform_operator_operandrequest.yaml"
 }
 
-resource "local_file" "zen_operand_request_yaml" {
-  content  = data.template_file.zen_operand_request.rendered
-  filename = "${local.cpd_workspace}/zen_operand_request.yaml"
+resource "local_file" "zen_catalog_source_yaml" {
+  content  = data.template_file.zen_catalog_source.rendered
+  filename = "${local.cpd_workspace}/zen_catalog_source.yaml"
 }
 
-resource "local_file" "zen_service_lite_yaml" {
-  content  = data.template_file.zen_service_lite.rendered
-  filename = "${local.cpd_workspace}/zen_service_lite.yaml"
+resource "local_file" "ibm_cpd_lite_yaml" {
+  content  = data.template_file.ibm_cpd_lite.rendered
+  filename = "${local.cpd_workspace}/ibm_cpd_lite.yaml"
 }
 
-# resource "null_resource" "configure_cluster" {
-#   triggers = {
-#     openshift_api       = var.openshift_api
-#     openshift_username  = var.openshift_username
-#     openshift_password  = var.openshift_password
-#     openshift_token     = var.openshift_token
-#     vpc_id              = var.vpc_id
-#     installer_workspace = var.installer_workspace
-#     login_cmd = var.login_cmd
-#   }
-#   provisioner "local-exec" {
-#     command = <<EOF
-# ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-# oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
-# oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
-# oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"managementState":"Unmanaged"}}'
-# echo 'Sleeping for 30s'
-# sleep 30
-# oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
-# oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600
-# echo 'Sleeping for 20s'
-# sleep 20
-# bash cpd/scripts/update-elb-timeout.sh ${self.triggers.vpc_id} ${local.classic_lb_timeout}
-# echo "Creating MachineConfig files"
-# oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
-# oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
-# oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
-# echo 'Sleeping for 10mins while MachineConfigs apply and the nodes restarts' 
-# sleep 600
-# EOF
-#   }
-#   depends_on = [
-#     local_file.sysctl_machineconfig_yaml,
-#     local_file.limits_machineconfig_yaml,
-#     local_file.crio_machineconfig_yaml,
-#   ]
-# }
+resource "local_file" "ccs_cr_yaml" {
+  content  = data.template_file.ccs_cr.rendered
+  filename = "${local.cpd_workspace}/ccs_cr.yaml"
+}
 
-resource "null_resource" "bedrock_zen_operator" {
+resource "null_resource" "configure_cluster" {
   triggers = {
-    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    vpc_id              = var.vpc_id
+    installer_workspace = var.installer_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
+oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"managementState":"Unmanaged"}}'
+echo 'Sleeping for 30s'
+sleep 30
+oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
+oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=104857600
+echo 'Sleeping for 20s'
+sleep 20
+bash cpd/scripts/update-elb-timeout.sh ${self.triggers.vpc_id} ${local.classic_lb_timeout}
+echo "Creating MachineConfig files"
+oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
+oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
+oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
+echo 'Sleeping for 10mins while MachineConfigs apply and the nodes restarts' 
+sleep 600
+EOF
+  }
+  depends_on = [
+    local_file.sysctl_machineconfig_yaml,
+    local_file.limits_machineconfig_yaml,
+    local_file.crio_machineconfig_yaml,
+  ]
+}
+
+resource "null_resource" "append_custom_pull_secret" {
+  triggers = {
     artifactory_username = var.artifactory_username
     artifactory_apikey = var.artifactory_apikey
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
-    vpc_id              = var.vpc_id
+    login_cmd = var.login_cmd
+    cpd_workspace = local.cpd_workspace
+  }  
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+oc create -f ${self.triggers.cpd_workspace}/cpd_mirror.yaml
+echo "Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)"
+bash cpd/scripts/setup-global-pull-secret-bedrock.sh ${var.artifactory_username} ${var.artifactory_apikey}
+echo 'Waiting 15 minutes for the nodes to get ready'
+sleep 900
+EOF
+  }
+  depends_on = [
+    /* null_resource.configure_cluster, */
+  ]
+}
+
+resource "null_resource" "bedrock_zen_operator" {
+  triggers = {
+    namespace             = var.cpd_namespace
+    artifactory_username  = var.artifactory_username
+    artifactory_apikey  = var.artifactory_apikey
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
     login_cmd = var.login_cmd
   }
@@ -98,40 +144,154 @@ resource "null_resource" "bedrock_zen_operator" {
   provisioner "local-exec" {
     command = <<-EOF
 ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-bash cpd/scripts/setup-global-pull-secret-bedrock.sh ${var.artifactory_username} ${var.artifactory_apikey}
-echo 'Waiting 10 minutes for the nodes to get ready'
-sleep 600
-echo "Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)"
-oc create -f ${self.triggers.cpd_workspace}/bedrock_setup.yaml
-echo "Checking if the bedrock operator pods are ready and running."
+oc create -f ${self.triggers.cpd_workspace}/bedrock_catalog_source.yaml
+
+echo "Waiting and checking till the opencloud operator is ready in the openshift-marketplace namespace"
 bash cpd/scripts/pod-status-check.sh opencloud-operator openshift-marketplace
-echo "checking status of ibm-common-service-operator"
-bash cpd/scripts/pod-status-check.sh ibm-common-service-operator ibm-common-services
-echo "checking status of operand-deployment-lifecycle-manager"
-bash cpd/scripts/pod-status-check.sh operand-deployment-lifecycle-manager ibm-common-services
+
+echo "create cpd-platform catalog source"
+oc create -f  ${self.triggers.cpd_workspace}/cpd_platform_operator_catalogsource.yaml
+
+echo "Waiting and checking till the cpd-platform operator is ready in the openshift-marketplace namespace "
+bash cpd/scripts/pod-status-check.sh cpd-platform openshift-marketplace
+
+echo "Creating zen catalog source"
+oc create -f  ${self.triggers.cpd_workspace}/zen_catalog_source.yaml
+
+echo "Waiting and checking till the ibm-zen-operator-catalog is ready in the openshift-marketplace namespace "
+bash cpd/scripts/pod-status-check.sh ibm-zen-operator-catalog openshift-marketplace
+
+echo "Creating the ${local.operator_namespace} namespace:"
+oc new-project ${self.triggers.namespace}
+oc new-project ${local.operator_namespace}
+
+sleep 10
+
+echo "Create cpd-platform-operator subscription. This will deploy the bedrock and zen: "
+oc create -f ${self.triggers.cpd_workspace}/cpd_platform_operator_setup.yaml
+
+echo "Waiting and checking till the cpd-platform-operator-manager pod is up in ibm-common-services namespace."
+bash cpd/scripts/pod-status-check.sh cpd-platform-operator-manager ${local.operator_namespace}
+
+echo "Checking if the bedrock operator pods are ready and running."
 echo "checking status of ibm-namespace-scope-operator"
-bash cpd/scripts/pod-status-check.sh ibm-namespace-scope-operator ibm-common-services
-echo "Edit Operand Registry"
-oc apply -f ${self.triggers.cpd_workspace}/operand_registry.yaml
-echo "Setup Zen artifacts: Namespace, CatalogSource and OperandRequest"
-oc create -f ${self.triggers.cpd_workspace}/zen_setup.yaml
-echo "Sleeping for 4 mins"
-sleep 240
-echo "Creating operand request"
-oc create -f ${self.triggers.cpd_workspace}/zen_operand_request.yaml
-echo "Sleeping for 4 mins"
-sleep 240
-oc project zen
-echo "Create Lite CR"
-oc create -f ${self.triggers.cpd_workspace}/zen_service_lite.yaml
-bash cpd/scripts/check-cr-status.sh zenservice lite zen zenStatus
+bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${local.operator_namespace}
+
+echo "checking status of operand-deployment-lifecycle-manager"
+bash cpd/scripts/bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${local.operator_namespace}
+
+echo "checking status of ibm-common-service-operator"
+bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
+
+#oc apply -f ${self.triggers.cpd_workspace}/operand_registry.yaml
+sleep 2
+echo "Create cpd-platform-operator operand request. This creates the zen operator."
+oc create -f ${self.triggers.cpd_workspace}/cpd_platform_operator_operandrequest.yaml
+
+echo "Create lite ibmcpd-cr"
+oc project ${self.triggers.namespace}
+sleep 2
+oc create -f ${self.triggers.cpd_workspace}/ibm_cpd_lite.yaml
+
+echo "check if the zen operator pod is up and running"
+bash cpd/scripts/bedrock-pod-status-check.sh ibm-zen-operator ${local.operator_namespace}
+bash cpd/scripts/bedrock-pod-status-check.sh ibm-cert-manager-operator ${local.operator_namespace}
+
+echo "check the lite cr status"
+bash cpd/scripts/check-cr-status.sh ibmcpd ibmcpd-cr ${self.triggers.namespace} controlPlaneStatus
 EOF
   }
   depends_on = [
-    local_file.bedrock_setup_yaml,
+    local_file.cpd_mirror_yaml,
+    local_file.bedrock_catalog_source_yaml,
+    local_file.cpd_platform_operator_catalogsource_yaml,
+    local_file.cpd_platform_operator_setup_yaml,
     local_file.operand_registry_yaml,
-    local_file.zen_setup_yaml,
-    local_file.zen_service_lite_yaml,
+    local_file.cpd_platform_operator_operandrequest_yaml,
+    local_file.zen_catalog_source_yaml,
+    local_file.ibm_cpd_lite_yaml,
     # null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+  ]
+}
+
+resource "null_resource" "download_cloudctl" {
+  triggers = {
+    namespace = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+  echo "Download cloudctl and aiopenscale case package."
+case $(uname -s) in
+  Darwin)
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz'
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz.sig'
+    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64.tar.gz -C ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64 ${self.triggers.cpd_workspace}/cloudctl
+    ;;
+  Linux)
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz'
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz.sig'
+    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-linux-amd64.tar.gz -C ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cloudctl-linux-amd64 ${self.triggers.cpd_workspace}/cloudctl
+    ;;
+  *)
+    echo 'Supports only Linux and Mac OS at this time'
+    exit 1;;
+esac
+chmod u+x ${self.triggers.cpd_workspace}/cloudctl
+EOF
+  }
+}
+
+resource "null_resource" "install_ccs" {
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Downloading CCS package"
+wget https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-ccs/1.0.0-746/ibm-ccs-1.0.0-746.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-ccs-1.0.0-746.tgz'
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-ccs-1.0.0-746.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory ccsSetup --args "--registry cp.stg.icr.io"
+
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator openshift-marketplace
+
+oc project ${var.cpd_namespace}
+
+oc create -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
+bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
+
+EOF
+  }
+  depends_on = [
+    local_file.cpd_mirror_yaml,
+    local_file.bedrock_catalog_source_yaml,
+    local_file.cpd_platform_operator_catalogsource_yaml,
+    local_file.cpd_platform_operator_setup_yaml,
+    local_file.operand_registry_yaml,
+    local_file.cpd_platform_operator_operandrequest_yaml,
+    local_file.zen_catalog_source_yaml,
+    local_file.ibm_cpd_lite_yaml,
+    # null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.bedrock_zen_operator,
+    local_file.ccs_cr,
+    null_resource.download_cloudctl,
   ]
 }

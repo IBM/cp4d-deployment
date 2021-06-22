@@ -56,7 +56,7 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
+#${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
 EOF
   }
   depends_on = [

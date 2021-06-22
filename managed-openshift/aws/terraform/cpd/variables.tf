@@ -77,21 +77,10 @@ variable "cpd_version" {
   default = "4.0.0"
 }
 
-#TO BE DELETED
-variable "artifactory_username" {
-  type = string
-  default = ""
-}
-
-variable "artifactory_apikey" {
-  type = string
-  default = ""
-}
-
 ###########
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
+  default = "v3.7.1"
 }
 
 variable "datacore_version" {

@@ -73,24 +73,8 @@ spec:
 EOF
 }
 
-data "template_file" "bedrock_setup" {
+data "template_file" "bedrock_catalog_source" {
   template = <<EOF
----
-apiVersion: operator.openshift.io/v1alpha1
-kind: ImageContentSourcePolicy
-metadata:
-  name: bedrock-zen-edge-mirror
-spec:
-  repositoryDigestMirrors:
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
-    source: quay.io/opencloudio
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    source: icr.io/cpopen
----
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
@@ -105,49 +89,67 @@ spec:
   updateStrategy:
     registryPoll:
       interval: 45m
----
-apiVersion: v1
-kind: Namespace
+EOF
+}
+
+data "template_file" "cpd_platform_operator_catalogsource" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
 metadata:
-  labels:
-    openshift.io/cluster-monitoring: "true"
-  name: ibm-common-services
-spec: {}
+  name: cpd-platform
+  namespace: openshift-marketplace
+spec:
+  displayName: Cloud Pak for Data
+  publisher: IBM
+  sourceType: grpc
+  image: hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com/cpd-platform-operator-catalog:2.0.0-amd64-122
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "cpd_platform_operator_setup" {
+  template = <<EOF
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: common-service-operator-group
-  namespace: ibm-common-services
+  name: operatorgroup
+  namespace: ${local.operator_namespace}
 spec:
   targetNamespaces:
-    - ibm-common-services
+  - ${local.operator_namespace}
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-common-service-operator
-  namespace: ibm-common-services
+  name: cpd-operator
+  namespace: ${local.operator_namespace}
 spec:
-  channel: v3
+  channel: stable-v1
   installPlanApproval: Automatic
-  name: ibm-common-service-operator
-  source: opencloud-operators
+  name: cpd-platform-operator
+  source: cpd-platform
   sourceNamespace: openshift-marketplace
 EOF
 }
 
-data "template_file" "zen_setup" {
+data "template_file" "cpd_platform_operator_operandrequest" {
   template = <<EOF
----
-apiVersion: v1
-kind: Namespace
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
 metadata:
-  labels:
-    openshift.io/cluster-monitoring: "true"
-  name: zen
-spec: {}
----
+  name: empty-request
+  namespace: ${var.cpd_namespace}
+spec:
+  requests: []
+EOF
+}
+
+data "template_file" "zen_catalog_source" {
+  template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
@@ -162,38 +164,19 @@ spec:
 EOF
 }
 
-data "template_file" "zen_operand_request" {
+data "template_file" "ibm_cpd_lite" {
   template = <<EOF
-apiVersion: operator.ibm.com/v1alpha1
-kind: OperandRequest
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
 metadata:
-  name: zen-service
-  namespace: zen
+  name: ibmcpd-cr
+  namespace: ${var.cpd_namespace}
 spec:
-  requests:
-    - operands:
-        - name: ibm-zen-operator
-        - name: ibm-cert-manager-operator
-      registry: common-service
-      registryNamespace: ibm-common-services
-EOF
-}
-
-data "template_file" "zen_service_lite" {
-  template = <<EOF
-apiVersion: zen.cpd.ibm.com/v1
-kind: ZenService
-metadata:
-  name: lite
-  namespace: zen
-spec:
-  csNamespace: ibm-common-services
-  iamIntegration: true
-  version: ${var.cpd_version}
+  license:
+    accept: true
+    license: Enterprise
+  version: "4.0.0"
   storageClass: ${lookup(var.cpd_storageclass, var.storage_option)}
-  cloudpakfordata: true 
-  zenCoreMetaDbStorageClass: ${lookup(var.cpd_storageclass, var.storage_option)}
-  #cert_manager_enabled: false
 EOF
 }
 
@@ -209,13 +192,13 @@ items:
     creationTimestamp: null
     generation: 1
     name: common-service
-    namespace: ibm-common-services
+    namespace: ${local.operator_namespace}
   spec:
     operators:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-licensing-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-licensing-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -223,14 +206,14 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-mongodb-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-mongodb-operator-app
       sourceName: opencloud-operators
       sourceNamespace: openshift-marketplace
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-cert-manager-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-cert-manager-operator
       scope: public
       sourceName: opencloud-operators
@@ -238,7 +221,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-iam-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-iam-operator
       scope: public
       sourceName: opencloud-operators
@@ -246,7 +229,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-healthcheck-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-healthcheck-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -254,7 +237,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-commonui-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-commonui-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -262,7 +245,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-management-ingress-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-management-ingress-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -270,7 +253,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-ingress-nginx-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-ingress-nginx-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -278,7 +261,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-auditlogging-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-auditlogging-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -286,7 +269,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-platform-api-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-platform-api-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -294,7 +277,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-monitoring-exporters-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-monitoring-exporters-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -302,7 +285,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-monitoring-prometheusext-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-monitoring-prometheusext-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -310,7 +293,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-monitoring-grafana-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-monitoring-grafana-operator-app
       scope: public
       sourceName: opencloud-operators
@@ -318,7 +301,7 @@ items:
     - channel: v3
       installPlanApproval: Automatic
       name: ibm-events-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: ibm-events-operator
       scope: public
       sourceName: opencloud-operators
@@ -334,20 +317,73 @@ items:
     - channel: stable-v1
       installPlanApproval: Automatic
       name: ibm-zen-operator
-      namespace: ibm-common-services
-      packageName: ibm-zen-operator-catalog
+      namespace: ${local.operator_namespace}
+      packageName: ibm-zen-operator
       scope: public
-      sourceName: opencloud-operators
+      sourceName: ibm-zen-operator-catalog
       sourceNamespace: openshift-marketplace
     - channel: v1.1
       installPlanApproval: Automatic
       name: ibm-db2u-operator
-      namespace: ibm-common-services
+      namespace: ${local.operator_namespace}
       packageName: db2u-operator
       scope: public
 kind: List
 metadata:
   resourceVersion: ""
   selfLink: ""
+EOF
+}
+
+
+data "template_file" "ccs_cr" {
+  template = <<EOF
+apiVersion: ccs.cpd.ibm.com/v1beta1
+kind: CCS
+metadata:
+  name: ccs-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageVendor: ${var.storage_option}
+  license:
+    accept: true
+  docker_registry_prefix: cp.stg.icr.io/cp/cpd
+EOF
+}
+
+data "template_file" "cpd_mirror" {
+  template = <<EOF
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  name: mirror-config
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    source: docker.io/ibmcom
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
 EOF
 }

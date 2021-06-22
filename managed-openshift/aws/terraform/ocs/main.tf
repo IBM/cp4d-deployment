@@ -62,19 +62,19 @@ echo "Sleeping for 5mins"
 sleep 300
 EOF
   }
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOF
-echo "Logging in.."
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
-echo "Delete OCS toolbox"
-oc delete -f ${self.triggers.installer_workspace}/ocs_toolbox.yaml
-echo "Delete storagecluster"
-oc delete -f ${self.triggers.installer_workspace}/ocs_storagecluster.yaml
-echo "Delete Operator Group and Subscription."
-oc delete -f ${self.triggers.installer_workspace}/ocs_olm.yaml
-EOF
-  }
+#   provisioner "local-exec" {
+#     when    = destroy
+#     command = <<EOF
+# echo "Logging in.."
+# ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server=${self.triggers.openshift_api} --token=${self.triggers.openshift_token}
+# echo "Delete OCS toolbox"
+# oc delete -f ${self.triggers.installer_workspace}/ocs_toolbox.yaml
+# echo "Delete storagecluster"
+# oc delete -f ${self.triggers.installer_workspace}/ocs_storagecluster.yaml
+# echo "Delete Operator Group and Subscription."
+# oc delete -f ${self.triggers.installer_workspace}/ocs_olm.yaml
+# EOF
+#   }
   depends_on = [
     local_file.ocs_olm_yaml,
     local_file.ocs_storagecluster_yaml,

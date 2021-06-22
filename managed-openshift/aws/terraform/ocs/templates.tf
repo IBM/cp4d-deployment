@@ -39,6 +39,9 @@ data "template_file" "ocs_storagecluster" {
 apiVersion: ocs.openshift.io/v1
 kind: StorageCluster
 metadata:
+  annotations:
+    uninstall.ocs.openshift.io/cleanup-policy: delete
+    uninstall.ocs.openshift.io/mode: graceful
   name: ocs-storagecluster
   namespace: openshift-storage
   finalizers:
