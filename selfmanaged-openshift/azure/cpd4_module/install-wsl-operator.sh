@@ -14,7 +14,7 @@ export CASECTL_RESOLVERS_AUTH_LOCATION=/home/core/wsl-files/resolversAuth.yaml
 cd \${WSL_FILES_LOCATION}
 
 cloudctl case save --case ibm-wsl \
-    --version 2.0.0-367 \
+    --version 2.0.0-382 \
     --repo https://\${GITTOKEN}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev \
     --outputdir \${OFFLINE_LOCATION} -t 1
 
@@ -22,14 +22,14 @@ cd  \${OFFLINE_LOCATION}
 
 oc project ibm-common-services
 
-cloudctl  case launch --case ibm-wsl-2.0.0-367.tgz \
+cloudctl  case launch --case ibm-wsl-2.0.0-382.tgz \
     --tolerance 1 \
     --namespace openshift-marketplace \
     --action installCatalog \
     --inventory wslSetup \
     --args '--recursive --inputDir /home/core/wsl-files/offline'
 
-cloudctl case launch --case ibm-wsl-2.0.0-367.tgz \
+cloudctl case launch --case ibm-wsl-2.0.0-382.tgz \
     --tolerance 1 \
     --namespace ibm-common-services \
     --action installOperator \

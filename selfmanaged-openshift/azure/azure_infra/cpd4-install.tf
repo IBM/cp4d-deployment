@@ -16,7 +16,8 @@ locals {
   wml-cr-file = var.storage == "nfs" ? data.template_file.wmlcrnfsfile.rendered : data.template_file.wmlcrpwxocsfile.rendered
   wsl-cr-file = var.storage == "nfs" ? data.template_file.wslcrnfsfile.rendered : data.template_file.wslcrpwxocsfile.rendered
   wkc-cr-file = var.storage == "nfs" ? data.template_file.wkccrnfsfile.rendered : data.template_file.wkccrpwxocsfile.rendered
-
+  wkc-iis-cr-file = var.storage == "nfs" ? data.template_file.wkciiscrnfsfile.rendered : data.template_file.wkciiscrpwxocsfile.rendered
+  wkc-ug-cr-file = var.storage == "nfs" ? data.template_file.wkcugcrnfsfile.rendered : data.template_file.wkcugcrpwxocsfile.rendered
   # streams-storageclass = lookup(var.streams-storageclass, var.storage)
   # bigsql-storageclass  = lookup(var.bigsql-storageclass, var.storage)
 
@@ -443,7 +444,6 @@ resource "null_resource" "install-cpd-platform-operator" {
 
 ### Installing CCS service. 
 
-
 resource "null_resource" "install-ccs" {
   count = var.ccs == "yes" ? 1 : 0
   triggers = {
@@ -503,7 +503,6 @@ resource "null_resource" "install-ccs" {
   ]
 }
 
-
 resource "null_resource" "install-wsl" {
   count = var.wsl == "yes" ? 1 : 0
   triggers = {
@@ -533,20 +532,20 @@ resource "null_resource" "install-wsl" {
 
       # ## Download the case package for wsl
 
-      # #"curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-wsl/2.0.0-372/ibm-wsl-2.0.0-372.tgz -o ibm-wsl-2.0.0-372.tgz",
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-wsl/2.0.0-382/ibm-wsl-2.0.0-382.tgz -o ibm-wsl-2.0.0-382.tgz",
 
-      # # Install wsl operator using CLI (OLM)
-      # "cd /home/${var.admin-username}/wsl-files/offline",
-      # "cat > install-wsl-operator.sh <<EOL\n${file("../cpd4_module/install-wsl-operator.sh")}\nEOL",
-      # "sudo chmod +x install-wsl-operator.sh",
-      # "./install-wsl-operator.sh ibm-wsl-2.0.0-372.tgz ${var.operator-namespace} ${var.gituser} ${var.gittoken}",
+      # Install wsl operator using CLI (OLM)
+      "cd /home/${var.admin-username}/wsl-files/offline",
+      "cat > install-wsl-operator.sh <<EOL\n${file("../cpd4_module/install-wsl-operator.sh")}\nEOL",
+      "sudo chmod +x install-wsl-operator.sh",
+      "./install-wsl-operator.sh ibm-wsl-2.0.0-382.tgz ${var.operator-namespace} ${var.gituser} ${var.gittoken}",
 
-      # # Checking if the wsl operator pods are ready and running. 
-      # # checking status of ibm-cpd-ws-operator
-      # "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-cpd-ws-operator ${var.operator-namespace}",
+      # Checking if the wsl operator pods are ready and running. 
+      # checking status of ibm-cpd-ws-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-cpd-ws-operator ${var.operator-namespace}",
 
-      # # switch to zen namespace
-      # "oc project ${var.cpd-namespace}",
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
 
       # Create wsl CR: 
       "cd /home/${var.admin-username}/wsl-files",
@@ -594,16 +593,16 @@ resource "null_resource" "install-aiopenscale" {
       "cat > openscale-cr.yaml <<EOL\n${file("../cpd4_module/openscale-cr.yaml")}\nEOL",
 
       # Case package. 
-      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-190/ibm-watson-openscale-2.0.0-190.tgz -o ibm-watson-openscale-2.0.0-190.tgz",
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-237/ibm-watson-openscale-2.0.0-237.tgz -o ibm-watson-openscale-2.0.0-237.tgz",
 
       # Install OpenScale operator using CLI (OLM)
       "cat > install-openscale-operator.sh <<EOL\n${file("../cpd4_module/install-openscale-operator.sh")}\nEOL",
       "sudo chmod +x install-openscale-operator.sh",
-      "./install-openscale-operator.sh ibm-watson-openscale-2.0.0-190.tgz ${var.operator-namespace}",
+      "./install-openscale-operator.sh ibm-watson-openscale-2.0.0-237.tgz ${var.operator-namespace}",
 
       # Checking if the openscale operator pods are ready and running. 
-      # checking status of ibm-watson-openscale-operator
-      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-watson-openscale-operator ${var.operator-namespace}",
+      # checking status of ibm-cpd-wos-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-cpd-wos-operator ${var.operator-namespace}",
 
       # switch to zen namespace
       "oc project ${var.cpd-namespace}",
@@ -766,7 +765,6 @@ resource "null_resource" "install-wml" {
   ]
 }
 
-
 resource "null_resource" "install-cde" {
   count = var.cde == "yes" ? 1 : 0
   triggers = {
@@ -830,7 +828,6 @@ resource "null_resource" "install-cde" {
     null_resource.install-wml,
   ]
 }
-
 
 ### *** This module will need changes after GA as the image will be pulled from a public repo .
 resource "null_resource" "install-dods" {
@@ -1058,7 +1055,6 @@ resource "null_resource" "install-dv" {
   ]
 }
 
-
 resource "null_resource" "install-bigsql" {
   count = var.bigsql == "yes" ? 1 : 0
   triggers = {
@@ -1077,23 +1073,11 @@ resource "null_resource" "install-bigsql" {
   provisioner "remote-exec" {
     inline = [
 
-
-
       #Create directory
       "mkdir -p /home/${var.admin-username}/bigsql-files",
 
       ## Copy the required yaml files for bigsql setup .. 
       "cd /home/${var.admin-username}/bigsql-files",
-
-      #### Oc login 
-      # "cat > oc-login-with-kubeadmin.sh <<EOL\n${file("../cpd4_module/oc-login-with-kubeadmin.sh")}\nEOL",
-      # "sudo chmod +x oc-login-with-kubeadmin.sh",
-      # "./oc-login-with-kubeadmin.sh",
-
-      # "sudo oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u 'kubeadmin' -p 'g3wdN-9qNmS-5NsjH-Fku8i' --certificate-authority=/home/core/ocpfourx/ingress-ca.crt",
-
-      "result=$(oc whoami)",
-      "echo $result",
 
       # Case package. 
       ## Db2u Operator 
@@ -1176,8 +1160,11 @@ resource "null_resource" "install-wkc" {
       "cd /home/${var.admin-username}/wkc-files",
       "cat > wkc-cr.yaml <<EOL\n${local.wkc-cr-file}\nEOL",
       "cat > db2aaservice-cr.yaml <<EOL\n${file("../cpd4_module/db2aaservice-cr.yaml")}\nEOL",
+      "cat > wkc-iis-scc.yaml <<EOL\n${file("../cpd4_module/wkc-iis-scc.yaml")}\nEOL",
+      "cat > wkc-iis-cr.yaml <<EOL\n${local.wkc-iis-cr-file}\nEOL",
+      "cat > wkc-ug-cr.yaml <<EOL\n${local.wkc-ug-cr-file}\nEOL",
 
-      ## Creating the db2 sysctl config shell script.
+      # Creating the db2 sysctl config shell script.
 
       "cat > sysctl-config-db2.sh <<EOL\n${file("../cpd4_module/sysctl-config-db2.sh")}\nEOL",
       "sudo chmod +x sysctl-config-db2.sh",
@@ -1194,6 +1181,9 @@ resource "null_resource" "install-wkc" {
 
       # ## wkc case package 
       "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wkc/4.0.0-416/ibm-wkc-4.0.0-416.tgz -o ibm-wkc-4.0.0-416.tgz",
+
+      # ## IIS case package 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-iis/4.0.0-355/ibm-iis-4.0.0-355.tgz -o ibm-iis-4.0.0-355.tgz",
 
       # # Install db2u operator using CLI (OLM)
       "cat > install-db2u-operator.sh <<EOL\n${file("../cpd4_module/install-db2u-operator.sh")}\nEOL",
@@ -1248,6 +1238,52 @@ resource "null_resource" "install-wkc" {
 
       # check the wkc cr status
       "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh wkc wkc-cr ${var.cpd-namespace} wkcStatus",
+
+      ## IIS cr installation 
+
+      "sed -i -e s#REPLACE_NAMESPACE#${var.cpd-namespace}#g /home/${var.admin-username}/wkc-files/wkc-iis-scc.yaml",
+      "echo '*** executing **** oc create -f wkc-iis-scc.yaml'",
+      "result=$(oc create -f wkc-iis-scc.yaml)",
+      "echo $result",
+     
+      # Install IIS operator using CLI (OLM)
+
+      "cat > install-wkc-iis-operator.sh <<EOL\n${file("../cpd4_module/install-wkc-iis-operator.sh")}\nEOL",
+      "sudo chmod +x install-wkc-iis-operator.sh",
+      "./install-wkc-iis-operator.sh ibm-iis-4.0.0-355.tgz ${var.operator-namespace}",
+
+      # Checking if the wkc iis operator pods are ready and running. 
+      # checking status of ibm-cpd-iis-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-cpd-iis-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+
+      "oc project ${var.cpd-namespace}",
+
+      # # Install wkc Customer Resource
+
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/wkc-files/wkc-iis-cr.yaml",
+      "sed -i -e s#REPLACE_NAMESPACE#${var.cpd-namespace}#g /home/${var.admin-username}/wkc-files/wkc-iis-cr.yaml",
+      "echo '*** executing **** oc create -f wkc-iis-cr.yaml'",
+      "result=$(oc create -f wkc-iis-cr.yaml)",
+      "echo $result",
+
+      # check the wkc cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh iis iis-cr ${var.cpd-namespace} iisStatus",
+
+      # switch to zen namespace
+
+      "oc project ${var.cpd-namespace}",
+
+      # # Install wkc Customer Resource
+
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/wkc-files/wkc-ug-cr.yaml",
+      "echo '*** executing **** oc create -f wkc-ug-cr.yaml'",
+      "result=$(oc create -f wkc-ug-cr.yaml)",
+      "echo $result",
+
+      # check the wkc cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh ug ug-cr ${var.cpd-namespace} ugStatus",
     ]
   }
   depends_on = [

@@ -233,3 +233,25 @@ data "template_file" "wkccrpwxocsfile" {
     STORAGE_VENDOR = var.storage
   }
 }
+
+data "template_file" "wkciiscrnfsfile" {
+  template = file("../cpd4_module/wkc-iis-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkciiscrpwxocsfile" {
+  template = file("../cpd4_module/wkc-iis-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wkcugcrnfsfile" {
+  template = file("../cpd4_module/wkc-ug-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkcugcrpwxocsfile" {
+  template = file("../cpd4_module/wkc-ug-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
