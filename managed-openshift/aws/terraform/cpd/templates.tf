@@ -335,7 +335,6 @@ metadata:
 EOF
 }
 
-
 data "template_file" "ccs_cr" {
   template = <<EOF
 apiVersion: ccs.cpd.ibm.com/v1beta1
@@ -385,5 +384,46 @@ spec:
     - cp.stg.icr.io/cp
     - cp.stg.icr.io/cp/cpd
     source: icr.io/cpopen
+EOF
+}
+
+data "template_file" "openscale_cr" {
+  template = <<EOF
+apiVersion: wos.cpd.ibm.com/v1
+kind: WOService
+metadata:
+  name: aiopenscale
+spec:
+  scaleConfig: small
+  storageClass: "${local.storage_class}"
+  version: 4.0.0
+  type: service
+  license:
+    accept: true
+    license: Enterprise
+EOF
+}
+
+data "template_file" "wml_cr" {
+  template = <<EOF
+apiVersion: wml.cpd.ibm.com/v1beta1
+kind: WmlBase
+metadata:
+  name: wml-cr
+  labels:
+    app.kubernetes.io/instance: wml-cr
+    app.kubernetes.io/managed-by: ibm-cpd-wml-operator
+    app.kubernetes.io/name: ibm-cpd-wml-operator
+spec:
+  scaleConfig: small
+  is_35_upgrade: false
+  ignoreForMaintenance: false
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  storageClass: "${local.storage_class}"
+  storageVendor: "${var.storage_option}"
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
 EOF
 }

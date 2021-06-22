@@ -270,7 +270,7 @@ wget https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-
 
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-ccs-1.0.0-746.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory ccsSetup --args "--registry cp.stg.icr.io"
 
-bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator openshift-marketplace
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator ${local.operator_namespace}
 
 oc project ${var.cpd_namespace}
 
@@ -292,6 +292,108 @@ EOF
     null_resource.append_custom_pull_secret,
     null_resource.bedrock_zen_operator,
     local_file.ccs_cr,
+    null_resource.download_cloudctl,
+  ]
+}
+
+
+resource "local_file" "openscale_cr_yaml" {
+  content  = data.template_file.openscale_cr.rendered
+  filename = "${local.cpd_workspace}/openscale_cr.yaml"
+}
+
+resource "null_resource" "install_aiopenscale" {
+  count = var.watson_ai_openscale == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Download Case package"
+wget https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/blob/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-237/ibm-watson-openscale-2.0.0-237.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-watson-openscale-2.0.0-237.tgz'
+
+echo "Install OpenScale operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-watson-openscale-2.0.0-237.tgz --tolerance 1 --namespace ${local.operator_namespace}
+
+echo "Checking if the openscale operator pods are ready and running."
+echo "checking status of ibm-watson-openscale-operator"
+bash cpd/scripts/pod-status-check.sh ibm-cpd-wos-operator ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create WOS CR'
+oc create -f ${self.triggers.cpd_workspace}/openscale_cr.yaml
+
+# check the CCS cr status
+bash cpd/scripts/check-cr-status.sh WOService aiopenscale ${var.cpd_namespace} wosStatus
+EOF
+  }
+    depends_on = [
+    local_file.openscale_cr_yaml,
+    # null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
+    null_resource.download_cloudctl,
+  ]
+}
+
+
+resource "local_file" "wml_cr_yaml" {
+  content  = data.template_file.wml_cr.rendered
+  filename = "${local.cpd_workspace}/wml_cr.yaml"
+}
+
+resource "null_resource" "install_wml" {
+  count = var.watson_machine_learning == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Download Case package"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wml-cpd/4.0.0-1376/ibm-wml-cpd-4.0.0-1376.tgz -o ${self.triggers.cpd_workspace}/ibm-wml-cpd-4.0.0-1376.tgz
+
+echo "Install wml operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-wml-cpd-4.0.0-1376.tgz --tolerance 1 --inventory wmlOperatorSetup --action installCatalog --namespace openshift-marketplace
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-wml-cpd-4.0.0-1376.tgz --tolerance 1 --inventory wmlOperatorSetup --action install --namespace ${local.operator_namespace}
+
+echo "Checking if the wml operator pods are ready and running."
+echo "checking status of ibm-cpd-wml-operator"
+bash cpd/scripts/pod-status-check.sh ibm-cpd-wml-operator ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create WOS CR'
+oc create -f ${self.triggers.cpd_workspace}/wml_cr.yaml
+
+# check the CCS cr status
+bash cpd/scripts/check-cr-status.sh WmlBase wml-cr ${var.cpd_namespace} wmlStatus
+EOF
+  }
+    depends_on = [
+    local_file.openscale_cr_yaml,
+    # null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
     null_resource.download_cloudctl,
   ]
 }
