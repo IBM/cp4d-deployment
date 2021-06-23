@@ -1363,3 +1363,62 @@ resource "null_resource" "install-ca" {
     null_resource.install-ccs,
   ]
 }
+resource "null_resource" "install-ds" {
+  count = var.ds == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/ds-files",
+
+      ## Copy the required yaml files for ca setup .. 
+      "cd /home/${var.admin-username}/ds-files",
+      "cat > ds-cr.yaml <<EOL\n${file("../cpd4_module/ds-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-datastage/4.0.0-521/ibm-datastage-4.0.0-521.tgz -o ibm-datastage-4.0.0-521.tgz
+
+      # Install ds operator using CLI (OLM)
+      "cat > install-ds-operator.sh <<EOL\n${file("../cpd4_module/install-ds-operator.sh")}\nEOL",
+      "sudo chmod +x install-ds-operator.sh",
+      "./install-ca-operator.sh ibm-datastage-4.0.0-521.tgz ${var.operator-namespace}",
+
+      # Checking if the ca operator pods are ready and running. 
+      # checking status of ca-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ds-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create ds CR: 
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/ds-files/ds-cr.yaml",
+      "echo '*** executing **** oc create -f ds-cr.yaml'",
+      "result=$(oc create -f ds-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh DataStageService ds-cr ${var.cpd-namespace} dsStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-iis,
+  ]
+}
