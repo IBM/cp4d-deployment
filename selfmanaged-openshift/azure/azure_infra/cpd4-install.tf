@@ -1385,7 +1385,7 @@ resource "null_resource" "install-ds" {
       #Create directory
       "mkdir -p /home/${var.admin-username}/ds-files",
 
-      ## Copy the required yaml files for ca setup .. 
+      ## Copy the required yaml files for ds setup .. 
       "cd /home/${var.admin-username}/ds-files",
       "cat > ds-cr.yaml <<EOL\n${file("../cpd4_module/ds-cr.yaml")}\nEOL",
 
@@ -1395,11 +1395,11 @@ resource "null_resource" "install-ds" {
       # Install ds operator using CLI (OLM)
       "cat > install-ds-operator.sh <<EOL\n${file("../cpd4_module/install-ds-operator.sh")}\nEOL",
       "sudo chmod +x install-ds-operator.sh",
-      "./install-ca-operator.sh ibm-datastage-4.0.0-521.tgz ${var.operator-namespace}",
+      "./install-ds-operator.sh ibm-datastage-4.0.0-521.tgz ${var.operator-namespace}",
 
-      # Checking if the ca operator pods are ready and running. 
-      # checking status of ca-operator
-      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ds-operator ${var.operator-namespace}",
+      # Checking if the ds operator pods are ready and running. 
+      # checking status of ds-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh datastage-operator ${var.operator-namespace}",
 
       # switch to zen namespace
       "oc project ${var.cpd-namespace}",
