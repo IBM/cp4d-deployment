@@ -1,0 +1,81 @@
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  name: cpd-mirror-config
+spec:
+  repositoryDigestMirrors:
+    ## cpd platform operator mirrors
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: icr.io/cpopen
+    ## bedrock edge mirrors
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: quay.io/opencloudio
+    ## CCS Mirror
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    source: docker.io/ibmcom
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
+    ## CDE mirror 
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+    ## Other mirrors
+  - mirrors:
+    - cp.stg.icr.io/cp
+    source: cp.icr.io/cp
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    - cp.stg.icr.io/cp
+    source: quay.io/opencloudio  
+  - mirrors:
+    - cp.stg.icr.io/cp
+    source: cp.icr.io/cp/cpd
+### WKC mirrors 
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: docker.io/ibmcom
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    source: cp.icr.io/cp
+  - mirrors:
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen

@@ -1,0 +1,13 @@
+apiVersion: ws.cpd.ibm.com/v1beta1
+kind: WS
+metadata:
+  name: ws-cr
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageClass: STORAGECLASS
+  storageVendor: STORAGEVENDOR
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"

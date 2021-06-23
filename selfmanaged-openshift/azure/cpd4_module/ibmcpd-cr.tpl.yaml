@@ -1,0 +1,17 @@
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
+metadata:
+  name: ibmcpd-cr
+  namespace: ${NAMESPACE}
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  storageClass: "REPLACE_STORAGECLASS"
+  version: "4.0.0"
+
+  #iamIntegration: true #default is false
+  #zenCoreMetadbStorageClass: portworx-xxx
+  #zenCatalogSourceName: ibm-zen-operator-catalog #if using custom zen
+  #zenCatalogSourceNamespace: openshift-marketplace #must be non-empty if using custom zen
+  #storageVendor: <vendor> #(experienmental feature) set this key to enable storage vendor in zen

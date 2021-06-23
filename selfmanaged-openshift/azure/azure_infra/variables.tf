@@ -204,9 +204,6 @@ variable "enableNFSBackup" {
 }
 
 # Openshift namespace/project to deploy cloud pak into
-variable "cpd-namespace" {
-  default = "zen"
-}
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
@@ -218,7 +215,7 @@ variable "cpd-external-username" {
   default     = ""
 }
 variable "ocp_version" {
-  default = "4.6.13"
+  default = "4.6.30"
 }
 
 variable "cpd-version" {
@@ -297,11 +294,11 @@ variable "cognos-analytics" {
   default = "no"
 }
 
-variable "spss-modeler"{
+variable "spss-modeler" {
   default = "no"
 }
 
-variable "db2-bigsql"{
+variable "db2-bigsql" {
   default = "no"
 }
 
@@ -328,9 +325,117 @@ variable "accept-cpd-license" {
 ### CPD4.0 variables
 ##############################
 variable "artifactory-username" {
-   default = "xxx@in.ibm.com"
+  default = "xxx@in.ibm.com"
 }
 
 variable "artifactory-apikey" {
-   default = "xxxxyyyyzzzzz"
+  default = "xxxxyyyyzzzzz"
+}
+
+variable "staging-username" {
+  default = "xxx@in.ibm.com"
+}
+
+variable "staging-apikey" {
+  default = "xxxxyyyyzzzzz"
+}
+
+variable "gituser" {
+  default = "xxx"
+}
+
+variable "gittoken" {
+  default = "xxxxyyyyzzzzz"
+}
+
+variable "cpd-namespace" {
+  default = "zen"
+}
+
+variable "operator-namespace" {
+  default = "ibm-common-services"
+}
+
+variable "cpd-storageclass" {
+  type = map
+
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "nfs"      = "nfs"
+  }
+}
+
+
+variable "ccs-storageclass-value" {
+  type = map
+
+  default = {
+    "portworx" = "storageVendor: portworx"
+    "nfs"      = "storageClass: nfs"
+  }
+}
+
+
+############################################
+# CPD 4.0 service variables 
+###########################################
+
+variable "cpd-platform-operator" {
+  default = "no"
+}
+
+# variable "bedrock-zen-operator" {
+#   default = "no"
+# }
+
+variable "ccs" {
+  default = "no"
+}
+
+variable "wsl" {
+  default = "no"
+}
+
+variable "aiopenscale" {
+  default = "no"
+}
+
+variable "spss" {
+  default = "no"
+}
+
+variable "wml" {
+  default = "no"
+}
+
+variable "cde" {
+  default = "no"
+}
+
+variable "dods" {
+  default = "no"
+}
+
+variable "spark" {
+  default = "no"
+}
+
+variable "dv" {
+  default = "no"
+}
+
+variable "bigsql" {
+  default = "no"
+}
+
+variable "wkc" {
+  default = "no"
+}
+
+variable "ca" {
+  default = "no"
+}
+
+variable "ds" {
+  default = "no"
 }
