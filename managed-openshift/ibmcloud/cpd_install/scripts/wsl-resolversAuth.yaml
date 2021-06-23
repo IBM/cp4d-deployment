@@ -1,0 +1,9 @@
+resolversAuth:
+  resources:
+    cases:
+      repositories:
+        ibmGithub:
+          credentials:
+            basic:
+              username: ${git-user}
+              password: ${git-token}
