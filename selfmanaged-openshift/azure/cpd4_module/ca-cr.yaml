@@ -1,0 +1,13 @@
+apiVersion: ca.cpd.ibm.com/v1
+kind: CAService
+metadata:
+  name: ca-cr
+  namespace: zen
+spec:
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
+  storage_class: "REPLACE_STORAGECLASS"
+  namespace: "zen"
+  namespace: "zen"

@@ -431,3 +431,11 @@ variable "bigsql" {
 variable "wkc" {
   default = "no"
 }
+
+variable "ca" {
+  default = "no"
+}
+
+variable "ds" {
+  default = "no"
+}
