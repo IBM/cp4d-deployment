@@ -357,9 +357,24 @@ data "template_file" "cpd_mirror" {
 apiVersion: operator.openshift.io/v1alpha1
 kind: ImageContentSourcePolicy
 metadata:
-  name: mirror-config
+  name: cpd-mirror-config
 spec:
   repositoryDigestMirrors:
+    ## cpd platform operator mirrors
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: icr.io/cpopen
+    ## bedrock edge mirrors
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    source: quay.io/opencloudio
+    ## CCS Mirror
   - mirrors:
     - cp.stg.icr.io/cp/cpd
     source: cp.icr.io/cp/cpd
@@ -380,7 +395,43 @@ spec:
     source: cp.icr.io/cp/cpd
   - mirrors:
     - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp
+    - cp.stg.icr.io/cp/cpd
+    source: icr.io/cpopen
+    ## CDE mirror 
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+    ## Other mirrors
+  - mirrors:
+    - cp.stg.icr.io/cp
+    source: cp.icr.io/cp
+  - mirrors:
+    - cp.stg.icr.io/cp/cpd
+    - cp.stg.icr.io/cp
+    source: quay.io/opencloudio  
+  - mirrors:
+    - cp.stg.icr.io/cp
+    source: cp.icr.io/cp/cpd
+### WKC mirrors 
+  - mirrors:
     - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: docker.io/ibmcom
+  - mirrors:
+    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
+    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: quay.io/opencloudio
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    - cp.stg.icr.io/cp/cpd
+    source: cp.icr.io/cp/cpd
+  - mirrors:
+    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
+    source: cp.icr.io/cp
+  - mirrors:
     - cp.stg.icr.io/cp
     - cp.stg.icr.io/cp/cpd
     source: icr.io/cpopen
@@ -497,5 +548,145 @@ spec:
   scaleConfig: small
   storageClass: "${local.storage_class}"
   version: "4.0.0"
+EOF
+}
+
+data "template_file" "sysctl_worker" {
+  template = <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: db2u-kubelet
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      db2u-kubelet: sysctl
+  kubeletConfig:
+    allowedUnsafeSysctls:
+      - "kernel.msg*"
+      - "kernel.shm*"
+      - "kernel.sem"
+EOF
+}
+
+data "template_file" "db2aaservice_cr" {
+  template = <<EOF
+apiVersion: databases.cpd.ibm.com/v1
+kind: Db2aaserviceService
+metadata:
+  name: db2aaservice-cr
+spec:
+  license:
+    accept: true
+    license: "Enterprise"
+EOF
+}
+
+data "template_file" "wkc_cr" {
+  template = <<EOF
+apiVersion: wkc.cpd.ibm.com/v1beta1
+kind: WKC
+metadata:
+  name: wkc-cr
+spec:
+  version: "4.0.0"
+  storageVendor: "${var.storage_option}"
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: cp.stg.icr.io/cp/cpd
+EOF
+}
+
+data "template_file" "wkc_iis_scc" {
+  template = <<EOF
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+allowedCapabilities: null
+apiVersion: security.openshift.io/v1
+defaultAddCapabilities: null
+fsGroup:
+  type: RunAsAny
+kind: SecurityContextConstraints
+metadata:
+  annotations:
+    kubernetes.io/description: WKC/IIS provides all features of the restricted SCC
+      but runs as user 10032.
+  name: wkc-iis-scc
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
+runAsUser:
+  type: MustRunAs
+  uid: 10032
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- persistentVolumeClaim
+- projected
+- secret
+users:
+- system:serviceaccount:${var.cpd_namespace}:wkc-iis-sa
+EOF
+}
+
+data "template_file" "wkc_iis_cr" {
+  template =<<EOF
+apiVersion: iis.cpd.ibm.com/v1alpha1
+kind: IIS
+metadata:
+  name: iis-cr
+spec:
+  version: "4.0.0"
+  StorageVendor: "${var.storage_option}"
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: cp.stg.icr.io/cp/cpd
+  use_dynamic_provisioning: true
+  namespace: ${var.cpd_namespace}
+EOF
+}
+
+data "template_file" "db2wh_cr" {
+  template =<<EOF
+apiVersion: databases.cpd.ibm.com/v1
+kind: Db2whService
+metadata:
+  name: db2wh-cr
+spec:
+  license:
+    accept: true
+EOF
+}
+
+data "template_file" "spark_cr" {
+  template =<<EOF
+apiVersion: ae.cpd.ibm.com/v1
+kind: AnalyticsEngine
+metadata:
+  name: analyticsengine-cr
+  labels:
+    app.kubernetes.io/instance: ibm-analyticsengine-operator
+    app.kubernetes.io/managed-by: ibm-analyticsengine-operator
+    app.kubernetes.io/name: ibm-analyticsengine-operator
+    build: 4.0.0
+spec:
+  version: "4.0.0"
+  license:
+    accept: true
 EOF
 }

@@ -518,3 +518,243 @@ EOF
     null_resource.install_wsl,
   ]
 }
+
+
+
+resource "local_file" "wkc_cr_yaml" {
+  content  = data.template_file.wkc_cr.rendered
+  filename = "${local.cpd_workspace}/wkc_cr.yaml"
+}
+
+resource "local_file" "db2aaservice_cr_yaml" {
+  content  = data.template_file.db2aaservice_cr.rendered
+  filename = "${local.cpd_workspace}/db2aaservice_cr.yaml"
+}
+
+resource "local_file" "wkc_iis_scc_yaml" {
+  content  = data.template_file.wkc_iis_scc.rendered
+  filename = "${local.cpd_workspace}/wkc_iis_scc.yaml"
+}
+
+resource "local_file" "wkc_iis_cr_yaml" {
+  content  = data.template_file.wkc_iis_cr.rendered
+  filename = "${local.cpd_workspace}/wkc_iis_cr.yaml"
+}
+
+resource "local_file" "wkc_ug_cr_yaml" {
+  content  = data.template_file.wkc_ug_cr.rendered
+  filename = "${local.cpd_workspace}/wkc_ug_cr.yaml"
+}
+
+resource "local_file" "sysctl_worker_yaml" {
+  content  = data.template_file.sysctl_worker.rendered
+  filename = "${local.cpd_workspace}/sysctl_worker.yaml"
+}
+
+resource "null_resource" "install_wkc" {
+  count = var.spss_modeler == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
+sleep 60
+bash cpd/scripts/nodes_running.sh
+
+echo "Download DB2aaservice package"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2aaservice/4.0.0-1228.749/ibm-db2aaservice-4.0.0-1228.749.tgz -o ${self.triggers.cpd_workspace}/ibm-db2aaservice-4.0.0-1228.749.tgz
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2uoperator/4.0.0-3731.2407/ibm-db2uoperator-4.0.0-3731.2407.tgz -o ${self.triggers.cpd_workspace}/ibm-db2uoperator-4.0.0-3731.2407.tgz
+
+echo "Install DB2Operator operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2uoperator-4.0.0-3731.2407.tgz --tolerance 1 --namespace openshift-marketplace --inventory db2uOperatorSetup --action installCatalog
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2uoperator-4.0.0-3731.2407.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory db2uOperatorSetup
+echo "Checking if the DB2 operator pods are ready and running."
+echo "checking status of db2u-operator"
+bash cpd/scripts/pod-status-check.sh db2u-operator ${local.operator_namespace}
+
+echo "Install DB2aaService operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2aaservice-4.0.0-1228.749.tgz --tolerance 1 --namespace openshift-marketplace --inventory db2aaserviceOperatorSetup --action installCatalog
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2aaservice-4.0.0-1228.749.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory db2aaserviceOperatorSetup
+echo "Checking if the DB2 as a service pods are ready and running."
+echo "checking status of db2aaservice-cp4d-operator"
+bash cpd/scripts/pod-status-check.sh db2aaservice-cp4d-operator ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create DB2aaservice CR'
+oc create -f ${self.triggers.cpd_workspace}/db2aaservice_cr.yaml
+
+echo 'check the SPSS cr status'
+bash cpd/scripts/check-cr-status.sh Db2aaserviceService db2aaservice-cr ${var.cpd_namespace} db2aaserviceStatus
+
+
+echo "Install WKC operator using CLI (OLM)"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wkc/4.0.0-423/ibm-wkc-4.0.0-423.tgz -o ${self.triggers.cpd_workspace}/ibm-wkc-4.0.0-423.tgz
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-wkc-4.0.0-423.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory wkcOperatorSetup
+echo "Checking if the WKC are ready and running."
+echo "checking status of ibm-cpd-wkc-operator"
+bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create WKC Core CR'
+oc create -f ${self.triggers.cpd_workspace}/wkc_cr.yaml
+
+echo 'check the WKC Core cr status'
+bash cpd/scripts/check-cr-status.sh wkc wkc-cr ${var.cpd_namespace} wkcStatus
+
+echo "##########"
+
+echo "Create SCC for WKC-IIS"
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
+
+echo "Install IIS operator"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-iis/4.0.0-359/ibm-iis-4.0.0-359.tgz -o ${self.triggers.cpd_workspace}/ibm-iis-4.0.0-359.tgz
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-iis-4.0.0-359.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory iisOperatorSetup
+echo "Checking if the WKC are ready and running."
+echo "checking status of ibm-cpd-iis-operator"
+bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
+
+echo "Create iis cr"
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_cr_yaml
+EOF
+  }
+  depends_on = [
+    local_file.wkc_cr_yaml,
+    local_file.db2aaservice_cr_yaml,
+    local_file.wkc_iis_scc_yaml,
+    local_file.wkc_iis_cr_yaml,
+    local_file.wkc_ug_cr_yaml,
+    null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
+    null_resource.download_cloudctl,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_wsl,
+    null_resource.install_spss,
+  ]
+}
+
+resource "local_file" "db2wh_cr_yaml" {
+  content  = data.template_file.db2wh_cr.rendered
+  filename = "${local.cpd_workspace}/db2wh_cr.yaml"
+}
+
+resource "null_resource" "install_db2wh" {
+  count = var.db2_warehouse == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Download Case package"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2wh/4.0.0-1228.749/ibm-db2wh-4.0.0-1228.749.tgz -o ${self.triggers.cpd_workspace}/ibm-db2wh-4.0.0-1228.749.tgz
+
+echo "Install db2wh operator using CLI (OLM)"
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2wh-4.0.0-1228.749.tgz --tolerance 1  --namespace openshift-marketplace --inventory db2whOperatorSetup --action installCatalog
+
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2wh-4.0.0-1228.749.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperatorNative --inventory db2whOperatorSetup
+
+echo "Checking if the db2wh operator pods are ready and running."
+echo "checking status of db2wh-controller-manager"
+#bash cpd/scripts/pod-status-check.sh db2wh-controller-manager ${local.operator_namespace}
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create db2wh CR'
+oc create -f ${self.triggers.cpd_workspace}/db2wh_cr.yaml
+
+echo 'check the db2wh cr status'
+bash cpd/scripts/check-cr-status.sh Db2whService db2wh-cr ${var.cpd_namespace} db2whStatus
+EOF
+  }
+  depends_on = [
+    local_file.spss_cr_yaml,
+    null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
+    null_resource.download_cloudctl,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_wsl,
+    null_resource.install_spss,
+    null_resource.install_wkc,
+  ]
+}
+
+
+resource "local_file" "spark_cr_yaml" {
+  content  = data.template_file.spark_cr.rendered
+  filename = "${local.cpd_workspace}/spark_cr.yaml"
+}
+
+resource "null_resource" "install_spark" {
+  count = var.db2_warehouse == "yes" ? 1 : 0
+  triggers = {
+    namespace             = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+echo "Download Case package"
+curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-analyticsengine/4.0.0/ibm-analyticsengine-4.0.0.tgz -o ${self.triggers.cpd_workspace}/ibm-analyticsengine-4.0.0.tgz
+
+echo "Install spark operator using CLI (OLM)"
+export AE_OPERATOR_NAMESPACE=${local.operator_namespace}
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-analyticsengine-4.0.0.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperatorNative --inventory analyticsengineOperatorSetup
+
+echo "switch to ${var.cpd_namespace} namespace"
+oc project ${var.cpd_namespace}
+
+echo 'Create spark CR'
+oc create -f ${self.triggers.cpd_workspace}/spark_cr.yaml
+
+echo 'check the spark cr status'
+bash cpd/scripts/check-cr-status.sh ae analyticsengine-cr ${var.cpd_namespace} analyticsengineStatus
+EOF
+  }
+  depends_on = [
+    local_file.spss_cr_yaml,
+    null_resource.configure_cluster,
+    null_resource.append_custom_pull_secret,
+    null_resource.install_ccs,
+    null_resource.download_cloudctl,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_wsl,
+    null_resource.install_wkc,
+    null_resource.install_spss,
+    null_resource.install_db2wh,
+  ]
+}
