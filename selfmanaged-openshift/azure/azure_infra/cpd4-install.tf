@@ -1303,3 +1303,288 @@ resource "null_resource" "install-wkc" {
     null_resource.install-bigsql,
   ]
 }
+
+
+resource "null_resource" "install-ca" {
+  count = var.ca == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+    agent = false
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/ca-files",
+
+      ## Copy the required yaml files for ca setup .. 
+      "cd /home/${var.admin-username}/ca-files",
+      "cat > ca-cr.yaml <<EOL\n${file("../cpd4_module/ca-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-cognos-analytics-prod/4.0.0-591/ibm-cognos-analytics-prod-4.0.0-591.tgz -o ibm-cognos-analytics-prod-4.0.0-591.tgz",
+
+      # Install ca operator using CLI (OLM)
+      "cat > install-ca-operator.sh <<EOL\n${file("../cpd4_module/install-ca-operator.sh")}\nEOL",
+      "sudo chmod +x install-ca-operator.sh",
+      "./install-ca-operator.sh ibm-cognos-analytics-prod-4.0.0-591.tgz ${var.operator-namespace}",
+
+      # Checking if the ca operator pods are ready and running. 
+      # checking status of ca-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ca-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create ca CR: 
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/ca-files/ca-cr.yaml",
+      "sed -i -e s#REPLACE_NAMESPACE#${var.cpd-namespace}#g /home/${var.admin-username}/ca-files/ca-cr.yaml",
+      "echo '*** executing **** oc create -f ca-cr.yaml'",
+      "result=$(oc create -f ca-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh CAService ca-cr ${var.cpd-namespace} caAddonStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+    null_resource.install-dods,
+    null_resource.install-spark,
+    null_resource.install-dv,
+    null_resource.install-bigsql,
+    null_resource.install-wkc,
+  ]
+}
+
+resource "null_resource" "install-ds" {
+  count = var.ds == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/ds-files",
+
+      ## Copy the required yaml files for ds setup .. 
+      "cd /home/${var.admin-username}/ds-files",
+      "cat > ds-cr.yaml <<EOL\n${file("../cpd4_module/ds-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-datastage/4.0.0-521/ibm-datastage-4.0.0-521.tgz -o ibm-datastage-4.0.0-521.tgz",
+
+      # Install ds operator using CLI (OLM)
+      "cat > install-ds-operator.sh <<EOL\n${file("../cpd4_module/install-ds-operator.sh")}\nEOL",
+      "sudo chmod +x install-ds-operator.sh",
+      "./install-ds-operator.sh ibm-datastage-4.0.0-521.tgz ${var.operator-namespace}",
+
+      # Checking if the ds operator pods are ready and running. 
+      # checking status of ds-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh datastage-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create ds CR: 
+      "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g /home/${var.admin-username}/ds-files/ds-cr.yaml",
+      "echo '*** executing **** oc create -f ds-cr.yaml'",
+      "result=$(oc create -f ds-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh DataStageService datastage-cr ${var.cpd-namespace} dsStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+    null_resource.install-dods,
+    null_resource.install-spark,
+    null_resource.install-dv,
+    null_resource.install-bigsql,
+    null_resource.install-wkc,
+    null_resource.install-ca,
+  ]
+}
+
+
+resource "null_resource" "install-db2oltp" {
+  count = var.db2oltp == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/db2oltp-files",
+
+      ## Copy the required yaml files for db2oltp setup .. 
+      "cd /home/${var.admin-username}/db2oltp-files",
+      "cat > db2oltp-cr.yaml <<EOL\n${file("../cpd4_module/db2oltp-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2oltp/4.0.0-1228.749/ibm-db2oltp-4.0.0-1228.749.tgz -o ibm-db2oltp-4.0.0-1228.749.tgz",
+
+      # Install db2oltp operator using CLI (OLM)
+      "cat > install-db2oltp-operator.sh <<EOL\n${file("../cpd4_module/install-db2oltp-operator.sh")}\nEOL",
+      "sudo chmod +x install-db2oltp-operator.sh",
+      "./install-db2oltp-operator.sh ibm-db2oltp-4.0.0-1228.749.tgz ${var.operator-namespace}",
+
+      # Checking if the db2oltp operator podb2oltp are ready and running. 
+      # checking status of db2oltp-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-db2oltp-cp4d-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create db2oltp CR: 
+      "echo '*** executing **** oc create -f db2oltp-cr.yaml'",
+      "result=$(oc create -f db2oltp-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh Db2oltpService db2oltp-cr ${var.cpd-namespace} db2oltpStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+    null_resource.install-dods,
+    null_resource.install-spark,
+    null_resource.install-dv,
+    null_resource.install-bigsql,
+    null_resource.install-wkc,
+    null_resource.install-ca,
+    null_resource.install-ds,
+  ]
+}
+
+
+resource "null_resource" "install-db2wh" {
+  count = var.db2wh == "yes" ? 1 : 0
+  triggers = {
+    bootnode_ip_address   = local.bootnode_ip_address
+    username              = var.admin-username
+    private_key_file_path = var.ssh-private-key-file-path
+    namespace             = var.cpd-namespace
+  }
+  connection {
+    type        = "ssh"
+    host        = self.triggers.bootnode_ip_address
+    user        = self.triggers.username
+    private_key = file(self.triggers.private_key_file_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+
+      #Create directory
+      "mkdir -p /home/${var.admin-username}/db2wh-files",
+
+      ## Copy the required yaml files for db2wh setup .. 
+      "cd /home/${var.admin-username}/db2wh-files",
+      "cat > db2wh-cr.yaml <<EOL\n${file("../cpd4_module/db2wh-cr.yaml")}\nEOL",
+
+      # Case package. 
+      "curl -s https://${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2wh/4.0.0-1228.749/ibm-db2wh-4.0.0-1228.749.tgz -o ibm-db2wh-4.0.0-1228.749.tgz",
+
+      # Install db2wh operator using CLI (OLM)
+      "cat > install-db2wh-operator.sh <<EOL\n${file("../cpd4_module/install-db2wh-operator.sh")}\nEOL",
+      "sudo chmod +x install-db2wh-operator.sh",
+      "./install-db2wh-operator.sh ibm-db2wh-4.0.0-1228.749.tgz ${var.operator-namespace}",
+
+      # Checking if the db2wh operator podb2wh are ready and running. 
+      # checking status of db2wh-operator
+      "/home/${var.admin-username}/cpd-common-files/pod-status-check.sh ibm-db2wh-cp4d-operator ${var.operator-namespace}",
+
+      # switch to zen namespace
+      "oc project ${var.cpd-namespace}",
+
+      # Create db2wh CR: 
+      "echo '*** executing **** oc create -f db2wh-cr.yaml'",
+      "result=$(oc create -f db2wh-cr.yaml)",
+      "echo $result",
+
+      # check the CCS cr status
+      "/home/${var.admin-username}/cpd-common-files/check-cr-status.sh db2whService db2wh-cr ${var.cpd-namespace} db2whStatus",
+
+    ]
+  }
+  depends_on = [
+    null_resource.install-cloudctl,
+    null_resource.cpd-setup-pull-secret-and-mirror-config,
+    null_resource.install-cpd-platform-operator,
+    #null_resource.bedrock_zen_operator,
+    null_resource.install-ccs,
+    null_resource.install-wsl,
+    null_resource.install-aiopenscale,
+    null_resource.install-spss,
+    null_resource.install-wml,
+    null_resource.install-cde,
+    null_resource.install-dods,
+    null_resource.install-spark,
+    null_resource.install-dv,
+    null_resource.install-bigsql,
+    null_resource.install-wkc,
+    null_resource.install-ca,
+    null_resource.install-ds,
+    null_resource.install-db2oltp,
+  ]
+}

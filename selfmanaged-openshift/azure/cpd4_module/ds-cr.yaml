@@ -1,0 +1,10 @@
+apiVersion: dfd.cpd.ibm.com/v1alpha1
+kind: DataStageService
+metadata:
+  name: datastage-cr
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  scaleConfig: small
+  version: 4.0.0
