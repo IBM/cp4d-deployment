@@ -279,6 +279,18 @@ resource "null_resource" "install_dmc" {
   count = var.accept_cpd_license == "yes" && var.install_services["dmc"] ? 1 : 0
   
   provisioner "local-exec" {
+<<<<<<< HEAD
+=======
+    environment = {
+      ARTIFACTORY_USERNAME = var.artifactory_username
+      ARTIFACTORY_APIKEY = var.artifactory_apikey
+      CLUSTER_NAME = "${var.unique_id}-cluster"
+      GITUSER = var.gituser
+      GIT_TOKEN = var.git_token
+      GITUSER_SHORT = var.gituser_short
+    }
+    
+>>>>>>> parent of 0c41a87... wkc changes
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
     command = "./install_cpdservice_generic.sh ${var.cpd_project_name} dmc ${local.storageclass["dmc"]} ${local.override["dmc"]}"
