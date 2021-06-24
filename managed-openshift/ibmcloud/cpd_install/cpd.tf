@@ -142,6 +142,7 @@ resource "null_resource" "install_wkc" {
       GITUSER = var.gituser
       GIT_TOKEN = var.git_token
       GITUSER_SHORT = var.gituser_short
+      NAMESPACE = var.cpd_project_name
     }
     
     working_dir = "${path.module}/scripts/"

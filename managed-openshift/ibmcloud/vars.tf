@@ -59,7 +59,7 @@ variable "gituser_short" {
 ###############################################
 variable "cpd_project_name" {
   description = "Name of the project (namespace) in which CP4D will be installed"
-  default = "cpd-tenant"
+  default = "zen"
 }
 
 variable "install_services" {

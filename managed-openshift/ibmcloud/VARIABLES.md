@@ -8,7 +8,7 @@
 |`cpd_registry_username`            | `cp`                                                     |
 |`cpd_registry_password`            | Required                                                 | Can be fetched from https://myibm.ibm.com/products-services/containerlibrary
 |`cpd_registry`                     | `cp.icr.io/cp/cpd`                                       |
-|`cpd_project_name`                 | `cpd-tenant`                                             | Name of the project (namespace) in which CP4D will be installed
+|`cpd_project_name`                 | `zen`                                                    | Name of the project (namespace) in which CP4D will be installed
 |`install_services`                 | See `vars.tf`                                            | Choose the Cloud Pak for Data services to be installed
 |`existing_vpc_id`                  | `null`                                                   | ID of the VPC, if you wish to install CP4D in an existing VPC
 |`existing_vpc_subnets`             | `null`                                                   | List of subnet IDs in an existing VPC in which the cluster will be installed. Required when `existing_vpc_id` has been provided.
