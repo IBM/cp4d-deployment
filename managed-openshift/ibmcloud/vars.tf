@@ -39,19 +39,34 @@ variable "cpd_registry_password" {
 variable "cpd_registry" {
   default = "cp.icr.io/cp/cpd"
 }
-
+variable "artifactory_username" {
+  description = "artifactory username"
+}
+variable "artifactory_apikey" {
+  description = "artifactory apikey"
+}
+variable "gituser" {
+  description = "git user"
+}
+variable "git_token" {
+  description = "git token"
+}
+variable "gituser_short" {
+  description = "git user short name"
+}
 ###############################################
 # Cloud Pak for Data application configuration
 ###############################################
 variable "cpd_project_name" {
   description = "Name of the project (namespace) in which CP4D will be installed"
-  default = "cpd-tenant"
+  default = "zen"
 }
 
 variable "install_services" {
   type = map
   description = "Choose the Cloud Pak for Data services to be installed"
   default = {
+    ccs                = true,
     spark              = false, # Analytics Engine powered by Apache Spark
     dv                 = false, # Data Virtualization
     wkc                = false, # Watson Knowledge Catalog
