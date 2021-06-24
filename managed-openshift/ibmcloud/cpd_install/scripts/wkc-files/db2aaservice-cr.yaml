@@ -1,0 +1,8 @@
+apiVersion: databases.cpd.ibm.com/v1
+kind: Db2aaserviceService
+metadata:
+  name: db2aaservice-cr
+spec:
+  license:
+    accept: true
+    license: "Enterprise"

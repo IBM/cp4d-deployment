@@ -8,4 +8,10 @@ spec:
   license:
     accept: true
     license: Enterprise
+  storage_class_name: portworx-shared-gp3
+  wkc_db2u_set_kernel_params: True
+  wkc_db2u_resources:
+    limits:
+      cpu: 4
+      memory: 18  
   docker_registry_prefix: cp.stg.icr.io/cp/cpd
