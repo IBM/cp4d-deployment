@@ -4,7 +4,7 @@ metadata:
   name: iis-cr
 spec:
   version: "4.0.0"
-  storageVendor: "{STORAGE_VENDOR}"
+  StorageVendor: "{STORAGE_VENDOR}"
   license:
     accept: true
     license: Enterprise
