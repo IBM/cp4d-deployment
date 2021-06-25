@@ -73,388 +73,6 @@ spec:
 EOF
 }
 
-data "template_file" "bedrock_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: opencloud-operators
-  namespace: openshift-marketplace
-spec:
-  displayName: IBMCS Test Operators
-  publisher: IBM
-  sourceType: grpc
-  image: hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom/ibm-common-service-catalog:latest-validated 
-  # Alternatively use docker.io/ibmcom/ibm-common-service-catalog:latest for GA untested bedrock build
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
-data "template_file" "cpd_platform_operator_catalogsource" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: cpd-platform
-  namespace: openshift-marketplace
-spec:
-  displayName: Cloud Pak for Data
-  publisher: IBM
-  sourceType: grpc
-  image: hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com/cpd-platform-operator-catalog:2.0.0-amd64-122
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
-data "template_file" "cpd_platform_operator_setup" {
-  template = <<EOF
----
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: operatorgroup
-  namespace: ${local.operator_namespace}
-spec:
-  targetNamespaces:
-  - ${local.operator_namespace}
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: cpd-operator
-  namespace: ${local.operator_namespace}
-spec:
-  channel: stable-v1
-  installPlanApproval: Automatic
-  name: cpd-platform-operator
-  source: cpd-platform
-  sourceNamespace: openshift-marketplace
-EOF
-}
-
-data "template_file" "cpd_platform_operator_operandrequest" {
-  template = <<EOF
-apiVersion: operator.ibm.com/v1alpha1
-kind: OperandRequest
-metadata:
-  name: empty-request
-  namespace: ${var.cpd_namespace}
-spec:
-  requests: []
-EOF
-}
-
-data "template_file" "zen_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-zen-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  sourceType: grpc
-  image: hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com/ibm-zen-operator-catalog:1.1.0-amd64-305
-  imagePullPolicy: Always
-  displayName: Cloud Pak for Data
-  publisher: IBM
-EOF
-}
-
-data "template_file" "ibm_cpd_lite" {
-  template = <<EOF
-apiVersion: cpd.ibm.com/v1
-kind: Ibmcpd
-metadata:
-  name: ibmcpd-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  license:
-    accept: true
-    license: Enterprise
-  version: "4.0.0"
-  storageClass: ${lookup(var.cpd_storageclass, var.storage_option)}
-EOF
-}
-
-data "template_file" "operand_registry" {
-  template = <<EOF
-apiVersion: v1
-items:
-- apiVersion: operator.ibm.com/v1alpha1
-  kind: OperandRegistry
-  metadata:
-    annotations:
-      version: 3.8.0
-    creationTimestamp: null
-    generation: 1
-    name: common-service
-    namespace: ${local.operator_namespace}
-  spec:
-    operators:
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-licensing-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-licensing-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-mongodb-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-mongodb-operator-app
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-cert-manager-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-cert-manager-operator
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-iam-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-iam-operator
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-healthcheck-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-healthcheck-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-commonui-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-commonui-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-management-ingress-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-management-ingress-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-ingress-nginx-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-ingress-nginx-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-auditlogging-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-auditlogging-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-platform-api-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-platform-api-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-monitoring-exporters-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-monitoring-exporters-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-monitoring-prometheusext-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-monitoring-prometheusext-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-monitoring-grafana-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-monitoring-grafana-operator-app
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: v3
-      installPlanApproval: Automatic
-      name: ibm-events-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-events-operator
-      scope: public
-      sourceName: opencloud-operators
-      sourceNamespace: openshift-marketplace
-    - channel: stable
-      installPlanApproval: Automatic
-      name: redhat-marketplace-operator
-      namespace: openshift-redhat-marketplace
-      packageName: redhat-marketplace-operator
-      scope: public
-      sourceName: certified-operators
-      sourceNamespace: openshift-marketplace
-    - channel: stable-v1
-      installPlanApproval: Automatic
-      name: ibm-zen-operator
-      namespace: ${local.operator_namespace}
-      packageName: ibm-zen-operator
-      scope: public
-      sourceName: ibm-zen-operator-catalog
-      sourceNamespace: openshift-marketplace
-    - channel: v1.1
-      installPlanApproval: Automatic
-      name: ibm-db2u-operator
-      namespace: ${local.operator_namespace}
-      packageName: db2u-operator
-      scope: public
-kind: List
-metadata:
-  resourceVersion: ""
-  selfLink: ""
-EOF
-}
-
-data "template_file" "ccs_cr" {
-  template = <<EOF
-apiVersion: ccs.cpd.ibm.com/v1beta1
-kind: CCS
-metadata:
-  name: ccs-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  version: "4.0.0"
-  size: "small"
-  storageVendor: ${var.storage_option}
-  license:
-    accept: true
-  docker_registry_prefix: cp.stg.icr.io/cp/cpd
-EOF
-}
-
-data "template_file" "cpd_mirror" {
-  template = <<EOF
-apiVersion: operator.openshift.io/v1alpha1
-kind: ImageContentSourcePolicy
-metadata:
-  name: cpd-mirror-config
-spec:
-  repositoryDigestMirrors:
-    ## cpd platform operator mirrors
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
-    source: quay.io/opencloudio
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    source: icr.io/cpopen
-    ## bedrock edge mirrors
-  - mirrors:
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    source: quay.io/opencloudio
-    ## CCS Mirror
-  - mirrors:
-    - cp.stg.icr.io/cp/cpd
-    source: cp.icr.io/cp/cpd
-  - mirrors:
-    - cp.stg.icr.io/cp
-    - cp.stg.icr.io/cp/cpd
-    source: icr.io/cpopen
-  - mirrors:
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    source: quay.io/opencloudio
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
-    source: docker.io/ibmcom
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
-    - cp.stg.icr.io/cp/cpd
-    source: cp.icr.io/cp/cpd
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com
-    - cp.stg.icr.io/cp
-    - cp.stg.icr.io/cp/cpd
-    source: icr.io/cpopen
-    ## CDE mirror 
-  - mirrors:
-    - cp.stg.icr.io/cp/cpd
-    source: cp.icr.io/cp/cpd
-    ## Other mirrors
-  - mirrors:
-    - cp.stg.icr.io/cp
-    source: cp.icr.io/cp
-  - mirrors:
-    - cp.stg.icr.io/cp/cpd
-    - cp.stg.icr.io/cp
-    source: quay.io/opencloudio  
-  - mirrors:
-    - cp.stg.icr.io/cp
-    source: cp.icr.io/cp/cpd
-### WKC mirrors 
-  - mirrors:
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    - cp.stg.icr.io/cp/cpd
-    source: docker.io/ibmcom
-  - mirrors:
-    - hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com/ibmcom
-    - hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com
-    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
-    - cp.stg.icr.io/cp/cpd
-    source: quay.io/opencloudio
-  - mirrors:
-    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
-    - cp.stg.icr.io/cp/cpd
-    source: cp.icr.io/cp/cpd
-  - mirrors:
-    - hyc-cp4d-team-databases-docker-local.artifactory.swg-devops.com
-    source: cp.icr.io/cp
-  - mirrors:
-    - cp.stg.icr.io/cp
-    - cp.stg.icr.io/cp/cpd
-    source: icr.io/cpopen
-EOF
-}
-
-data "template_file" "openscale_cr" {
-  template = <<EOF
-apiVersion: wos.cpd.ibm.com/v1
-kind: WOService
-metadata:
-  name: aiopenscale
-spec:
-  scaleConfig: small
-  storageClass: "${local.storage_class}"
-  version: 4.0.0
-  type: service
-  license:
-    accept: true
-    license: Enterprise
-EOF
-}
-
 data "template_file" "wml_cr" {
   template = <<EOF
 apiVersion: wml.cpd.ibm.com/v1beta1
@@ -479,40 +97,6 @@ spec:
 EOF
 }
 
-data "template_file" "wsl_resolvers" {
-  template = <<EOF
-resolvers:
-  resources:
-    cases:
-      repositories:
-        ibmGithub:
-          repositoryInfo:
-            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev"
-      caseRepositoryMap:
-      - cases:
-        - case: "ibm-ccs"
-          version: "*"
-        - case: "ibm-datarefinery"
-          version: "*"
-        repositories:
-        - ibmGithub
-EOF
-}
-
-data "template_file" "wsl_resolverAuth" {
-  template = <<EOF
-resolversAuth:
-  resources:
-    cases:
-      repositories:
-        ibmGithub:
-          credentials:
-            basic:
-              username: ${var.gituser}
-              password: "${var.gittoken}"
-EOF
-}
-
 data "template_file" "wsl_cr" {
   template = <<EOF
 apiVersion: ws.cpd.ibm.com/v1beta1
@@ -522,7 +106,7 @@ metadata:
 spec:
   version: "4.0.0"
   size: "small"
-  storageClass: ${local.storageclasee}
+  storageClass: ${local.storage_class}
   storageVendor: ${var.storage_option}
   license:
     accept: true
@@ -661,24 +245,129 @@ spec:
 EOF
 }
 
-data "template_file" "db2wh_cr" {
-  template =<<EOF
-apiVersion: databases.cpd.ibm.com/v1
-kind: Db2whService
+
+############
+data "template_file" "ibm_operator_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
 metadata:
-  name: db2wh-cr
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
 spec:
-  license:
-    accept: true
+  displayName: "IBM Operator Catalog"
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  imagePullPolicy: IfNotPresent
+  updateStrategy:
+    registryPoll:
+      interval: 45m
 EOF
 }
 
-data "template_file" "spark_cr" {
+data "template_file" "ibm_common_services_operator" {
+  template = <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${local.operator_namespace}
+---
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: operatorgroup
+  namespace: ${local.operator_namespace}
+spec:
+  targetNamespaces:
+  - ${local.operator_namespace}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-common-service-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v3
+  installPlanApproval: Automatic
+  name: ibm-common-service-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "operand_requests" {
+  template = <<EOF
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
+metadata:
+  name: zen-service
+  namespace: zen
+spec:
+  requests:
+    - operands:
+        - name: ibm-cert-manager-operator
+        - name: ibm-iam-operator
+        - name: ibm-monitoring-grafana-operator
+        - name: ibm-healthcheck-operator
+        - name: ibm-management-ingress-operator
+        - name: ibm-licensing-operator
+        - name: ibm-commonui-operator
+        - name: ibm-events-operator
+        - name: ibm-ingress-nginx-operator
+        - name: ibm-auditlogging-operator
+        - name: ibm-platform-api-operator
+        - name: ibm-zen-operator
+        - name: ibm-db2u-operator
+      registry: common-service
+      registryNamespace: ${local.operator_namespace}
+EOF
+}
+
+data "template_file" "lite_cr" {
+  template = <<EOF
+apiVersion: zen.cpd.ibm.com/v1
+kind: ZenService
+metadata:
+  name: lite
+  namespace: ${var.cpd_namespace}
+spec:
+  csNamespace: ${local.operator_namespace}
+  iamIntegration: true
+  storageClass: ${local.storage_class}
+  storageVendor: ${var.storage_option}
+  cloudpakfordata: true 
+EOF
+}
+
+# SPARK (AnalyticsEngine)
+data "template_file" "analyticsengine_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-ae-operator-subscription
+    app.kubernetes.io/managed-by: ibm-cpd-ae-operator
+    app.kubernetes.io/name: ibm-cpd-ae-operator-subscription
+  name: ibm-cpd-ae-operator-subscription
+  namespace: ${local.operator_namespace}
+spec:
+    channel: stable-v1
+    installPlanApproval: Automatic
+    name: analyticsengine-operator
+    source: ibm-operator-catalog
+    sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "analyticsengine_cr" {
   template =<<EOF
 apiVersion: ae.cpd.ibm.com/v1
 kind: AnalyticsEngine
 metadata:
-  name: analyticsengine-cr
+  name: analyticsengine
+  namespace: ${var.cpd_namespace}
   labels:
     app.kubernetes.io/instance: ibm-analyticsengine-operator
     app.kubernetes.io/managed-by: ibm-analyticsengine-operator
@@ -686,7 +375,277 @@ metadata:
     build: 4.0.0
 spec:
   version: "4.0.0"
+  storageClass: ${local.storage_class}
   license:
     accept: true
+EOF
+}
+
+#DB2WH
+data "template_file" "db2wh_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-db2wh-cp4d-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-db2wh-cp4d-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "db2wh_cr" {
+  template =<<EOF
+apiVersion: databases.cpd.ibm.com/v1
+kind: Db2whService
+metadata:
+  name: db2wh
+  namespace: ${var.cpd_namespace}
+spec:
+  storageClass: ${local.storage_class}
+  license:
+    accept: true
+EOF
+}
+
+#WSL
+data "template_file" "ws_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  annotations: {}
+  name: ibm-cpd-ws-operator-catalog
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v2.0
+  installPlanApproval: Automatic
+  name: ibm-cpd-wsl
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "ws_cr" {
+  template = <<EOF
+apiVersion: ws.cpd.ibm.com/v1beta1
+kind: WS
+metadata:
+  name: ws
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageClass: ${local.storage_class}
+  storageVendor: ${var.storage_option}
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+EOF
+}
+
+#CCS
+data "template_file" "ccs_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  annotations: {}
+  name: ibm-cpd-ccs-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  config:
+    resources: {}
+  installPlanApproval: Automatic
+  name: ibm-cpd-ccs
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "ccs_cr" {
+  template = <<EOF
+apiVersion: ccs.cpd.ibm.com/v1beta1
+kind: CCS
+metadata:
+  name: ccs
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageVendor: ${var.storage_option}
+  license:
+    accept: true
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+EOF
+}
+
+
+#WML
+data "template_file" "wml_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-wml-operator
+    app.kubernetes.io/managed-by: ibm-cpd-wml-operator
+    app.kubernetes.io/name: ibm-cpd-wml-operator
+  name: ibm-cpd-wml-operator
+  namespace: ${local.operator_namespace}
+spec:
+    channel: alpha
+    installPlanApproval: Automatic
+    name: ibm-cpd-wml-operator
+    source: ibm-operator-catalog
+    sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "wml_cr" {
+  template = <<EOF
+apiVersion: wml.cpd.ibm.com/v1beta1
+kind: WmlBase
+metadata:
+  name: wml
+  namespace: ${var.cpd_namespace}
+  labels:
+    app.kubernetes.io/instance: wml
+    app.kubernetes.io/managed-by: ibm-cpd-wml-operator
+    app.kubernetes.io/name: ibm-cpd-wml-operator
+spec:
+  scaleConfig: small
+  is_35_upgrade: false
+  ignoreForMaintenance: false
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  storageClass: ${local.storage_class}
+  storageVendor: ${var.storage_option}
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
+EOF
+}
+
+
+#WOS
+data "template_file" "wos_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-watson-openscale-operator
+  labels:
+    app.kubernetes.io/instance: ibm-watson-openscale-operator
+    app.kubernetes.io/managed-by: ibm-watson-openscale-operator
+    app.kubernetes.io/name: ibm-watson-openscale-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: alpha
+  installPlanApproval: Automatic
+  name: ibm-cpd-wos
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "wos_cr" {
+  template = <<EOF
+apiVersion: wos.cpd.ibm.com/v1
+kind: WOService
+metadata:
+  name: aiopenscale
+  namespace: ${var.cpd_namespace}
+spec:
+  scaleConfig: small
+  storageClass: "${local.storage_class}"
+  version: 4.0.0
+  type: service
+  license:
+    accept: true
+    license: Enterprise
+EOF
+}
+
+#Data Refinery
+data "template_file" "data_refinery_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-datarefinery-operator
+  namespace: ibm-common-services
+spec
+  channel: v1.0
+  config:
+    resources: {}
+  installPlanApproval: Automatic
+  name: ibm-cpd-datarefinery
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+#SPSS
+data "template_file" "spss_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-spss-operator
+    app.kubernetes.io/managed-by: ibm-cpd-spss-operator
+    app.kubernetes.io/name: ibm-cpd-spss-operator
+  name: ibm-cpd-spss-operator
+  namespace: ${local.operator_namespace}
+spec:
+    channel: v1.0
+    installPlanApproval: Automatic
+    name: ibm-cpd-spss
+    source: ibm-operator-catalog
+    sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "spss_cr" {
+  template = <<EOF
+apiVersion: spssmodeler.cpd.ibm.com/v1
+kind: Spss
+metadata:
+  name: spss-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.0"
+  scaleConfig: "small"
+  architecture: "amd64"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  storageClass: ${local.storage_class}
+  namespace: "${var.cpd_namespace}"
+  operation: "install"
+  license:
+    accept: true
+    license: Enterprise
+EOF
+}
+
+#DV
+data "template_file" "dv_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-dv-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-dv-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
 EOF
 }
