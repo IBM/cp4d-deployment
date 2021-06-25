@@ -6,10 +6,6 @@
 cd wkc-files
 
 
-# Creating the db2 sysctl config shell script.
-
-#./sysctl-config-db2.sh
-
 # Case package. 
 ## Db2u Operator 
 curl -s https://${GIT_TOKEN}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-db2uoperator/4.0.0-3731.2361/ibm-db2uoperator-4.0.0-3731.2361.tgz -o ibm-db2uoperator-4.0.0-3731.2361.tgz
