@@ -91,7 +91,7 @@ variable "data_virtualization" {
   default = "no"
 }
 
-variable "apache_spark" {
+variable "analytics_engine" {
   default = "no"
 }
 

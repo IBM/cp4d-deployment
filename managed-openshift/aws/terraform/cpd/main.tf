@@ -19,12 +19,6 @@ resource "local_file" "crio_machineconfig_yaml" {
   filename = "${var.installer_workspace}/crio_machineconfig.yaml"
 }
 
-
-resource "local_file" "ccs_cr_yaml" {
-  content  = data.template_file.ccs_cr.rendered
-  filename = "${local.cpd_workspace}/ccs_cr.yaml"
-}
-
 resource "null_resource" "configure_cluster" {
   triggers = {
     openshift_api       = var.openshift_api
@@ -95,8 +89,6 @@ resource "local_file" "lite_cr_yaml" {
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
     namespace             = var.cpd_namespace
-    artifactory_username  = var.artifactory_username
-    artifactory_apikey  = var.artifactory_apikey
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
@@ -146,7 +138,7 @@ sleep 1
 oc create -f ${self.triggers.cpd_workspace}/lite_cr.yaml
 
 echo "check the lite cr status"
-bash cpd/scripts/check-cr-status.sh zenservice lite ${var.cpd-namespace} zenStatus
+bash cpd/scripts/check-cr-status.sh zenservice lite ${var.cpd_namespace} zenStatus
 EOF
   }
   depends_on = [
@@ -200,6 +192,6 @@ EOF
     null_resource.cpd_foundational_services,
     local_file.ccs_sub_yaml,
     local_file.ccs_cr_yaml,
-    null_resource.download_cloudctl,
+    # null_resource.download_cloudctl,
   ]
 }

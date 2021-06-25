@@ -10,7 +10,7 @@ resource "local_file" "analyticsengine_sub_yaml" {
 }
 
 resource "null_resource" "install_analyticsengine" {
-  count = var.analyticsengine == "yes" ? 1 : 0
+  count = var.analytics_engine == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
     openshift_api       = var.openshift_api
@@ -39,12 +39,10 @@ EOF
   depends_on = [
     local_file.spss_cr_yaml,
     null_resource.configure_cluster,
-    null_resource.append_custom_pull_secret,
     null_resource.install_ccs,
-    null_resource.download_cloudctl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
-    null_resource.install_wsl,
+    null_resource.install_ws,
     null_resource.install_wkc,
     null_resource.install_spss,
     null_resource.install_db2wh,

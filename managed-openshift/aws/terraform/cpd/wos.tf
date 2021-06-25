@@ -9,8 +9,8 @@ resource "local_file" "wos_sub_yaml" {
   filename = "${local.cpd_workspace}/wos_sub.yaml"
 }
 
-resource "null_resource" "install_wos" {
-  count = var.aiopenscale == "yes" ? 1 : 0
+resource "null_resource" "install_aiopenscale" {
+  count = var.watson_ai_openscale == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
     openshift_api       = var.openshift_api

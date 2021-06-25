@@ -249,7 +249,7 @@ variable "data_virtualization" {
   default = "no"
 }
 
-variable "apache_spark" {
+variable "analytics_engine" {
   default = "no"
 }
 
@@ -319,16 +319,4 @@ variable "db2_bigsql" {
 
 variable "planning_analytics" {
   default = "no"
-}
-
-
-#TO BE DELETED
-variable "artifactory_username" {
-  type = string
-  default = ""
-}
-
-variable "artifactory_apikey" {
-  type = string
-  default = ""
 }

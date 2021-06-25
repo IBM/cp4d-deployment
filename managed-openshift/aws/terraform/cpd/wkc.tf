@@ -29,7 +29,7 @@ resource "local_file" "sysctl_worker_yaml" {
 }
 
 resource "null_resource" "install_wkc" {
-  count = var.spss_modeler == "yes" ? 1 : 0
+  count = var.watson_knowledge_catalog == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
     openshift_api       = var.openshift_api
@@ -76,16 +76,16 @@ EOF
   }
   depends_on = [
     local_file.wkc_cr_yaml,
-    local_file.db2aaservice_cr_yaml,
+    # local_file.db2aaservice_cr_yaml,
     local_file.wkc_iis_scc_yaml,
     local_file.wkc_iis_cr_yaml,
     local_file.wkc_ug_cr_yaml,
     null_resource.configure_cluster,
     null_resource.install_ccs,
-    null_resource.download_cloudctl,
+    # null_resource.download_cloudctl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
-    null_resource.install_wsl,
+    null_resource.install_ws,
     null_resource.install_spss,
   ]
 }
