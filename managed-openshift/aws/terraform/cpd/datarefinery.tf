@@ -1,16 +1,16 @@
 
-resource "local_file" "ws_cr_yaml" {
-  content  = data.template_file.ws_cr.rendered
-  filename = "${local.cpd_workspace}/ws_cr.yaml"
-}
+# resource "local_file" "dr_cr_yaml" {
+#   content  = data.template_file.dr_cr.rendered
+#   filename = "${local.cpd_workspace}/dr_cr.yaml"
+# }
 
-resource "local_file" "ws_sub_yaml" {
-  content  = data.template_file.ws_sub.rendered
-  filename = "${local.cpd_workspace}/ws_sub.yaml"
-}
+# resource "local_file" "dr_sub_yaml" {
+#   content  = data.template_file.dr_sub.rendered
+#   filename = "${local.cpd_workspace}/dr_sub.yaml"
+# }
 
-resource "null_resource" "install_ws" {
-  count = var.watson_studio == "yes" ? 1 : 0
+resource "null_resource" "install_datarefinery" {
+  count = var.watson_studio == "yes" || var.watson_knowledge_catalog == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
     openshift_api       = var.openshift_api
@@ -27,8 +27,8 @@ ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.trigger
 EOF
   }
   depends_on = [
-    local_file.ws_cr_yaml,
-    local_file.ws_sub_yaml,
+    # local_file.dr_cr_yaml,
+    # local_file.dr_sub_yaml,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,

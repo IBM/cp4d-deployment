@@ -42,20 +42,29 @@ EOF
   }
 }
 
-resource "null_resource" "push_ibm_px_images" {
-  count = var.portworx_ibm.enable ? 1 : 0
+resource "null_resource" "login_cluster" {
   triggers = {
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+EOF
+  }
+}
+
+resource "null_resource" "push_ibm_px_images" {
+  count = var.portworx_ibm.enable ? 1 : 0
+  triggers = {
     installer_workspace = local.px_workspace
-    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 cd ${self.triggers.installer_workspace}/cpd-portworx/px-images
 echo "cleaning up stale images"
 sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false" ./podman-rm-local-images.sh
@@ -64,24 +73,19 @@ sudo PODMAN_LOGIN_ARGS="--tls-verify=false" PODMAN_PUSH_ARGS="--tls-verify=false
 EOF
   }
   depends_on = [
-    null_resource.extract_packages
+    null_resource.extract_packages,
+    null_resource.login_cluster,
   ]
 }
 
 resource "null_resource" "install_portworx" {
   triggers = {
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
     region              = var.region
-    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 #chmod +x portworx/scripts/portworx-prereq.sh
 #bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
 #oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
@@ -114,16 +118,13 @@ EOF
     local_file.portworx_operator_yaml,
     local_file.storage_classes_yaml,
     local_file.portworx_storagecluster_yaml,
+    null_resource.login_cluster,
   ]
 }
 
 resource "null_resource" "enable_portworx_encryption" {
   count = var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption ? 1 : 0
   triggers = {
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     installer_workspace = var.installer_workspace
     region              = var.region
   }
@@ -137,6 +138,7 @@ EOF
   }
   depends_on = [
     null_resource.install_portworx,
+    null_resource.login_cluster,
   ]
 }
 

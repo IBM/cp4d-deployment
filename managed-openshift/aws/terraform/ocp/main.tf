@@ -56,7 +56,8 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-#${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes --watch
+${self.triggers.installer_workspace}/rosa delete cluster --cluster='${self.triggers.cluster_name}' --yes 
+sleep 120
 EOF
   }
   depends_on = [
@@ -98,7 +99,7 @@ ${self.triggers.login_cmd} --insecure-skip-tls-verify
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
 echo 'Sleeping for 3m'
-sleep 3m
+sleep 180
 oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
 oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000
 EOF
