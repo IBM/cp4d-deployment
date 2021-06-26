@@ -72,6 +72,15 @@ variable "cpd_storageclass" {
   }
 }
 
+variable "rwo_cpd_storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-db2-rwo-sc"
+    "ocs"        = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
 variable "cpd_version" {
   type = string
   default = "4.0.0"

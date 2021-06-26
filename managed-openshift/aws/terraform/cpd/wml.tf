@@ -13,17 +13,10 @@ resource "null_resource" "install_wml" {
   count = var.watson_machine_learning == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
-    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<-EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
 echo 'Create WML sub'
 oc apply -f ${self.triggers.cpd_workspace}/wml_sub.yaml
 sleep 3
@@ -46,8 +39,8 @@ EOF
     null_resource.install_analyticsengine,
     null_resource.install_db2wh,
     null_resource.install_spss,
-    null_resource.install_datarefinery,
     null_resource.install_ws,
+    null_resource.login_cluster,
   ]
 }
 

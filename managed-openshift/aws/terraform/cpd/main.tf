@@ -19,20 +19,27 @@ resource "local_file" "crio_machineconfig_yaml" {
   filename = "${var.installer_workspace}/crio_machineconfig.yaml"
 }
 
-resource "null_resource" "configure_cluster" {
+resource "null_resource" "login_cluster" {
   triggers = {
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
-    vpc_id              = var.vpc_id
-    installer_workspace = var.installer_workspace
     login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
 ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+EOF
+  }
+}
 
+resource "null_resource" "configure_cluster" {
+  triggers = {
+    installer_workspace = var.installer_workspace
+  }
+  provisioner "local-exec" {
+    command = <<EOF
 echo "Configuring global pull secret"
 case $(uname -s) in
   Darwin)
@@ -62,18 +69,13 @@ EOF
     local_file.sysctl_machineconfig_yaml,
     local_file.limits_machineconfig_yaml,
     local_file.crio_machineconfig_yaml,
+    null_resource.login_cluster,
   ]
 }
 
 resource "null_resource" "download_cloudctl" {
   triggers = {
-    namespace = var.cpd_namespace
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
-    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<-EOF
@@ -120,21 +122,18 @@ resource "local_file" "lite_cr_yaml" {
   filename = "${local.cpd_workspace}/lite_cr.yaml"
 }
 
-
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
     namespace             = var.cpd_namespace
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
-    login_cmd = var.login_cmd
   }
 
   provisioner "local-exec" {
     command = <<-EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+echo "Ensure the nodes are running"
+bash cpd/scripts/nodes_running.sh
+
+echo "Create Operator Catalog Source"
 oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
 
 echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
@@ -142,11 +141,13 @@ bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
 echo "create ibm common service operator"
 oc create -f  ${self.triggers.cpd_workspace}/ibm_common_services_operator.yaml
+bash cpd/scripts/pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
 
 echo "Creating the ${self.triggers.namespace} namespace:"
 oc new-project ${self.triggers.namespace}
 
-sleep 1
+echo "checking status of operand-deployment-lifecycle-manager"
+bash cpd/scripts/bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${local.operator_namespace}
 
 echo "Creating OperandRequests"
 oc create -f  ${self.triggers.cpd_workspace}/operand_requests.yaml
@@ -157,9 +158,6 @@ bash cpd/scripts/pod-status-check.sh ibm-zen-operator ${local.operator_namespace
 
 echo "checking status of ibm-namespace-scope-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${local.operator_namespace}
-
-echo "checking status of operand-deployment-lifecycle-manager"
-bash cpd/scripts/bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${local.operator_namespace}
 
 echo "checking status of ibm-common-service-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
@@ -173,7 +171,7 @@ sleep 1
 oc create -f ${self.triggers.cpd_workspace}/lite_cr.yaml
 
 echo "check the lite cr status"
-bash cpd/scripts/check-cr-status.sh zenservice lite ${var.cpd_namespace} zenStatus
+bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus
 EOF
   }
   depends_on = [
@@ -182,6 +180,7 @@ EOF
     local_file.ibm_common_services_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     null_resource.configure_cluster,
+    null_resource.login_cluster,
   ]
 }
 
@@ -195,31 +194,31 @@ resource "local_file" "ccs_cr_yaml" {
   filename = "${local.cpd_workspace}/ccs_cr.yaml"
 }
 
+resource "local_file" "ccs_dr_catalogs_yaml" {
+  content  = data.template_file.ccs_dr_catalogs.rendered
+  filename = "${local.cpd_workspace}/ccs_dr_catalogs.yaml"
+}
+
 resource "null_resource" "install_ccs" {
   triggers = {
     namespace             = var.cpd_namespace
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
-    login_cmd = var.login_cmd
   }
 
   provisioner "local-exec" {
     command = <<-EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
 echo "Create CCS sub"
 oc apply -f ${self.triggers.cpd_workspace}/ccs_sub.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator ${local.operator_namespace}
 
 echo "Create CCS CR"
-oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
-sleep 3
-bash cpd/scripts/check-cr-status.sh ccs ccs ${var.cpd_namespace} ccsStatus
+# oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
+# sleep 3
+# bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
 
+echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
+oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml
 EOF
   }
   depends_on = [

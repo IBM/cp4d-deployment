@@ -32,17 +32,10 @@ resource "null_resource" "install_wkc" {
   count = var.watson_knowledge_catalog == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
     cpd_workspace = local.cpd_workspace
-    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<-EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
 echo "Allow unsafe sysctls"
 oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
 oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
@@ -81,7 +74,6 @@ EOF
     local_file.wkc_iis_cr_yaml,
     local_file.wkc_ug_cr_yaml,
     null_resource.install_analyticsengine,
-    null_resource.install_datarefinery,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,

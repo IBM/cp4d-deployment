@@ -34,20 +34,28 @@ EOF
   }
 }
 
-resource "null_resource" "install_ocs" {
+resource "null_resource" "login_cluster" {
   triggers = {
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+EOF
+  }
+}
+
+resource "null_resource" "install_ocs" {
+  triggers = {
     installer_workspace = var.installer_workspace
-    login_cmd           = var.login_cmd
   }
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-echo "Attempting login.."
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 echo "Creating namespace, operator group and subscription"
 oc create -f ${self.triggers.installer_workspace}/ocs_olm.yaml
 echo "Sleeping for 5mins"
@@ -79,7 +87,8 @@ EOF
     local_file.ocs_olm_yaml,
     local_file.ocs_storagecluster_yaml,
     local_file.ocs_toolbox_yaml,
-    null_resource.create_ocs_machinepool
+    null_resource.create_ocs_machinepool,
+    null_resource.login_cluster,
   ]
 }
 

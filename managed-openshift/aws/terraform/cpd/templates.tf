@@ -5,6 +5,7 @@ locals {
   license = var.accept_cpd_license == "accept" ? true : false
   override = var.storage_option == "efs" ? "" : var.storage_option
   storage_class = lookup(var.cpd_storageclass, var.storage_option)
+  rwo_storage_class = lookup(var.rwo_cpd_storageclass, var.storage_option)
 }
 
 data "template_file" "crio_machineconfig" {
@@ -88,6 +89,41 @@ spec:
       - "kernel.msg*"
       - "kernel.shm*"
       - "kernel.sem"
+EOF
+}
+
+data "template_file" "ccs_dr_catalogs" {
+  template = <<EOF
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cpd-datarefinery-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-cpd-datarefinery-operator-catalog@sha256:27c6b458244a7c8d12da72a18811d797a1bef19dadf84b38cedf6461fe53643a
+  imagePullPolicy: Always
+  displayName: Cloud Pak for Data IBM DataRefinery
+  publisher: IBM
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cpd-ccs-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-cpd-ccs-operator-catalog@sha256:34854b0b5684d670cf1624d01e659e9900f4206987242b453ee917b32b79f5b7
+  imagePullPolicy: Always
+  displayName: CPD Common Core Services
+  publisher: IBM
+  updateStrategy:
+    registryPoll:
+      interval: 45m
 EOF
 }
 
@@ -198,6 +234,18 @@ spec:
   name: ibm-common-service-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cpd-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: stable-v1
+  installPlanApproval: Automatic
+  name: cpd-platform-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
 EOF
 }
 
@@ -207,21 +255,12 @@ apiVersion: operator.ibm.com/v1alpha1
 kind: OperandRequest
 metadata:
   name: zen-service
-  namespace: zen
+  namespace: ${var.cpd_namespace}
 spec:
   requests:
     - operands:
         - name: ibm-cert-manager-operator
-        - name: ibm-iam-operator
-        - name: ibm-monitoring-grafana-operator
-        - name: ibm-healthcheck-operator
-        - name: ibm-management-ingress-operator
         - name: ibm-licensing-operator
-        - name: ibm-commonui-operator
-        - name: ibm-events-operator
-        - name: ibm-ingress-nginx-operator
-        - name: ibm-auditlogging-operator
-        - name: ibm-platform-api-operator
         - name: ibm-zen-operator
         - name: ibm-db2u-operator
       registry: common-service
@@ -231,17 +270,18 @@ EOF
 
 data "template_file" "lite_cr" {
   template = <<EOF
-apiVersion: zen.cpd.ibm.com/v1
-kind: ZenService
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
 metadata:
-  name: lite
+  name: ibmcpd-cr
   namespace: ${var.cpd_namespace}
 spec:
-  csNamespace: ${local.operator_namespace}
-  iamIntegration: true
+  license:
+    accept: true
+    license: Enterprise
   storageClass: ${local.storage_class}
-  storageVendor: ${var.storage_option}
-  cloudpakfordata: true 
+  zenCoreMetadbStorageClass: ${local.rwo_storage_class}
+  version: "4.0.1"
 EOF
 }
 
@@ -271,7 +311,7 @@ data "template_file" "analyticsengine_cr" {
 apiVersion: ae.cpd.ibm.com/v1
 kind: AnalyticsEngine
 metadata:
-  name: analyticsengine
+  name: analyticsengine-cr
   namespace: ${var.cpd_namespace}
   labels:
     app.kubernetes.io/instance: ibm-analyticsengine-operator
@@ -308,7 +348,7 @@ data "template_file" "db2wh_cr" {
 apiVersion: databases.cpd.ibm.com/v1
 kind: Db2whService
 metadata:
-  name: db2wh
+  name: db2wh-cr
   namespace: ${var.cpd_namespace}
 spec:
   storageClass: ${local.storage_class}
@@ -340,7 +380,7 @@ data "template_file" "ws_cr" {
 apiVersion: ws.cpd.ibm.com/v1beta1
 kind: WS
 metadata:
-  name: ws
+  name: ws-cr
 spec:
   version: "4.0.0"
   size: "small"
@@ -378,10 +418,9 @@ data "template_file" "ccs_cr" {
 apiVersion: ccs.cpd.ibm.com/v1beta1
 kind: CCS
 metadata:
-  name: ccs
+  name: ccs-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.0"
   size: "small"
   storageVendor: ${var.storage_option}
   license:
@@ -417,7 +456,7 @@ data "template_file" "wml_cr" {
 apiVersion: wml.cpd.ibm.com/v1beta1
 kind: WmlBase
 metadata:
-  name: wml
+  name: wml-cr
   namespace: ${var.cpd_namespace}
   labels:
     app.kubernetes.io/instance: wml
@@ -464,7 +503,7 @@ data "template_file" "wos_cr" {
 apiVersion: wos.cpd.ibm.com/v1
 kind: WOService
 metadata:
-  name: aiopenscale
+  name: aiopenscale-cr
   namespace: ${var.cpd_namespace}
 spec:
   scaleConfig: small
@@ -672,7 +711,7 @@ data "template_file" "dv_cr" {
 apiVersion: db2u.databases.ibm.com/v1
 kind: DvService
 metadata:
-  name: dv-service
+  name: dv-service-cr
   namespace: ${var.cpd_namespace}
 spec:
   license:

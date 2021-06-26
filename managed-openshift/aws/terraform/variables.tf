@@ -234,7 +234,7 @@ variable "api_key" {
 
 variable "cpd_namespace" {
   description = "Openshift Namespace to deploy CPD into"
-  default     = "cpd-tenant"
+  default     = "zen"
 }
 
 variable "cloudctl_version" {
