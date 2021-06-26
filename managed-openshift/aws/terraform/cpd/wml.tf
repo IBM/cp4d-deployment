@@ -40,6 +40,14 @@ EOF
     local_file.wml_cr_yaml,
     local_file.wml_sub_yaml,
     null_resource.configure_cluster,
+    null_resource.cpd_foundational_services,
+    null_resource.install_ccs,
+    null_resource.install_aiopenscale,
+    null_resource.install_analyticsengine,
+    null_resource.install_db2wh,
+    null_resource.install_spss,
+    null_resource.install_datarefinery,
+    null_resource.install_ws,
   ]
 }
 

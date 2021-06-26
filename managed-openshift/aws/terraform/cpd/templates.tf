@@ -97,6 +97,7 @@ apiVersion: databases.cpd.ibm.com/v1
 kind: Db2aaserviceService
 metadata:
   name: db2aaservice-cr
+  namespace: ${var.cpd_namespace}
 spec:
   license:
     accept: true
@@ -663,5 +664,22 @@ spec:
   name: ibm-dv-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "dv_cr" {
+  template = <<EOF
+apiVersion: db2u.databases.ibm.com/v1
+kind: DvService
+metadata:
+  name: dv-service
+  namespace: ${var.cpd_namespace}
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  version: 1.7.0
+  size: "small"
+  docker_registry_prefix: cp.icr.io/cp/cpd
 EOF
 }

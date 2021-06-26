@@ -65,6 +65,41 @@ EOF
   ]
 }
 
+resource "null_resource" "download_cloudctl" {
+  triggers = {
+    namespace = var.cpd_namespace
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    cpd_workspace = local.cpd_workspace
+    login_cmd = var.login_cmd
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+  echo "Download cloudctl and aiopenscale case package."
+case $(uname -s) in
+  Darwin)
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz'
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz.sig'
+    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64.tar.gz -C ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64 ${self.triggers.cpd_workspace}/cloudctl
+    ;;
+  Linux)
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz'
+    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz.sig'
+    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-linux-amd64.tar.gz -C ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cloudctl-linux-amd64 ${self.triggers.cpd_workspace}/cloudctl
+    ;;
+  *)
+    echo 'Supports only Linux and Mac OS at this time'
+    exit 1;;
+esac
+chmod u+x ${self.triggers.cpd_workspace}/cloudctl
+EOF
+  }
+}
+
 resource "local_file" "ibm_operator_catalog_source_yaml" {
   content  = data.template_file.ibm_operator_catalog_source.rendered
   filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
@@ -192,6 +227,5 @@ EOF
     null_resource.cpd_foundational_services,
     local_file.ccs_sub_yaml,
     local_file.ccs_cr_yaml,
-    # null_resource.download_cloudctl,
   ]
 }

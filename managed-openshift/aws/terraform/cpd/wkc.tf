@@ -80,12 +80,15 @@ EOF
     local_file.wkc_iis_scc_yaml,
     local_file.wkc_iis_cr_yaml,
     local_file.wkc_ug_cr_yaml,
-    null_resource.configure_cluster,
-    null_resource.install_ccs,
-    # null_resource.download_cloudctl,
+    null_resource.install_analyticsengine,
+    null_resource.install_datarefinery,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,
     null_resource.install_spss,
+    null_resource.install_db2wh,
+    null_resource.configure_cluster,
+    null_resource.cpd_foundational_services,
+    null_resource.install_ccs,
   ]
 }

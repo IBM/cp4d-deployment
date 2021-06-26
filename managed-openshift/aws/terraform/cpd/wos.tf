@@ -40,6 +40,8 @@ EOF
     local_file.wos_cr_yaml,
     local_file.wos_sub_yaml,
     null_resource.configure_cluster,
+    null_resource.cpd_foundational_services,
+    null_resource.install_ccs,
   ]
 }
 

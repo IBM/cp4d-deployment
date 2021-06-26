@@ -10,7 +10,7 @@ resource "local_file" "spss_sub_yaml" {
 }
 
 resource "null_resource" "install_spss" {
-  count = var.watson_machine_learning == "yes" ? 1 : 0
+  count = var.spss_modeler == "yes" ? 1 : 0
   triggers = {
     namespace             = var.cpd_namespace
     openshift_api       = var.openshift_api
@@ -40,6 +40,11 @@ EOF
     local_file.spss_cr_yaml,
     local_file.spss_sub_yaml,
     null_resource.configure_cluster,
+    null_resource.cpd_foundational_services,
+    null_resource.install_ccs,
+    null_resource.install_aiopenscale,
+    null_resource.install_analyticsengine,
+    null_resource.install_db2wh,
   ]
 }
 
