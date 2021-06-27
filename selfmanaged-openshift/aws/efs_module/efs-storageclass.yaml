@@ -1,9 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: aws-efs
-provisioner: openshift.org/aws-efs
-parameters:
-  gidMin: "2048"
-  gidMax: "2147483647"
-  gidAllocate: "true"
