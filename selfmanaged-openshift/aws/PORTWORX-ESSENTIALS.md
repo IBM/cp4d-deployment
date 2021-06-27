@@ -1,6 +1,6 @@
 ### Generating the Portworx Spec URL
 * Launch the [spec generator](https://central.portworx.com/specGen/wizard)
-* Select `Portworx Enterprise` and press Next to continue:
+* Select `Portworx Essentials` and press Next to continue:
 ![Alt text](images/essential-enterprise.png)
 * Check `Use the Portworx Operator` box and select the `Portworx version` as `2.6`. For `ETCD` select `Built-in` option and then press Next:
 ![Alt text](images/portworx-version.png)
@@ -15,5 +15,5 @@ Enter value for `Size(GB)` as `1000` and then press Next.
 ![Alt text](images/Advanced_settings.png)
 * Copy Spec URL and Paste in a browser:
 ![Alt text](images/spec-url.png)
-* Copy the Cluster ID highlighted in red. This will be the value for the `px_generated_cluster_id` variable.
-![Alt text](images/cluster-id.png)
+* Copy the Name (Cluster ID), the User ID and the OSB endpoint highlighted in red. This will be the value for the `cluster_id`, `user_id` and `osb_endpoint` variables respectively.
+![Alt text](images/esse-cluster-id.png)

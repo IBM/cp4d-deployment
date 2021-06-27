@@ -8,7 +8,8 @@ spec:
   license:
     accept: true
     license: Enterprise
-  wkc_db2u_set_kernel_params: True  
   docker_registry_prefix: cp.stg.icr.io/cp/cpd
   use_dynamic_provisioning: true
   namespace: REPLACE_NAMESPACE
+  iis_db2u_set_kernel_params: True
+  storage_class_name: portworx-shared-gp3
