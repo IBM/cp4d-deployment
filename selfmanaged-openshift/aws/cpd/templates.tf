@@ -425,6 +425,7 @@ spec:
   storageVendor: ${var.storage_option}
   license:
     accept: true
+    license: Enterprise
   docker_registry_prefix: "cp.icr.io/cp/cpd"
 EOF
 }
@@ -690,19 +691,42 @@ EOF
 }
 
 #DV
+data "template_file" "dv_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-dv-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Data Virtualization
+  image: icr.io/cpopen/ibm-cpd-dv-operator-catalog@sha256:96398727f1b37137ec268c6f6dd2e3a0fd38c88b144abe0fd0d32361e82d47e6
+  imagePullPolicy: Always
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 data "template_file" "dv_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-dv-operator
+  labels:
+    app.kubernetes.io/instance: ibm-dv-operator-subscription
+    app.kubernetes.io/managed-by: ibm-dv-operator
+    app.kubernetes.io/name: ibm-dv-operator-subscription
+  name: ibm-dv-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
-  installPlanApproval: Automatic
-  name: ibm-dv-operator
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
+    channel: v1.0
+    installPlanApproval: Automatic
+    name: ibm-dv-operator
+    source: ibm-dv-operator-catalog
+    sourceNamespace: openshift-marketplace
+    startingCSV: ibm-dv-operator.v1.7.0     # DO NOT CHANGE THIS VERSION NUMBER
 EOF
 }
 

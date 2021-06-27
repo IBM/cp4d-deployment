@@ -257,7 +257,6 @@ variable "ocs" {
   type = map(string)
   default = {
     enable = true
-    dedicated_nodes = true
     dedicated_node_instance_type = "m5.4xlarge"
   }
 }
@@ -316,15 +315,11 @@ variable "api_key" {
 
 variable "cpd_namespace" {
   description = "Openshift Namespace to deploy CPD into"
-  default = "cpd-tenant"
+  default = "zen"
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
-}
-
-variable "datacore_version" {
-  default = "1.3.3"
+  default = "v3.7.1"
 }
 
 variable "openshift_version" {
@@ -356,15 +351,11 @@ variable "watson_ai_openscale" {
   default = "no"
 }
 
+variable "spss_modeler" {
+  default = "no"
+}
+
 variable "cognos_dashboard_embedded" {
-  default = "no"
-}
-
-variable "streams" {
-  default = "no"
-}
-
-variable "streams_flows" {
   default = "no"
 }
 
@@ -380,30 +371,10 @@ variable "db2_advanced_edition" {
   default = "no"
 }
 
-variable "data_management_console" {
-  default = "no"
-}
-
-variable "datagate" {
-  default = "no"
-}
-
-variable "decision_optimization" {
-  default = "no"
-}
-
 variable "cognos_analytics" {
   default = "no"
 }
 
-variable "spss_modeler" {
-  default = "no"
-}
-
-variable "db2_bigsql" {
-  default = "no"
-}
-
-variable "planning_analytics" {
+variable "decision_optimization" {
   default = "no"
 }

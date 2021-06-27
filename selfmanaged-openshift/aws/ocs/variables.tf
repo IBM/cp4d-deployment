@@ -95,7 +95,7 @@ variable "aws_amis" {
 variable "ocs" {
   default = {
     enable = true
-    dedicated_nodes = false
+    dedicated_nodes = true
     dedicated_node_instance_type = "m5.4xlarge"
     dedicated_node_zones = []
     dedicated_node_subnet_ids = []

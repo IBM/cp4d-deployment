@@ -166,7 +166,7 @@ module "ocs" {
   installer_workspace = local.installer_workspace
   ocs = {
     enable                       = var.ocs.enable
-    dedicated_nodes              = var.ocs.dedicated_nodes
+    dedicated_nodes              = true
     dedicated_node_instance_type = var.ocs.dedicated_node_instance_type
     dedicated_node_zones         = var.az == "single_zone" ? [local.availability_zone1] : [local.availability_zone1, local.availability_zone2, local.availability_zone3]
     dedicated_node_subnet_ids    = var.az == "single_zone" ? local.single_zone_subnets : local.multi_zone_subnets
@@ -194,7 +194,6 @@ module "cpd" {
   api_key                   = var.api_key
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
-  datacore_version          = var.datacore_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
   analytics_engine              = var.analytics_engine
@@ -203,18 +202,13 @@ module "cpd" {
   watson_machine_learning   = var.watson_machine_learning
   watson_ai_openscale       = var.watson_ai_openscale
   cognos_dashboard_embedded = var.cognos_dashboard_embedded
-  streams                   = var.streams
-  streams_flows             = var.streams_flows
   datastage                 = var.datastage
   db2_warehouse             = var.db2_warehouse
   db2_advanced_edition      = var.db2_advanced_edition
-  data_management_console   = var.data_management_console
-  datagate                  = var.datagate
   decision_optimization     = var.decision_optimization
   cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
   db2_bigsql                = var.db2_bigsql
-  planning_analytics        = var.planning_analytics
 
   depends_on = [
     module.ocp,

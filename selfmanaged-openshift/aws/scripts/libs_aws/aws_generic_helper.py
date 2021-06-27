@@ -66,25 +66,20 @@ class AWSGenericHelper():
     # CP4D services required vCPUs according to:
     # https://github.com/IBM/cp4d-deployment#resource-requirements-for-each-service
     cpd_services_vcpu = {
-        'watson_studio_local': 12,
+        'watson_studio': 12,
         'watson_knowledge_catalog': 27,
         'watson_machine_learning': 16,
         'data_virtualization': 16,
         'watson_ai_openscale': 30,
-        'apache_spark': 7,
+        'analytics_engine': 7,
         'cognos_dashboard_embedded': 4,
-        'streams': 1,
-        'streams_flows': 1,
         'db2_warehouse': 9,
         'datastage': 6,
         'cognos_analytics': 11,
         'db2_advanced_edition': 5,
-        'datagate': 4,
         'decision_optimization': 1,
         'spss_modeler': 11,
         'db2_bigsql': 48,
-        'planning_analytics': 13,
-        'data_management_console': 0
     }
 
     def __init__(self, aws_config):

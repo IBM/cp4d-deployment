@@ -24,23 +24,17 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `aws` and `podman` commands:
-  * MacOS (comes with `htpasswd`):
-  ```bash
-  brew install wget
-  pip install awscli --upgrade --user
-  ```
-    * `podman` on MacOS could be tricky to setup, a workaround is to install docker and create a symbolic link to podman:
-      * Install docker [here](https://docs.docker.com/docker-for-mac/install/)
-      * Create symbolic link:
-      ```bash
-      ln -s /usr/local/bin/docker /usr/local/bin/podman 
-      ```
+* Install `wget`, `htpasswd` and `aws` CLIs:
   * RHEL:
   ```bash
   yum install wget
   yum install httpd-tools
-  yum install podman
+  yum install podman # (Only needed if using the IBM Portworx Freemium)
+  pip install awscli --upgrade --user
+  ```
+  * MacOS (comes with `htpasswd`):
+  ```bash
+  brew install wget
   pip install awscli --upgrade --user
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
@@ -64,32 +58,25 @@ oc version
 ```bash
 git clone <repo_url>
 ```
-* Change the current directory to aws_infra:
+* Change the current directory to `aws`:
 ```
-cd cp4d-deployment/<your infrastructure name>/selfmanaged-openshift/aws/
+cd cp4d-deployment/selfmanaged-openshift/aws/
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept-cpd-license` to `accept`.
-* If you want to hide sensitive data such as access_key_id or secret_access_key, remove the `default     = " " ` from `variables.tf` file against that variable.
+* Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept_cpd_license` to `accept`.
+* If you want to hide sensitive data such as access_key_id or secret_access_key, create a `terraform.tfvars` file and write all the sensitive variables.
 ```
 Example:
 
-variable "access_key_id" {
-}
-```
-* Create file `osaws_var.tfvars` and write all the sensitive variables for which no `default     = " " ` value is provided in `variables.tf` file.
-```
-Example:
-
-cat osaws_var.tfvars
+cat terraform.tfvars
 
 access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
 secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
 ```
-* Deploy scripts by executing the following command from the `cp4d-deployment/aws/` directory:
+* Deploy scripts by executing the following command:
 ```bash
 terraform init
-terraform apply -var-file="Path To osaws_var.tfvars file | tee terraform.log"
+terraform apply -var-file="<Path To terraform.tfvars file> | tee terraform.log"
 ```
 #### cp4d installation logs:
 After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
@@ -97,26 +84,17 @@ After openshift cluster installation is finished and cloud pak for data installa
 ### Destroying the cluster:
 * When cluster created successfully, execute following commands to delete the cluster:
   ```bash
-  terraform destroy -var-file="Path To osaws_var.tfvars file"
+  terraform destroy
   ```
-* When cluster creation fails for some reason and only bootnode is created, execute following commands to delete the created resources:
+* If cluster creation fails, execute following commands to delete the created resources:
   ```bash
   cd installer-files && ./openshift-install destroy cluster
-  terraform destroy -var-file="Path To osaws_var.tfvars file"
+  terraform destroy -var-file="<Path To terraform.tfvars file>"
   ```
 ### Note:
 * For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
-* Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
-see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
-[Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)
-* To use ECR to store CPD images, we have provided a script (`scripts/ecr-upload.py`) to create the required repositories and transfer the images.
-Steps:
-  - Download the cpd-cli tar file [here](https://github.com/IBM/cpd-cli/releases) and extract it.
-  - Copy the script into the extracted folder.
-  - Add your CPD APIKey to the `repo.yaml` and run it with the usage shown below:
-  ```
-  $ python3 ecr-upload.py
-  Usage: python ecr-upload.py 'lite,wkc', <aws_repo_name>, <aws_region>, <aws_ecr_username>, <aws_ecr_password>
-  ```
-  ### Changelog
-  * Removes the bastion node
+
+### Changelog
+* CPD 4.0
+* Removed the bastion node
+* Dropped support for EFS.

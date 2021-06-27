@@ -55,7 +55,13 @@ bash cpd/scripts/check-cr-status.sh wkc wkc-cr ${var.cpd_namespace} wkcStatus
 
 echo "Create SCC for WKC-IIS"
 oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
-echo "Create iis cr"
+
+echo "Install IIS Operator"
+wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-iis/4.0.0/ibm-iis-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-iis-4.0.0.tgz'
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-iis-4.0.0.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory iisOperatorSetup
+bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
+
+echo "Create IIS CR"
 oc create -f ${self.triggers.cpd_workspace}/wkc_iis_cr_yaml
 echo 'check the IIS cr status'
 bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus
@@ -82,5 +88,6 @@ EOF
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
+    null_resource.login_cluster,
   ]
 }
