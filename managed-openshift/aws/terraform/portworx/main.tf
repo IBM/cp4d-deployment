@@ -86,16 +86,16 @@ resource "null_resource" "install_portworx" {
   provisioner "local-exec" {
     when    = create
     command = <<EOF
-#chmod +x portworx/scripts/portworx-prereq.sh
-#bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
-#oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
-#echo "Sleeping for 5mins"
-#sleep 300
-#echo "Deploying StorageCluster"
-#oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
-#sleep 300
-#echo "Create storage classes"
-#oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
+chmod +x portworx/scripts/portworx-prereq.sh
+bash portworx/scripts/portworx-prereq.sh ${self.triggers.region}
+oc create -f ${self.triggers.installer_workspace}/portworx_operator.yaml
+echo "Sleeping for 5mins"
+sleep 300
+echo "Deploying StorageCluster"
+oc create -f ${self.triggers.installer_workspace}/portworx_storagecluster.yaml
+sleep 300
+echo "Create storage classes"
+oc create -f ${self.triggers.installer_workspace}/storage_classes.yaml
 EOF
   }
   /* provisioner "local-exec" {
