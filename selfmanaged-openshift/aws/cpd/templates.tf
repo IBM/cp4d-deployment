@@ -746,3 +746,18 @@ spec:
   docker_registry_prefix: cp.icr.io/cp/cpd
 EOF
 }
+
+data "template_file" "ds_cr" {
+  template = <<EOF
+apiVersion: dfd.cpd.ibm.com/v1alpha1
+kind: DataStageService
+metadata:
+  name: datastage-cr
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  scaleConfig: small
+  version: 4.0.0
+EOF
+}

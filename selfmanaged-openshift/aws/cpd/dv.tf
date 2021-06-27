@@ -11,6 +11,11 @@ resource "null_resource" "install_dv" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Install DMC Operator dependency"
+wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dmc-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-dmc-4.0.0.tgz'
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dmc-4.0.0.tgz --namespace openshift-marketplace --action installCatalog --inventory dmcOperatorSetup --tolerance 1
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dmc-4.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory dmcOperatorSetup --tolerance 1
+
 echo "Creating DV Operator"
 wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dv-case/1.7.0/ibm-dv-case-1.7.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-dv-case-1.7.0.tgz'
 
