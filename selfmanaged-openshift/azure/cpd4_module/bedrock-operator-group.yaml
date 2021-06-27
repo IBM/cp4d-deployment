@@ -1,8 +1,0 @@
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: common-service-operator-group
-  namespace: ibm-common-services
-spec:
-  targetNamespaces:
-    - ibm-common-services

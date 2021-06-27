@@ -184,22 +184,7 @@ data "template_file" "ibmcpd-cr-file" {
     NAMESPACE = var.cpd-namespace
   }
 }
-data "template_file" "wslresolversAuth" {
-  template = file("../cpd4_module/wsl-resolversAuth.yaml")
-  vars = {
-    git-user  = var.gituser
-    git-token = var.gittoken
-  }
-}
 
-data "template_file" "dodsresolversAuth" {
-  template = file("../cpd4_module/dods-resolversAuth.yaml")
-  vars = {
-    git-user    = var.gituser
-    git-token   = var.gittoken
-    STAGING_KEY = var.staging-apikey
-  }
-}
 
 data "template_file" "wmlcrnfsfile" {
   template = file("../cpd4_module/wml-cr-nfs.tpl.yaml")

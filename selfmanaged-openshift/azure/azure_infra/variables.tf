@@ -223,130 +223,20 @@ variable "cpd-version" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.7.0"
+  default = "latest"
 }
 
 variable "apikey" {
 }
-
-# Add-Ons
-variable "data-virtualization" {
-  default = "no"
-}
-
-variable "watson-studio-library" {
-  default = "no"
-}
-
-variable "watson-knowledge-catalog" {
-  default = "no"
-}
-
-variable "watson-ai-openscale" {
-  default = "no"
-}
-
-variable "watson-machine-learning" {
-  default = "no"
-}
-
-variable "cognos-dashboard-embedded" {
-  default = "no"
-}
-
-variable "apache-spark" {
-  default = "no"
-}
-
-variable "streams" {
-  default = "no"
-}
-
-variable "streams-flows" {
-  default = "no"
-}
-
-variable "datastage" {
-  default = "no"
-}
-
-variable "db2-warehouse" {
-  default = "no"
-}
-
-variable "db2-advanced-edition" {
-  default = "no"
-}
-
-variable "data-management-console" {
-  default = "no"
-}
-
-variable "datagate" {
-  default = "no"
-}
-
-variable "decision-optimization" {
-  default = "no"
-}
-
-variable "cognos-analytics" {
-  default = "no"
-}
-
-variable "spss-modeler" {
-  default = "no"
-}
-
-variable "db2-bigsql" {
-  default = "no"
-}
-
-variable "planning-analytics" {
-  default = "no"
-}
-
-# variable "watson-assistant"{
-#   default = "no"
-# }
-
-# variable "watson-discovery"{
-#   default = "no"
-# }
 
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default     = "reject"
 }
 
-
-
 ##############################
 ### CPD4.0 variables
 ##############################
-variable "artifactory-username" {
-  default = "xxx@in.ibm.com"
-}
-
-variable "artifactory-apikey" {
-  default = "xxxxyyyyzzzzz"
-}
-
-variable "staging-username" {
-  default = "xxx@in.ibm.com"
-}
-
-variable "staging-apikey" {
-  default = "xxxxyyyyzzzzz"
-}
-
-variable "gituser" {
-  default = "xxx"
-}
-
-variable "gittoken" {
-  default = "xxxxyyyyzzzzz"
-}
 
 variable "cpd-namespace" {
   default = "zen"
@@ -365,7 +255,6 @@ variable "cpd-storageclass" {
   }
 }
 
-
 variable "ccs-storageclass-value" {
   type = map
 
@@ -375,7 +264,6 @@ variable "ccs-storageclass-value" {
   }
 }
 
-
 ############################################
 # CPD 4.0 service variables 
 ###########################################
@@ -384,11 +272,24 @@ variable "cpd-platform-operator" {
   default = "no"
 }
 
-# variable "bedrock-zen-operator" {
-#   default = "no"
-# }
-
 variable "ccs" {
+  default = "no"
+}
+
+variable "data-refinery" {
+  default = "no"
+}
+
+variable "db2uoperator" {
+  default = "no"
+}
+
+
+variable "dmc" {
+  default = "no"
+}
+
+variable "db2aaservice" {
   default = "no"
 }
 
@@ -431,3 +332,19 @@ variable "bigsql" {
 variable "wkc" {
   default = "no"
 }
+
+variable "ca" {
+  default = "no"
+}
+
+variable "ds" {
+  default = "no"
+}
+
+variable "db2oltp" {
+  default = "no"
+}
+
+variable "db2wh" {
+  default = "no"
+} 

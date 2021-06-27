@@ -28,11 +28,11 @@ cat << EOF | oc apply -f -
 apiVersion: dmc.databases.ibm.com/v1
 kind: Dmcaddon
 metadata:
-  name: dmc-addon
+  name: dmcaddon-cr
 spec:
   namespace: zen
   storageClass: \${STORAGECLASS}
-  pullPrefix: cp.stg.icr.io/cp/cpd
+  pullPrefix: cp.icr.io/cp/cpd
   version: "4.0.0"
   license:
     accept: true

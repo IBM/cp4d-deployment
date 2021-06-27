@@ -7,4 +7,4 @@ cloudctl case launch --case ./\${CASE_PACKAGE_NAME} \
     --tolerance 1 --namespace \${NAMESPACE}         \
     --action installOperator                        \
     --inventory ccsSetup                            \
-    --args "--registry cp.stg.icr.io"
+    --args "--registry cp.icr.io"

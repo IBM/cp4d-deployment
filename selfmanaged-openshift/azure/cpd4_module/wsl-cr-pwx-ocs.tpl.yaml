@@ -10,4 +10,4 @@ spec:
   license:
     accept: true
     license: Enterprise
-  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
