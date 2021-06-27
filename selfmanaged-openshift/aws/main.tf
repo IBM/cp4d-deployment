@@ -197,9 +197,9 @@ module "cpd" {
   datacore_version          = var.datacore_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
-  apache_spark              = var.apache_spark
+  analytics_engine              = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog
-  watson_studio_local     = var.watson_studio_local
+  watson_studio     = var.watson_studio
   watson_machine_learning   = var.watson_machine_learning
   watson_ai_openscale       = var.watson_ai_openscale
   cognos_dashboard_embedded = var.cognos_dashboard_embedded

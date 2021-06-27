@@ -1,6 +1,6 @@
 .DS*
 cpd-artifacts
-input.tfvars
+*.tfvars
 terraform.tfstate*
 .terraform*
 pull-secret

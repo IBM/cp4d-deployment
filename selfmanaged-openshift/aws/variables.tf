@@ -336,7 +336,7 @@ variable "data_virtualization" {
   default = "no"
 }
 
-variable "apache_spark" {
+variable "analytics_engine" {
   default = "no"
 }
 
@@ -344,7 +344,7 @@ variable "watson_knowledge_catalog" {
   default = "no"
 }
 
-variable "watson_studio_local" {
+variable "watson_studio" {
   default = "no"
 }
 

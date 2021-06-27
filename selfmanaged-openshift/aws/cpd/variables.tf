@@ -1,23 +1,28 @@
 variable "openshift_api" {
   type = string
+  default = ""
 }
 
 variable "openshift_username" {
   type = string
+  default = ""
 }
 
 variable "openshift_password" {
   type = string
+  default = ""
 }
 
 variable "openshift_token" {
   type        = string
   description = "For cases where you don't have the password but a token can be generated (e.g SSO is being used)"
+  default = ""
 }
 
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"
+  default = ""
 }
 
 variable "accept_cpd_license" {
@@ -41,14 +46,56 @@ variable "api_key" {
 }
 
 variable "cpd_namespace" {
-  default = "cpd-tenant"
+  default = "zen"
+}
+
+variable "vpc_id" {
+  type = string
+  default = ""
+}
+
+variable "storage_option" {
+  type = string
+}
+
+variable "cpd_storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-shared-gp3"
+    "ocs"        = "ocs-storagecluster-cephfs"
+  }
+}
+
+variable "rwo_cpd_storageclass" {
+  type        = map
+
+  default     = {
+    "portworx"   = "portworx-db2-rwo-sc"
+    "ocs"        = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "cpd_version" {
+  type = string
+  default = "4.0.0"
+}
+
+###########
+
+variable "cloudctl_version" {
+  default = "v3.7.1"
+}
+
+variable "datacore_version" {
+  default = "1.3.3"
 }
 
 variable "data_virtualization" {
   default = "no"
 }
 
-variable "apache_spark" {
+variable "analytics_engine" {
   default = "no"
 }
 
@@ -56,7 +103,7 @@ variable "watson_knowledge_catalog" {
   default = "no"
 }
 
-variable "watson_studio_local" {
+variable "watson_studio" {
   default = "no"
 }
 
@@ -118,26 +165,4 @@ variable "db2_bigsql" {
 
 variable "planning_analytics" {
   default = "no"
-}
-
-variable "cloudctl_version" {
-  default = "v3.6.0"
-}
-
-variable "datacore_version" {
-  default = "1.3.3"
-}
-
-variable "storage_option" {
-  type = string
-}
-
-variable "cpd_storageclass" {
-  type        = map
-
-  default     = {
-    "portworx"   = "portworx-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
-    "efs"        = "aws-efs"
-  }
 }
