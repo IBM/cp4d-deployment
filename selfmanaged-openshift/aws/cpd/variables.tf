@@ -119,14 +119,6 @@ variable "cognos_dashboard_embedded" {
   default = "no"
 }
 
-variable "streams" {
-  default = "no"
-}
-
-variable "streams_flows" {
-  default = "no"
-}
-
 variable "datastage" {
   default = "no"
 }

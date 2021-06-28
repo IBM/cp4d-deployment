@@ -761,3 +761,39 @@ spec:
   version: 4.0.0
 EOF
 }
+
+data "template_file" "dmc_cr" {
+  template = <<EOF
+apiVersion: dmc.databases.ibm.com/v1
+kind: Dmcaddon
+metadata:
+  name: dmcaddon-cr
+spec:
+  namespace: zen
+  storageClass: ${local.storage_class}
+  pullPrefix: cp.icr.io/cp/cpd
+  version: "4.0.0"
+  license:
+    accept: true
+    license: Standard 
+EOF
+}
+
+#CDE
+data "template_file" "cde_cr" {
+  template = <<EOF
+apiVersion: cde.cpd.ibm.com/v1
+kind: CdeProxyService
+metadata:
+  name: cde-cr
+spec:
+  version: 4.0.0
+  size: "small"
+  namespace: "${var.cpd_namespace}"
+  storageClass: "${local.storage_class}"
+  cert_manager_enabled: true
+  license:
+    accept: true
+    license: Enterprise
+EOF
+}
