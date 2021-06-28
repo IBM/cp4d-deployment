@@ -36,12 +36,6 @@ resource "null_resource" "install_wkc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Allow unsafe sysctls"
-oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
-oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
-sleep 60
-bash cpd/scripts/nodes_running.sh
-
 echo "Creating WKC Operator"
 oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}

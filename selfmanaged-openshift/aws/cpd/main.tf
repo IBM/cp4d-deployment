@@ -53,6 +53,10 @@ esac
 oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"},|' > /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
+echo "Sysctl changes"
+oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
+
 echo "Creating MachineConfig files"
 oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml

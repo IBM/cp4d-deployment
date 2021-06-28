@@ -3,11 +3,6 @@ resource "local_file" "dv_cr_yaml" {
   filename = "${local.cpd_workspace}/dv_cr.yaml"
 }
 
-resource "local_file" "dmc_catalog_source_yaml" {
-  content  = data.template_file.dmc_catalog_source.rendered
-  filename = "${local.cpd_workspace}/dmc_catalog_source.yaml"
-}
-
 resource "null_resource" "install_dv" {
   count = var.data_virtualization == "yes" ? 1 : 0
   triggers = {
