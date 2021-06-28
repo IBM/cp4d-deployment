@@ -1,4 +1,4 @@
-# Cloud Pak for Data 3.5 on OCP 4.6 on Azure
+# Cloud Pak for Data on OCP 4.6 on Azure
 
 ## Deployment Topology
 
@@ -48,7 +48,7 @@ The template sets up the following:
 
 * If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`. 
 
-* Read and agree to the [license terms](https://ibm.biz/Bdq6KP).
+* Read and agree to the [license terms](https://ibm.biz/BdffBz).
 
 * Change to `azure_infra` folder:
 
