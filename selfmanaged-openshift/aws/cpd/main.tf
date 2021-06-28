@@ -35,6 +35,7 @@ EOF
 resource "null_resource" "configure_cluster" {
   triggers = {
     installer_workspace = var.installer_workspace
+    cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -80,7 +81,7 @@ resource "null_resource" "download_cloudctl" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-  echo "Download cloudctl and aiopenscale case package."
+  echo "Download cloudctl."
 case $(uname -s) in
   Darwin)
     wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz'
