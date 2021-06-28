@@ -11,12 +11,10 @@ Cloud Pak for Data offers a try and buy experience.  Read and agree to the [lice
 The automated template deploys the Cloud Pak for Data environment by using Azure Resource Manager templates.
 The deployment template includes configuration parameters that you can customize. Some of these settings, such as instance count, will affect the cost of the deployment. For cost estimates, see the [pricing](https://azure.microsoft.com/en-in/pricing/details/openshift) for ARO. Prices are subject to change.
 
-**TRIAL:**<br/>
 To request a 60 day trial license of Cloud Pak for Data please use the following link - [IBM Cloud Pak for Data Trial](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212).
 Instructions to use your trial license/key are provided in the section - [IBM Cloud Pak for Data Trial key](#IBM-Cloud-Pak-for-Data-Trial-key).
 Beyond the 60 day period, you will need to purchase the Cloud Pak for Data by following the instructions in the 'Purchase' section below.
 
-**PURCHASE:**<br/>
 To get pricing information, or to use your existing Cloud Pak for Data entitlements, contact your IBM sales representative at 1-877-426-3774. 
 Note: Cloud Pak for Data license will include entitlements to RHEL and Openshift.
 
@@ -54,7 +52,7 @@ The Service Principal can be created by running the azure CLI commands from any 
 
 3. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for Cloud Pak for Data Trial Key if you don't have the entitlement api key
 
-4. Read and agree to the [license terms](https://ibm.biz/BdqyB2)
+4. Read and agree to the [license terms](https://ibm.biz/BdffBz)
 
 ### Deploy
 
