@@ -1,11 +1,11 @@
 
-# Cloud Pak for Data 3.5 on OCP 4.6 on AWS
+# Cloud Pak for Data 4.0 on OCP 4.6 on AWS
 
 ## Deployment Topology:
 
 Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
 
-![Alt text](images/aws-multi-zone.jpg)
+![Alt text](images/aws_arch.png)
 
 The deployment sets up the following as shown in the diagram.
  - A highly available architecture that spans one or three Availability Zones.
@@ -95,6 +95,6 @@ After openshift cluster installation is finished and cloud pak for data installa
 * For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
 
 ### Changelog
-* CPD 4.0
+* Upgrade to CPD 4.0
 * Removed the bastion node
 * Dropped support for EFS.

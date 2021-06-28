@@ -76,10 +76,7 @@ class AWSGenericHelper():
         'db2_warehouse': 9,
         'datastage': 6,
         'cognos_analytics': 11,
-        'db2_advanced_edition': 5,
-        'decision_optimization': 1,
         'spss_modeler': 11,
-        'db2_bigsql': 48,
     }
 
     def __init__(self, aws_config):

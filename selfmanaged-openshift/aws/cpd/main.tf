@@ -50,8 +50,7 @@ case $(uname -s) in
     echo 'Supports only Linux and Mac OS at this time'
     exit 1;;
 esac
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com":{"auth":"'$pull_secret'"\},|' > /tmp/dockerconfig.json
-sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' /tmp/dockerconfig.json
+oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"},|' > /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 echo "Creating MachineConfig files"
@@ -211,9 +210,9 @@ sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator ${local.operator_namespace}
 
 echo "Create CCS CR"
-# oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
-# sleep 3
-# bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
+oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
+sleep 3
+bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
 
 echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
 oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml
