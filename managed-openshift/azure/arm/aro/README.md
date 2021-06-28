@@ -1,15 +1,15 @@
-# Cloud Pak for Data 3.5 on Azure
+# Cloud Pak for Data on Azure
 
 Cloud Pak for Data is an analytics platform that helps you prepare your data for AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on Azure.
 
 Cloud Pak for Data uses Azure services and features, including VNets, Availability Zones, Availability Sets, security groups, Managed Disks, and Azure Load Balancers to build a reliable and scalable cloud platform.
 
-This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a Red Hat OpenShift Container Platform 4.6 cluster on Azure. With this Template, you can automatically deploy a multi-master, production instance of Cloud Pak for Data. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
+This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a [Azure Red Hat OpenShift (ARO)](https://azure.microsoft.com/en-in/services/openshift/#overview) Container Platform 4.6 cluster on Azure. With this Template, you can automatically deploy a multi-master, production instance of Cloud Pak for Data. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
 
 ## Cost and licenses
-Cloud Pak for Data offers a try and buy experience.
+Cloud Pak for Data offers a try and buy experience.  Read and agree to the [license terms](https://ibm.biz/BdffBz)
 The automated template deploys the Cloud Pak for Data environment by using Azure Resource Manager templates.
-The deployment template includes configuration parameters that you can customize. Some of these settings, such as instance count, will affect the cost of the deployment. For cost estimates, see the pricing page for each Azure service you will be using. Prices are subject to change.
+The deployment template includes configuration parameters that you can customize. Some of these settings, such as instance count, will affect the cost of the deployment. For cost estimates, see the [pricing](https://azure.microsoft.com/en-in/pricing/details/openshift) for ARO. Prices are subject to change.
 
 **TRIAL:**<br/>
 To request a 60 day trial license of Cloud Pak for Data please use the following link - [IBM Cloud Pak for Data Trial](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212).
@@ -94,7 +94,7 @@ As part of the deployment, the following services can be enabled:
 •	Apache Spark
 
 
-To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html)
+To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_latest/svc-nav/head/services.html)
 
 ## Troubleshoot 
 
