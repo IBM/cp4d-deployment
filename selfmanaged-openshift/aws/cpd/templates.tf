@@ -763,6 +763,40 @@ spec:
 EOF
 }
 
+#DMC
+data "template_file" "dmc_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cloud-databases-redis-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: ibm-cloud-databases-redis-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-cloud-databases-redis-catalog@sha256:980e4182ec20a01a93f3c18310e0aa5346dc299c551bd8aca070ddf2a5bf9ca5
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-dmc-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: ibm-dmc-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-dmc-operator-catalog@sha256:a3a395ffec07b3f426718aed54ec164badfd55a7445c29f317da242409ae5d00
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+
 data "template_file" "dmc_cr" {
   template = <<EOF
 apiVersion: dmc.databases.ibm.com/v1
@@ -802,6 +836,28 @@ EOF
 }
 
 #CA
+data "template_file" "ca_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-ca-operator-catalog
+  labels:
+    app.kubernetes.io/instance: ibm-ca-operator
+    app.kubernetes.io/managed-by: ibm-ca-operator
+    app.kubernetes.io/name: ibm-ca-operator
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-ca-operator-catalog@sha256:b77c74d35a7405eb4997bd09d249266d1d2c007634f3b76afd3c7fa8e12280ee
+  displayName: ibm-ca-operator-catalog
+  publisher: IBM
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "ca_cr" {
   template = <<EOF
 apiVersion: ca.cpd.ibm.com/v1

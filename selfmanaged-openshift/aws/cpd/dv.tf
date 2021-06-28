@@ -3,6 +3,11 @@ resource "local_file" "dv_cr_yaml" {
   filename = "${local.cpd_workspace}/dv_cr.yaml"
 }
 
+resource "local_file" "dmc_catalog_source_yaml" {
+  content  = data.template_file.dmc_catalog_source.rendered
+  filename = "${local.cpd_workspace}/dmc_catalog_source.yaml"
+}
+
 resource "null_resource" "install_dv" {
   count = var.data_virtualization == "yes" ? 1 : 0
   triggers = {
@@ -13,7 +18,8 @@ resource "null_resource" "install_dv" {
     command = <<-EOF
 echo "Install DMC Operator dependency"
 wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dmc-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-dmc-4.0.0.tgz'
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dmc-4.0.0.tgz --namespace openshift-marketplace --action installCatalog --inventory dmcOperatorSetup --tolerance 1
+oc create -f ${self.triggers.cpd_workspace}/dmc_catalog_source.yaml
+sleep 3
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dmc-4.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory dmcOperatorSetup --tolerance 1
 
 echo "Creating DV Operator"
@@ -32,6 +38,7 @@ EOF
   }
   depends_on = [
     local_file.dv_cr_yaml,
+    local_file.dmc_catalog_source_yaml,
     null_resource.install_analyticsengine,
     null_resource.install_aiopenscale,
     null_resource.install_wml,

@@ -15,6 +15,7 @@ echo "Install CA Catalog and Operator"
 wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cognos-analytics-prod-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-cognos-analytics-prod-4.0.0.tgz'
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cognos-analytics-prod-4.0.0.tgz --namespace openshift-marketplace --action installCatalog --inventory ibmCaOperatorSetup --tolerance 1
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cognos-analytics-prod-4.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory ibmCaOperatorSetup --tolerance 1
+bash cpd/scripts/pod-status-check.sh ibm-ca-operator ${local.operator_namespace}
 
 echo "CA CR"
 oc create -f ${self.triggers.cpd_workspace}/ca_cr.yaml

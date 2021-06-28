@@ -14,6 +14,7 @@ resource "null_resource" "install_cde" {
 echo "Install CDE Operator"
 wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cde-2.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-cde-2.0.0.tgz'
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cde-2.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory cdeOperatorSetup --tolerance 1
+bash cpd/scripts/pod-status-check.sh ibm-cde-operator ${local.operator_namespace}
 
 echo "CDE CR"
 oc create -f ${self.triggers.cpd_workspace}/cde_cr.yaml

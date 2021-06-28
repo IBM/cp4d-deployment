@@ -6,7 +6,7 @@ NAMESPACE=$3
 SERVICE_STATUS=$4
 STATUS=$(oc get $SERVICE $CRNAME -n $NAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
 
-while [ "$STATUS" != "Completed" ];do
+while [[ $STATUS != "Complete" && $STATUS != "Completed" ]];do
     echo "Installing $CRNAME - Status: $STATUS !!!!"
     sleep 60 
     STATUS=$(oc get $SERVICE $CRNAME -n $NAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
