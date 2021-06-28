@@ -41,7 +41,7 @@ resource "null_resource" "configure_cluster" {
 echo "Configuring global pull secret"
 case $(uname -s) in
   Darwin)
-    pull_secret=$(echo -n "cp:${var.api_key}" | base64 -)
+    pull_secret=$(echo "cp:${var.api_key}" | base64 -)
     ;;
   Linux)
     pull_secret=$(echo -n "cp:${var.api_key}" | base64 -w0 -)

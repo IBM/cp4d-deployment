@@ -24,17 +24,10 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd` and `aws` CLIs:
+* Install `wget`, `htpasswd`, `jq` and `aws` CLIs:
   * RHEL:
   ```bash
-  yum install wget
-  yum install httpd-tools
-  yum install podman # (Only needed if using the IBM Portworx Freemium)
-  pip install awscli --upgrade --user
-  ```
-  * MacOS (comes with `htpasswd`):
-  ```bash
-  brew install wget
+  yum install wget jq httpd-tools -y
   pip install awscli --upgrade --user
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
