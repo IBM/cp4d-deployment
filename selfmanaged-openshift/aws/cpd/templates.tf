@@ -187,7 +187,6 @@ users:
 EOF
 }
 
-############
 data "template_file" "ibm_operator_catalog_source" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -639,6 +638,7 @@ apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: UG
 metadata:
   name: ug-cr
+  namespace: ${var.cpd_namespace}
 spec:
   version: "4.0.0"
   size: "small"
@@ -753,6 +753,7 @@ apiVersion: dfd.cpd.ibm.com/v1alpha1
 kind: DataStageService
 metadata:
   name: datastage-cr
+  namespace: ${var.cpd_namespace}
 spec:
   license:
     accept: true
@@ -768,6 +769,7 @@ apiVersion: dmc.databases.ibm.com/v1
 kind: Dmcaddon
 metadata:
   name: dmcaddon-cr
+  namespace: ${var.cpd_namespace}
 spec:
   namespace: zen
   storageClass: ${local.storage_class}
@@ -786,6 +788,7 @@ apiVersion: cde.cpd.ibm.com/v1
 kind: CdeProxyService
 metadata:
   name: cde-cr
+  namespace: ${var.cpd_namespace}
 spec:
   version: 4.0.0
   size: "small"
@@ -795,5 +798,23 @@ spec:
   license:
     accept: true
     license: Enterprise
+EOF
+}
+
+#CA
+data "template_file" "ca_cr" {
+  template = <<EOF
+apiVersion: ca.cpd.ibm.com/v1
+kind: CAService
+metadata:
+  name: ca-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
+  storage_class: "${local.storage_class}"
+  namespace: "${var.cpd_namespace}"
 EOF
 }
