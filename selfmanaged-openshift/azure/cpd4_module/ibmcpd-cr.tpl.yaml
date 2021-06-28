@@ -1,17 +1,12 @@
 apiVersion: cpd.ibm.com/v1
 kind: Ibmcpd
 metadata:
-  name: ibmcpd-cr
-  namespace: ${NAMESPACE}
+  name: ibmcpd-cr                                         # This is the recommended name, but you can change it
+  namespace: ${NAMESPACE}                                 # Replace with the project where you will install Cloud Pak for Data
 spec:
   license:
     accept: true
-    license: Enterprise
-  storageClass: "REPLACE_STORAGECLASS"
-  version: "4.0.0"
-
-  #iamIntegration: true #default is false
-  #zenCoreMetadbStorageClass: portworx-xxx
-  #zenCatalogSourceName: ibm-zen-operator-catalog #if using custom zen
-  #zenCatalogSourceNamespace: openshift-marketplace #must be non-empty if using custom zen
-  #storageVendor: <vendor> #(experienmental feature) set this key to enable storage vendor in zen
+    license: Enterprise                                   # Specify the Cloud Pak for Data license you purchased
+  storageClass: "REPLACE_STORAGECLASS"                    # Replace with the name of a RWX storage class
+  zenCoreMetadbStorageClass: "REPLACE_STORAGECLASS"       # (Recommended) Replace with the name of a RWO storage class
+  version: "4.0.1"

@@ -132,6 +132,7 @@ resource "null_resource" "vnet_creation" {
       "sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc",
       "cat > ${local.ocptemplates}/azure-cli.repo <<EOL\n${file("../openshift_module/azure-cli.repo")}\nEOL",
       "sudo mv ${local.ocptemplates}/azure-cli.repo /etc/yum.repos.d/azure-cli.repo",
+      "sudo yum update -y --disablerepo=* --enablerepo=\"*microsoft*\"",
       "sudo yum install azure-cli -y",
 
       ###################################################
