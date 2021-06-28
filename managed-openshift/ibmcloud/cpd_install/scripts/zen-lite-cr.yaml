@@ -1,13 +1,12 @@
-apiVersion: zen.cpd.ibm.com/v1
-kind: ZenService
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
 metadata:
-  name: lite-cr
+  name: ibmcpd-cr
   namespace: zen
 spec:
-  csNamespace: ibm-common-services
-  iamIntegration: true
-  version: 4.0.0
+  license:
+    accept: true
+    license: Enterprise
   storageClass: portworx-shared-gp3
-  cloudpakfordata: true #set this key if you want the ui to be cp4d
-  zenCoreMetaDbStorageClass: portworx-shared-gp3 #if using a second sc for zen metastoredb; otherwise use same value as storageClass
-  #cert_manager_enabled: false # default is true
+  zenCoreMetadbStorageClass: portworx-shared-gp3
+  version: 4.0.1  ## Here documentation states to use 4.0.0, but failing. we found out to use 4.0.1 here and it seems to install successfullly. 

@@ -1,12 +1,7 @@
 apiVersion: operator.ibm.com/v1alpha1
 kind: OperandRequest
 metadata:
-  name: zen-service
-  namespace: zen
+  name: empty-request
+  namespace: zen        # Replace with the project where you will install Cloud Pak for Data
 spec:
-  requests:
-    - operands:
-        - name: ibm-zen-operator
-        - name: ibm-cert-manager-operator
-      registry: common-service
-      registryNamespace: ibm-common-services
+  requests: []
