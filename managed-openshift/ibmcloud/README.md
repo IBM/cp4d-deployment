@@ -1,4 +1,4 @@
-# Cloud Pak for Data 3.5 on Red Hat OpenShift on IBM Cloud
+# Cloud Pak for Data 4.0 on Red Hat OpenShift on IBM Cloud
 
 [IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on IBM Cloud.
 
@@ -50,9 +50,9 @@ Refer to [User access permissions](https://cloud.ibm.com/docs/openshift?topic=op
 
 ## Cloud Pak for Data services
 
-As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
+As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_latest/svc-nav/head/services.html).
 
-* Lite (base)
+* Cloud Pak for Data Bedrock Services
 * Analytics Engine powered by Apache Spark
 * Data Virtualization
 * Watson Knowledge Catalog

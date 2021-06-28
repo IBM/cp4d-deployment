@@ -56,7 +56,7 @@ git clone <repo_url>
 cd cp4d-deployment/selfmanaged-openshift/aws/
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* Read the license at https://ibm.biz/Bdq6KP and accept it by setting variable `accept_cpd_license` to `accept`.
+* Read the license at https://ibm.biz/BdffBz and accept it by setting variable `accept_cpd_license` to `accept`.
 * If you want to hide sensitive data such as access_key_id or secret_access_key, create a `terraform.tfvars` file and write all the sensitive variables.
 ```
 Example:
@@ -88,6 +88,6 @@ After openshift cluster installation is finished and cloud pak for data installa
 * For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
 
 ### Changelog
-* Upgrade to CPD 4.0
+* Install CPD 4.0
 * Removed the bastion node
 * Dropped support for EFS.
