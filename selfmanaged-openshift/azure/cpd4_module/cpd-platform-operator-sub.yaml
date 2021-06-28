@@ -2,10 +2,10 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: cpd-operator
-  namespace: ibm-common-services
+  namespace: ibm-common-services    # The project that contains the Cloud Pak for Data operator
 spec:
   channel: stable-v1
   installPlanApproval: Automatic
   name: cpd-platform-operator
-  source: cpd-platform
+  source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace

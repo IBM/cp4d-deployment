@@ -1,9 +1,0 @@
-apiVersion: operator.openshift.io/v1alpha1
-kind: ImageContentSourcePolicy
-metadata:
-  name: cde-mirror-config
-spec:
-  repositoryDigestMirrors:
-  - mirrors:
-    - cp.stg.icr.io/cp/cpd
-    source: cp.icr.io/cp/cpd

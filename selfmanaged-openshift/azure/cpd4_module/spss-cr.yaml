@@ -7,9 +7,9 @@ spec:
   storageClass: "REPLACE_STORAGECLASS"
   scaleConfig: "small"
   architecture: "amd64"
-  namespace: "zen"
+  namespace: "REPLACE_NAMESPACE"
   operation: "install"
-  docker_registry_prefix: "cp.stg.icr.io/cp/cpd"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
   license:
     accept: true
     license: Enterprise

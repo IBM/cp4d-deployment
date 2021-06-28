@@ -1,5 +1,9 @@
 #!/bin/bash
 
+IS_DB2UOPERATOR=\$1
+
+if [ "\$IS_DB2UOPERATOR" == "yes" ]
+then 
 ## Create yaml of machinconfigpool for worker 
 echo -e "***** DB2 SYSCTL settings modifcations starting *****"
 echo -e "***** editing the machineconfigpool worker *****"
@@ -47,3 +51,9 @@ while true; do
     done
 
 echo -e "***** DB2 SYSCTL settings completed *****"
+
+else 
+
+echo -e "***** DB2U Operator is not selected *****"
+
+fi

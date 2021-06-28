@@ -1,123 +1,293 @@
+# Automated OpenShift v4 installation on AWS
 
-# Cloud Pak for Data 3.5 on OCP 4.6 on AWS (User Provisioned Infrastructure)
+This project automates the Red Hat OpenShift Container Platform 4.x installation on Amazon AWS platform. It focuses on the OpenShift User-provided infrastructure installation (UPI) where implementers provide pre-existing infrastructure including VMs, networking, load balancers, DNS configuration etc.
 
-## Deployment Topology
+* [Terraform Automation](#terraform-automation)
+* [Infrastructure Architecture](#infrastructure-architecture)
+* [Installation Procedure](#installation-procedure)
+* [Airgapped installation](#airgapped-installation)
+* [Removal procedure](#removal-procedure)
+* [Advanced topics](#advanced-topics)
 
-Deploying this template builds the following Cloud Pak for Data cluster in single zone or multi zone.
+## Terraform Automation
 
-#### CPD Installation using User Provisioned Infrastructure
-![Alt text](images/aws-multi-zone.jpg)
+This project uses mainly Terraform as infrastructure management and installation automation driver. All the user provisioned resource are created via the terraform scripts in this project.
 
-#### CPD Installation using a Mirror Registry
-![Alt text](images/mirror-architecture-diagram.png)
+### Prerequisites
 
-The deployment sets up the following as shown in the diagram.
- - A highly available architecture that spans one or three Availability Zones.
- - A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS.
- - In the public subnets:
-   - Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.
-   - A bootstrap server Amazon Elastic Compute Cloud (Amazon EC2) instance that also serves as a bastion host to allow inbound Secure Shell (SSH) access to EC2 instances in private subnets.
- - In the private subnets:
-   - OCP master instances up to three Availability Zones
-   - OpenShift Container Platform (OCP) compute nodes.
-   - Elastic Block Storage disks that are mounted on the compute nodes for container persistent data.
- - A Classic Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser. Internet traffic to this load balancer is only permitted from ContainerAccessCIDR.
- - A Network Load Balancer spanning the public subnets for accessing the OCP master instances. Internet traffic to this load balancer is only permitted from RemoteAccessCIDR.
- - A Network Load Balancer spanning the private subnets for routing internal OpenShift application programming interface (API) traffic to the OCP master instances.
- - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
- - A VPC Peering connectionn between two VPCs if installing the cluster using a Mirror Registry.
+1. To use Terraform automation, download the Terraform binaries [here](https://www.terraform.io/). The code here supports Terraform 0.12 - 0.12.13; there are warning messages to run this on 0.12.14 and later.
 
-### Steps to Deploy (CPD Installation using User Provisioned Infrastructure)
+   On MacOS, you can acquire it using [homebrew](brew.sh) using this command:
 
-1. Create a Route 53 domain.
-2. [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
-3. [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the entitlement API key.
-4. If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
-5. Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-6. Read the license at https://ibm.biz/BdqyB2 and accept it by setting variable `accept-cpd-license` to `accept`.
-7. If you want to hide sensitive data such as access_key_id or secret_access_key, remove the `default     = " " ` from `variables.tf` file against that variable.
+   ```bash
+   brew install terraform
+   ```
+
+2. Install git
+
+   ```bash
+   sudo yum intall git-all
+   git --version
+   ```
+
+3. Install OpenShift command line `oc` cli:
+
+   ```bash
+   wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.x.xx.tar.gz
+   tar -xvf openshift-client-linux-4.x.xx.tar.gz
+   chmod u+x oc kubectl
+   sudo mv oc /usr/local/bin
+   sudo mv kubectl /usr/local/bin
+   oc version
+   ```
+
+4. Install wget command:
+
+    - MacOS:
+      ```
+      brew install wget
+      ```
+    - Linux: (choose the command depending on your distribution)
+      ```
+      apt-get install wget
+      yum install wget
+      zypper install wget
+      ```
+
+4. Get the Terraform code
+
+   ```bash
+   git clone https://github.com/ibm-cloud-architecture/terraform-openshift4-aws.git
+   ```
+
+5. Prepare the DNS
+
+   OpenShift requires a valid DNS domain, you can get one from AWS Route53 or using existing domain and registrar. The DNS must be registered as a Public Hosted Zone in Route53. (Even if you plan to use an airgapped environment)
+
+6. Prepare AWS Account Access
+
+   Please reference the [Required AWS Infrastructure components](https://docs.openshift.com/container-platform/4.1/installing/installing_aws_user_infra/installing-aws-user-infra.html#installation-aws-user-infra-requirements_installing-aws-user-infra) to setup your AWS account before installing OpenShift 4.
+
+   We suggest to create an AWS IAM user dedicated for OpenShift installation with permissions documented above.
+   On the bastion host, configure your AWS user credential as environment variables:
+
+    ```bash
+    export AWS_ACCESS_KEY_ID=RKXXXXXXXXXXXXXXX
+    export AWS_SECRET_ACCESS_KEY=LXXXXXXXXXXXXXXXXXX/ng
+    export AWS_DEFAULT_REGION=us-east-2
+    ```
+
+## Infrastructure Architecture
+
+For detail on OpenShift UPI, please reference the following:
+
+* [https://docs.openshift.com/container-platform/4.1/installing/installing_aws_user_infra/installing-aws-user-infra.html](https://docs.openshift.com/container-platform/4.1/installing/installing_aws_user_infra/installing-aws-user-infra.html)
+* [https://github.com/openshift/installer/blob/master/docs/user/aws/install_upi.md](https://github.com/openshift/installer/blob/master/docs/user/aws/install_upi.md)
+
+The terraform code in this repository supports 3 installation modes:
+
+- External facing cluster in a private network: ![External Open](img/openshift_aws_external.png)
+
+- Internal cluster with internet access: ![Internal](img/openshift_aws_internal.png)
+
+- Airgapped cluster with no access: ![Airgapped](img/openshift_aws_airgapped.png)
+
+There are other installation modes that are possible with this terraform set, but we have not tested all the possible combinations, see [Advanced usage](#advanced-topics)
+
+## Installation Procedure
+
+This project installs the OpenShift 4 in several stages where each stage automates the provisioning of different components from infrastructure to OpenShift installation. The design is to provide the flexibility of different topology and infrastructure requirement.
+
+1. The deployment assumes that you run the terraform deployment from a Linux based environment. This can be performed on an AWS-linux EC2 instance. The deployment machine has the following requirements:
+
+    - git cli
+    - terraform 0.12 or later
+    - wget command
+
+2. Deploy the OpenShift 4 cluster using the following modules in the folders:
+
+ 	- route53: generate a private hosted zone using route 53
+  - vpc: Create the VPC, subnets, security groups and load balancers for the OpenShift cluster
+	- install: Build the installation files, ignition configs and modify YAML files
+	- iam: define AWS authorities for the masters and workers
+	- bootstrap: main module to provision the bootstrap node and generates OpenShift installation files and resources
+	- master: create master nodes manually (UPI)
+
+	You can also provision all the components in a single terraform main module, to do that, you need to use a terraform.tfvars, that is copied from the terraform.tfvars.example file. The variables related to that are:
+
+	Create a `terraform.tfvars` file with following content:
+
 ```
-Example:
+cluster_id = "ocp4-9n2nn"
+clustername = "ocp4"
+base_domain = "example.com"
+openshift_pull_secret = "./openshift_pull_secret.json"
+openshift_installer_url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest"
 
-variable "access_key_id" {
+aws_access_key_id = "AAAA"
+aws_secret_access_key = "AbcDefGhiJkl"
+aws_ami = "ami-06f85a7940faa3217"
+aws_extra_tags = {
+  "kubernetes.io/cluster/ocp4-9n2nn" = "owned",
+  "owner" = "admin"
+  }
+aws_azs = [
+  "us-east-1a",
+  "us-east-1b",
+  "us-east-1c"
+  ]
+aws_region = "us-east-1"
+aws_publish_strategy = "External"
+```
+
+|name | required  | description and value        |
+|----------------|------------|--------------|
+| `cluster_id` | yes | This id will be prefixed to all the AWS infrastructure resources provisioned with the script - typically using the clustername as its prefix.  |
+| `clustername`     | yes  | The name of the OpenShift cluster you will install     |
+| `base_domain` | yes | The domain that has been created in Route53 public hosted zone |
+| `openshift_pull_secret` | no | The value refers to a file name that contain downloaded pull secret from https://cloud.redhat.com/openshift/install; the default name is `openshift_pull_secret.json` |
+| `openshift_installer_url` | no | The URL to the download site for Red Hat OpenShift installation and client codes.  |
+| `aws_region`   | yes  | AWS region that the VPC will be created in.  By default, uses `us-east-2`.  Note that for an HA installation, the AWS selected region should have at least 3 availability zones. |
+| `aws_extra_tags`  | no  | AWS tag to identify a resource for example owner:myname     |
+| `aws_ami` | yes | Red Hat CoreOS ami for your region (see [here](https://docs.openshift.com/container-platform/4.2/installing/installing_aws_user_infra/installing-aws-user-infra.html#installation-aws-user-infra-rhcos-ami_installing-aws-user-infra)). Other platforms images information can be found [here](https://github.com/openshift/installer/blob/master/data/data/rhcos.json) |
+| `aws_secret_access_key` | yes | adding aws_secret_access_key to the cluster |
+| `aws_access_key_id` | yes | adding aws_access_key_id to the cluster |
+| `aws_azs` | yes | list of availability zones to deploy VMs |
+| `aws_publish_strategy` | no | Whether to publish the API endpoint externally - Default: "External" |
+| `airgapped` | no | A map with enabled (true/false) and repository name - This must be used with `aws_publish_strategy` of `Internal` |
+
+
+See [Terraform documentation](https://www.terraform.io/intro/getting-started/variables.html) for the format of this file.
+
+### Deploying the cluster
+
+Initialize the Terraform:
+
+```bash
+terraform init
+```
+
+Run the terraform provisioning:
+
+```bash
+terraform plan
+terraform apply
+```
+
+### Removing bootstrap node
+ 
+Once the cluster is installed, the bootstrap node is no longer used at all. One of the indication that the bootstrap has been completed is that the API load balancer target group shows that the bootstrap address is `unhealthy`. 
+
+```
+terraform destroy -target=module.bootstrap.aws_instance.bootstrap
+```
+
+
+
+## Airgapped Installation
+
+For performing a completely airgapped cluster, there are two capabilities that would not be available from the cluster's automation capabilities, the IAM and Route53 management access. The airgapped solution can address this by pre-creating the roles and secret that are needed for OpenShift to complete its functions, but the DNS update on Route53 must be performed manually after the installation.
+
+Setting up the mirror repository using AWS ECR:
+
+1. Create the repository
+
+    ```
+    aws ecr create-repository --repository-name ocp435
+    ```
+
+2. Prepare your credential to access the ECR repository (ie the credential only valid for 12 hrs)
+
+    ```
+    aws ecr get-login
+    ```
+
+    Extract the password token (`-p` argument) and create a Base64 string:
+
+    ```
+    echo "AWS:<token>" | base64 -w0
+    ```
+
+    Put that into your pull secret:
+
+    ```
+    {"353456611220.dkr.ecr.us-east-1.amazonaws.com":{"auth":"<base64string>","email":"abc@example.com"}}
+    ```
+
+3. Mirror quay.io and other OpenShift source into your repository
+
+    ```
+    export OCP_RELEASE="4.3.5-x86_64"
+    export LOCAL_REGISTRY='1234567812345678.dkr.ecr.us-east-1.amazonaws.com'
+    export LOCAL_REPOSITORY='ocp435'
+    export PRODUCT_REPO='openshift-release-dev'
+    export LOCAL_SECRET_JSON='/home/ec2-user/openshift_pull_secret.json'
+    export RELEASE_NAME="ocp-release"
+
+    oc adm -a ${LOCAL_SECRET_JSON} release mirror --max-per-registry=1 \
+       --from=quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE} \
+       --to=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY} \
+       --to-release-image=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}:${OCP_RELEASE}
+    ```
+
+Once the mirror registry is created - use the terraform.tfvars similar to below:
+
+```
+cluster_id = "ocp4-9n2nn"
+clustername = "ocp4"
+base_domain = "example.com"
+openshift_pull_secret = "./openshift_pull_secret.json"
+openshift_installer_url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest"
+
+aws_access_key_id = "AAAA"
+aws_secret_access_key = "AbcDefGhiJkl"
+aws_ami = "ami-06f85a7940faa3217"
+aws_extra_tags = {
+  "kubernetes.io/cluster/ocp4-9n2nn" = "owned",
+  "owner" = "admin"
+  }
+aws_azs = [
+  "us-east-1a",
+  "us-east-1b",
+  "us-east-1c"
+  ]
+aws_region = "us-east-1"
+aws_publish_strategy = "Internal"
+airgapped = {
+  enabled = true
+  repository = "1234567812345678.dkr.ecr.us-east-1.amazonaws.com/ocp435"
 }
 ```
-8. Create file `osaws_var.tfvars` and write all the sensitive variables for which no `default     = " " ` value is provided in `variables.tf` file.
-```
-Example:
 
-cat osaws_var.tfvars
+**Note**: To use `airgapped.enabled` of `true` must be done with `aws_publish_strategy` of `Internal` otherwise the deployment will fail.
 
-access_key_id = "xxxxxxxxxxxxxxxxxxxxxxx"
-secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
-```
-9. Change the current directory to aws_infra:
-```
-cd cp4d-deployment-master/UPI/aws/aws_infra
-```
-10. Deploy scripts by executing the following command from the `cp4d-deployment-master/UPI/aws/aws_infra` directory:
-```bash
-terraform init
-terraform apply -var-file="Path To osaws_var.tfvars file"
-```
+Create your cluster and then associate the private Hosted Zone Record in Route53 with the loadbalancer for the `*.apps.<cluster>.<domain>`.  
 
-### Steps to Deploy (CPD Installation using a Mirror Registry)
+## Removal Procedure
 
-1. Create a Mirror Registry, follow the steps here [Mirror Registry Creation](../mirror-registry) .
-2. Follow the steps 1 to 9 from "CPD Installation using User Provisioned Infrastructure" above.
-3. Copy `/opt/registry/certs/domain.crt` file from the RHEL server where Mirror Registry is created to the current installer machine.
-4. Update the `pull-Secret` file's value to contain the authentication information for your mirror registry. 
-```
-pullSecret: '{"auths":{"<local_registry>:<port>": {"auth": "<credentials>","email": "you@example.com"}}}'
-```
-* For `<local_registry>:<port>`, specify the `registry domain name` and the `port` that your mirror registry uses to serve content. 
-* You can get the value of `local_registry` and `port` from the `imageContentSources` section generated during creation of Mirror Registry.
-```
-Example:
-ip-10-5-13-111.eu-north-1.compute.internal:5000
-```
-* For `<credentials>`, specify the `base64-encoded` `username` and `password` that you provided for creating the mirror registry.
- ```
- Example: (execute it in a Linux machine)
- echo -n '<user_name>:<password>' | base64 -w0 
- 
- BGVtbYk3ZHAtqXs=
- ```
- 5. If you selected `OCS` as the storage type, follow below steps to setup `OCS` in a disconnected environment.
-   * Copy `ocs-disconnected.sh` [script](../mirror-registry) to the `Mirror Registry ec2 machine` where other mirror registry 
-   scripts are present.
-   * Make sure `pull-secret.json` generated during mirror registry setup is present in that directory.
-   * Change the script mode to executable, `chmod +x ocs-disconnected.sh`.
-   * Execute the script as `./ocs-disconnected.sh MIRROR_REGISTRY_DNS` where `MIRROR_REGISTRY_DNS` is `<local_registry>:<port>` value from the `imageContentSources` section, from the output of the command for creating mirror registry. 
-   Example ip-0-0-0-0.eu-west-3.compute.internal:5000
-   * This script will build and mirror the catalog for redhat-operators. This is a long operation and will take more then 5 hours.
-   * Once the build and mirroring is complete, `redhat-operators-manifests/imageContentSourcePolicy.yaml` file gets created. Copy this file to your local
-   system. You have to input it's local path as an input to `imageContentSourcePolicy-path` variable in `variables.tf` file while
-   creating the cluster.
- 6. Deploy scripts by executing the following command from the `cp4d-deployment-master/UPI/aws/aws_infra` directory:
-```bash
-terraform init
-terraform apply -var-file="Path To osaws_var.tfvars file"
-```
- 7. Once installation is completed copy `$HOME/auth/kubeconfig` file from  cluster to the Mirror ec2 instance. To access the
- cluster execute `export KUBECONFIG="path on mirror machine to\kubeconfig"` on mirror ec2 instance. 
-#### Note:
-If for some reason your installation failed and you trying to run terraform apply again after destroying the remaining resources, make sure to edit the route of Mirror registry instance that you provided in variables.tf file `variable "mirror-routetable-id"`and remove the vpc peering connection in the status `blackhole` before starting the next run. Example [here](images/vpc-peering.png) remove the entry for route containing the vpc peering (pcx-xxxx) detail in the status `blackhole`.
-### Destroying the cluster
-Execute:
-  ```bash
-  terraform destroy -var-file="Path To osaws_var.tfvars file"
-  aws cloudformation delete-stack --stack-name vpc-stack
-  ``` 
-* It will take around five minutes to destroy vpc stack. You can check the status using `aws cloudformation describe-stacks --stack-name vpc-stack` or from your aws console's `CloudFormation` service.
+For the removal of the cluster, there are several considerations for removing AWS resources that are created by the cluster directly, but not using Terraform. These resources are unknown to terraform and must be deleted manually from AWS console.
+Some of these resources also hamper the ability to run `terraform destroy` as it becomes a dependent resource that prevent its parent resource to be deleted.
 
-### Note:
-Elastic File System is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
-see [Elastic File System](https://docs.openshift.com/container-platform/4.3/storage/persistent_storage/persistent-storage-efs.html).
-[Red Hat Technology Preview Features](https://access.redhat.com/support/offerings/techpreview/)
+The cluster created resources are:
 
-## Reference 
+- Resources that prevents `terraform destroy` to be completed:
+  - Worker EC2 instances
+  - Application Load Balancer (classic load balancer) for the `*.apps.<cluster>.<domain>`
+  - Security Group for the application load balancer
+- Other resources that are not deleted:
+  - S3 resource for image-registry
+  - IAM users for the cluster
+  - Public Route53 Record set associated with the application load balancer
 
-The User Provisioned Infrastructure documentation from Redhat can be found here. 
 
-https://docs.openshift.com/container-platform/4.6/installing/installing_aws/installing-aws-user-infra.html
+**Update 11/2020**: A `delocp.sh` is added to remove resources - if you have the aws CLI; however the script does not account for timing just yet.
+
+## Advanced topics
+
+Additional configurations and customization of the implementation can be performed by changing some of the default variables.
+You can check the variable contents in the following terraform files:
+
+- variable-aws.tf: AWS related customization, such as machine sizes and network changes
+- config.tf: common installation variables for installation (not cloud platform specific)
+
+**Note**: Not all possible combinations of options has been tested - use them at your own risk. 
