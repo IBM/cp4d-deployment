@@ -367,14 +367,11 @@ variable "db2_warehouse" {
   default = "no"
 }
 
-variable "db2_advanced_edition" {
-  default = "no"
-}
-
 variable "cognos_analytics" {
   default = "no"
 }
 
-variable "decision_optimization" {
+
+variable "data_management_console" {
   default = "no"
 }

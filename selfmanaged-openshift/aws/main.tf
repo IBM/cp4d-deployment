@@ -204,11 +204,9 @@ module "cpd" {
   cognos_dashboard_embedded = var.cognos_dashboard_embedded
   datastage                 = var.datastage
   db2_warehouse             = var.db2_warehouse
-  db2_advanced_edition      = var.db2_advanced_edition
-  decision_optimization     = var.decision_optimization
   cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
-  db2_bigsql                = var.db2_bigsql
+  data_management_console              = var.data_management_console
 
   depends_on = [
     module.ocp,

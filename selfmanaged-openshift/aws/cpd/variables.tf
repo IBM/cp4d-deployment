@@ -127,10 +127,6 @@ variable "db2_warehouse" {
   default = "no"
 }
 
-variable "db2_advanced_edition" {
-  default = "no"
-}
-
 variable "data_management_console" {
   default = "no"
 }
@@ -139,22 +135,10 @@ variable "datagate" {
   default = "no"
 }
 
-variable "decision_optimization" {
-  default = "no"
-}
-
 variable "cognos_analytics" {
   default = "no"
 }
 
 variable "spss_modeler" {
-  default = "no"
-}
-
-variable "db2_bigsql" {
-  default = "no"
-}
-
-variable "planning_analytics" {
   default = "no"
 }

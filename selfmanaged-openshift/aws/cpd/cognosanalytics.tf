@@ -37,6 +37,6 @@ EOF
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
     null_resource.login_cluster,
-    null_resource.cde,
+    null_resource.install_cde,
   ]
 }
