@@ -1,20 +1,16 @@
 #!/bin/bash
 
-ARTIFACTORY_USER=$1
-ARTIFACTORY_TOKEN=$2
+ENTITLEMENT_USER=$1
+ENTITLEMENT_KEY=$2
 
-pull_secret=$(echo -n "$ARTIFACTORY_USER:$ARTIFACTORY_TOKEN" | base64 -w0)
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"hyc-cp4d-team-bootstrap-docker-local.artifactory.swg-devops.com":{"auth":"'$pull_secret'"\},|' > /tmp/dockerconfig.json
-sed -i -e 's|:{|:{"hyc-cp4d-team-bootstrap-2-docker-local.artifactory.swg-devops.com":{"auth":"'$pull_secret'"\},|' /tmp/dockerconfig.json
-sed -i -e 's|:{|:{"hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com":{"auth":"'$pull_secret'"\},|' /tmp/dockerconfig.json
-oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+pull_secret=$(echo -n "$ENTITLEMENT_USER:$ENTITLEMENT_KEY" | base64 -w0)
 
-STAGING_USER="iamapikey"
-STAGING_APIKEY=""
+# Retrieve the current global pull secret
+oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > /tmp/dockerconfig.json
 
-pull_secret=$(echo -n "$STAGING_USER:$STAGING_APIKEY" | base64 -w0)
-echo -n "$STAGING_USER:$STAGING_APIKEY" | base64 -w0
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.stg.icr.io/cp/cpd":{"auth":"'$pull_secret'"\},|' > /tmp/dockerconfig.json
+sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' /tmp/dockerconfig.json
+
+
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 # copy to current directory

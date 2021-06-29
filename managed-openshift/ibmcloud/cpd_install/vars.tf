@@ -13,6 +13,8 @@ variable "cpd_registry" {}
 variable "cpd_registry_username" {}
 variable "artifactory_username" {}
 variable "artifactory_apikey" {}
+variable "entitlement_user" {}
+variable "entitlement_key" {}
 variable "gituser" {}
 variable "git_token" {}
 variable "gituser_short" {}

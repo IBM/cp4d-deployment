@@ -80,6 +80,8 @@ module "cpd_install" {
   cpd_registry_username = var.cpd_registry_username
   artifactory_username  = var.artifactory_username
   artifactory_apikey    = var.artifactory_apikey
+  entitlement_user      = var.entitlement_user
+  entitlement_key       = var.entitlement_key
   gituser               = var.gituser
   git_token             = var.git_token
   gituser_short         = var.gituser_short
