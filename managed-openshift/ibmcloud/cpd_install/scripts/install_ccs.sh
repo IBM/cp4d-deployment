@@ -1,35 +1,20 @@
 #!/bin/bash
 
-# Set up image mirroring. Adding bootstrap artifactory so that the cluster can pull un-promoted catalog images (and zen images)
 
-# echo  '*************************************'
-# echo 'setting up imagecontentsource policy for ccs'
-# echo  '*************************************'
+# Install ccs operator
 
-# echo '*** executing **** oc create -f ccs-mirror.yaml'
-# result=$(oc create -f ccs-mirror.yaml)
-# echo $result
-# sleep 5m
+wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-ccs-1.0.0.tgz
 
 
-# # create ccs catalog source 
+CASE_PACKAGE_NAME="ibm-ccs-1.0.0.tgz"
+NAMESPACE="ibm-common-services"
 
-# echo '*** executing **** oc create -f ccs-catalog-source.yaml'
-# result=$(oc create -f ccs-catalog-source.yaml)
-# echo $result
-# sleep 1m
+cloudctl case launch --case ./${CASE_PACKAGE_NAME} \
+    --tolerance 1 --namespace ${NAMESPACE}         \
+    --action installOperator                        \
+    --inventory ccsSetup                            \
+    --args "--registry cp.icr.io"
 
-# Create ccs subscription. This will deploy the ccs: 
-
-# echo '*** executing **** oc create -f ccs-sub.yaml'
-# result=$(oc create -f ccs-sub.yaml -n ibm-common-services)
-# echo $result
-# sleep 1m
-
-# Install ccs operator using CLI (OLM)
-
-curl -s https://${GITUSER_SHORT}:${GIT_TOKEN}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-ccs/1.0.0-746/ibm-ccs-1.0.0-746.tgz -o ibm-ccs-1.0.0-746.tgz
-./install-ccs-operator.sh ibm-ccs-1.0.0-746.tgz ibm-common-services
 
 # Checking if the ccs operator pods are ready and running. 
 
