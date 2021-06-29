@@ -45,6 +45,12 @@ variable "artifactory_username" {
 variable "artifactory_apikey" {
   description = "artifactory apikey"
 }
+variable "entitlement_user" {
+  description = "entitlement username"
+}
+variable "entitlement_key" {
+  description = "entitlement key"
+}
 variable "gituser" {
   description = "git user"
 }

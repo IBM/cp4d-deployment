@@ -8,8 +8,8 @@ resource "null_resource" "bedrock_zen_operator" {
   
   provisioner "local-exec" {
     environment = {
-      ARTIFACTORY_USERNAME = var.artifactory_username
-      ARTIFACTORY_APIKEY = var.artifactory_apikey
+      ENTITLEMENT_USER = var.entitlement_user
+      ENTITLEMENT_KEY = var.entitlement_key
       CLUSTER_NAME = "${var.unique_id}-cluster"
       IBMCLOUD_APIKEY = var.ibmcloud_api_key
       IBMCLOUD_RG_NAME = var.resource_group_name
