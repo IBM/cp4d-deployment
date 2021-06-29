@@ -2,6 +2,8 @@ locals {
   classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
+  cpd_case_url = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
+  db2aaservice = (var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
@@ -24,12 +26,10 @@ resource "null_resource" "login_cluster" {
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
-    openshift_token     = var.openshift_token
-    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true
 EOF
   }
 }
@@ -37,13 +37,14 @@ EOF
 resource "null_resource" "configure_cluster" {
   triggers = {
     installer_workspace = var.installer_workspace
+    cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Configuring global pull secret"
 case $(uname -s) in
   Darwin)
-    pull_secret=$(echo -n "cp:${var.api_key}" | base64 -)
+    pull_secret=$(echo "cp:${var.api_key}" | base64 -)
     ;;
   Linux)
     pull_secret=$(echo -n "cp:${var.api_key}" | base64 -w0 -)
@@ -52,9 +53,12 @@ case $(uname -s) in
     echo 'Supports only Linux and Mac OS at this time'
     exit 1;;
 esac
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com":{"auth":"'$pull_secret'"\},|' > /tmp/dockerconfig.json
-sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' /tmp/dockerconfig.json
+oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"},|' > /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+
+echo "Sysctl changes"
+oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
 
 echo "Creating MachineConfig files"
 oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
@@ -79,7 +83,7 @@ resource "null_resource" "download_cloudctl" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-  echo "Download cloudctl and aiopenscale case package."
+  echo "Download cloudctl."
 case $(uname -s) in
   Darwin)
     wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz'
@@ -213,9 +217,9 @@ sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator ${local.operator_namespace}
 
 echo "Create CCS CR"
-# oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
-# sleep 3
-# bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
+oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
+sleep 3
+bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
 
 echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
 oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml

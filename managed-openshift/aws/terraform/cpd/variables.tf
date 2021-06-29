@@ -21,7 +21,6 @@ variable "openshift_token" {
 
 variable "login_cmd" {
   type = string
-  default = ""
 }
 
 variable "installer_workspace" {
@@ -35,16 +34,6 @@ variable "accept_cpd_license" {
   default = "reject"
 }
 
-variable "cpd_external_registry" {
-  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
-}
-
-variable "cpd_external_username" {
-  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
-}
-
 variable "api_key" {
   description = "Repository APIKey or Registry password"
   default = ""
@@ -52,11 +41,6 @@ variable "api_key" {
 
 variable "cpd_namespace" {
   default = "zen"
-}
-
-variable "vpc_id" {
-  type = string
-  default = ""
 }
 
 variable "storage_option" {
@@ -92,10 +76,6 @@ variable "cloudctl_version" {
   default = "v3.7.1"
 }
 
-variable "datacore_version" {
-  default = "1.3.3"
-}
-
 variable "data_virtualization" {
   default = "no"
 }
@@ -124,14 +104,6 @@ variable "cognos_dashboard_embedded" {
   default = "no"
 }
 
-variable "streams" {
-  default = "no"
-}
-
-variable "streams_flows" {
-  default = "no"
-}
-
 variable "datastage" {
   default = "no"
 }
@@ -140,23 +112,7 @@ variable "db2_warehouse" {
   default = "no"
 }
 
-variable "db2_advanced_edition" {
-  default = "no"
-}
-
 variable "data_management_console" {
-  default = "no"
-}
-
-variable "datagate" {
-  default = "no"
-}
-
-variable "decision_optimization" {
-  default = "no"
-}
-
-variable "cognos_analytics" {
   default = "no"
 }
 
@@ -164,10 +120,10 @@ variable "spss_modeler" {
   default = "no"
 }
 
-variable "db2_bigsql" {
+variable "db2aaservice" {
   default = "no"
 }
 
-variable "planning_analytics" {
+variable "cognos_analytics" {
   default = "no"
 }
