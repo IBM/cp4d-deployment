@@ -12,7 +12,7 @@ resource "local_file" "wos_sub_yaml" {
 resource "null_resource" "install_aiopenscale" {
   count = var.watson_ai_openscale == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

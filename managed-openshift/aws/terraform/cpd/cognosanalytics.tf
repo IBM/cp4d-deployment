@@ -6,7 +6,7 @@ resource "local_file" "ca_cr_yaml" {
 resource "null_resource" "install_ca" {
   count = var.cognos_analytics == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

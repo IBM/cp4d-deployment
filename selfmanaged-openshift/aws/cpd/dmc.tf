@@ -11,7 +11,7 @@ resource "local_file" "dmc_catalog_source_yaml" {
 resource "null_resource" "install_dmc" {
   count = var.data_management_console == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

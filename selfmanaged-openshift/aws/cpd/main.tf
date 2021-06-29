@@ -42,18 +42,7 @@ resource "null_resource" "configure_cluster" {
   provisioner "local-exec" {
     command = <<EOF
 echo "Configuring global pull secret"
-case $(uname -s) in
-  Darwin)
-    pull_secret=$(echo "cp:${var.api_key}" | base64 -)
-    ;;
-  Linux)
-    pull_secret=$(echo -n "cp:${var.api_key}" | base64 -w0 -)
-    ;;
-  *)
-    echo 'Supports only Linux and Mac OS at this time'
-    exit 1;;
-esac
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"},|' > /tmp/dockerconfig.json
+oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"${var.cpd_external_registry}":{"username":"${var.cpd_external_username}","password":"${var.cpd_api_key}"},|' > /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 echo "Sysctl changes"

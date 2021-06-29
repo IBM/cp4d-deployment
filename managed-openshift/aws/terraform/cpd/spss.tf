@@ -12,7 +12,7 @@ resource "local_file" "spss_sub_yaml" {
 resource "null_resource" "install_spss" {
   count = var.spss_modeler == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

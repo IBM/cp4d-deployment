@@ -6,7 +6,7 @@ resource "local_file" "dv_cr_yaml" {
 resource "null_resource" "install_dv" {
   count = var.data_virtualization == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

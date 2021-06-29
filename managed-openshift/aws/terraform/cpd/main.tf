@@ -2,8 +2,8 @@ locals {
   classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
-  cpd_case_url = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
-  db2aaservice = (var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
+  cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
+  db2aaservice       = (var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
@@ -23,9 +23,9 @@ resource "local_file" "crio_machineconfig_yaml" {
 
 resource "null_resource" "login_cluster" {
   triggers = {
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
+    openshift_api      = var.openshift_api
+    openshift_username = var.openshift_username
+    openshift_password = var.openshift_password
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -37,23 +37,12 @@ EOF
 resource "null_resource" "configure_cluster" {
   triggers = {
     installer_workspace = var.installer_workspace
-    cpd_workspace = local.cpd_workspace
+    cpd_workspace       = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
 echo "Configuring global pull secret"
-case $(uname -s) in
-  Darwin)
-    pull_secret=$(echo "cp:${var.api_key}" | base64 -)
-    ;;
-  Linux)
-    pull_secret=$(echo -n "cp:${var.api_key}" | base64 -w0 -)
-    ;;
-  *)
-    echo 'Supports only Linux and Mac OS at this time'
-    exit 1;;
-esac
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"},|' > /tmp/dockerconfig.json
+oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"${var.cpd_external_registry}":{"username":"${var.cpd_external_username}","password":"${var.cpd_api_key}"},|' > /tmp/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 echo "Sysctl changes"
@@ -128,7 +117,7 @@ resource "local_file" "lite_cr_yaml" {
 
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
 
@@ -205,7 +194,7 @@ resource "local_file" "ccs_dr_catalogs_yaml" {
 
 resource "null_resource" "install_ccs" {
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
 

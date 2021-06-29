@@ -12,7 +12,7 @@ resource "local_file" "analyticsengine_sub_yaml" {
 resource "null_resource" "install_analyticsengine" {
   count = var.analytics_engine == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

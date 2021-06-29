@@ -121,28 +121,28 @@ variable "availability_zone3" {
 # Existing Openshift Cluster Variables
 #############################
 variable "existing_cluster" {
-  type = bool
+  type        = bool
   description = "Set true if you already have a running Openshift Cluster and you only want to install CPD."
-  default = false
+  default     = false
 }
 
 variable "existing_openshift_api" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "existing_openshift_username" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "existing_openshift_password" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "existing_openshift_token" {
-  type = string
+  type    = string
   default = ""
 }
 ##################################
@@ -151,7 +151,7 @@ variable "existing_openshift_token" {
 # New Openshift Cluster Variables
 ##################################
 variable "worker_instance_type" {
-  type = string
+  type    = string
   default = "m5.4xlarge"
 }
 
@@ -176,7 +176,7 @@ variable "worker_replica_count" {
 }
 
 variable "master_instance_type" {
-  type = string
+  type    = string
   default = "m5.2xlarge"
 }
 
@@ -218,7 +218,7 @@ variable "service_network_cidr" {
 variable "private_cluster" {
   type        = bool
   description = "Endpoints should resolve to Private IPs"
-  default = false
+  default     = false
 }
 
 variable "openshift_pull_secret_file_path" {
@@ -247,7 +247,7 @@ variable "openshift_password" {
 }
 
 variable "enable_autoscaler" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -257,37 +257,37 @@ variable "enable_autoscaler" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable = true
+    enable                       = true
     dedicated_node_instance_type = "m5.4xlarge"
   }
 }
 
 variable "portworx_enterprise" {
-  type = map(string)
+  type        = map(string)
   description = "See PORTWORX.md on how to get the Cluster ID."
   default = {
-    enable = false
-    cluster_id = ""
+    enable            = false
+    cluster_id        = ""
     enable_encryption = true
   }
 }
 
 variable "portworx_essentials" {
-  type = map(string)
+  type        = map(string)
   description = "See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint"
   default = {
-    enable = false
-    cluster_id = ""
-    user_id = ""
+    enable       = false
+    cluster_id   = ""
+    user_id      = ""
     osb_endpoint = ""
   }
 }
 
 variable "portworx_ibm" {
-  type = map(string)
+  type        = map(string)
   description = "This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes"
   default = {
-    enable = false
+    enable              = false
     ibm_px_package_path = "" # absolute file path to the folder containing the cpd*-portworx*.tgz package
   }
 }
@@ -296,27 +296,26 @@ variable "portworx_ibm" {
 
 variable "accept_cpd_license" {
   description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
-  default = "reject"
+  default     = "reject"
 }
 
 variable "cpd_external_registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = "cp.icr.io"
 }
 
 variable "cpd_external_username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = "cp"
 }
 
-variable "api_key" {
+variable "cpd_api_key" {
   description = "Repository APIKey or Registry password"
-  default = ""
 }
 
 variable "cpd_namespace" {
   description = "Openshift Namespace to deploy CPD into"
-  default = "zen"
+  default     = "zen"
 }
 
 variable "cloudctl_version" {
@@ -325,7 +324,7 @@ variable "cloudctl_version" {
 
 variable "openshift_version" {
   description = "Version >= 4.6.27"
-  default = "4.6.31"
+  default     = "4.6.31"
 }
 
 variable "data_virtualization" {
@@ -371,7 +370,6 @@ variable "db2_warehouse" {
 variable "cognos_analytics" {
   default = "no"
 }
-
 
 variable "data_management_console" {
   default = "no"

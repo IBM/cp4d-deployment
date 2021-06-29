@@ -1,11 +1,11 @@
 locals {
-  crio_config_data = base64encode(file("cpd/config/crio.conf"))
+  crio_config_data   = base64encode(file("cpd/config/crio.conf"))
   limits_config_data = base64encode(file("cpd/config/limits.conf"))
   sysctl_config_data = base64encode(file("cpd/config/sysctl.conf"))
-  license = var.accept_cpd_license == "accept" ? true : false
-  override = var.storage_option == "efs" ? "" : var.storage_option
-  storage_class = lookup(var.cpd_storageclass, var.storage_option)
-  rwo_storage_class = lookup(var.rwo_cpd_storageclass, var.storage_option)
+  license            = var.accept_cpd_license == "accept" ? true : false
+  override           = var.storage_option == "efs" ? "" : var.storage_option
+  storage_class      = lookup(var.cpd_storageclass, var.storage_option)
+  rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
 }
 
 data "template_file" "crio_machineconfig" {
@@ -306,7 +306,7 @@ EOF
 }
 
 data "template_file" "analyticsengine_cr" {
-  template =<<EOF
+  template = <<EOF
 apiVersion: ae.cpd.ibm.com/v1
 kind: AnalyticsEngine
 metadata:
@@ -343,7 +343,7 @@ EOF
 }
 
 data "template_file" "db2wh_cr" {
-  template =<<EOF
+  template = <<EOF
 apiVersion: databases.cpd.ibm.com/v1
 kind: Db2whService
 metadata:
@@ -616,7 +616,7 @@ EOF
 }
 
 data "template_file" "wkc_iis_cr" {
-  template =<<EOF
+  template = <<EOF
 apiVersion: iis.cpd.ibm.com/v1alpha1
 kind: IIS
 metadata:
@@ -633,7 +633,7 @@ EOF
 }
 
 data "template_file" "wkc_ug_cr" {
-  template =<<EOF
+  template = <<EOF
 apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: UG
 metadata:

@@ -141,14 +141,14 @@ module "cpd" {
   source                    = "./cpd"
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
-  api_key                   = var.api_key
+  cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
-  analytics_engine              = var.analytics_engine
+  analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog
-  watson_studio     = var.watson_studio
+  watson_studio             = var.watson_studio
   watson_machine_learning   = var.watson_machine_learning
   watson_ai_openscale       = var.watson_ai_openscale
   cognos_dashboard_embedded = var.cognos_dashboard_embedded

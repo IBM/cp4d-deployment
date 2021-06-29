@@ -7,7 +7,7 @@ resource "local_file" "db2aaservice_cr_yaml" {
 resource "null_resource" "install_db2aaservice" {
   count = local.db2aaservice == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {

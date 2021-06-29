@@ -34,9 +34,18 @@ variable "accept_cpd_license" {
   default = "reject"
 }
 
-variable "api_key" {
+variable "cpd_external_registry" {
+  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  default = "cp.icr.io"
+}
+
+variable "cpd_external_username" {
+  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  default = "cp"
+}
+
+variable "cpd_api_key" {
   description = "Repository APIKey or Registry password"
-  default = ""
 }
 
 variable "cpd_namespace" {
