@@ -874,3 +874,37 @@ spec:
   namespace: "${var.cpd_namespace}"
 EOF
 }
+
+#DB2uOperator
+data "template_file" "db2u_operator" {
+  template = <<EOF
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-db2uoperator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Db2U Catalog
+  image: docker.io/ibmcom/ibm-db2uoperator-catalog@sha256:5b7571e2220e2b706a2de151ea8be2a6c7df2fbce974d0e77bf97e4cbcdcac80
+  imagePullPolicy: Always
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-db2uoperator-catalog-subscription
+  generation: 1
+spec:
+  channel: v1.1
+  name: db2u-operator
+  installPlanApproval: Automatic
+  source: ibm-db2uoperator-catalog
+  sourceNamespace: openshift-marketplace
+  startingCSV: db2u-operator.v1.1.2
+EOF
+}

@@ -2,6 +2,8 @@ locals {
   classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
+  cpd_case_url = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
+  db2aaservice = (var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
