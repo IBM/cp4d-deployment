@@ -131,7 +131,7 @@ variable "data_management_console" {
   default = "no"
 }
 
-variable "datagate" {
+variable "db2aaservice" {
   default = "no"
 }
 
