@@ -3,7 +3,7 @@
 CASE_PACKAGE_NAME=\$1
 NAMESPACE=\$2
 
-oc project \${NAMESPACE}
+# oc project \${NAMESPACE}
 
 ## Install Catalog 
 

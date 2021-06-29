@@ -11,6 +11,6 @@ cloudctl case launch --tolerance 1 --case ./\${CASE_PACKAGE_NAME} \
 cloudctl case launch --tolerance 1 --case ./\${CASE_PACKAGE_NAME} \
    --namespace \${NAMESPACE}  \
    --action installOperator \
-   --inventory spssSetup  \
-   --args "--registry cp.icr.io"
+   --inventory spssSetup  
+   # --args "--registry cp.icr.io"
 
