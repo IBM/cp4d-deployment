@@ -202,7 +202,7 @@ variable "portworx_ibm" {
   type        = map(string)
   description = "This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes"
   default = {
-    enable             = false
+    enable              = false
     ibm_px_package_path = "" # absolute file path to the folder containing the cpd*-portworx*.tgz package
   }
 }
@@ -218,18 +218,17 @@ variable "accept_cpd_license" {
 }
 
 variable "cpd_external_registry" {
-  description = "(OPTIONAL) URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default     = ""
+  description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
+  default     = "cp.icr.io"
 }
 
 variable "cpd_external_username" {
-  description = "(OPTIONAL) URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default     = ""
+  description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
+  default     = "cp"
 }
 
-variable "api_key" {
+variable "cpd_api_key" {
   description = "Repository APIKey or Registry password"
-  default     = ""
 }
 
 variable "cpd_namespace" {
@@ -238,11 +237,7 @@ variable "cpd_namespace" {
 }
 
 variable "cloudctl_version" {
-  default = "v3.6.0"
-}
-
-variable "datacore_version" {
-  default = "1.3.3"
+  default = "v3.7.1"
 }
 
 variable "data_virtualization" {
@@ -273,14 +268,6 @@ variable "cognos_dashboard_embedded" {
   default = "no"
 }
 
-variable "streams" {
-  default = "no"
-}
-
-variable "streams_flows" {
-  default = "no"
-}
-
 variable "datastage" {
   default = "no"
 }
@@ -297,26 +284,10 @@ variable "data_management_console" {
   default = "no"
 }
 
-variable "datagate" {
-  default = "no"
-}
-
-variable "decision_optimization" {
-  default = "no"
-}
-
 variable "cognos_analytics" {
   default = "no"
 }
 
 variable "spss_modeler" {
-  default = "no"
-}
-
-variable "db2_bigsql" {
-  default = "no"
-}
-
-variable "planning_analytics" {
   default = "no"
 }

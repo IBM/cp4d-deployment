@@ -12,9 +12,9 @@ cloudctl  case launch --case ./\${CASE_PACKAGE_NAME} \
     --action installCatalog \
     --inventory wslSetup 
 
-cloudctl case launch ./\${CASE_PACKAGE_NAME} \
+cloudctl case launch --case ./\${CASE_PACKAGE_NAME} \
     --tolerance 1 \
     --namespace \${NAMESPACE}         \
     --action installOperator \
-    --inventory wslSetup \
-    --args "--registry cp.icr.io"
+    --inventory wslSetup 
+    # --args "--registry cp.icr.io"

@@ -75,6 +75,7 @@ class AWSConfigurationHelper():
             print("  AWS credentials to be read from "
                    + "user input or credentials file ?")
             answer = input("  Enter  'user'  or  'file' (default: 'file'): ")
+
             if not answer:
                 answer = answer_default
             if answer in ['user', 'file']:

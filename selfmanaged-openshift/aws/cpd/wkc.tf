@@ -28,14 +28,23 @@ resource "local_file" "sysctl_worker_yaml" {
   filename = "${local.cpd_workspace}/sysctl_worker.yaml"
 }
 
+resource "local_file" "db2u_operator_yaml" {
+  content  = data.template_file.db2u_operator.rendered
+  filename = "${local.cpd_workspace}/db2u_operator.yaml"
+}
+
 resource "null_resource" "install_wkc" {
   count = var.watson_knowledge_catalog == "yes" ? 1 : 0
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Create Dependency (DB2U) Operator"
+oc create -f ${self.triggers.cpd_workspace}/db2u_operator.yaml
+bash cpd/scripts/pod-status-check.sh db2u-operator ${local.operator_namespace}
+
 echo "Creating WKC Operator"
 oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}
@@ -56,12 +65,12 @@ ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_w
 bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
 
 echo "Create IIS CR"
-oc create -f ${self.triggers.cpd_workspace}/wkc_iis_cr_yaml
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_cr.yaml
 echo 'check the IIS cr status'
 bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus
 
 echo "Create UG cr"
-oc create -f ${self.triggers.cpd_workspace}/wkc_ug_cr_yaml
+oc create -f ${self.triggers.cpd_workspace}/wkc_ug_cr.yaml
 echo 'check the UG cr status'
 bash cpd/scripts/check-cr-status.sh UG ug-cr ${var.cpd_namespace} ugStatus
 
@@ -69,10 +78,10 @@ EOF
   }
   depends_on = [
     local_file.wkc_cr_yaml,
-    # local_file.db2aaservice_cr_yaml,
     local_file.wkc_iis_scc_yaml,
     local_file.wkc_iis_cr_yaml,
     local_file.wkc_ug_cr_yaml,
+    local_file.db2u_operator_yaml,
     null_resource.install_analyticsengine,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -83,5 +92,6 @@ EOF
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
     null_resource.login_cluster,
+    null_resource.install_db2aaservice,
   ]
 }

@@ -3,6 +3,7 @@
 CASE_PACKAGE_NAME=\$1
 NAMESPACE=\$2
 STORAGECLASS=\$3
+CPD_NAMESPACE=\$4
 
 oc project \${NAMESPACE}
 
@@ -22,7 +23,9 @@ cloudctl case launch  --action installOperator \
     --namespace \${NAMESPACE} \
     --tolerance 1
 
-sleep 1m 
+sleep 5m
+
+oc project \${CPD_NAMESPACE} 
 
 cat << EOF | oc apply -f -
 apiVersion: dmc.databases.ibm.com/v1
@@ -36,7 +39,7 @@ spec:
   version: "4.0.0"
   license:
     accept: true
-    license: Standard 
+    license: Enterprise 
 EOF
 
 

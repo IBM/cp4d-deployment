@@ -9,16 +9,26 @@ output "openshift_api" {
 }
 
 output "openshift_username" {
-  description = "username for OpenShift web console"
+  description = "Username for OpenShift web console"
   value       = var.openshift_username
 }
 
 output "openshift_password" {
-  description = "password for OpenShift web console"
+  description = "Password for OpenShift web console"
   value       = var.openshift_password
 }
 
 output "cpd_url" {
   description = "URL for cpd web console"
-  value       = "https://${var.cpd_namespace}-cpd-${var.cpd_namespace}.apps.${var.cluster_name}.${var.base_domain}"
+  value       = "https://cpd-${var.cpd_namespace}.apps.${var.cluster_name}.${var.base_domain}"
+}
+
+output "cpd_url_username" {
+  description = "Username for CPD Web console"
+  value       = "admin"
+}
+
+output "cpd_url_password" {
+  description = "URL for cpd web console"
+  value       = "$(oc extract secret/admin-user-details --keys=initial_admin_password --to=-)"
 }

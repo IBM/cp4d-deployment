@@ -1,5 +1,4 @@
 provider "aws" {
-  version    = "~> 2.0"
   region     = var.region
   access_key = var.access_key_id
   secret_key = var.secret_access_key
@@ -140,35 +139,23 @@ module "ocs" {
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
-  vpc_id                    = local.vpc_id
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
-  cpd_external_registry     = var.cpd_external_registry
-  cpd_external_username     = var.cpd_external_username
-  api_key                   = var.api_key
+  cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
-  datacore_version          = var.datacore_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   data_virtualization       = var.data_virtualization
-  analytics_engine              = var.analytics_engine
+  analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog
-  watson_studio     = var.watson_studio
+  watson_studio             = var.watson_studio
   watson_machine_learning   = var.watson_machine_learning
   watson_ai_openscale       = var.watson_ai_openscale
   cognos_dashboard_embedded = var.cognos_dashboard_embedded
-  streams                   = var.streams
-  streams_flows             = var.streams_flows
   datastage                 = var.datastage
   db2_warehouse             = var.db2_warehouse
-  db2_advanced_edition      = var.db2_advanced_edition
   data_management_console   = var.data_management_console
-  datagate                  = var.datagate
-  decision_optimization     = var.decision_optimization
-  cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
-  db2_bigsql                = var.db2_bigsql
-  planning_analytics        = var.planning_analytics
   login_cmd                 = module.ocp.login_cmd
 
   depends_on = [

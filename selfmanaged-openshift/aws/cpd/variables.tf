@@ -1,57 +1,51 @@
 variable "openshift_api" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "openshift_username" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "openshift_password" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "openshift_token" {
   type        = string
   description = "For cases where you don't have the password but a token can be generated (e.g SSO is being used)"
-  default = ""
+  default     = ""
 }
 
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"
-  default = ""
+  default     = ""
 }
 
 variable "accept_cpd_license" {
   description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
-  default = "reject"
+  default     = "reject"
 }
 
 variable "cpd_external_registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = "cp.icr.io"
 }
 
 variable "cpd_external_username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default = ""
+  default     = "cp"
 }
 
-variable "api_key" {
+variable "cpd_api_key" {
   description = "Repository APIKey or Registry password"
-  default = ""
 }
 
 variable "cpd_namespace" {
   default = "zen"
-}
-
-variable "vpc_id" {
-  type = string
-  default = ""
 }
 
 variable "storage_option" {
@@ -59,25 +53,25 @@ variable "storage_option" {
 }
 
 variable "cpd_storageclass" {
-  type        = map
+  type = map(any)
 
-  default     = {
-    "portworx"   = "portworx-shared-gp3"
-    "ocs"        = "ocs-storagecluster-cephfs"
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
   }
 }
 
 variable "rwo_cpd_storageclass" {
-  type        = map
+  type = map(any)
 
-  default     = {
-    "portworx"   = "portworx-db2-rwo-sc"
-    "ocs"        = "ocs-storagecluster-ceph-rbd"
+  default = {
+    "portworx" = "portworx-db2-rwo-sc"
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
   }
 }
 
 variable "cpd_version" {
-  type = string
+  type    = string
   default = "4.0.0"
 }
 
@@ -131,7 +125,7 @@ variable "data_management_console" {
   default = "no"
 }
 
-variable "datagate" {
+variable "db2aaservice" {
   default = "no"
 }
 

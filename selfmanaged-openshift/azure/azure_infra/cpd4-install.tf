@@ -231,6 +231,10 @@ resource "null_resource" "install-cpd-platform-operator" {
 
       # Waiting and checking till the cert manager pods are ready in the openshift-marketplace namespace 
       "${local.cpd-common-files}/pod-status-check.sh cert-manager-cainjector ${var.operator-namespace}",
+      "sleep 5m",
+      "oc patch certmanagers default -n ibm-common-services -p '{\"spec\":{\"certManagerCAInjector\":{\"resources\":{\"limits\":{\"cpu\":\"100\"}}}}}' --type=merge",
+      "sleep 1m",
+      "${local.cpd-common-files}/pod-status-check.sh cert-manager-cainjector ${var.operator-namespace}",
       "${local.cpd-common-files}/pod-status-check.sh cert-manager-controller ${var.operator-namespace}",
       "${local.cpd-common-files}/pod-status-check.sh cert-manager-webhook ${var.operator-namespace}",
 
@@ -837,7 +841,7 @@ resource "null_resource" "install-cde" {
 
       # Create cde CR: 
       "sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g ${local.cpd-installer-home}/ibm-cpd-cde-files/cde-cr.yaml",
-      "sed -i -e s#REPLACE_STORAGECLASS#${var.cpd-namespace}#g ${local.cpd-installer-home}/ibm-cpd-cde-files/cde-cr.yaml",
+      "sed -i -e s#REPLACE_NAMESPACE#${var.cpd-namespace}#g ${local.cpd-installer-home}/ibm-cpd-cde-files/cde-cr.yaml",
       "echo '*** executing **** oc create -f cde-cr.yaml'",
       "result=$(oc create -f cde-cr.yaml)",
       "echo $result",
@@ -863,7 +867,6 @@ resource "null_resource" "install-cde" {
   ]
 }
 
-### *** This module will need changes after GA as the image will be pulled from a public repo .
 resource "null_resource" "install-dods" {
   count = var.dods == "yes" ? 1 : 0
   triggers = {
@@ -1514,7 +1517,7 @@ resource "null_resource" "install-db2wh" {
       # Install db2wh operator using CLI (OLM)	
       "cat > install-db2wh-operator.sh <<EOL\n${file("../cpd4_module/install-db2wh-operator.sh")}\nEOL",
       "sudo chmod +x install-db2wh-operator.sh",
-      "./install-db2wh-operator.sh ibm-db2wh-4.0.0-1228.749.tgz ${var.operator-namespace}",
+      "./install-db2wh-operator.sh ibm-db2wh-4.0.0.tgz ${var.operator-namespace}",
 
       # Checking if the db2wh operator podb2wh are ready and running. 	
       # checking status of db2wh-operator	

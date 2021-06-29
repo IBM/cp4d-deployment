@@ -24,10 +24,10 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `jq` and `aws` CLIs:
+* Install `wget`, `htpasswd`, `jq`, `python3` and `aws` CLIs:
   * RHEL:
   ```bash
-  yum install wget jq httpd-tools -y
+  yum install wget jq httpd-tools python36 -y
   pip install awscli --upgrade --user
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
@@ -69,8 +69,9 @@ secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxx"
 * Deploy scripts by executing the following command:
 ```bash
 terraform init
-terraform apply -var-file="<Path To terraform.tfvars file> | tee terraform.log"
+terraform apply | tee terraform.log
 ```
+NOTE: If you created a `.tfvars` with a name other than `terraform.tfvars`, you'll need to pass the file with the -var-file flag when running `terraform apply`. For example: `terraform apply -var-file=input.tfvars`
 #### cp4d installation logs:
 After openshift cluster installation is finished and cloud pak for data installation has started, you can check the installation logs for cp4d service as described here: [cp4d service installation logs](INSTALLATION-LOG.md)
 
