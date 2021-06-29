@@ -8,6 +8,13 @@
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
 * Fill out the `variables.tf` in the root folder (or create a `terraform.tfvars` file) for your variables using the VARIABLES.md as a reference
+* Install `wget`,`jq`, `python3` and `aws` CLIs:
+  * RHEL:
+  ```bash
+  yum install wget jq httpd-tools python36 -y
+  pip install awscli --upgrade --user
+  pip install pyyaml
+  ```
   * Deploy, using:
   ```bash
   terraform apply

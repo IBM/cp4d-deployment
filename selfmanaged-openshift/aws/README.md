@@ -29,6 +29,7 @@ The deployment sets up the following as shown in the diagram.
   ```bash
   yum install wget jq httpd-tools python36 -y
   pip install awscli --upgrade --user
+  pip install pyyaml
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash

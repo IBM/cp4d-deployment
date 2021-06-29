@@ -23,13 +23,11 @@ resource "local_file" "crio_machineconfig_yaml" {
 
 resource "null_resource" "login_cluster" {
   triggers = {
-    openshift_api      = var.openshift_api
-    openshift_username = var.openshift_username
-    openshift_password = var.openshift_password
+    login_cmd = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true
+${self.triggers.login_cmd} --insecure-skip-tls-verify=true
 EOF
   }
 }

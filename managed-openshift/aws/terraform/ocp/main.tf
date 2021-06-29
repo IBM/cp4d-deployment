@@ -88,14 +88,14 @@ data "local_file" "creds" {
     null_resource.create_rosa_user
   ]
 }
-
+locals {
+  login_cmd     = regex("oc\\s.*", data.local_file.creds.content)
+}
 resource "null_resource" "configure_image_registry" {
-  triggers = {
-    login_cmd     = regex("oc\\s.*", data.local_file.creds.content)
-  }
   provisioner "local-exec" {
     command =<<EOF
-${self.triggers.login_cmd} --insecure-skip-tls-verify
+bash ocp/scripts/nodes_running.sh
+${local.login_cmd} --insecure-skip-tls-verify
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
 echo 'Sleeping for 3m'
