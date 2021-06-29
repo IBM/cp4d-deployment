@@ -192,7 +192,6 @@ class EC2Helper():
         tf_config['node_type'] = {}
         tf_config['node_type']['master'] = {}
         tf_config['node_type']['worker'] = {}
-        tf_config['node_type']['ocs'] = {}
 
         tf_config_json = AWSGenericHelper.get_terraform_config_json(terraform_var_file)
 
@@ -202,6 +201,7 @@ class EC2Helper():
         tf_config['node_type']['master']['instance_type'] = tf_config_json['variable']['master_instance_type']['default']
         tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker_instance_type']['default']
         if tf_config['storage_type'] == 'ocs':
+            tf_config['node_type']['ocs'] = {}
             tf_config['node_type']['ocs']['instance_type'] = tf_config_json['variable']['ocs']['default']['dedicated_node_instance_type']
 
         # pprint(tf_config)
