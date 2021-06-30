@@ -73,8 +73,8 @@ resource "null_resource" "install-cloudctl" {
       "cd ${local.cpd-common-files}",
 
       # Download cloudctl and aiopenscale case package. 
-      "wget https://github.com/IBM/cloud-pak-cli/releases/${var.cloudctl_version}/download/cloudctl-linux-amd64.tar.gz",
-      "wget https://github.com/IBM/cloud-pak-cli/releases/${var.cloudctl_version}/download/cloudctl-linux-amd64.tar.gz.sig",
+      "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz",
+      "wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig",
       "sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/local/bin",
       "sudo mv /usr/local/bin/cloudctl-linux-amd64 /usr/local/bin/cloudctl",
       "cloudctl version",
