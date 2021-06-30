@@ -213,7 +213,7 @@ variable "portworx_ibm" {
 # CPD Variables
 ###############
 variable "accept_cpd_license" {
-  description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
+  description = "Read and accept license at https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW, (accept / reject)"
   default     = "reject"
 }
 
