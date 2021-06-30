@@ -103,14 +103,7 @@ data "template_file" "nfs-template" {
   }
 }
 
-data "template_file" "portworx-override" {
-  template = file("../cpd_module/portworx-override.yaml")
-  vars = {
-    fips = var.fips
-  }
-}
-
-data "template_file" "registry-conf" {
+data "template_file" "registry-monf" {
   template = file("../openshift_module/registries.tpl.conf")
   vars = {
     registry-route = "default-route-openshift-image-registry.apps.${var.cluster-name}.${var.dnszone}"

@@ -12,7 +12,6 @@ The deployment sets up the following as shown in the diagram.
  - A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS.
  - In the public subnets:
    - Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.
-   - A bootstrap server Amazon Elastic Compute Cloud (Amazon EC2) instance that also serves as a bastion host to allow inbound Secure Shell (SSH) access to EC2 instances in private subnets.
  - In the private subnets:
    - OCP master instances up to three Availability Zones
    - OpenShift Container Platform (OCP) compute nodes.
@@ -57,7 +56,7 @@ git clone <repo_url>
 cd cp4d-deployment/selfmanaged-openshift/aws/
 ```
 * Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* Read the license at https://ibm.biz/BdffBz and accept it by setting variable `accept_cpd_license` to `accept`.
+* Read the license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW) and accept it by setting variable `accept_cpd_license` to `accept`.
 * If you want to hide sensitive data such as access_key_id or secret_access_key, create a `terraform.tfvars` file and write all the sensitive variables.
 ```
 Example:
