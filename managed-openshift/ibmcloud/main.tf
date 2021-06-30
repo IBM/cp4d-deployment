@@ -79,13 +79,6 @@ module "cpd_install" {
   cpd_registry          = var.cpd_registry
   cpd_registry_username = var.cpd_registry_username
   operator_namespace    = var.operator_namespace
-  artifactory_username  = var.artifactory_username
-  artifactory_apikey    = var.artifactory_apikey
-  entitlement_user      = var.entitlement_user
-  entitlement_key       = var.entitlement_key
-  gituser               = var.gituser
-  git_token             = var.git_token
-  gituser_short         = var.gituser_short
   install_services      = var.install_services
   multizone             = var.multizone
   portworx_is_ready     = module.portworx.portworx_is_ready

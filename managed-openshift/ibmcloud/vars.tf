@@ -23,7 +23,7 @@ variable "unique_id" {
 # Cloud Pak for Data license configuration
 ###########################################
 variable "accept_cpd_license" {
-  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdfEkc [yes/no]"
+  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdffBz [yes/no]"
   
   # validation {
   #   condition = var.accept_cpd_license == "yes"
@@ -42,27 +42,7 @@ variable "cpd_registry" {
 variable "operator_namespace" {
   default = "ibm-common-services"
 }
-variable "artifactory_username" {
-  description = "artifactory username"
-}
-variable "artifactory_apikey" {
-  description = "artifactory apikey"
-}
-variable "entitlement_user" {
-  description = "entitlement username"
-}
-variable "entitlement_key" {
-  description = "entitlement key"
-}
-variable "gituser" {
-  description = "git user"
-}
-variable "git_token" {
-  description = "git token"
-}
-variable "gituser_short" {
-  description = "git user short name"
-}
+
 ###############################################
 # Cloud Pak for Data application configuration
 ###############################################

@@ -8,8 +8,8 @@ resource "null_resource" "bedrock_zen_operator" {
   
   provisioner "local-exec" {
     environment = {
-      ENTITLEMENT_USER = var.entitlement_user
-      ENTITLEMENT_KEY = var.entitlement_key
+      ENTITLEMENT_USER = var.cpd_registry_username
+      ENTITLEMENT_KEY = var.cpd_registry_password
       CLUSTER_NAME = "${var.unique_id}-cluster"
       IBMCLOUD_APIKEY = var.ibmcloud_api_key
       IBMCLOUD_RG_NAME = var.resource_group_name
@@ -32,11 +32,8 @@ resource "null_resource" "install_ccs" {
   
   provisioner "local-exec" {
     environment = {
-      ARTIFACTORY_USERNAME = var.artifactory_username
-      ARTIFACTORY_APIKEY = var.artifactory_apikey
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
+      NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
     
@@ -57,12 +54,7 @@ resource "null_resource" "install_data_refinery" {
   
   provisioner "local-exec" {
     environment = {
-      ENTITLEMENT_USER = var.entitlement_user
-      ENTITLEMENT_KEY = var.entitlement_key
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -86,8 +78,6 @@ resource "null_resource" "install_db2uoperator" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -112,8 +102,6 @@ resource "null_resource" "install_dmc" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -139,8 +127,6 @@ resource "null_resource" "install_db2aaservice" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -167,8 +153,6 @@ resource "null_resource" "install_wsl" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -195,12 +179,7 @@ resource "null_resource" "install_aiopenscale" {
   
   provisioner "local-exec" {
     environment = {
-      ARTIFACTORY_USERNAME = var.artifactory_username
-      ARTIFACTORY_APIKEY = var.artifactory_apikey
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -228,12 +207,7 @@ resource "null_resource" "install_wml" {
   
   provisioner "local-exec" {
     environment = {
-      ARTIFACTORY_USERNAME = var.artifactory_username
-      ARTIFACTORY_APIKEY = var.artifactory_apikey
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -263,9 +237,6 @@ resource "null_resource" "install_wkc" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -296,9 +267,6 @@ resource "null_resource" "install_dv" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -330,9 +298,6 @@ resource "null_resource" "install_spss" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -365,9 +330,6 @@ resource "null_resource" "install_cde" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -401,9 +363,6 @@ resource "null_resource" "install_spark" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -438,9 +397,6 @@ resource "null_resource" "install_dods" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -476,9 +432,6 @@ resource "null_resource" "install_ca" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -515,9 +468,6 @@ resource "null_resource" "install_ds" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -555,9 +505,6 @@ resource "null_resource" "install_db2oltp" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -596,9 +543,6 @@ resource "null_resource" "install_db2wh" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }
@@ -638,9 +582,6 @@ resource "null_resource" "install_bigsql" {
   provisioner "local-exec" {
     environment = {
       CLUSTER_NAME = "${var.unique_id}-cluster"
-      GITUSER = var.gituser
-      GIT_TOKEN = var.git_token
-      GITUSER_SHORT = var.gituser_short
       NAMESPACE = var.cpd_project_name
       OP_NAMESPACE = var.operator_namespace
     }

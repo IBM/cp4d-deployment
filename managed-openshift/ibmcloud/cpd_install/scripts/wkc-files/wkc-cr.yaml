@@ -9,3 +9,5 @@ spec:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
+  storage_class_name: portworx-shared-gp3
+  wkc_db2u_set_kernel_params: True

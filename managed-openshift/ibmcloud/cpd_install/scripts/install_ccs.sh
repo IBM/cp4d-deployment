@@ -20,11 +20,11 @@ cloudctl case launch --case ./${CASE_PACKAGE_NAME} \
 # checking status of ibm-cpc-ccs-operator
 
 #OPERATOR_POD_NAME=$(oc get pods -n ibm-common-services | grep ibm-cpd-ccs-operator | awk '{print $1}')
-./pod-status-check.sh ibm-cpd-ccs-operator ibm-common-services
+./pod-status-check.sh ibm-cpd-ccs-operator ${OP_NAMESPACE} 
 
 # switch zen namespace
 
-oc project zen
+oc project ${NAMESPACE} 
 
 # Create CCS CR: 
 
@@ -34,4 +34,4 @@ echo $result
 
 # check the CCS cr status
 
-./check-cr-status.sh ccs ccs-cr zen ccsStatus
+./check-cr-status.sh ccs ccs-cr ${NAMESPACE}  ccsStatus

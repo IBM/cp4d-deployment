@@ -12,13 +12,6 @@ variable "cpd_registry_password" {}
 variable "cpd_registry" {}
 variable "cpd_registry_username" {}
 variable "operator_namespace" {}
-variable "artifactory_username" {}
-variable "artifactory_apikey" {}
-variable "entitlement_user" {}
-variable "entitlement_key" {}
-variable "gituser" {}
-variable "git_token" {}
-variable "gituser_short" {}
 variable "install_services" {}
 variable "multizone" {}
 variable "portworx_is_ready" {
