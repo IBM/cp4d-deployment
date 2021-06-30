@@ -38,11 +38,8 @@
 | `ocs` |`enable = true` | Set to enable, if OCS. The EC2 instance type for the OpenShift container storage (OCS) instances. Make sure your region supports the selected instance type. Supported ocs instance types [here](./INSTANCE-TYPES.md) |
 | `portworx_enterprise` | `enable = false` | See PORTWORX.md on how to get the Cluster ID. |
 | `portworx_essentials` | `enable = false`  | See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint |
-<!-- | `portworx_ibm` | | NOTE: This option will only work if deployed from a RHEL machine with podman installed. This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes. | -->
 | Cloud Pak for Data |
-| `accept_cpd_license` | reject | Read and accept license at https://ibm.biz/Bdq6KP. Allowed values `accept / reject`. |
-<!-- | `cpd_external_registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
-| `cpd_external_username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. | -->
+| `accept_cpd_license` | reject | Read and accept license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW). Allowed values `accept / reject`. |
 | `api_key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary). For external registries, enter password here |
 | `cpd_namespace` | cpd-tenant | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `data_virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. If you installing this service, you need to install `data_management_console` service as well. |
@@ -52,15 +49,8 @@
 | `watson_machine_learning` | no | Enter `yes` to install the Watson Machine Learning Add-on service. |
 | `watson_ai_openscale` | no | Enter `yes` to install the Watson OpenScale and Watson Machine Learning Add-on services. |
 | `cognos_dashboard_embedded` | no | Enter `yes` to install the Cognos dashboard embedded Add-on service. |
-<!-- | `streams` | no | Enter `yes` to install the Streams Add-on service. |
-| `streams-flows` | no | Enter `yes` to install the Streams Flow Add-on service. | -->
 | `datastage` | no | Enter `yes` to install the datastage Add-on service. |
 | `db2-warehouse` | no | Enter `yes` to install the DB2Warehouse Add-on service. If you installing this service, you need to install `data-management-console` service as well.  |
-<!-- | `db2-advanced-edition` | no | Enter `yes` to install the db2 advanced edition Add-on service. If you installing this service, you need to install `data-management-console` service as well. | -->
 | `data_management_console` | no | Enter `yes` to install the data management console Add-on service. |
-<!-- | `datagate` | no | Enter `yes` to install the Data Gate Add-on service. |
-| `decision-optimization` | no | Enter `yes` to install the Decision Optimization Add-on service. | -->
 | `cognos_analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
-<!-- | `db2-bigsql` | no | Enter `yes` to install the Db2 bigaql Add-on service. |
-| `planning-analytics` | no | Enter `yes` to install the Planning Analytics Add-on service. | -->
