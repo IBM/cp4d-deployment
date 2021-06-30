@@ -4,14 +4,14 @@
 ![ROSA_Architecture](images/AWS_ROSA.png)
 
 ### Installation
-* Download `rosa` cli [here](https://github.com/openshift/rosa/releases)
-* Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
+* Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 * Fill out the `variables.tf` in the root folder (or create a `terraform.tfvars` file) for your variables using the VARIABLES.md as a reference
-* Install `wget`,`jq`, `python3` and `aws` CLIs:
+* Install `wget`,`jq`, `python`, `pip` and `aws` CLIs:
   * RHEL:
   ```bash
   yum install wget jq httpd-tools python36 -y
+  ln -s /usr/bin/python3 /usr/bin/python; ln -s /usr/bin/pip3 /usr/bin/pip
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
@@ -21,11 +21,7 @@
   ```
 Note: Terraform version `0.15.0` or later are supported.
 
-### Creating a temporary cluster-admin user
-```bash
-$ rosa create admin --cluster <cluster_name>
-```
-### Configuring your IDP (GitHub Enterprise)
+### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
 * Click Settings → Developer settings → OAuth Apps → Register a new OAuth application.
 * Enter an application name.
 * Enter Homepage URL e.g `https://oauth-openshift.apps.femi-rosa.z2ri.p1.openshiftapps.com`
