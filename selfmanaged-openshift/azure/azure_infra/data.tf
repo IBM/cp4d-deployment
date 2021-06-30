@@ -1,4 +1,4 @@
-nlocals {
+locals {
   cidr-prefix = split(".", var.virtual-network-cidr)[0]
 }
 
