@@ -1,0 +1,12 @@
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
+metadata:
+  name: ibmcpd-cr
+  namespace: zen
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  storageClass: portworx-shared-gp3
+  zenCoreMetadbStorageClass: portworx-shared-gp3
+  version: 4.0.1  ## Here documentation states to use 4.0.0, but failing. we found out to use 4.0.1 here and it seems to install successfullly. 

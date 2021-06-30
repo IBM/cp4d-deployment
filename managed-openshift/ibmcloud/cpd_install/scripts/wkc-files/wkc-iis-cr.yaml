@@ -1,0 +1,15 @@
+apiVersion: iis.cpd.ibm.com/v1alpha1
+kind: IIS
+metadata:
+  name: iis-cr
+spec:
+  version: "4.0.0"
+  StorageVendor: portworx
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: cp.icr.io/cp/cpd
+  use_dynamic_provisioning: true
+  namespace: REPLACE_NAMESPACE
+  iis_db2u_set_kernel_params: True
+  storage_class_name: portworx-shared-gp3

@@ -1,4 +1,4 @@
-# Cloud Pak for Data 3.5 on Red Hat OpenShift on IBM Cloud
+# Cloud Pak for Data 4.0 on Red Hat OpenShift on IBM Cloud
 
 [IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on IBM Cloud.
 
@@ -50,21 +50,24 @@ Refer to [User access permissions](https://cloud.ibm.com/docs/openshift?topic=op
 
 ## Cloud Pak for Data services
 
-As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
+As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_latest/svc-nav/head/services.html).
 
-* Lite (base)
-* Analytics Engine powered by Apache Spark
+* Cloud Pak for Data Bedrock Services
 * Data Virtualization
 * Watson Knowledge Catalog
 * Watson Studio
 * Watson Machine Learning
 * Watson OpenScale
+* Db2
+* Data Refinery
+* Db2 Data Management Console
+
+the following services will be supported soon - 
 * Cognos Dashboard Engine
+* Analytics Engine powered by Apache Spark
 * Streams
 * DataStage
-* Db2 Data Management Console
 * Db2 Warehouse
-* Db2
 * Db2 Data Gate
 * Decision Optimization
 * Cognos Analytics
@@ -82,6 +85,8 @@ As part of the deployment, any of the following services can be installed. For m
 
 It is recommended that these scripts be executed from a Docker container to ensure that the required tools and packages are available. Docker can be installed for your system using instructions found [here](https://docs.docker.com/get-docker/). This deployment has been tested using Docker version 19.03.13.
 
+**To create mulitple clusters, clone the repo again in a new directory and create a new container (with a --name other than 'my-container'). Do not bind multiple containers to the same host template directory.**
+
 1. Clone this repo.
 
 2. Navigate to the directory containing this README.
@@ -90,7 +95,7 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 3. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
-The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa. To create another cluster, clone the repo again in a new directory and create a new container (with a `--name` other than `my-container`). Do not bind multiple containers to the same host template directory.
+The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa.
 
 ### Deploying Cloud Pak for Data
 
@@ -122,19 +127,21 @@ These templates can also deploy Cloud Pak for Data on an existing VPC Gen 2 Open
 
 * `existing_roks_cluster` — Name or ID of the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
 
+### Replace / Upgrading worker nodes
+
+In VPC Gen2 clusters, if you want to replace/upgrade the worker node which has block storage attached, this script can be used instead of doing it from IBM cloud console.
+https://github.com/mumutyal/px-utils/blob/master/px_vpc_upgrade/vpc_upgrade_util.sh
+
+usage: ./vpc_upgrade.sh clustername replace/upgrade workerid
+
+If we do replace/upgrade from IBM cloud console, block storage would get detached and portwox will consider that node as storageless. The data stored in the block storage would not be available to the application
+
+IBM Cloud documentation for this issue - https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_limitations
+
 ## Troubleshooting
 
 Open an Issue in this repo that describes the error.
 
-### View detailed logs
-
-Cloud Pak for Data installation logs can be viewed in the following locations. These will become available after Terraform creates the `module.cpd_install.null_resource.install_cpd_operator` resource successfully.
-
-* cpd-meta-operator: `oc -n cpd-meta-ops logs -f deploy/ibm-cp-data-operator`
-
-* cpd-install-operator: `oc -n cpd-tenant logs -f deploy/cpd-install-operator`
-
-**Note**: These logs may contain sensitive information such as your ICR entitlement key. Do not attach them to a GitHub Issue.
 
 ### Common errors
 

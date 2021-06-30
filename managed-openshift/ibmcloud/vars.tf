@@ -23,7 +23,7 @@ variable "unique_id" {
 # Cloud Pak for Data license configuration
 ###########################################
 variable "accept_cpd_license" {
-  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdfEkc [yes/no]"
+  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdffBz [yes/no]"
   
   # validation {
   #   condition = var.accept_cpd_license == "yes"
@@ -39,19 +39,27 @@ variable "cpd_registry_password" {
 variable "cpd_registry" {
   default = "cp.icr.io/cp/cpd"
 }
+variable "operator_namespace" {
+  default = "ibm-common-services"
+}
 
 ###############################################
 # Cloud Pak for Data application configuration
 ###############################################
 variable "cpd_project_name" {
   description = "Name of the project (namespace) in which CP4D will be installed"
-  default = "cpd-tenant"
+  default = "zen"
 }
 
 variable "install_services" {
   type = map
   description = "Choose the Cloud Pak for Data services to be installed"
   default = {
+    ccs                = false,
+    data-refinery      = false, # Data refinery
+    db2uoperator       = false,
+    dmc                = false,
+    db2aaservice       = false,
     spark              = false, # Analytics Engine powered by Apache Spark
     dv                 = false, # Data Virtualization
     wkc                = false, # Watson Knowledge Catalog
@@ -73,10 +81,6 @@ variable "install_services" {
     hadoop-addon       = false, # Hadoop Execution Addon
     # mongodb            = false, # MongoDB Enterprise
     runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
-    watson-assistant   = false, # Watson Assistant
-    # watson-discovery   = false, # Watson Discovery
-    # watson-knowledge-studio = false, # Watson Knowledge Studio
-    # watson-speech = false, # Watson Speech
   }
 }
 

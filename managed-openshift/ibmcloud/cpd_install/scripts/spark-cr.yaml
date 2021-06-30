@@ -1,0 +1,18 @@
+apiVersion: ae.cpd.ibm.com/v1
+kind: AnalyticsEngine
+metadata:
+  name: analyticsengine-cr
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-ae-operator
+    app.kubernetes.io/managed-by: ibm-cpd-ae-operator
+    app.kubernetes.io/name: ibm-cpd-ae-operator
+    build: BUILD_NUMBER
+spec:
+  version: "4.0.0"
+  license:
+    accept: true
+    license: Enterprise
+  storage_class: portworx-shared-gp3
+  platform: amd64
+  operation: install
+  size: "small"
