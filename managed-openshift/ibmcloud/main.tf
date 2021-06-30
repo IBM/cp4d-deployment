@@ -78,6 +78,7 @@ module "cpd_install" {
   cpd_registry_password = var.cpd_registry_password
   cpd_registry          = var.cpd_registry
   cpd_registry_username = var.cpd_registry_username
+  operator_namespace    = var.operator_namespace
   artifactory_username  = var.artifactory_username
   artifactory_apikey    = var.artifactory_apikey
   entitlement_user      = var.entitlement_user

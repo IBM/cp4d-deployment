@@ -7,13 +7,12 @@ wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-ccs-1.
 
 
 CASE_PACKAGE_NAME="ibm-ccs-1.0.0.tgz"
-NAMESPACE="ibm-common-services"
+
 
 cloudctl case launch --case ./${CASE_PACKAGE_NAME} \
-    --tolerance 1 --namespace ${NAMESPACE}         \
+    --tolerance 1 --namespace ${OP_NAMESPACE}         \
     --action installOperator                        \
-    --inventory ccsSetup                            \
-    --args "--registry cp.icr.io"
+    --inventory ccsSetup                            
 
 
 # Checking if the ccs operator pods are ready and running. 

@@ -1,4 +1,4 @@
-apiVersion: cpd.ibm.com/v1
+apiVersion: wos.cpd.ibm.com/v1
 kind: WOService
 metadata:
   name: aiopenscale

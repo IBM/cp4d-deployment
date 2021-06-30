@@ -160,6 +160,8 @@ echo $result
 
 ./check-cr-status.sh ibmcpd ibmcpd-cr zen controlPlaneStatus
 
-wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.1/cloudctl-linux-amd64.tar.gz
-wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.7.1/cloudctl-linux-amd64.tar.gz.sig
+
+wget https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-linux-amd64.tar.gz
+wget https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-linux-amd64.tar.gz.sig
 tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/local/bin
+mv /usr/local/bin/cloudctl-linux-amd64 /usr/local/bin/cloudctl

@@ -11,6 +11,7 @@ variable "cpd_project_name" {}
 variable "cpd_registry_password" {}
 variable "cpd_registry" {}
 variable "cpd_registry_username" {}
+variable "operator_namespace" {}
 variable "artifactory_username" {}
 variable "artifactory_apikey" {}
 variable "entitlement_user" {}

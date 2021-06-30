@@ -1,31 +1,42 @@
 #!/bin/bash
 
-#cat > wml-cr.yaml <<EOL\n${file("../cpd4_module/wml-cr.yaml")}\nEOL
-
 # Case package. 
-### Currently the case package is in ibm internal site. Hence downloading it and keeping it as part of the repo.
 
-# "curl -s https://${var.gituser-short}:${var.gittoken}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/dev/case-repo-dev/ibm-wml/1.0.0-153/ibm-wml-1.0.0-153.tgz -o ibm-wml-1.0.0-153.tgz",
-
-
-###### If CCS is installed already , the ccs catalog source would be already created. 
-###### If not we need to create CCS catalog source as the first step before we proceed here. 
-######
+wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-wml-cpd-4.0.0.tgz
 
 # # Install wml operator using CLI (OLM)
 
 
-./install-wml-operator.sh ibm-wml-cpd-4.0.0-1486.tgz ibm-common-services
+CASE_PACKAGE_NAME="ibm-wml-cpd-4.0.0.tgz"
+
+export WML_OPERATOR_CATALOG_NAMESPACE=openshift-marketplace
+
+
+## Install catalog 
+
+cloudctl case launch --case ${CASE_PACKAGE_NAME} \
+    --namespace ${WML_OPERATOR_CATALOG_NAMESPACE}  \
+    --inventory  wmlOperatorSetup \
+    --action installCatalog \
+    --tolerance 1
+
+## Install Operator
+
+cloudctl case launch --case ${CASE_PACKAGE_NAME} \
+    --namespace ${OP_NAMESPACE} \
+    --inventory  wmlOperatorSetup \
+    --action install \
+    --tolerance=1
 
 # Checking if the wml operator pods are ready and running. 
 
 # checking status of ibm-watson-wml-operator
 
-./pod-status-check.sh ibm-cpd-wml-operator ibm-common-services
+./pod-status-check.sh ibm-cpd-wml-operator ${OP_NAMESPACE}
 
 # switch zen namespace
 
-oc project zen
+oc project ${NAMESPACE}
 
 # Create wml CR: 
 
@@ -35,4 +46,4 @@ echo $result
 
 # check the WML cr status
 
-./check-cr-status.sh WmlBase wml-cr zen wmlStatus
+./check-cr-status.sh WmlBase wml-cr ${NAMESPACE} wmlStatus

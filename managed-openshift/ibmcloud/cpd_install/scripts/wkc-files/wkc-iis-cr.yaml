@@ -8,7 +8,7 @@ spec:
   license:
     accept: true
     license: Enterprise
-  docker_registry_prefix: cp.stg.icr.io/cp/cpd
+  docker_registry_prefix: cp.icr.io/cp/cpd
   use_dynamic_provisioning: true
   namespace: REPLACE_NAMESPACE
   iis_db2u_set_kernel_params: True

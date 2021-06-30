@@ -1,30 +1,31 @@
 #!/bin/bash
 
-# Case package. 
+wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-watson-openscale-2.0.0.tgz
 
-curl -s https://${GITUSER_SHORT}:${GIT_TOKEN}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.0.0/local/case-repo-local/ibm-watson-openscale/2.0.0-190/ibm-watson-openscale-2.0.0-190.tgz -o ibm-watson-openscale-2.0.0-190.tgz
+# Install WOS operator using CLI (OLM)
+
+CASE_PACKAGE_NAME="ibm-watson-openscale-2.0.0.tgz"
+
+oc project ${OP_NAMESPACE}
 
 
-# Install OpenScale operator using CLI (OLM)
+cloudctl case launch --case ./${CASE_PACKAGE_NAME} \
+    --namespace ${OP_NAMESPACE}                                   \
+    --tolerance 1
 
-./install-openscale-operator.sh ibm-watson-openscale-2.0.0-190.tgz ibm-common-services
+# Checking if the wos operator pods are ready and running. 
 
-# Checking if the openscale operator pods are ready and running. 
-
-# checking status of ibm-watson-openscale-operator
-
-./pod-status-check.sh ibm-watson-openscale-operator ibm-common-services
+./pod-status-check.sh ibm-cpd-wos-operator ${OP_NAMESPACE}
 
 # switch zen namespace
 
-oc project zen
+oc project ${NAMESPACE}
 
-# Create openscale CR: 
+# Create wsl CR: 
 
-echo '*** executing **** oc create -f openscale-cr.yaml'
 result=$(oc create -f openscale-cr.yaml)
 echo $result
 
 # check the CCS cr status
 
-./check-cr-status.sh WOService aiopenscale zen wosStatus
+./check-cr-status.sh WOService aiopenscale ${NAMESPACE} wosStatus
