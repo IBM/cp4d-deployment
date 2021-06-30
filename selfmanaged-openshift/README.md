@@ -10,7 +10,7 @@ This deployment guide provides step-by-step instructions for deploying IBM Cloud
 This reference deployment provides Terraform scripts to deploy Cloud Pak for Data on a new Red Hat OpenShift Container Platform 4.6 cluster on AWS and Azure. This cluster includes:
 
  - A Red Hat OpenShift Container Platform cluster created in a new or existing VPC on Red Hat CoreOS (RHCOS)  instances, using the [Red Hat OpenShift Installer Provisioned Infrastructure](https://docs.openshift.com/container-platform/4.6/architecture/architecture-installation.html).
- - A highly available storage infrastructure with Portworx or OpenShift Container Storage. You also have the option to select NFS for Azure and Elastic File System for AWS.
+ - A highly available storage infrastructure with Portworx or OpenShift Container Storage. You also have the option to select NFS for Azure.
  - Scalable OpenShift compute nodes running Cloud Pak for Data services. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
 
 
@@ -68,18 +68,18 @@ The table lists the resource requirements for each of the services, that will de
 |Watson OpenScale (Small,includes WML)|	30	|120 |
 |Spark Engine|	7	| 28 |
 |Cognos Dashboards Engine|	4|	16 |
-|Streams|	0.8|	17 |
-|Streams Flows|	0.3|	0.384 |
 |Db2 Warehouse (SMP)|	9|	102 |
 |Db2 Warehouse (MPP)|	41|	614 |
 |DataStage Enterprise Plus|	6|	24 |
-|Cognos Analytics|	11|	29 |
+|SPSS Modeler|	11|	84 |
+<!-- |Cognos Analytics|	11|	29 |
 |Db2 Advanced Edition|	5|	14 |
 |Db2 Data Gate|	4|	12 |
-|Decision Optimization|	0.9|	1.5 |
-|SPSS Modeler|	11|	84 |
-|Db2 Big SQL|	48|	269 |
-|Planning Analytics|	13|	46 |
+|Decision Optimization|	0.9|	1.5 | -->
+<!-- |Streams|	0.8|	17 |
+|Streams Flows|	0.3|	0.384 | -->
+<!-- |Db2 Big SQL|	48|	269 |
+|Planning Analytics|	13|	46 | -->
 
 <!-- |Watson Assistant|	10|	150 |
 |Watson Discovery|	26|	150 | -->
@@ -94,16 +94,11 @@ See [AWS deployment documentation](aws/README.md#steps-to-deploy) for AWS deploy
 See [Azure deployment documentation](azure/README.md#requirements) for Azure deployment.
 
 
-## Auto Scaling
+## Scaling
 
 The number of compute nodes in the cluster is controlled by [MachineSets](https://docs.openshift.com/container-platform/4.6/scalability_and_performance/recommended-cluster-scaling-practices.html).
-The cluster will create new compute nodes using the machineset if:
-* A pod is unschedulable due to a lack of resources.
-* A node fails health check for 300 seconds.<br>
 
-**Note**: Health Checks do not run on the master nodes. See the RedHat [documentation](https://docs.openshift.com/container-platform/4.6/scalability_and_performance/recommended-cluster-scaling-practices.html#machine-health-checks-about_cluster-scaling) for details.  
-
-To manually scale up or scale down the cluster:
+To scale up or scale down the cluster:
 * Find the MachineSet for the node in the region that you want to scale.
 
 ```bash
@@ -127,17 +122,17 @@ As part of the deployment, the following services can be enabled.
   - Watson OpenScale
   - Apache Spark
   - Cognos Dashboards
-  - Streams
-  - Streams Flows
   - Db2 Warehouse
   - DataStage Enterprise Plus
   - Cognos Analytics
   - Db2 Advanced Edition
-  - Db2 Data Gate
-  - Decision Optimization
   - SPSS Modeler
-  - Db2 Big SQL
-  - Planning Analytics
+<!-- - Db2 Data Gate
+  - Decision Optimization -->
+<!-- - Streams
+  - Streams Flows -->
+  <!-- - Db2 Big SQL
+  - Planning Analytics -->
 <!--  - Watson Assistant
   - Watson Discovery -->
  
