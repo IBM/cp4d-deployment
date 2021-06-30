@@ -44,35 +44,35 @@
 | `portworx-encryption-key` | Required if `portworx-encryption` is set to 'yes' | Please provide the encryption key that will be used as cluster-wide-secret key for the portworx cluster . For more details , Please see the `Portworx encrytpion` section in PORTWORX.md. |
 | `storage-disk-size` | 1024 | Data disk size. Only applicable for NFS storage |
 | `enableNFSBackup` | no | backup NFS Vm data |
-| `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `cpd-external-registry` | Optional | URL for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. NOTE: The URL should include the namespace (e.g cpd.icr.io/cpd) |
 | `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) |
-| `ocp_version` | latest | Openshift Container Platform version to install. Currently, 4.6.13 |
-| `cpd-version` | latest | CPD version to install |
-| `cloudctl_version` | v3.7.0 | cloudctl version to use |
-| `data-virtualization` | no | Install Data Virtualization Add-On |
-| `watson-studio-library` | no | Install Watson Studio Library Add-On |
-| `watson-knowledge-catalog` | no | Install Watson Knowledge Catalog Add-On |
-| `watson-ai-openscale` | no | Install Watson AI Openscale Add-On |
-| `watson-machine-learning` | no | Install Watson Machine Learning Add-On |
+| `ocp_version` | 4.6.30 | Openshift Container Platform version to install. Currently, 4.6.30 |
+| `cloudctl_version` | v3.8.0 | cloudctl version to use |
+| `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdffBz |
+| `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
+| `operator-namespace` | ibm-common-services | CPD service operator namespace or project where the service operators will be installed. |
+| `wsl` | no | Install Watson Studio Library Add-On |
+| `wml` | no | Install Watson Machine Learning Add-On |
+| `aiopenscale` | no | Install Watson AI Openscale Add-On |
+| `spss` | no | Install the SPSS Modeler Add-on |
+| `cde` | no | Install the Cognos Dashboard Add-on  |
+| `dods` | no | Install the Decision Optimization Add-on  |
 | `spark` | no | Install the Spark Add-on |
-| `cognos-dashboard-embedded` | no | Install Cognos Dashboard |
+| `dv` | no | Install Data Virtualization Add-On |
+| `bigsql` | no | Install the Db2 BigSQL Add-on |
+| `ca` | no | Install the Cognos Analytics Add-on  |
+| `db2oltp` | no | Install the db2oltp Add-on |
+| `db2wh` | no | Install the DB2Warehouse Add-on  |
+| `wkc` | no | Install Watson Knowledge Catalog Add-On |
+| `datastage` | no | Install the Datastage Add-on |
+<!-- | `cognos-dashboard-embedded` | no | Install Cognos Dashboard |
 | `streams` | no | Install the Streams Add-on |
 | `streams-flows` | no | Install the Streams Flow Add-on  |
 | `datastage` | no | Install the datastage Add-on |
-| `db2-warehouse` | no | Install the DB2Warehouse Add-on  |
-| `db2-advanced-edition` | no | Install the db2 advanced edition Add-on |
 | `data-management-console` | no | Install the data management console Add-on  |
-| `decision-optimization` | no | Install the Decision Optimization Add-on  |
-| `cognos-analytics` | no | Install the Cognos Analytics Add-on  |
-| `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/Bdq6KP |
-| `datagate` | no | Install the Datagate Add-on |
-| `spss-modeler` | no | Install the SPSS Modeler Add-on |
-| `db2-bigsql` | no | Install the Db2 BigSQL Add-on |
 | `planning-analytics` | no | Install the Planning Analytics Add-on |
-
-<!-- | `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
+| `watson-assistant` | no | Enter `yes` to install the Watson Assistant Add-on service. |
 | `watson-discovery` | no | Enter `yes` to install the Watson Discovery Add-on service. |
 | `watson-knowledge-studio` | no | Enter `yes` to install the Watson Knowledge Studio Add-on service. |
 | `watson-language-translator` | no | Enter `yes` to install the Watson Language Translator Add-on service. |
