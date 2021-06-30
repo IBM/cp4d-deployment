@@ -103,25 +103,6 @@ data "template_file" "nfs-template" {
   }
 }
 
-# data "template_file" "cpd-service" {
-#   template = file("../cpd_module/cpd-service.tpl.yaml")
-#   vars = {
-#     cpd-version    = var.cpd-version
-#     overrideValue  = local.override-value
-#     autopatch      = "false"
-#     license-accept = "true"
-#   }
-# }
-
-data "template_file" "cpd-service-no-override" {
-  template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
-  vars = {
-    cpd-version    = var.cpd-version
-    autopatch      = "false"
-    license-accept = "true"
-  }
-}
-
 data "template_file" "portworx-override" {
   template = file("../cpd_module/portworx-override.yaml")
   vars = {

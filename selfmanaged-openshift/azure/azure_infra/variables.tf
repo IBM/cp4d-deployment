@@ -167,38 +167,6 @@ variable "storage-disk-size" {
   default = 1024
 }
 
-variable "cp-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-shared-gp3"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
-# StorageClass Streams
-variable "streams-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-shared-gp-allow"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
-# StorageClass BigSQL
-variable "bigsql-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-dv-shared-gp3"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
 variable "enableNFSBackup" {
   default = "no"
 }
@@ -218,12 +186,8 @@ variable "ocp_version" {
   default = "4.6.30"
 }
 
-variable "cpd-version" {
-  default = "latest"
-}
-
 variable "cloudctl_version" {
-  default = "latest"
+  default = "v3.8.0"
 }
 
 variable "apikey" {
@@ -267,33 +231,11 @@ variable "ccs-storageclass-value" {
 ############################################
 # CPD 4.0 service variables 
 ###########################################
-
-variable "cpd-platform-operator" {
-  default = "no"
-}
-
-variable "ccs" {
-  default = "no"
-}
-
-variable "data-refinery" {
-  default = "no"
-}
-
-variable "db2uoperator" {
-  default = "no"
-}
-
-
-variable "dmc" {
-  default = "no"
-}
-
-variable "db2aaservice" {
-  default = "no"
-}
-
 variable "wsl" {
+  default = "no"
+}
+
+variable "wml" {
   default = "no"
 }
 
@@ -302,10 +244,6 @@ variable "aiopenscale" {
 }
 
 variable "spss" {
-  default = "no"
-}
-
-variable "wml" {
   default = "no"
 }
 
@@ -329,15 +267,7 @@ variable "bigsql" {
   default = "no"
 }
 
-variable "wkc" {
-  default = "no"
-}
-
 variable "ca" {
-  default = "no"
-}
-
-variable "ds" {
   default = "no"
 }
 
@@ -347,4 +277,12 @@ variable "db2oltp" {
 
 variable "db2wh" {
   default = "no"
-} 
+}
+
+variable "wkc" {
+  default = "no"
+}
+
+variable "ds" {
+  default = "no"
+}
