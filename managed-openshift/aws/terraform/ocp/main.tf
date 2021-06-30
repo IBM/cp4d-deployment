@@ -73,8 +73,8 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
-echo "Sleeping for 3mins"
-sleep 180
+echo "Sleeping for 4mins"
+sleep 240
 EOF
   }
   depends_on = [
@@ -94,8 +94,8 @@ locals {
 resource "null_resource" "configure_image_registry" {
   provisioner "local-exec" {
     command =<<EOF
-bash ocp/scripts/nodes_running.sh
 ${local.login_cmd} --insecure-skip-tls-verify
+bash ocp/scripts/nodes_running.sh
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
 echo 'Sleeping for 3m'
