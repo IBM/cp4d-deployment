@@ -1,4 +1,4 @@
-locals {
+nlocals {
   cidr-prefix = split(".", var.virtual-network-cidr)[0]
 }
 
@@ -103,7 +103,7 @@ data "template_file" "nfs-template" {
   }
 }
 
-data "template_file" "registry-monf" {
+data "template_file" "registry-conf" {
   template = file("../openshift_module/registries.tpl.conf")
   vars = {
     registry-route = "default-route-openshift-image-registry.apps.${var.cluster-name}.${var.dnszone}"
