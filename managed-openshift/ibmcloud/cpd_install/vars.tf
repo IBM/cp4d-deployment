@@ -11,12 +11,15 @@ variable "cpd_project_name" {}
 variable "cpd_registry_password" {}
 variable "cpd_registry" {}
 variable "cpd_registry_username" {}
+variable "operator_namespace" {}
 variable "install_services" {}
 variable "multizone" {}
 variable "portworx_is_ready" {
   type = any
   default = null
 }
+variable "ibmcloud_api_key" {}
+variable "resource_group_name" {}
 variable "region" {}
 variable "resource_group_id" {}
 variable "unique_id" {}

@@ -103,25 +103,6 @@ data "template_file" "nfs-template" {
   }
 }
 
-data "template_file" "cpd-service" {
-  template = file("../cpd_module/cpd-service.tpl.yaml")
-  vars = {
-    cpd-version    = var.cpd-version
-    overrideValue  = local.override-value
-    autopatch      = "false"
-    license-accept = "true"
-  }
-}
-
-data "template_file" "cpd-service-no-override" {
-  template = file("../cpd_module/cpd-service-no-override.tpl.yaml")
-  vars = {
-    cpd-version    = var.cpd-version
-    autopatch      = "false"
-    license-accept = "true"
-  }
-}
-
 data "template_file" "portworx-override" {
   template = file("../cpd_module/portworx-override.yaml")
   vars = {
@@ -175,5 +156,68 @@ data "template_file" "multipath-mc" {
   template = file("../openshift_module/multipath-machineconfig.yaml")
   vars = {
     multipath-config-data = base64encode(file("../openshift_module/multipath.conf"))
+  }
+}
+
+data "template_file" "ibmcpd-cr-file" {
+  template = file("../cpd4_module/ibmcpd-cr.tpl.yaml")
+  vars = {
+    NAMESPACE = var.cpd-namespace
+  }
+}
+
+
+data "template_file" "wmlcrnfsfile" {
+  template = file("../cpd4_module/wml-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wmlcrpwxocsfile" {
+  template = file("../cpd4_module/wml-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wslcrnfsfile" {
+  template = file("../cpd4_module/wsl-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wslcrpwxocsfile" {
+  template = file("../cpd4_module/wsl-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wkccrnfsfile" {
+  template = file("../cpd4_module/wkc-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkccrpwxocsfile" {
+  template = file("../cpd4_module/wkc-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wkciiscrnfsfile" {
+  template = file("../cpd4_module/wkc-iis-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkciiscrpwxocsfile" {
+  template = file("../cpd4_module/wkc-iis-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
+  }
+}
+
+data "template_file" "wkcugcrnfsfile" {
+  template = file("../cpd4_module/wkc-ug-cr-nfs.tpl.yaml")
+}
+
+data "template_file" "wkcugcrpwxocsfile" {
+  template = file("../cpd4_module/wkc-ug-cr-pwx-ocs.tpl.yaml")
+  vars = {
+    STORAGE_VENDOR = var.storage
   }
 }

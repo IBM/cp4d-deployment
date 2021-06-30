@@ -1,0 +1,15 @@
+apiVersion: spssmodeler.cpd.ibm.com/v1
+kind: Spss
+metadata:
+  name: spss-cr
+spec:    
+  version: "4.0.0"
+  storageClass: "portworx-shared-gp3"
+  scaleConfig: "small"
+  architecture: "amd64"
+  namespace: "REPLACE_NAMESPACE"
+  operation: "install"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  license:
+    accept: true
+    license: Enterprise

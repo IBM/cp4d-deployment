@@ -167,46 +167,11 @@ variable "storage-disk-size" {
   default = 1024
 }
 
-variable "cp-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-shared-gp3"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
-# StorageClass Streams
-variable "streams-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-shared-gp-allow"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
-# StorageClass BigSQL
-variable "bigsql-storageclass" {
-  type = map
-
-  default = {
-    "portworx" = "portworx-dv-shared-gp3"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-  }
-}
-
 variable "enableNFSBackup" {
   default = "no"
 }
 
 # Openshift namespace/project to deploy cloud pak into
-variable "cpd-namespace" {
-  default = "zen"
-}
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
@@ -218,106 +183,106 @@ variable "cpd-external-username" {
   default     = ""
 }
 variable "ocp_version" {
-  default = "4.6.13"
-}
-
-variable "cpd-version" {
-  default = "latest"
+  default = "4.6.30"
 }
 
 variable "cloudctl_version" {
-  default = "v3.7.0"
+  default = "v3.8.0"
 }
 
 variable "apikey" {
 }
 
-# Add-Ons
-variable "data-virtualization" {
-  default = "no"
-}
-
-variable "watson-studio-library" {
-  default = "no"
-}
-
-variable "watson-knowledge-catalog" {
-  default = "no"
-}
-
-variable "watson-ai-openscale" {
-  default = "no"
-}
-
-variable "watson-machine-learning" {
-  default = "no"
-}
-
-variable "cognos-dashboard-embedded" {
-  default = "no"
-}
-
-variable "apache-spark" {
-  default = "no"
-}
-
-variable "streams" {
-  default = "no"
-}
-
-variable "streams-flows" {
-  default = "no"
-}
-
-variable "datastage" {
-  default = "no"
-}
-
-variable "db2-warehouse" {
-  default = "no"
-}
-
-variable "db2-advanced-edition" {
-  default = "no"
-}
-
-variable "data-management-console" {
-  default = "no"
-}
-
-variable "datagate" {
-  default = "no"
-}
-
-variable "decision-optimization" {
-  default = "no"
-}
-
-variable "cognos-analytics" {
-  default = "no"
-}
-
-variable "spss-modeler"{
-  default = "no"
-}
-
-variable "db2-bigsql"{
-  default = "no"
-}
-
-variable "planning-analytics" {
-  default = "no"
-}
-
-# variable "watson-assistant"{
-#   default = "no"
-# }
-
-# variable "watson-discovery"{
-#   default = "no"
-# }
-
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default     = "reject"
+}
+
+##############################
+### CPD4.0 variables
+##############################
+
+variable "cpd-namespace" {
+  default = "zen"
+}
+
+variable "operator-namespace" {
+  default = "ibm-common-services"
+}
+
+variable "cpd-storageclass" {
+  type = map
+
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "nfs"      = "nfs"
+  }
+}
+
+variable "ccs-storageclass-value" {
+  type = map
+
+  default = {
+    "portworx" = "storageVendor: portworx"
+    "nfs"      = "storageClass: nfs"
+  }
+}
+
+############################################
+# CPD 4.0 service variables 
+###########################################
+variable "wsl" {
+  default = "no"
+}
+
+variable "wml" {
+  default = "no"
+}
+
+variable "aiopenscale" {
+  default = "no"
+}
+
+variable "spss" {
+  default = "no"
+}
+
+variable "cde" {
+  default = "no"
+}
+
+variable "dods" {
+  default = "no"
+}
+
+variable "spark" {
+  default = "no"
+}
+
+variable "dv" {
+  default = "no"
+}
+
+variable "bigsql" {
+  default = "no"
+}
+
+variable "ca" {
+  default = "no"
+}
+
+variable "db2oltp" {
+  default = "no"
+}
+
+variable "db2wh" {
+  default = "no"
+}
+
+variable "wkc" {
+  default = "no"
+}
+
+variable "ds" {
+  default = "no"
 }

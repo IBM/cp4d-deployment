@@ -1,0 +1,12 @@
+apiVersion: wkc.cpd.ibm.com/v1beta1
+kind: UG
+metadata:
+  name: ug-cr
+spec:
+  version: "4.0.0"
+  size: "small"
+  storageVendor: portworx
+  license:
+    accept: true
+    license: "Enterprise"
+  docker_registry_prefix: cp.icr.io/cp/cpd

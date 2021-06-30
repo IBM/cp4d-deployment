@@ -22,8 +22,8 @@ RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.
  && mv cloudctl-linux-amd64 /usr/bin/cloudctl
 
 # terraform-provider-ibm
-RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v1.20.1/linux_amd64.zip \
- && unzip linux_amd64.zip \
+RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v1.20.1/terraform-provider-ibm_1.20.1_linux_amd64.zip \
+ && unzip terraform-provider-ibm_1.20.1_linux_amd64.zip \
  && mkdir -p $HOME/.terraform.d/plugins \
  && mv terraform-provider-ibm_v1.20.1 $HOME/.terraform.d/plugins/
 
@@ -38,6 +38,17 @@ RUN wget --no-verbose -O ibmcloud-installer.tgz https://clis.cloud.ibm.com/downl
  && tar -xzf ibmcloud-installer.tgz \
  && Bluemix_CLI/install \
  && echo 'alias ic=ibmcloud' >> $HOME/.profile
+
+# ibmcloud plugins
+RUN ibmcloud plugin install container-registry \
+&& ibmcloud plugin install container-service
+
+# install jq
+RUN wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64  -O /usr/bin/jq && chmod +x /usr/bin/jq
+
+RUN apt-get update -y
+RUN apt-get install -y python
+RUN apt-get install -y python-yaml
 
 ###################################
 # Dir for mounting template files

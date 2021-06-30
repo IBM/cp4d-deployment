@@ -1,4 +1,4 @@
-# Cloud Pak for Data 3.5 on Red Hat OpenShift on IBM Cloud
+# Cloud Pak for Data 4.0 on Red Hat OpenShift on IBM Cloud
 
 [IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on IBM Cloud.
 
@@ -50,21 +50,24 @@ Refer to [User access permissions](https://cloud.ibm.com/docs/openshift?topic=op
 
 ## Cloud Pak for Data services
 
-As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/knowledgecenter/SSQNUZ_3.5.0/svc-nav/head/svc.html).
+As part of the deployment, any of the following services can be installed. For more information about available services, visit the [Cloud Pak for Data services catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_latest/svc-nav/head/services.html).
 
-* Lite (base)
-* Analytics Engine powered by Apache Spark
+* Cloud Pak for Data Bedrock Services
 * Data Virtualization
 * Watson Knowledge Catalog
 * Watson Studio
 * Watson Machine Learning
 * Watson OpenScale
+* Db2
+* Data Refinery
+* Db2 Data Management Console
+
+the following services will be supported soon - 
 * Cognos Dashboard Engine
+* Analytics Engine powered by Apache Spark
 * Streams
 * DataStage
-* Db2 Data Management Console
 * Db2 Warehouse
-* Db2
 * Db2 Data Gate
 * Decision Optimization
 * Cognos Analytics
@@ -139,15 +142,6 @@ IBM Cloud documentation for this issue - https://cloud.ibm.com/docs/openshift?to
 
 Open an Issue in this repo that describes the error.
 
-### View detailed logs
-
-Cloud Pak for Data installation logs can be viewed in the following locations. These will become available after Terraform creates the `module.cpd_install.null_resource.install_cpd_operator` resource successfully.
-
-* cpd-meta-operator: `oc -n cpd-meta-ops logs -f deploy/ibm-cp-data-operator`
-
-* cpd-install-operator: `oc -n cpd-tenant logs -f deploy/cpd-install-operator`
-
-**Note**: These logs may contain sensitive information such as your ICR entitlement key. Do not attach them to a GitHub Issue.
 
 ### Common errors
 

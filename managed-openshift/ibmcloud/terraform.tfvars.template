@@ -12,7 +12,7 @@ cpd_registry_password = "<entitled registry password>" # retrieve from https://m
 # multizone = <true|false>
 # worker_nodes_per_zone = "3"
 # no_of_zones = "3"
-
+# operator_namespace = ""
 # existing_vpc_id = ""
 # existing_vpc_subnets = ["xyz"]
 # existing_roks_cluster = ""
@@ -20,6 +20,11 @@ cpd_registry_password = "<entitled registry password>" # retrieve from https://m
 # create_external_etcd = true
 
 install_services = {
+  ccs                = false,
+  data-refinery      = false, # Data refinery
+  db2uoperator       = false,
+  dmc                = false,
+  db2aaservice       = false,
   spark              = false, # Analytics Engine powered by Apache Spark
   dv                 = false, # Data Virtualization
   wkc                = false, # Watson Knowledge Catalog
@@ -41,7 +46,4 @@ install_services = {
   hadoop-addon       = false, # Hadoop Execution Addon
   runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
   watson-assistant   = false, # Watson Assistant
-  # watson-discovery   = false, # Watson Discovery
-  # watson-knowledge-studio = false, # Watson Knowledge Studio
-  # watson-speech = false, # Watson Speech
 }

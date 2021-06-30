@@ -78,6 +78,7 @@ module "cpd_install" {
   cpd_registry_password = var.cpd_registry_password
   cpd_registry          = var.cpd_registry
   cpd_registry_username = var.cpd_registry_username
+  operator_namespace    = var.operator_namespace
   install_services      = var.install_services
   multizone             = var.multizone
   portworx_is_ready     = module.portworx.portworx_is_ready
@@ -85,4 +86,6 @@ module "cpd_install" {
   resource_group_id     = data.ibm_resource_group.this.id
   unique_id             = var.unique_id
   worker_node_flavor    = var.worker_node_flavor
+  ibmcloud_api_key      = var.ibmcloud_api_key
+  resource_group_name   = var.resource_group_name
 }
