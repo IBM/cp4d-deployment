@@ -11,8 +11,21 @@ resource "null_resource" "install_ds" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Create SCC for WKC-IIS"
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
+
+echo "Install IIS Operator"
+wget ${local.cpd_case_url}/ibm-iis-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-iis-4.0.0.tgz'
+${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-iis-4.0.0.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory iisOperatorSetup
+bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
+
+echo "Create IIS CR"
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_cr.yaml
+echo 'check the IIS cr status'
+bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus
+
 echo "Creating Datastage Operator"
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-datastage-4.0.1.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-datastage-4.0.1.tgz'
+wget ${local.cpd_case_url}/ibm-datastage-4.0.1.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-datastage-4.0.1.tgz'
 
 ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-datastage-4.0.1.tgz --namespace ${local.operator_namespace} --action installOperator --inventory datastageOperatorSetup --tolerance 1
 bash cpd/scripts/pod-status-check.sh ibm-datastage-operator ${local.operator_namespace}

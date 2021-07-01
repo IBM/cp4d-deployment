@@ -3,7 +3,6 @@ locals {
   limits_config_data = base64encode(file("cpd/config/limits.conf"))
   sysctl_config_data = base64encode(file("cpd/config/sysctl.conf"))
   license            = var.accept_cpd_license == "accept" ? true : false
-  override           = var.storage_option == "efs" ? "" : var.storage_option
   storage_class      = lookup(var.cpd_storageclass, var.storage_option)
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
 }
@@ -124,6 +123,41 @@ spec:
   updateStrategy:
     registryPoll:
       interval: 45m
+EOF
+}
+
+data "template_file" "db2aaservice_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-db2aaservice-cp4d-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Db2aaservice CP4D Catalog
+  image: icr.io/cpopen/ibm-db2aaservice-cp4d-operator-catalog@sha256:a0d9b6c314193795ec1918e4227ede916743381285b719b3d8cfb05c35fec071
+  imagePullPolicy: Always
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "db2aaservice_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-db2aaservice-cp4d-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  name: ibm-db2aaservice-cp4d-operator
+  installPlanApproval: Automatic
+  source: ibm-db2aaservice-cp4d-operator-catalog
+  sourceNamespace: openshift-marketplace
 EOF
 }
 
