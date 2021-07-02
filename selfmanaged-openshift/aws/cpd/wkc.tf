@@ -41,10 +41,6 @@ resource "null_resource" "install_wkc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Create Dependency (DB2U) Operator"
-oc create -f ${self.triggers.cpd_workspace}/db2u_operator.yaml
-bash cpd/scripts/pod-status-check.sh db2u-operator ${local.operator_namespace}
-
 echo "Creating WKC Operator"
 oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}
@@ -82,12 +78,12 @@ EOF
     local_file.wkc_iis_cr_yaml,
     local_file.wkc_ug_cr_yaml,
     local_file.db2u_operator_yaml,
-    null_resource.install_analyticsengine,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,
     null_resource.install_spss,
-    null_resource.install_db2wh,
+    null_resource.install_dv,
+    null_resource.install_cde,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
