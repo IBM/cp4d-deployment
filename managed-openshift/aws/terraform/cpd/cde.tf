@@ -33,6 +33,7 @@ EOF
     null_resource.install_db2wh,
     null_resource.install_dv,
     null_resource.install_dmc,
+    null_resource.install_ds,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,

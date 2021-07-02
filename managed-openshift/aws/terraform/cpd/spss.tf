@@ -39,6 +39,7 @@ EOF
     null_resource.install_analyticsengine,
     null_resource.install_db2wh,
     null_resource.login_cluster,
+    null_resource.install_ws,
   ]
 }
 

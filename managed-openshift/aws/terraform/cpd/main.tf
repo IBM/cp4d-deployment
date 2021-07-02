@@ -3,7 +3,7 @@ locals {
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
   cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
-  db2aaservice       = (var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
+  db2aaservice       = (var.datastage == "yes" || var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
@@ -44,7 +44,9 @@ oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfig
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 echo "Sysctl changes"
-oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
 oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
 
 echo "Creating MachineConfig files"
