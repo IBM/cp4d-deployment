@@ -932,7 +932,7 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: ibm-db2uoperator-catalog-subscription
-  generation: 1
+  namespace: ${local.operator_namespace}
 spec:
   channel: v1.1
   name: db2u-operator
