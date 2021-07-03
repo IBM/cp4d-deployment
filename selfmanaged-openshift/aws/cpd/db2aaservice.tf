@@ -4,6 +4,16 @@ resource "local_file" "db2aaservice_cr_yaml" {
   filename = "${local.cpd_workspace}/db2aaservice_cr.yaml"
 }
 
+resource "local_file" "db2aaservice_catalog_source_yaml" {
+  content  = data.template_file.db2aaservice_catalog_source.rendered
+  filename = "${local.cpd_workspace}/db2aaservice_catalog_source.yaml"
+}
+
+resource "local_file" "db2aaservice_sub_yaml" {
+  content  = data.template_file.db2aaservice_sub.rendered
+  filename = "${local.cpd_workspace}/db2aaservice_sub.yaml"
+}
+
 resource "null_resource" "install_db2aaservice" {
   count = local.db2aaservice == "yes" ? 1 : 0
   triggers = {
@@ -13,10 +23,9 @@ resource "null_resource" "install_db2aaservice" {
   provisioner "local-exec" {
     command = <<EOF
 echo "Db2uaaService"
-wget ${local.cpd_case_url}/ibm-db2aaservice-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-db2aaservice-4.0.0.tgz'
-
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2aaservice-4.0.0.tgz --namespace openshift-marketplace --action installCatalog --inventory db2aaserviceOperatorSetup --tolerance 1
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-db2aaservice-4.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory db2aaserviceOperatorSetup --tolerance 1
+oc create -f ${self.triggers.cpd_workspace}/db2aaservice_catalog_source.yaml
+oc create -f ${self.triggers.cpd_workspace}/db2aaservice_sub.yaml
+sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-db2aaservice-cp4d-operator-controller-manager ${local.operator_namespace}
 
 oc create -f ${self.triggers.cpd_workspace}/db2aaservice_cr.yaml
@@ -27,12 +36,6 @@ EOF
   depends_on = [
     local_file.wkc_cr_yaml,
     local_file.db2aaservice_cr_yaml,
-    null_resource.install_analyticsengine,
-    null_resource.install_aiopenscale,
-    null_resource.install_wml,
-    null_resource.install_ws,
-    null_resource.install_spss,
-    null_resource.install_db2wh,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
