@@ -9,8 +9,8 @@ data "aws_availability_zones" "azs" {}
 locals {
   installer_workspace = "${path.root}/installer-files"
   availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
-  availability_zone2  = var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
-  availability_zone3  = var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
+  availability_zone2  = var.az == "multi_zone" && var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
+  availability_zone3  = var.az == "multi_zone" && var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
   vpc_id              = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
   master_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].master_subnet1_id : var.master_subnet1_id
   master_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].master_subnet2_id[0] : var.master_subnet2_id

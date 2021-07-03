@@ -34,7 +34,14 @@ EOF
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.install_ccs,
-    null_resource.install_aiopenscale,
     null_resource.login_cluster,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_ws,
+    null_resource.install_spss,
+    null_resource.install_dv,
+    null_resource.install_cde,
+    null_resource.install_wkc,
+    null_resource.install_db2aaservice,
   ]
 }
