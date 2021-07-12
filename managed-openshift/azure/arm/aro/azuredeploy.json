@@ -185,7 +185,7 @@
 		},
 		"clusterName": {
 			"type": "string",
-			"defaultValue": "mkocswkc4",
+			"defaultValue": "myocp",
 			"metadata": {
 				"description": "Cluster resources prefix"
 			}
@@ -324,13 +324,13 @@
 		},
 		"cloudPakLicenseAgreement": {
 			"type": "string",
-			"defaultValue": "accept",
+			"defaultValue": "reject",
 			"allowedValues": [
 				"accept",
 				"reject"
 			],
 			"metadata": {
-				"description": "Accept License Agreement: https://ibm.biz/Bdq6KP"
+				"description": "Accept License Agreement: https://ibm.biz/BdffBz"
 			}
 		}
 	},

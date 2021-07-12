@@ -84,7 +84,7 @@ az login
 ```
 Example:
 ```bash
-./az-group-deploy.sh -a aro -l westus2 -g myocp-rg -e aro/parameters.json
+./az-group-deploy.sh -a aro -l westus2 -g myocp-rg -e aro/azuredeploy.parameters.json
 ```
 
 * The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`azuredeploy`>`Outputs`.
