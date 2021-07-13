@@ -48,4 +48,4 @@ EOF
 ./pod-status-check.sh ibm-dmc-controller ${OP_NAMESPACE}
 
 # check the mc cr status
-./check-cr-status.sh dmcaddon dmcaddon-cr ${NAMESPACE} dmcStatus
+./check-cr-status.sh dmcaddon dmcaddon-cr ${NAMESPACE} dmcAddonStatus

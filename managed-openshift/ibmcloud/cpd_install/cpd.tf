@@ -14,6 +14,8 @@ resource "null_resource" "bedrock_zen_operator" {
       IBMCLOUD_APIKEY = var.ibmcloud_api_key
       IBMCLOUD_RG_NAME = var.resource_group_name
       REGION = var.region
+      NAMESPACE = var.cpd_project_name
+      OP_NAMESPACE = var.operator_namespace
     }
     
     working_dir = "${path.module}/scripts/"
