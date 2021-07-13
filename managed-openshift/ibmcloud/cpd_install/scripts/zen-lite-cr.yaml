@@ -2,7 +2,7 @@ apiVersion: cpd.ibm.com/v1
 kind: Ibmcpd
 metadata:
   name: ibmcpd-cr
-  namespace: zen
+  namespace: CPD_NAMESPACE
 spec:
   license:
     accept: true
