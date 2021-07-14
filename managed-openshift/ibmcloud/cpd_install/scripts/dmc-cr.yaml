@@ -3,7 +3,7 @@ kind: Dmcaddon
 metadata:
   name: dmcaddon-cr
 spec:
-  namespace: zen
+  namespace: CPD_NAMESPACE
   storageClass: "portworx-shared-gp3"
   pullPrefix: cp.icr.io/cp/cpd
   version: "4.0.0"
