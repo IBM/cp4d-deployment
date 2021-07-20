@@ -1,0 +1,12 @@
+apiVersion: dmc.databases.ibm.com/v1
+kind: Dmcaddon
+metadata:
+  name: dmcaddon-cr
+spec:
+  namespace: CPD_NAMESPACE
+  storageClass: "portworx-shared-gp3"
+  pullPrefix: cp.icr.io/cp/cpd
+  version: "4.0.0"
+  license:
+    accept: true
+    license: Enterprise 

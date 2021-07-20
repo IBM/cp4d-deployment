@@ -29,20 +29,11 @@ sleep 5m
 
 oc project ${NAMESPACE} 
 
-cat << EOF | oc apply -f -
-apiVersion: dmc.databases.ibm.com/v1
-kind: Dmcaddon
-metadata:
-  name: dmcaddon-cr
-spec:
-  namespace: zen
-  storageClass: "portworx-shared-gp3"
-  pullPrefix: cp.icr.io/cp/cpd
-  version: "4.0.0"
-  license:
-    accept: true
-    license: Enterprise 
-EOF
+# Create dmc CR: 
+sed -i -e s#CPD_NAMESPACE#${NAMESPACE}#g dmc-cr.yaml
+echo '*** executing **** oc create -f dmc-cr.yaml'
+result=$(oc create -f dmc-cr.yaml)
+echo $result
 
 # checking status of dmc-operator
 ./pod-status-check.sh ibm-dmc-controller ${OP_NAMESPACE}
