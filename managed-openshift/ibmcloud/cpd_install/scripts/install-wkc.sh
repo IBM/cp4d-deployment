@@ -30,7 +30,7 @@ cloudctl case launch --case  ${CASE_PACKAGE_NAME} \
 
 # switch to zen namespace
 
-oc project ${NAMESPACE}
+oc project zen
 
 
 # # Install wkc Customer Resource
@@ -39,9 +39,6 @@ oc project ${NAMESPACE}
 echo '*** executing **** oc create -f wkc-cr.yaml'
 result=$(oc create -f wkc-cr.yaml)
 echo $result
-
-while [ "$(oc get sts -n ${NAMESPACE} | grep c-db2oltp-wkc-db2u)" = "" ]; do echo "waiting for c-db2oltp-wkc-db2u statefulset."; sleep 60; done
-oc patch sts c-db2oltp-wkc-db2u -p='{"spec":{"template":{"spec":{"containers":[{"name":"db2u","tty":false}]}}}}}'; echo "patch for c-db2oltp-wkc-db2u is appied."
 
 # check the wkc cr status
 ./../check-cr-status.sh wkc wkc-cr ${NAMESPACE} wkcStatus
@@ -78,10 +75,6 @@ sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g wkc-iis-cr.yaml
 echo '*** executing **** oc create -f wkc-iis-cr.yaml'
 result=$(oc create -f wkc-iis-cr.yaml)
 echo $result
-
-while [ "$(oc get sts -n ${NAMESPACE} | grep c-db2oltp-iis-db2u)" = "" ]; do echo "waiting for c-db2oltp-iis-db2u statefulset."; sleep 60; done
-oc patch sts c-db2oltp-iis-db2u -p='{"spec":{"template":{"spec":{"containers":[{"name":"db2u","tty":false}]}}}}}'; echo "patch for c-db2oltp-iis-db2u is appied."
-
 
 # check the wkc cr status
 ./../check-cr-status.sh iis iis-cr ${NAMESPACE} iisStatus
