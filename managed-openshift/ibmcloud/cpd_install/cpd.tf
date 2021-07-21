@@ -20,7 +20,7 @@ resource "null_resource" "bedrock_zen_operator" {
     
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install-bedrock-zen-operator.sh"
+    command = "./install_bedrock_zen_operator.sh"
   }
   
   depends_on = [
@@ -41,7 +41,7 @@ resource "null_resource" "install_ccs" {
     
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install-ccs.sh"
+    command = "./install_ccs.sh"
   }
   
   depends_on = [
@@ -161,7 +161,7 @@ resource "null_resource" "install_wsl" {
     
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install-wsl.sh"
+    command = "./install_wsl.sh"
   }
   
   depends_on = [
