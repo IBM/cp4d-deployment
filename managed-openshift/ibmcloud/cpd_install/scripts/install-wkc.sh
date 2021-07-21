@@ -30,7 +30,7 @@ cloudctl case launch --case  ${CASE_PACKAGE_NAME} \
 
 # switch to zen namespace
 
-oc project zen
+oc project ${NAMESPACE}
 
 
 # # Install wkc Customer Resource
