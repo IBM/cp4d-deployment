@@ -11,8 +11,8 @@ RUN install_clean wget unzip jq nano
 WORKDIR /tmp
 
 # terraform
-RUN wget --no-verbose https://releases.hashicorp.com/terraform/0.12.29/terraform_0.12.29_linux_amd64.zip \
- && unzip terraform_0.12.29_linux_amd64.zip \
+RUN wget --no-verbose https://releases.hashicorp.com/terraform/0.12.31/terraform_0.12.31_linux_amd64.zip \
+ && unzip terraform_0.12.31_linux_amd64.zip \
  && mv terraform /usr/bin/ \
  && echo 'alias tf=terraform' >> $HOME/.profile
 
@@ -22,10 +22,10 @@ RUN wget --no-verbose https://github.com/IBM/cloud-pak-cli/releases/download/v3.
  && mv cloudctl-linux-amd64 /usr/bin/cloudctl
 
 # terraform-provider-ibm
-RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v1.20.1/terraform-provider-ibm_1.20.1_linux_amd64.zip \
- && unzip terraform-provider-ibm_1.20.1_linux_amd64.zip \
+RUN wget --no-verbose https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v1.28.0/terraform-provider-ibm_1.28.0_linux_amd64.zip \
+ && unzip terraform-provider-ibm_1.28.0_linux_amd64.zip \
  && mkdir -p $HOME/.terraform.d/plugins \
- && mv terraform-provider-ibm_v1.20.1 $HOME/.terraform.d/plugins/
+ && mv terraform-provider-ibm_v1.28.0 $HOME/.terraform.d/plugins/
 
 # oc and kubectl
 RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.6/openshift-client-linux.tar.gz \

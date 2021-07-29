@@ -17,7 +17,7 @@ ID=$(echo $RESPONSE | jq -r --arg VOLUMEID "$VOLUME_ID" '.volume_attachments[] |
 if [ "$ID" == "" ] || [ "$ID" == "null" ]; then
     if ! RESPONSE=$(
         curl -s -X POST -H "Authorization: $TOKEN" \
-            "https://$REGION.containers.cloud.ibm.com/v2/storage/vpc/createAttachment?cluster=$CLUSTER_ID&worker=$WORKER_ID&volumeID=$VOLUME_ID"
+            "https://$REGION.containers.cloud.ibm.com/v2/storage/vpc/createAttachment?cluster=$CLUSTER_ID&worker=$WORKER_ID&volumeID=$VOLUME_ID" -d ‘{}’
     ); then
       echo "Error when trying to /createAttachment"
       exit 1
