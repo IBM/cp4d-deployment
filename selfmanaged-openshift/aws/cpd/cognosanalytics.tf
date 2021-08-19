@@ -3,6 +3,11 @@ resource "local_file" "ca_cr_yaml" {
   filename = "${local.cpd_workspace}/ca_cr.yaml"
 }
 
+resource "local_file" "ca_sub_yaml" {
+  content  = data.template_file.ca_sub.rendered
+  filename = "${local.cpd_workspace}/ca_sub.yaml"
+}
+
 resource "null_resource" "install_ca" {
   count = var.cognos_analytics == "yes" ? 1 : 0
   triggers = {
@@ -11,10 +16,9 @@ resource "null_resource" "install_ca" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Install CA Catalog and Operator"
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cognos-analytics-prod-4.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-cognos-analytics-prod-4.0.0.tgz'
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cognos-analytics-prod-4.0.0.tgz --namespace openshift-marketplace --action installCatalog --inventory ibmCaOperatorSetup --tolerance 1
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cognos-analytics-prod-4.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory ibmCaOperatorSetup --tolerance 1
+echo 'Create CA sub'
+oc create -f ${self.triggers.cpd_workspace}/ca_sub.yaml
+sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-ca-operator ${local.operator_namespace}
 
 echo "CA CR"
@@ -25,6 +29,7 @@ EOF
   }
   depends_on = [
     local_file.ca_cr_yaml,
+    local_file.ca_sub_yaml,
     null_resource.install_analyticsengine,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -36,7 +41,6 @@ EOF
     null_resource.install_dmc,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
-    null_resource.install_ccs,
     null_resource.login_cluster,
     null_resource.install_cde,
   ]

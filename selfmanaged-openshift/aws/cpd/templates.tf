@@ -123,9 +123,22 @@ spec:
   updateStrategy:
     registryPoll:
       interval: 45m
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cpd-iis-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:3ad952987b2f4d921459b0d3bad8e30a7ddae9e0c5beb407b98cf3c09713efcc
+  imagePullPolicy: Always
+  displayName: CPD IBM Information Server
+  publisher: IBM
 EOF
 }
 
+#Db2aaservice
 data "template_file" "db2aaservice_catalog_source" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -172,52 +185,6 @@ spec:
   license:
     accept: true
     license: "Enterprise"
-EOF
-}
-
-
-data "template_file" "wkc_iis_scc" {
-  template = <<EOF
-allowHostDirVolumePlugin: false
-allowHostIPC: false
-allowHostNetwork: false
-allowHostPID: false
-allowHostPorts: false
-allowPrivilegeEscalation: true
-allowPrivilegedContainer: false
-allowedCapabilities: null
-apiVersion: security.openshift.io/v1
-defaultAddCapabilities: null
-fsGroup:
-  type: RunAsAny
-kind: SecurityContextConstraints
-metadata:
-  annotations:
-    kubernetes.io/description: WKC/IIS provides all features of the restricted SCC
-      but runs as user 10032.
-  name: wkc-iis-scc
-readOnlyRootFilesystem: false
-requiredDropCapabilities:
-- KILL
-- MKNOD
-- SETUID
-- SETGID
-runAsUser:
-  type: MustRunAs
-  uid: 10032
-seLinuxContext:
-  type: MustRunAs
-supplementalGroups:
-  type: RunAsAny
-volumes:
-- configMap
-- downwardAPI
-- emptyDir
-- persistentVolumeClaim
-- projected
-- secret
-users:
-- system:serviceaccount:${var.cpd_namespace}:wkc-iis-sa
 EOF
 }
 
@@ -390,6 +357,37 @@ spec:
 EOF
 }
 
+#DB2OLTP
+data "template_file" "db2oltp_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-db2oltp-cp4d-operator
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-db2oltp-cp4d-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "db2oltp_cr" {
+  template = <<EOF
+apiVersion: databases.cpd.ibm.com/v1
+kind: Db2oltpService
+metadata:
+  name: db2oltp-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  storageClass: ${local.storage_class}
+  license:
+    accept: true
+EOF
+}
+
 #WSL
 data "template_file" "ws_sub" {
   template = <<EOF
@@ -425,44 +423,6 @@ spec:
   docker_registry_prefix: "cp.icr.io/cp/cpd"
 EOF
 }
-
-#CCS
-data "template_file" "ccs_sub" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  annotations: {}
-  name: ibm-cpd-ccs-operator
-  namespace: ${local.operator_namespace}
-spec:
-  channel: v1.0
-  config:
-    resources: {}
-  installPlanApproval: Automatic
-  name: ibm-cpd-ccs
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF
-}
-
-data "template_file" "ccs_cr" {
-  template = <<EOF
-apiVersion: ccs.cpd.ibm.com/v1beta1
-kind: CCS
-metadata:
-  name: ccs-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  size: "small"
-  storageVendor: ${var.storage_option}
-  license:
-    accept: true
-    license: Enterprise
-  docker_registry_prefix: "cp.icr.io/cp/cpd"
-EOF
-}
-
 
 #WML
 data "template_file" "wml_sub" {
@@ -646,44 +606,9 @@ spec:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
+  useODLM: true
 EOF
 }
-
-data "template_file" "wkc_iis_cr" {
-  template = <<EOF
-apiVersion: iis.cpd.ibm.com/v1alpha1
-kind: IIS
-metadata:
-  name: iis-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  storageVendor: "${var.storage_option}"
-  license:
-    accept: true
-    license: Enterprise
-  docker_registry_prefix: cp.icr.io/cp/cpd
-  use_dynamic_provisioning: true
-EOF
-}
-
-data "template_file" "wkc_ug_cr" {
-  template = <<EOF
-apiVersion: wkc.cpd.ibm.com/v1beta1
-kind: UG
-metadata:
-  name: ug-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  version: "4.0.0"
-  size: "small"
-  storageVendor: "${var.storage_option}"
-  license:
-    accept: true
-    license: "Enterprise"
-  docker_registry_prefix: cp.icr.io/cp/cpd
-EOF
-}
-
 
 #Datastage
 data "template_file" "ds_sub" {
@@ -699,6 +624,22 @@ spec:
   name: ibm-datastage-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "ds_cr" {
+  template = <<EOF
+apiVersion: dfd.cpd.ibm.com/v1alpha1
+kind: DataStageService
+metadata:
+  name: datastage-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  scaleConfig: small
+  version: 4.0.0
 EOF
 }
 ##################
@@ -724,6 +665,23 @@ spec:
 EOF
 }
 
+data "template_file" "ca_cr" {
+  template = <<EOF
+apiVersion: ca.cpd.ibm.com/v1
+kind: CAService
+metadata:
+  name: ca-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.0"
+  license:
+    accept: true
+    license: "Enterprise"
+  storage_class: "${local.storage_class}"
+  namespace: "${var.cpd_namespace}"
+EOF
+}
+
 #DV
 data "template_file" "dv_catalog_source" {
   template = <<EOF
@@ -743,6 +701,7 @@ spec:
       interval: 45m
 EOF
 }
+
 data "template_file" "dv_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -781,22 +740,6 @@ spec:
 EOF
 }
 
-data "template_file" "ds_cr" {
-  template = <<EOF
-apiVersion: dfd.cpd.ibm.com/v1alpha1
-kind: DataStageService
-metadata:
-  name: datastage-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  license:
-    accept: true
-    license: Enterprise
-  scaleConfig: small
-  version: 4.0.0
-EOF
-}
-
 #DMC
 data "template_file" "dmc_catalog_source" {
   template = <<EOF
@@ -830,6 +773,21 @@ spec:
 EOF
 }
 
+data "template_file" "dmc_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-dmc-operator-subscription
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-dmc-operator
+  source: ibm-dmc-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
 
 data "template_file" "dmc_cr" {
   template = <<EOF
@@ -850,6 +808,26 @@ EOF
 }
 
 #CDE
+data "template_file" "cde_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cde-operator-subscription
+    app.kubernetes.io/managed-by: ibm-cde-operator
+    app.kubernetes.io/name: ibm-cde-operator-subscription
+  name: ibm-cde-operator-subscription
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-cde-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
 data "template_file" "cde_cr" {
   template = <<EOF
 apiVersion: cde.cpd.ibm.com/v1
@@ -866,46 +844,6 @@ spec:
   license:
     accept: true
     license: Enterprise
-EOF
-}
-
-#CA
-data "template_file" "ca_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-ca-operator-catalog
-  labels:
-    app.kubernetes.io/instance: ibm-ca-operator
-    app.kubernetes.io/managed-by: ibm-ca-operator
-    app.kubernetes.io/name: ibm-ca-operator
-  namespace: openshift-marketplace
-spec:
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-ca-operator-catalog@sha256:b77c74d35a7405eb4997bd09d249266d1d2c007634f3b76afd3c7fa8e12280ee
-  displayName: ibm-ca-operator-catalog
-  publisher: IBM
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
-data "template_file" "ca_cr" {
-  template = <<EOF
-apiVersion: ca.cpd.ibm.com/v1
-kind: CAService
-metadata:
-  name: ca-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  version: "4.0.0"
-  license:
-    accept: true
-    license: "Enterprise"
-  storage_class: "${local.storage_class}"
-  namespace: "${var.cpd_namespace}"
 EOF
 }
 
@@ -940,5 +878,46 @@ spec:
   source: ibm-db2uoperator-catalog
   sourceNamespace: openshift-marketplace
   startingCSV: db2u-operator.v1.1.2
+EOF
+}
+
+#MDM
+data "template_file" "mdm_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-mdm-operator-subscription
+    app.kubernetes.io/managed-by: ibm-mdm-operator
+    app.kubernetes.io/name: ibm-mdm-operator-subscription
+  name: ibm-mdm-operator-subscription
+  namespace: ${local.operator_namespace}
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-mdm
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "mdm_cr" {
+  template = <<EOF
+apiVersion: mdm.cpd.ibm.com/v1
+kind: MasterDataManagement
+metadata:
+  name: mdm-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: 4.0.0
+  size: "small"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"
+  namespace: "${var.cpd_namespace}"
+  storageClass: "${local.storage_class}"
+  cert_manager_enabled: true
+  license:
+    accept: true
+    license: Enterprise
 EOF
 }

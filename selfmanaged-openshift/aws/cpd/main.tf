@@ -115,6 +115,11 @@ resource "local_file" "lite_cr_yaml" {
   filename = "${local.cpd_workspace}/lite_cr.yaml"
 }
 
+resource "local_file" "ccs_dr_catalogs_yaml" {
+  content  = data.template_file.ccs_dr_catalogs.rendered
+  filename = "${local.cpd_workspace}/ccs_dr_catalogs.yaml"
+}
+
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
     namespace             = var.cpd_namespace
@@ -165,6 +170,9 @@ oc create -f ${self.triggers.cpd_workspace}/lite_cr.yaml
 
 echo "check the lite cr status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus
+
+echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
+oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml
 EOF
   }
   depends_on = [
@@ -172,52 +180,9 @@ EOF
     local_file.operand_requests_yaml,
     local_file.ibm_common_services_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
+    local_file.ccs_dr_catalogs_yaml,
     null_resource.configure_cluster,
     null_resource.login_cluster,
   ]
 }
 
-resource "local_file" "ccs_sub_yaml" {
-  content  = data.template_file.ccs_sub.rendered
-  filename = "${local.cpd_workspace}/ccs_sub.yaml"
-}
-
-resource "local_file" "ccs_cr_yaml" {
-  content  = data.template_file.ccs_cr.rendered
-  filename = "${local.cpd_workspace}/ccs_cr.yaml"
-}
-
-resource "local_file" "ccs_dr_catalogs_yaml" {
-  content  = data.template_file.ccs_dr_catalogs.rendered
-  filename = "${local.cpd_workspace}/ccs_dr_catalogs.yaml"
-}
-
-resource "null_resource" "install_ccs" {
-  triggers = {
-    namespace             = var.cpd_namespace
-    cpd_workspace = local.cpd_workspace
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOF
-echo "Create CCS sub"
-oc apply -f ${self.triggers.cpd_workspace}/ccs_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator ${local.operator_namespace}
-
-echo "Create CCS CR"
-oc apply -f ${self.triggers.cpd_workspace}/ccs_cr.yaml
-sleep 3
-bash cpd/scripts/check-cr-status.sh ccs ccs-cr ${var.cpd_namespace} ccsStatus
-
-echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
-oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml
-EOF
-  }
-  depends_on = [
-    null_resource.configure_cluster,
-    null_resource.cpd_foundational_services,
-    local_file.ccs_sub_yaml,
-    local_file.ccs_cr_yaml,
-  ]
-}
