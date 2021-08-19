@@ -27,6 +27,8 @@ The deployment sets up the following as shown in the diagram.
   * RHEL:
   ```bash
   yum install wget jq httpd-tools python36 -y
+  ln -s /usr/bin/python3 /usr/bin/python
+  ln -s /usr/bin/pip3 /usr/bin/pip
   pip install awscli --upgrade --user
   pip install pyyaml
   ```

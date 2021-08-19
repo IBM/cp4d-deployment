@@ -367,10 +367,18 @@ variable "db2_warehouse" {
   default = "no"
 }
 
+variable "db2_oltp" {
+  default = "no"
+}
+
 variable "cognos_analytics" {
   default = "no"
 }
 
 variable "data_management_console" {
+  default = "no"
+}
+
+variable "master_data_management" {
   default = "no"
 }
