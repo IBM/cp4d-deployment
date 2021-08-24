@@ -4,6 +4,7 @@
 ![ROSA_Architecture](images/AWS_ROSA.png)
 
 ### Installation
+* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 * Fill out the `variables.tf` in the root folder (or create a `terraform.tfvars` file) for your variables using the VARIABLES.md as a reference
@@ -15,10 +16,27 @@
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
-  * Deploy, using:
-  ```bash
-  terraform apply
-  ```
+* Download Openshift CLI and move to `/usr/local/bin`:
+```bash
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.5.tar.gz
+tar -xvf openshift-client-linux-4.8.5.tar.gz
+chmod u+x oc kubectl
+sudo mv oc /usr/local/bin
+sudo mv kubectl /usr/local/bin
+oc version
+```
+  
+* Deploy scripts by executing the following command:
+```bash
+terraform init
+terraform apply | tee terraform.log
+```
+
+* Destroying the cluster:
+  * When cluster created successfully, execute following commands to delete the cluster:
+    ```bash
+    terraform destroy
+    ```
 Note: Terraform version `0.15.0` or later are supported.
 
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
