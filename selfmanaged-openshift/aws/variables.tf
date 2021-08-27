@@ -61,6 +61,10 @@ variable "worker_subnet_cidr3" {
   default = "10.0.160.0/20"
 }
 
+variable "enable_permission_quota_check" {
+  default = true
+}
+
 ##############################
 # Existing Network       
 ##############################
@@ -91,6 +95,10 @@ variable "worker_subnet3_id" {
   default = ""
 }
 #############################
+
+variable "enable_permission_quota_check" {
+  default = true
+}
 
 variable "cluster_name" {
   default = "my-ocp"
@@ -258,6 +266,7 @@ variable "ocs" {
   type = map(string)
   default = {
     enable                       = true
+    ami_id                       = ""
     dedicated_node_instance_type = "m5.4xlarge"
   }
 }
