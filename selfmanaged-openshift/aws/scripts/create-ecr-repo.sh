@@ -1,7 +1,17 @@
 #####################################################################################################################
-# Execution command:
 #
-# ./create-ecr-repo.sh <AWS ACCESS KEY ID> <AWS SECRET ACCESS KEY> <AWS AWS REGION> <AWS ACCOUNT ID> <CSV FILE PATH>
+# Command to generate CSV file:
+# -----------------------------
+# export OFFLINEDIR=$HOME/offline
+# export CASE_REPO_PATH=https://github.com/IBM/cloud-pak/raw/master/repo/case
+# cloudctl case save \
+#     --case ${CASE_REPO_PATH}/<case package name> \
+#     --outputdir ${OFFLINEDIR}
+#
+# Comand to execute script:
+# -------------------------
+# ./create-ecr-repo.sh <AWS ACCESS KEY ID> <AWS SECRET ACCESS KEY> <AWS REGION> <AWS ACCOUNT ID> <CSV FILE PATH>
+#
 #####################################################################################################################
 
 #!/bin/bash
