@@ -66,7 +66,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 2Ti
+              storage: 1Ti
           storageClassName: gp2
           volumeMode: Block
         status: {}

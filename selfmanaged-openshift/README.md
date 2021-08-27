@@ -147,3 +147,23 @@ PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].met
 oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl license activate <activation id>
 ```
 * For more information see [Portworx Licensing](https://docs.portworx.com/reference/knowledge-base/px-licensing/).
+
+
+## Approving CSRs if nodes are rebooted for the first time
+
+When nodes are rebooted for the first time after the cluster is created, the Certificate Signing Requests for the nodes need to
+be approved by cluster administrator. Until this is done the oc client will not function. The CSRs can be approved by using the kube config
+file created at the time of install.
+
+ - change directory to directory where you executed terraform.
+ - `cd installer-files`
+ - Run this to get the list of CSRs needing approval
+ 
+    ```
+    $ oc --kubeconfig=auth/config get csr
+    ```
+ - Run this to approve all CSRs in a single step
+
+    ```
+    oc --kubeconfig=auth/config get csr -o name | xargs oc --kubeconfig=auth/config adm certificate approve
+    ```
