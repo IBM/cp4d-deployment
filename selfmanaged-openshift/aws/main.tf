@@ -209,6 +209,9 @@ module "cpd" {
   cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
   data_management_console   = var.data_management_console
+  db2_oltp                  = var.db2_oltp
+  master_data_management    = var.master_data_management
+  db2_aaservice             = var.db2_aaservice
 
   depends_on = [
     module.ocp,

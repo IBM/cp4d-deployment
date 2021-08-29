@@ -25,7 +25,7 @@ echo 'Create CDE CR'
 oc create -f ${self.triggers.cpd_workspace}/cde_cr.yaml
 sleep 3
 echo 'Check the CDE cr status'
-bash cpd/scripts/check-cr-status.sh CdeProxyService cde-cr ${var.cpd_namespace} cdeStatus
+bash cpd/scripts/check-cr-status.sh CdeProxyService cdeproxyservice-cr ${var.cpd_namespace} cdeStatus
 EOF
   }
   depends_on = [
