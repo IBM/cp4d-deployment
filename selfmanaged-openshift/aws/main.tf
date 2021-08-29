@@ -51,6 +51,7 @@ EOF
 }
 
 resource "null_resource" "permission_resource_validation" {
+  count = var.enable_permission_quota_check ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
   chmod +x scripts/*.sh scripts/*.py
@@ -167,6 +168,7 @@ module "ocs" {
   ocs = {
     enable                       = var.ocs.enable
     dedicated_nodes              = true
+    ami_id                       = var.ocs.ami_id
     dedicated_node_instance_type = var.ocs.dedicated_node_instance_type
     dedicated_node_zones         = var.az == "single_zone" ? [local.availability_zone1] : [local.availability_zone1, local.availability_zone2, local.availability_zone3]
     dedicated_node_subnet_ids    = var.az == "single_zone" ? local.single_zone_subnets : local.multi_zone_subnets

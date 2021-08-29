@@ -66,7 +66,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 2Ti
+              storage: 1Ti
           storageClassName: gp2
           volumeMode: Block
         status: {}
@@ -180,7 +180,7 @@ spec:
       providerSpec:
         value:
           ami:
-            id: ${var.aws_amis[var.region]["hvm"]}
+            id: ${local.ocs_ami_id}
           apiVersion: awsproviderconfig.openshift.io/v1beta1
           blockDevices:
           - ebs:
@@ -250,7 +250,7 @@ spec:
       providerSpec:
         value:
           ami:
-            id: ${var.aws_amis[var.region]["hvm"]}
+            id: ${local.ocs_ami_id}
           apiVersion: awsproviderconfig.openshift.io/v1beta1
           blockDevices:
           - ebs:
@@ -320,7 +320,7 @@ spec:
       providerSpec:
         value:
           ami:
-            id: ${var.aws_amis[var.region]["hvm"]}
+            id: ${local.ocs_ami_id}
           apiVersion: awsproviderconfig.openshift.io/v1beta1
           blockDevices:
           - ebs:
