@@ -1,0 +1,12 @@
+apiVersion: db2u.databases.ibm.com/v1
+kind: DvService
+metadata:
+  name: dv-service
+  namespace: REPLACE_NAMESPACE
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  version: 1.7.1
+  size: "small"
+  docker_registry_prefix: "cp.icr.io/cp/cpd"

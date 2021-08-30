@@ -183,7 +183,7 @@ variable "cpd-external-username" {
   default     = ""
 }
 variable "ocp_version" {
-  default = "4.6.30"
+  default = "4.6.31"
 }
 
 variable "cloudctl_version" {
@@ -211,7 +211,7 @@ variable "operator-namespace" {
 }
 
 variable "cpd-storageclass" {
-  type = map
+  type = map(any)
 
   default = {
     "portworx" = "portworx-shared-gp3"
@@ -220,7 +220,7 @@ variable "cpd-storageclass" {
 }
 
 variable "ccs-storageclass-value" {
-  type = map
+  type = map(any)
 
   default = {
     "portworx" = "storageVendor: portworx"
