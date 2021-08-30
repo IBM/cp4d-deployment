@@ -129,10 +129,6 @@ variable "data_management_console" {
   default = "no"
 }
 
-variable "db2aaservice" {
-  default = "no"
-}
-
 variable "cognos_analytics" {
   default = "no"
 }
@@ -142,5 +138,9 @@ variable "spss_modeler" {
 }
 
 variable "master_data_management" {
+  default = "no"
+}
+
+variable "db2_aaservice" {
   default = "no"
 }

@@ -3,11 +3,6 @@ resource "local_file" "dv_cr_yaml" {
   filename = "${local.cpd_workspace}/dv_cr.yaml"
 }
 
-resource "local_file" "dv_catalog_source_yaml" {
-  content  = data.template_file.dv_catalog_source.rendered
-  filename = "${local.cpd_workspace}/dv_catalog_source.yaml"
-}
-
 resource "local_file" "dv_sub_yaml" {
   content  = data.template_file.dv_sub.rendered
   filename = "${local.cpd_workspace}/dv_sub.yaml"
@@ -22,15 +17,9 @@ resource "null_resource" "install_dv" {
   provisioner "local-exec" {
     command = <<-EOF
 echo "Install DMC Operator dependency"
-oc create -f ${self.triggers.cpd_workspace}/dmc_catalog_source.yaml
-sleep 3
-echo 'Create DMC sub'
 oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
 sleep 3
 
-echo "Creating DV Catalog Source"
-oc create -f ${self.triggers.cpd_workspace}/dv_catalog_source.yaml
-sleep 3
 echo "Creating DV Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/dv_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-dv-operator ${local.operator_namespace}
@@ -44,7 +33,6 @@ EOF
   }
   depends_on = [
     local_file.dv_cr_yaml,
-    local_file.dv_catalog_source_yaml,
     local_file.dv_sub_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,

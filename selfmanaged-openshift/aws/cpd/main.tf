@@ -3,7 +3,7 @@ locals {
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
   cpd_case_url = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
-  db2aaservice       = (var.datastage == "yes" || var.db2aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
+  db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
 resource "local_file" "sysctl_machineconfig_yaml" {
@@ -115,9 +115,9 @@ resource "local_file" "lite_cr_yaml" {
   filename = "${local.cpd_workspace}/lite_cr.yaml"
 }
 
-resource "local_file" "ccs_dr_catalogs_yaml" {
-  content  = data.template_file.ccs_dr_catalogs.rendered
-  filename = "${local.cpd_workspace}/ccs_dr_catalogs.yaml"
+resource "local_file" "db2u_catalog_yaml" {
+  content  = data.template_file.db2u_catalog.rendered
+  filename = "${local.cpd_workspace}/db2u_catalog.yaml"
 }
 
 resource "null_resource" "cpd_foundational_services" {
@@ -133,6 +133,9 @@ bash cpd/scripts/nodes_running.sh
 
 echo "Create Operator Catalog Source"
 oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
+
+echo "create db2u operator catalog"
+oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
 
 echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
 bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
@@ -150,18 +153,11 @@ bash cpd/scripts/bedrock-pod-status-check.sh operand-deployment-lifecycle-manage
 echo "Creating OperandRequests"
 oc create -f  ${self.triggers.cpd_workspace}/operand_requests.yaml
 
-echo "Checking if the bedrock operator pods are ready and running."
-echo "Waiting and checking till the ibm-zen-operator-catalog is ready in the openshift-marketplace namespace "
-bash cpd/scripts/pod-status-check.sh ibm-zen-operator ${local.operator_namespace}
-
 echo "checking status of ibm-namespace-scope-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${local.operator_namespace}
 
 echo "checking status of ibm-common-service-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
-
-echo "check if the ibm-cert-manager-operator pod is up and running"
-bash cpd/scripts/bedrock-pod-status-check.sh ibm-cert-manager-operator ${local.operator_namespace}
 
 echo "Create lite zenservice"
 oc project ${self.triggers.namespace}
@@ -170,9 +166,6 @@ oc create -f ${self.triggers.cpd_workspace}/lite_cr.yaml
 
 echo "check the lite cr status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus
-
-echo "create ibm-cpd-datarefinery and cpd-ccs catalogs"
-oc apply -f ${self.triggers.cpd_workspace}/ccs_dr_catalogs.yaml
 EOF
   }
   depends_on = [
@@ -180,7 +173,7 @@ EOF
     local_file.operand_requests_yaml,
     local_file.ibm_common_services_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
-    local_file.ccs_dr_catalogs_yaml,
+    local_file.db2u_catalog_yaml,
     null_resource.configure_cluster,
     null_resource.login_cluster,
   ]

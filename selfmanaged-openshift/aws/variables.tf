@@ -61,10 +61,6 @@ variable "worker_subnet_cidr3" {
   default = "10.0.160.0/20"
 }
 
-variable "enable_permission_quota_check" {
-  default = true
-}
-
 ##############################
 # Existing Network       
 ##############################
@@ -389,5 +385,9 @@ variable "data_management_console" {
 }
 
 variable "master_data_management" {
+  default = "no"
+}
+
+variable "db2_aaservice" {
   default = "no"
 }
