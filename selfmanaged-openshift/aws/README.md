@@ -34,8 +34,8 @@ The deployment sets up the following as shown in the diagram.
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.5.tar.gz
-tar -xvf openshift-client-linux-4.8.5.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.9.tar.gz
+tar -xvf openshift-client-linux-4.8.9.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin

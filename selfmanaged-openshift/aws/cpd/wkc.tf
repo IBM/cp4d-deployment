@@ -26,6 +26,9 @@ resource "null_resource" "install_wkc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Create SCC for WKC-IIS"
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
+
 echo "Creating WKC Operator"
 oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}
@@ -35,9 +38,6 @@ oc create -f ${self.triggers.cpd_workspace}/wkc_cr.yaml
 
 echo 'check the WKC Core cr status'
 bash cpd/scripts/check-cr-status.sh wkc wkc-cr ${var.cpd_namespace} wkcStatus
-
-echo "Create SCC for WKC-IIS"
-oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
 EOF
   }
   depends_on = [

@@ -56,3 +56,4 @@
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
 | `db2_oltp` | no | Enter `yes` to install the DB2OLTP service. |
 | `master_data_management` | no | Enter `yes` to install the Master Data Management 360 service. |
+| `decision_optimization` | no | Enter `yes` to install the Decision Optimization service. |

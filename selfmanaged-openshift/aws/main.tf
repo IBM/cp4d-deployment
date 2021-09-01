@@ -212,6 +212,7 @@ module "cpd" {
   db2_oltp                  = var.db2_oltp
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
+  decision_optimization     = var.decision_optimization
 
   depends_on = [
     module.ocp,
