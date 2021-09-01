@@ -6,7 +6,7 @@ secret_access_key               = "<required>"
 base_domain                     = "<required>"
 
 cluster_name                    = "wkc-1az-ocs-new-vpc"
-worker_replica_count            = 6  # set worker_replica_count depending on the cpd services being installed
+worker_replica_count            = 3  # set worker_replica_count depending on the cpd services being installed
 openshift_pull_secret_file_path = "<required>"
 public_ssh_key                  = "<required>"
 openshift_username              = "ocadmin"
