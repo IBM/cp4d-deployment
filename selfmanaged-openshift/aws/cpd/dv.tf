@@ -16,10 +16,6 @@ resource "null_resource" "install_dv" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Install DMC Operator dependency"
-oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
-sleep 3
-
 echo "Creating DV Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/dv_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-dv-operator ${local.operator_namespace}

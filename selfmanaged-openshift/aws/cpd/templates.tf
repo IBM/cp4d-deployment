@@ -373,6 +373,7 @@ spec:
   storageClass: ${local.storage_class}
   license:
     accept: true
+    license: Advanced
 EOF
 }
 
@@ -821,5 +822,41 @@ spec:
   license:
     accept: true
     license: Enterprise
+EOF
+}
+
+#DOD
+data "template_file" "dods_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-dods-operator-catalog-subscription
+    app.kubernetes.io/managed-by: ibm-cpd-dods-operator
+    app.kubernetes.io/name: ibm-cpd-dods-operator-catalog-subscription
+  name: ibm-cpd-dods-operator-catalog-subscription
+  namespace: ${local.operator_namespace}        # Pick the project that contains the Cloud Pak for Data operator
+spec:
+    channel: v4.0
+    installPlanApproval: Automatic
+    name: ibm-cpd-dods
+    source: ibm-operator-catalog
+    sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "dods_cr" {
+  template = <<EOF
+apiVersion: dods.cpd.ibm.com/v1beta1
+kind: DODS
+metadata:
+  name: dods-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  version: 4.0.1
 EOF
 }

@@ -144,3 +144,7 @@ variable "master_data_management" {
 variable "db2_aaservice" {
   default = "no"
 }
+
+variable "decision_optimization" {
+  default = "no"
+}
