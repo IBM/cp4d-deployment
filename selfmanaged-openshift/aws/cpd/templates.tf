@@ -174,7 +174,7 @@ spec:
 EOF
 }
 
-data "template_file" "ibm_common_services_operator" {
+data "template_file" "cpd_operator" {
   template = <<EOF
 apiVersion: v1
 kind: Namespace
@@ -189,18 +189,6 @@ metadata:
 spec:
   targetNamespaces:
   - ${local.operator_namespace}
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: ibm-common-service-operator
-  namespace: ${local.operator_namespace}
-spec:
-  channel: v3
-  installPlanApproval: Automatic
-  name: ibm-common-service-operator
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -228,7 +216,7 @@ spec:
 EOF
 }
 
-data "template_file" "lite_cr" {
+data "template_file" "ibmcpd_cr" {
   template = <<EOF
 apiVersion: cpd.ibm.com/v1
 kind: Ibmcpd
@@ -636,7 +624,30 @@ spec:
   version: 4.0.1
 EOF
 }
-##################
+
+#IIS
+data "template_file" "ds_iis_cr" {
+  template = <<EOF
+apiVersion: iis.cpd.ibm.com/v1alpha1
+kind: IIS
+metadata:
+  name: iis-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  version: "4.0.1"
+  size: small
+  scaleConfig: small
+  storageVendor: "${var.storage_option}"
+  storageClass: ${local.storage_class}
+  storageOverride:
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: cp.icr.io/cp/cpd
+  use_dynamic_provisioning: true
+  cert_manager_enabled: true
+EOF
+}
 
 #CA
 data "template_file" "ca_sub" {
