@@ -165,6 +165,9 @@ oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
 
 echo "Check the CPD Platform CR status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus; if [ $? -ne 0 ] ; then echo \"CPD control plane failed to install\" ; exit 1 ; fi
+
+echo "Enable CSV injector"
+oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
 EOF
   }
   depends_on = [
