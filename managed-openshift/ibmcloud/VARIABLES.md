@@ -1,6 +1,6 @@
 |Variable name                      |Default                                                  |Description |
 |-----------------------------------|:-------------------------------------------------------:|------------|
-|`ibmcloud_api_key`                 | Required                                                 | IBM Cloud API key
+|`ibmcloud_api_key`                 | Required                                                 | IBM Cloud API key. Steps to create the api_key - https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui#create_user_key
 |`region`                           | Required                                                 | IBM Cloud region where all resources will be deployed
 |`resource_group_name`              | `default`                                                | Name of the IBM Cloud resource group in which resources should be created
 |`unique_id`                        | `cp4d-roks-tf`                                           | Unique string for naming resources

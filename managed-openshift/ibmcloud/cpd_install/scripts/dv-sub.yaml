@@ -1,11 +1,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-common-service-operator
-  namespace: zen
+  name: ibm-dv-operator-catalog-subscription
+  namespace: OPERATOR_NAMESPACE
 spec:
-  channel: v3
+  channel: v1.7
   installPlanApproval: Automatic
-  name: ibm-common-service-operator
+  name: ibm-dv-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace

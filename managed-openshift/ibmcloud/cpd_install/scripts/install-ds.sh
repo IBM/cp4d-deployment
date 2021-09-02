@@ -1,24 +1,16 @@
 #!/bin/bash
 
-# Download the case package for ds
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-datastage-4.0.1.tgz
-
-
-# Install ds operator using CLI (OLM)	
-
-CASE_PACKAGE_NAME="ibm-datastage-4.0.1.tgz"
-
 oc project ${OP_NAMESPACE}
 
-## Install Operator
+## Install DS Operator
 
-cloudctl case launch --action installOperator \
---case ${CASE_PACKAGE_NAME} \
---inventory datastageOperatorSetup \
---namespace ${OP_NAMESPACE} \
---tolerance 1
+sed -i -e s#OPERATOR_NAMESPACE#${OP_NAMESPACE}#g ds-sub.yaml
 
+echo '*** executing **** oc create -f ds-sub.yaml'
+result=$(oc create -f ds-sub.yaml)
+echo $result
 sleep 1m
+
 # Checking if the ds operator pods are ready and running. 	
 # checking status of ds-operator	
 ./pod-status-check.sh datastage-operator ${OP_NAMESPACE}
@@ -27,6 +19,7 @@ sleep 1m
 oc project ${NAMESPACE}
 
 # Create ds CR: 	
+sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g ds-cr.yaml
 echo '*** executing **** oc create -f ds-cr.yaml'
 result=$(oc create -f ds-cr.yaml)
 echo $result

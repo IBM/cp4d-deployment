@@ -55,11 +55,6 @@ variable "install_services" {
   type = map
   description = "Choose the Cloud Pak for Data services to be installed"
   default = {
-    ccs                = false,
-    data-refinery      = false, # Data refinery
-    db2uoperator       = false,
-    dmc                = false,
-    db2aaservice       = false,
     spark              = false, # Analytics Engine powered by Apache Spark
     dv                 = false, # Data Virtualization
     wkc                = false, # Watson Knowledge Catalog
@@ -77,8 +72,8 @@ variable "install_services" {
     ca                 = false, # Cognos Analytics
     spss-modeler       = false, # SPSS Modeler
     big-sql            = false, # Db2 Big SQL
-    rstudio            = false, # Watson Studio Local RStudio
-    hadoop-addon       = false, # Hadoop Execution Addon
+    #rstudio            = false, # Watson Studio Local RStudio
+    #hadoop-addon       = false, # Hadoop Execution Addon
     # mongodb            = false, # MongoDB Enterprise
     runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
   }

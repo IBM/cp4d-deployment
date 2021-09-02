@@ -1,11 +1,12 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-common-service-operator
-  namespace: zen
+  annotations:
+  name: ibm-cpd-ws-operator-catalog-subscription
+  namespace: OPERATOR_NAMESPACE
 spec:
-  channel: v3
+  channel: v2.0
   installPlanApproval: Automatic
-  name: ibm-common-service-operator
+  name: ibm-cpd-wsl
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace

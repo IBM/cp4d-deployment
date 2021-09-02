@@ -1,31 +1,25 @@
 #!/bin/bash
 
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-watson-openscale-2.0.0.tgz
+sed -i -e s#OPERATOR_NAMESPACE#${OP_NAMESPACE}#g wos-sub.yaml
 
-# Install WOS operator using CLI (OLM)
-
-CASE_PACKAGE_NAME="ibm-watson-openscale-2.0.0.tgz"
-
-oc project ${OP_NAMESPACE}
-
-
-cloudctl case launch --case ./${CASE_PACKAGE_NAME} \
-    --namespace ${OP_NAMESPACE}                                   \
-    --tolerance 1
+echo '*** executing **** oc create -f wos-sub.yaml'
+result=$(oc create -f wos-sub.yaml)
+echo $result
+sleep 1m
 
 # Checking if the wos operator pods are ready and running. 
 
 ./pod-status-check.sh ibm-cpd-wos-operator ${OP_NAMESPACE}
 
-# switch zen namespace
 
+# switch zen namespace
 oc project ${NAMESPACE}
 
-# Create wsl CR: 
-
-result=$(oc create -f openscale-cr.yaml)
+# Create WOS CR: 
+sed -i -e s#CPD_NAMESPACE#${NAMESPACE}#g wos-cr.yaml
+result=$(oc create -f wos-cr.yaml)
 echo $result
 
-# check the CCS cr status
+# check the WOS CR status
 
 ./check-cr-status.sh WOService aiopenscale ${NAMESPACE} wosStatus
