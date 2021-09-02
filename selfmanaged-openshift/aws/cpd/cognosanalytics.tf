@@ -24,7 +24,7 @@ bash cpd/scripts/pod-status-check.sh ibm-ca-operator ${local.operator_namespace}
 echo "CA CR"
 oc create -f ${self.triggers.cpd_workspace}/ca_cr.yaml
 echo 'check the CA cr status'
-bash cpd/scripts/check-cr-status.sh CAService ca-cr ${var.cpd_namespace} cdeStatus
+bash cpd/scripts/check-cr-status.sh CAService ca-cr ${var.cpd_namespace} caAddonStatus
 EOF
   }
   depends_on = [

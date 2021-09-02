@@ -100,9 +100,9 @@ resource "local_file" "ibm_operator_catalog_source_yaml" {
   filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
 }
 
-resource "local_file" "ibm_common_services_operator_yaml" {
-  content  = data.template_file.ibm_common_services_operator.rendered
-  filename = "${local.cpd_workspace}/ibm_common_services_operator.yaml"
+resource "local_file" "cpd_operator_yaml" {
+  content  = data.template_file.cpd_operator.rendered
+  filename = "${local.cpd_workspace}/cpd_operator.yaml"
 }
 
 resource "local_file" "operand_requests_yaml" {
@@ -110,9 +110,9 @@ resource "local_file" "operand_requests_yaml" {
   filename = "${local.cpd_workspace}/operand_requests.yaml"
 }
 
-resource "local_file" "lite_cr_yaml" {
-  content  = data.template_file.lite_cr.rendered
-  filename = "${local.cpd_workspace}/lite_cr.yaml"
+resource "local_file" "ibmcpd_cr_yaml" {
+  content  = data.template_file.ibmcpd_cr.rendered
+  filename = "${local.cpd_workspace}/ibmcpd_cr.yaml"
 }
 
 resource "local_file" "db2u_catalog_yaml" {
@@ -140,9 +140,8 @@ oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
 echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
 bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
-echo "create ibm common service operator"
-oc create -f  ${self.triggers.cpd_workspace}/ibm_common_services_operator.yaml
-bash cpd/scripts/pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
+echo "create cpd operator"
+oc create -f  ${self.triggers.cpd_workspace}/cpd_operator.yaml
 
 echo "Creating the ${self.triggers.namespace} namespace:"
 oc new-project ${self.triggers.namespace}
@@ -159,19 +158,19 @@ bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${loca
 echo "checking status of ibm-common-service-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
 
-echo "Create lite zenservice"
+echo "Create CPD CPD Platform CR"
 oc project ${self.triggers.namespace}
 sleep 1
-oc create -f ${self.triggers.cpd_workspace}/lite_cr.yaml
+oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
 
-echo "check the lite cr status"
+echo "Check the CPD Platform CR status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus
 EOF
   }
   depends_on = [
-    local_file.lite_cr_yaml,
+    local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
-    local_file.ibm_common_services_operator_yaml,
+    local_file.cpd_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
     null_resource.configure_cluster,
