@@ -258,6 +258,8 @@ metadata:
   name: db2aaservice-cr
   namespace: ${var.cpd_namespace}
 spec:
+  storageClass: ${local.storage_class}
+  version: "4.0.1"
   license:
     accept: true
     license: "Enterprise"
