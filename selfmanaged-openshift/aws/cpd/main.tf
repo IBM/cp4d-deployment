@@ -26,12 +26,47 @@ resource "null_resource" "login_cluster" {
     openshift_api       = var.openshift_api
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
+    login = var.rosa_cluster ? "${var.login_cmd} --insecure-skip-tls-verify=true" : "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
   }
   provisioner "local-exec" {
     command = <<EOF
-oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true
+  ${self.triggers.login}
 EOF
   }
+}
+
+resource "null_resource" "patch_config_self" {
+  count = var.rosa_cluster ? 0 : 1
+  provisioner "local-exec" {
+    command = <<EOF
+echo "Patch configuration self"
+oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+EOF
+  }
+  depends_on = [
+    local_file.sysctl_machineconfig_yaml,
+    local_file.limits_machineconfig_yaml,
+    local_file.crio_machineconfig_yaml,
+    null_resource.login_cluster,
+  ]
+}
+
+resource "null_resource" "patch_config_managed" {
+  count = var.rosa_cluster ? 1 : 0
+  provisioner "local-exec" {
+    command = <<EOF
+echo "Patch configuration managed"
+oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
+EOF
+  }
+  depends_on = [
+    local_file.sysctl_machineconfig_yaml,
+    local_file.limits_machineconfig_yaml,
+    local_file.crio_machineconfig_yaml,
+    null_resource.login_cluster,
+  ]
 }
 
 resource "null_resource" "configure_cluster" {
@@ -46,7 +81,6 @@ oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfig
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 echo "Sysctl changes"
-oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
 oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
 
 echo "Creating MachineConfig files"
@@ -63,6 +97,8 @@ EOF
     local_file.limits_machineconfig_yaml,
     local_file.crio_machineconfig_yaml,
     null_resource.login_cluster,
+    null_resource.patch_config_self,
+    null_resource.patch_config_managed,
   ]
 }
 
@@ -178,6 +214,8 @@ EOF
     local_file.db2u_catalog_yaml,
     null_resource.configure_cluster,
     null_resource.login_cluster,
+    null_resource.patch_config_self,
+    null_resource.patch_config_managed,
   ]
 }
 
