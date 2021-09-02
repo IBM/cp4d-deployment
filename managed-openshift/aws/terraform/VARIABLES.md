@@ -41,7 +41,7 @@
 | `portworx_ibm` | | NOTE: This option will only work if deployed from a RHEL machine with podman installed. This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes. |
 | Cloud Pak for Data |
 | `accept_cpd_license` | reject | Read and accept license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW). Allowed values `accept / reject`. |
-| `api_key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary). For external registries, enter password here |
+| `cpd_api_key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary). For external registries, enter password here |
 | `cpd_namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
 | `data_virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. If you installing this service, you need to install `data_management_console` service as well. |
 | `apache_spark` | no | Enter `yes` to install the Apache Spark Add-on service. |
