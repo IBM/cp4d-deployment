@@ -27,8 +27,9 @@ echo '*** executing **** oc create -f dv-cr.yaml'
 result=$(oc create -f dv-cr.yaml)
 echo $result
 
-sleep 12m
-oc patch -n ibm-common-services sub ibm-dmc-operator --type=merge --patch='{"spec": {"source": "ibm-operator-catalog"}}'
+#patch for dmc issue
+# sleep 12m
+# oc patch -n ibm-common-services sub ibm-dmc-operator --type=merge --patch='{"spec": {"source": "ibm-operator-catalog"}}'
 
 
 # check the dv cr status

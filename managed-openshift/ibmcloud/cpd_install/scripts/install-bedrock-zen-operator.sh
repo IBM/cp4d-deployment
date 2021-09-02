@@ -26,6 +26,18 @@ echo $result
 
 sleep 30
 
+echo '*** executing **** oc create -f dmc-operator-catalog.yaml'
+result=$(oc create -f dmc-operator-catalog.yaml)
+echo $result
+sleep 30
+
+echo '*** executing **** oc create -f ccs-operator-catalog.yaml'
+result=$(oc create -f ccs-operator-catalog.yaml)
+echo $result
+sleep 30
+
+
+
 while true; do
 if oc get catalogsource -n openshift-marketplace | grep ibm-operator-catalog >/dev/null 2>&1; then
   echo -e "\nIBM Operator Catalog was successfully created."
@@ -59,7 +71,8 @@ echo $result
 sleep 1m
 
 
-#oc patch NamespaceScope common-service -n ibm-common-services --type=merge --patch='{"spec": {"csvInjector": {"enable": true} } }'
+oc patch NamespaceScope common-service -n ibm-common-services --type=merge --patch='{"spec": {"csvInjector": {"enable": true} } }'
+
 
 sed -i -e s#OPERATOR_NAMESPACE#${OP_NAMESPACE}#g cpd-operator-sub.yaml
 echo '*** executing **** oc create -f cpd-operator-sub.yaml'
