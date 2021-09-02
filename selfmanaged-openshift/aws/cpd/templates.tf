@@ -824,15 +824,15 @@ metadata:
   name: mdm-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: 4.0.1
-  size: "small"
-  docker_registry_prefix: "cp.icr.io/cp/cpd"
-  namespace: "${var.cpd_namespace}"
-  storageClass: "${local.storage_class}"
-  cert_manager_enabled: true
   license:
     accept: true
     license: Enterprise
+  persistence:
+    storageClass: "${local.storage_class}"     # See the guidance in "Information you need to complete this task"
+  shared_persistence:     # Include this for OCS storage
+    storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+  wkc:
+    enabled: true     # Include this if you have installed Watson Knowledge Catalog
 EOF
 }
 
