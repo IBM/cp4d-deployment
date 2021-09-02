@@ -19,6 +19,14 @@ variable "openshift_token" {
   default     = ""
 }
 
+variable "login_cmd" {
+  type = string
+}
+
+variable "rosa_cluster" {
+  type        = bool
+}
+
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"
