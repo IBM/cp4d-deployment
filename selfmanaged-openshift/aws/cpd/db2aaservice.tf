@@ -4,11 +4,6 @@ resource "local_file" "db2aaservice_cr_yaml" {
   filename = "${local.cpd_workspace}/db2aaservice_cr.yaml"
 }
 
-resource "local_file" "db2aaservice_catalog_source_yaml" {
-  content  = data.template_file.db2aaservice_catalog_source.rendered
-  filename = "${local.cpd_workspace}/db2aaservice_catalog_source.yaml"
-}
-
 resource "local_file" "db2aaservice_sub_yaml" {
   content  = data.template_file.db2aaservice_sub.rendered
   filename = "${local.cpd_workspace}/db2aaservice_sub.yaml"
@@ -23,7 +18,6 @@ resource "null_resource" "install_db2aaservice" {
   provisioner "local-exec" {
     command = <<EOF
 echo "Db2uaaService"
-oc create -f ${self.triggers.cpd_workspace}/db2aaservice_catalog_source.yaml
 oc create -f ${self.triggers.cpd_workspace}/db2aaservice_sub.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-db2aaservice-cp4d-operator-controller-manager ${local.operator_namespace}
@@ -34,11 +28,10 @@ bash cpd/scripts/check-cr-status.sh Db2aaserviceService db2aaservice-cr ${var.cp
 EOF
   }
   depends_on = [
-    local_file.wkc_cr_yaml,
     local_file.db2aaservice_cr_yaml,
+    local_file.db2aaservice_sub_yaml,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
-    null_resource.install_ccs,
     null_resource.login_cluster,
   ]
 }

@@ -2,9 +2,9 @@ apiVersion: dfd.cpd.ibm.com/v1alpha1
 kind: DataStageService
 metadata:
   name: datastage-cr
+  namespace: REPLACE_NAMESPACE
 spec:
   license:
     accept: true
     license: Enterprise
-  scaleConfig: small
-  version: 4.0.0
+  version: 4.0.1

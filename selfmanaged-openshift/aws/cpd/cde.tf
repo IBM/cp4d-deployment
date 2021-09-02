@@ -3,6 +3,11 @@ resource "local_file" "cde_cr_yaml" {
   filename = "${local.cpd_workspace}/cde_cr.yaml"
 }
 
+resource "local_file" "cde_sub_yaml" {
+  content  = data.template_file.cde_sub.rendered
+  filename = "${local.cpd_workspace}/cde_sub.yaml"
+}
+
 resource "null_resource" "install_cde" {
   count = var.cognos_dashboard_embedded == "yes" ? 1 : 0
   triggers = {
@@ -11,19 +16,21 @@ resource "null_resource" "install_cde" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Install CDE Operator"
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cde-2.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-cde-2.0.0.tgz'
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-cde-2.0.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory cdeOperatorSetup --tolerance 1
+echo "Creating CDE through Subscription"
+oc create -f ${self.triggers.cpd_workspace}/cde_sub.yaml
+sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cde-operator ${local.operator_namespace}
 
-echo "CDE CR"
+echo 'Create CDE CR'
 oc create -f ${self.triggers.cpd_workspace}/cde_cr.yaml
-echo 'check the CDE cr status'
-bash cpd/scripts/check-cr-status.sh CdeProxyService cde-cr ${var.cpd_namespace} cdeStatus
+sleep 3
+echo 'Check the CDE cr status'
+bash cpd/scripts/check-cr-status.sh CdeProxyService cdeproxyservice-cr ${var.cpd_namespace} cdeStatus
 EOF
   }
   depends_on = [
     local_file.cde_cr_yaml,
+    local_file.cde_sub_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,
@@ -31,7 +38,7 @@ EOF
     null_resource.install_dv,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
-    null_resource.install_ccs,
     null_resource.login_cluster,
   ]
 }
+

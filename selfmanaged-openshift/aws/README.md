@@ -27,13 +27,15 @@ The deployment sets up the following as shown in the diagram.
   * RHEL:
   ```bash
   yum install wget jq httpd-tools python36 -y
+  ln -s /usr/bin/python3 /usr/bin/python
+  ln -s /usr/bin/pip3 /usr/bin/pip
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.7.7.tar.gz
-tar -xvf openshift-client-linux-4.7.7.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.9.tar.gz
+tar -xvf openshift-client-linux-4.8.9.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin

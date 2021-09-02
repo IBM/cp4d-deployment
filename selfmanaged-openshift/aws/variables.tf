@@ -92,6 +92,10 @@ variable "worker_subnet3_id" {
 }
 #############################
 
+variable "enable_permission_quota_check" {
+  default = true
+}
+
 variable "cluster_name" {
   default = "my-ocp"
 }
@@ -258,6 +262,7 @@ variable "ocs" {
   type = map(string)
   default = {
     enable                       = true
+    ami_id                       = ""
     dedicated_node_instance_type = "m5.4xlarge"
   }
 }
@@ -367,10 +372,26 @@ variable "db2_warehouse" {
   default = "no"
 }
 
+variable "db2_oltp" {
+  default = "no"
+}
+
 variable "cognos_analytics" {
   default = "no"
 }
 
 variable "data_management_console" {
+  default = "no"
+}
+
+variable "master_data_management" {
+  default = "no"
+}
+
+variable "db2_aaservice" {
+  default = "no"
+}
+
+variable "decision_optimization" {
   default = "no"
 }

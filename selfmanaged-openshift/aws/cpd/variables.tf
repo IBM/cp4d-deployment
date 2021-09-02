@@ -121,11 +121,11 @@ variable "db2_warehouse" {
   default = "no"
 }
 
-variable "data_management_console" {
+variable "db2_oltp" {
   default = "no"
 }
 
-variable "db2aaservice" {
+variable "data_management_console" {
   default = "no"
 }
 
@@ -134,5 +134,17 @@ variable "cognos_analytics" {
 }
 
 variable "spss_modeler" {
+  default = "no"
+}
+
+variable "master_data_management" {
+  default = "no"
+}
+
+variable "db2_aaservice" {
+  default = "no"
+}
+
+variable "decision_optimization" {
   default = "no"
 }

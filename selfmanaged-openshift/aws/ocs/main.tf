@@ -1,3 +1,7 @@
+locals {
+  ocs_ami_id = var.ocs.ami_id == "" ? var.aws_amis[var.region]["hvm"] : var.ocs.ami_id
+}
+
 resource "aws_kms_key" "ocs_key" {
   description = "Key used to encrypt OCS PVCs"
 }

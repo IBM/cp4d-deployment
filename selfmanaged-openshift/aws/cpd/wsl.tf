@@ -34,7 +34,6 @@ EOF
     local_file.ws_sub_yaml,
     null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
-    null_resource.install_ccs,
     null_resource.login_cluster,
   ]
 }
