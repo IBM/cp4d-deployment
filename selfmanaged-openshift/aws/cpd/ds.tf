@@ -22,7 +22,7 @@ resource "null_resource" "install_ds" {
   provisioner "local-exec" {
     command = <<-EOF
 echo "Create SCC for WKC-IIS"
-oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
+oc apply -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
 
 echo "Install IIS Operator"
 wget ${local.cpd_case_url}/ibm-iis-4.0.1.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-iis-4.0.1.tgz'
