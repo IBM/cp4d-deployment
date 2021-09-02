@@ -30,7 +30,7 @@ ${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_w
 bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
 
 echo "Create IIS CR"
-oc create -f ${self.triggers.cpd_workspace}/ds_iis_cr.yaml
+oc apply -f ${self.triggers.cpd_workspace}/ds_iis_cr.yaml
 
 echo 'check the IIS cr status'
 bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus
