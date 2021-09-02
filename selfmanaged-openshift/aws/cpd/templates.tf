@@ -662,7 +662,7 @@ metadata:
     app.kubernetes.io/name: ibm-ca-operator
   namespace: ${local.operator_namespace}
 spec:
-  channel: v4
+  channel: v4.0
   name: ibm-ca-operator
   installPlanApproval: Automatic
   source: ibm-operator-catalog
@@ -871,3 +871,4 @@ spec:
   version: 4.0.1
 EOF
 }
+
