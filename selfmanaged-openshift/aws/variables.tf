@@ -103,7 +103,7 @@ variable "cluster_name" {
 variable "rosa_cluster" {
   type        = bool
   description = "Dummy variable, leave it true."
-  default     = true
+  default     = false
 }
 
 # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
