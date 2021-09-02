@@ -110,6 +110,11 @@ variable "cluster_name" {
   default = "ibmrosa"
 }
 
+variable "rosa_cluster" {
+  type        = bool
+  description = "Dummy variable, leave it true."
+  default     = true
+}
 variable "rosa_token" {
   type = string
 }
