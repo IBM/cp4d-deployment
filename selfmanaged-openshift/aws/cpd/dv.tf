@@ -21,8 +21,6 @@ resource "null_resource" "install_dv" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Create DMC Catalog Source"
-oc create -f ${self.triggers.cpd_workspace}/ibm_dmc_catalog_source.yaml
 
 echo "Waiting and checking till the ibm-dmc-operator-catalog is ready in the openshift-marketplace namespace"
 bash cpd/scripts/pod-status-check.sh ibm-dmc-operator-catalog openshift-marketplace
