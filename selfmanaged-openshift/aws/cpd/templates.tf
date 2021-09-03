@@ -242,7 +242,7 @@ metadata:
   name: ibm-db2aaservice-cp4d-operator
   namespace: ${local.operator_namespace}
 spec:
-  channel: ${var.db2aaservice.channel}
+  channel: ${var.db2_aaservice.channel}
   name: ibm-db2aaservice-cp4d-operator
   installPlanApproval: Automatic
   source: ibm-operator-catalog
@@ -259,7 +259,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   storageClass: ${local.storage_class}
-  version: ${var.db2aaservice.version}
+  version: ${var.db2_aaservice.version}
   license:
     accept: true
     license: "Enterprise"
@@ -812,7 +812,7 @@ metadata:
   name: ibm-mdm-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: ${ar.master_data_management.channel}
+  channel: ${var.master_data_management.channel}
   installPlanApproval: Automatic
   name: ibm-mdm
   source: ibm-operator-catalog

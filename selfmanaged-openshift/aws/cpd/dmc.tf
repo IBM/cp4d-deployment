@@ -10,7 +10,7 @@ resource "local_file" "dmc_sub_yaml" {
 
 
 resource "null_resource" "install_dmc" {
-  count = var.data_management_console.enabled == "yes" ? 1 : 0
+  count = var.data_management_console.enable == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

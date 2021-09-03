@@ -14,22 +14,23 @@ openshift_password              = "<required>"
 accept_cpd_license              = "accept"
 cpd_api_key                     = "<required>"
 
-watson_knowledge_catalog        = "yes"
-data_virtualization             = "no"
-analytics_engine                = "no"
-watson_studio                   = "no"
-watson_machine_learning         = "no"
-watson_ai_openscale             = "no"
-spss_modeler                    = "no"
-cognos_dashboard_embedded       = "no"
-datastage                       = "no"
-db2_warehouse                   = "no"
-db2_oltp                        = "no"
-cognos_analytics                = "no"
-data_management_console         = "no"
-master_data_management          = "no"
-db2_aaservice                   = "no"
-decision_optimization           = "no"
+watson_knowledge_catalog        = {"enable":"yes", "version":"4.0.1", "channel":"v1.0"}
+data_virtualization             = {"enable":"no", "version":"1.7.1", "channel":"v1.7"}
+analytics_engine                = {"enable":"no", "version":"4.0.1", "channel":"stable-v1"}
+watson_studio                   = {"enable":"no", "version":"4.0.1", "channel":"v2.0"}
+watson_machine_learning         = {"enable":"no", "version":"4.0.1", "channel":"v1.1"}
+watson_ai_openscale             = {"enable":"no",  "version":"4.0.1", "channel":"v1"}
+spss_modeler                    = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
+cognos_dashboard_embedded       = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
+datastage                       = {"enable":"no", "version":"4.0.1", "channel":"v1.0"}
+db2_warehouse                   = {"enable":"no", "version":"4.0.1", "channel":"v1.0"}
+db2_oltp                        = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
+cognos_analytics                = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
+data_management_console         = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
+master_data_management          = {"enable":"no",  "version":"4.0.1", "channel":"v1.1"}
+db2_aaservice                   = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
+decision_optimization           = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
+
 
 ##################################################################### DEFAULTS ##################################################################
 
@@ -94,11 +95,12 @@ decision_optimization           = "no"
 ######################################
 # Storage Options: Enable only one   #
 ######################################
-#ocs                 = '{ enable: true, ami_id: "", dedicated_node_instance_type: "m5.4xlarge"}'
-#portworx_enterprise = '{ enable: false, cluster_id: "", enable_encryption: true }'
-#portworx_essentials = '{enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}'
-#portworx_ibm        = '{ enable: false, ibm_px_package_path: "" }' # absolute file path to the folder containing the cpd*-portworx*.tgz package 
+#ocs                 = { enable: true, ami_id: "", dedicated_node_instance_type: "m5.4xlarge"}
+#portworx_enterprise = { enable: false, cluster_id: "", enable_encryption: true }
+#portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
+#portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package 
 
+#cpd_platform           = {"enable":"yes",  "version":"4.0.1", "channel":"v2.0"}
 #cpd_external_registry   = "cp.icr.io"
 #cpd_external_username   = "cp"
 #cpd_namespace           = "zen"
