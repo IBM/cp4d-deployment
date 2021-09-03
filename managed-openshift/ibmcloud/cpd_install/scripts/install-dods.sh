@@ -1,26 +1,16 @@
 #!/bin/bash
 
 
-# Download the case package for dods
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dods-4.0.0.tgz
 
-# Install dods operator using CLI (OLM)
+# Install dods operator
 
+sed -i -e s#OPERATOR_NAMESPACE#${OP_NAMESPACE}#g dods-sub.yaml
 
-CASE_PACKAGE_NAME="ibm-dods-4.0.0.tgz"
+echo '*** executing **** oc create -f dods-sub.yaml'
+result=$(oc create -f dods-sub.yaml)
+echo $result
+sleep 1m
 
-cloudctl case launch --tolerance 1 \
-    --case ${CASE_PACKAGE_NAME} \
-    --namespace openshift-marketplace \
-    --inventory dodsOperatorSetup \
-    --action installCatalog 
-
-
-cloudctl case launch --tolerance 1 \
-    --case ${CASE_PACKAGE_NAME} \
-    --namespace ${OP_NAMESPACE} \
-    --inventory dodsOperatorSetup \
-    --action installOperator
 
 # Checking if the dods operator pods are ready and running. 
 # checking status of ibm-cpd-dods-operator
@@ -30,7 +20,7 @@ cloudctl case launch --tolerance 1 \
 oc project ${NAMESPACE}
 
 # Create dods CR: 
-
+sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g dods-cr.yaml
 echo '*** executing **** oc create -f dods-cr.yaml'
 result=$(oc create -f dods-cr.yaml)
 echo $result

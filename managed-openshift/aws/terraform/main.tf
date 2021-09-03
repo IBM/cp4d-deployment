@@ -157,6 +157,7 @@ module "cpd" {
   data_management_console   = var.data_management_console
   spss_modeler              = var.spss_modeler
   login_cmd                 = module.ocp.login_cmd
+  rosa_cluster              = var.rosa_cluster
 
   depends_on = [
     null_resource.create_workspace,

@@ -100,10 +100,21 @@ variable "cluster_name" {
   default = "my-ocp"
 }
 
+variable "rosa_cluster" {
+  type        = bool
+  description = "Dummy variable, leave it true."
+  default     = false
+}
+
 # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "multi_zone"
+}
+
+variable "login_cmd" {
+  description = "Dummy variable, leave it blank."
+  default     = ""
 }
 
 variable "availability_zone1" {

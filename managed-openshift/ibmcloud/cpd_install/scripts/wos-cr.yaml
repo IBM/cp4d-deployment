@@ -1,0 +1,13 @@
+apiVersion: wos.cpd.ibm.com/v1
+kind: WOService
+metadata:
+  name: aiopenscale
+  namespace: CPD_NAMESPACE
+spec:
+  scaleConfig: small
+  storageClass: portworx-shared-gp3
+  version: 4.0.1
+  type: service
+  license:
+    accept: true
+    license: Enterprise
