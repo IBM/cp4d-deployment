@@ -8,6 +8,11 @@ resource "local_file" "dv_sub_yaml" {
   filename = "${local.cpd_workspace}/dv_sub.yaml"
 }
 
+resource "local_file" "ibm_dmc_operator_catalog_source_yaml" {
+  content  = data.template_file.ibm_dmc_operator_catalog_source.rendered
+  filename = "${local.cpd_workspace}/ibm_dmc_operator_catalog_source.yaml"
+}
+
 resource "null_resource" "install_dv" {
   count = var.data_virtualization.enable == "yes" ? 1 : 0
   triggers = {
@@ -20,6 +25,9 @@ echo "Creating DV Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/dv_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-dv-operator ${local.operator_namespace}
 
+echo "Create DMC Operator Catalog Source"
+oc create -f ${self.triggers.cpd_workspace}/ibm_dmc_operator_catalog_source.yaml
+
 echo 'Create DV CR'
 oc create -f ${self.triggers.cpd_workspace}/dv_cr.yaml
 
@@ -30,6 +38,7 @@ EOF
   depends_on = [
     local_file.dv_cr_yaml,
     local_file.dv_sub_yaml,
+    local_file.ibm_dmc_operator_catalog_source_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,

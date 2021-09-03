@@ -155,6 +155,26 @@ spec:
 EOF
 }
 
+data "template_file" "ibm_dmc_operator_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: "IBM DMC Operator Catalog"
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  imagePullPolicy: IfNotPresent
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+
 data "template_file" "db2u_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
