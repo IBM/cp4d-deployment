@@ -85,66 +85,154 @@ variable "datacore_version" {
   default = "1.3.3"
 }
 
+variable "cpd_platform" {
+  type        = map(string)
+  default = {
+    enable   = "yes"
+    version  = "4.0.1"
+    channel  = "v2.0"
+  }
+}
+
 variable "data_virtualization" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "1.7.1"
+    channel  = "v1.7"
+  }
 }
 
 variable "analytics_engine" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "stable-v1"
+  }
 }
 
 variable "watson_knowledge_catalog" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
 variable "watson_studio" {
-  default = "no"
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v2.0"
+  }
 }
 
 variable "watson_machine_learning" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.1"
+  }
 }
 
 variable "watson_ai_openscale" {
-  default = "no"
-}
-
-variable "cognos_dashboard_embedded" {
-  default = "no"
-}
-
-variable "datastage" {
-  default = "no"
-}
-
-variable "db2_warehouse" {
-  default = "no"
-}
-
-variable "db2_oltp" {
-  default = "no"
-}
-
-variable "data_management_console" {
-  default = "no"
-}
-
-variable "cognos_analytics" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1"
+  }
 }
 
 variable "spss_modeler" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "cognos_dashboard_embedded" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "datastage" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "db2_warehouse" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "db2_oltp" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "cognos_analytics" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v4.0"
+  }
+}
+
+variable "data_management_console" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
 variable "master_data_management" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.1"
+  }
 }
 
 variable "db2_aaservice" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
 variable "decision_optimization" {
-  default = "no"
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v4.0"
+  }
 }

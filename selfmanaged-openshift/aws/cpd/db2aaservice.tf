@@ -10,7 +10,7 @@ resource "local_file" "db2aaservice_sub_yaml" {
 }
 
 resource "null_resource" "install_db2aaservice" {
-  count = local.db2aaservice == "yes" ? 1 : 0
+  count = local.db2aaservice.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

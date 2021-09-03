@@ -9,7 +9,7 @@ resource "local_file" "dods_sub_yaml" {
 }
 
 resource "null_resource" "install_dods" {
-  count = var.decision_optimization == "yes" ? 1 : 0
+  count = var.decision_optimization.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

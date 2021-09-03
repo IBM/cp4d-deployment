@@ -14,7 +14,7 @@ resource "local_file" "ds_iis_cr_yaml" {
 }
 
 resource "null_resource" "install_ds" {
-  count = var.datastage == "yes" ? 1 : 0
+  count = var.datastage.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
@@ -36,7 +36,7 @@ echo "Create IIS CR"
 oc apply -f ${self.triggers.cpd_workspace}/ds_iis_cr.yaml
 
 echo 'check the IIS cr status'
-bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus
+bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus; if [ $? -ne 0 ] ; then echo \"IIS service failed to install\" ; exit 1 ; fi
 
 echo 'Create Datastage sub'
 oc create -f ${self.triggers.cpd_workspace}/ds_sub.yaml

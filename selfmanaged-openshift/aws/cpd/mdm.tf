@@ -10,7 +10,7 @@ resource "local_file" "mdm_sub_yaml" {
 
 
 resource "null_resource" "install_mdm" {
-  count = var.master_data_management == "yes" ? 1 : 0
+  count = var.master_data_management.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

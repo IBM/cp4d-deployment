@@ -10,7 +10,7 @@ resource "local_file" "db2oltp_sub_yaml" {
 }
 
 resource "null_resource" "install_db2oltp" {
-  count = var.db2_oltp == "yes" ? 1 : 0
+  count = var.db2_oltp.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

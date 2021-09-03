@@ -10,7 +10,7 @@ resource "local_file" "wml_sub_yaml" {
 }
 
 resource "null_resource" "install_wml" {
-  count = var.watson_machine_learning == "yes" ? 1 : 0
+  count = var.watson_machine_learning.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

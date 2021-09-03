@@ -9,7 +9,7 @@ resource "local_file" "cde_sub_yaml" {
 }
 
 resource "null_resource" "install_cde" {
-  count = var.cognos_dashboard_embedded == "yes" ? 1 : 0
+  count = var.cognos_dashboard_embedded.enabled == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

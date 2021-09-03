@@ -197,6 +197,7 @@ module "cpd" {
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
+  cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog

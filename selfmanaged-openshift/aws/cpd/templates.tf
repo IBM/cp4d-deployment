@@ -196,7 +196,7 @@ metadata:
   name: cpd-operator
   namespace: ${local.operator_namespace}
 spec:
-  channel: v2.0
+  channel: ${var.cpd_platform.channel}
   installPlanApproval: Automatic
   name: cpd-platform-operator
   source: ibm-operator-catalog
@@ -229,7 +229,7 @@ spec:
     license: Enterprise
   storageClass: ${local.storage_class}
   zenCoreMetadbStorageClass: ${local.rwo_storage_class}
-  version: "4.0.1"
+  version: ${var.cpd_platform.version}
 EOF
 }
 
@@ -242,7 +242,7 @@ metadata:
   name: ibm-db2aaservice-cp4d-operator
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.db2aaservice.channel}
   name: ibm-db2aaservice-cp4d-operator
   installPlanApproval: Automatic
   source: ibm-operator-catalog
@@ -259,7 +259,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   storageClass: ${local.storage_class}
-  version: "4.0.1"
+  version: ${var.db2aaservice.version}
   license:
     accept: true
     license: "Enterprise"
@@ -279,7 +279,7 @@ metadata:
   name: ibm-cpd-ae-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-    channel: stable-v1
+    channel: ${var.analytics_engine.channel}
     installPlanApproval: Automatic
     name: analyticsengine-operator
     source: ibm-operator-catalog
@@ -295,7 +295,7 @@ metadata:
   name: analyticsengine-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.analytics_engine.version}
   storageClass: ${local.storage_class}
   storageVendor: ${var.storage_option}
   license:
@@ -313,7 +313,7 @@ metadata:
   name: ibm-db2wh-cp4d-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.db2_warehouse.channel}
   installPlanApproval: Automatic
   name: ibm-db2wh-cp4d-operator
   source: ibm-operator-catalog
@@ -332,6 +332,7 @@ spec:
   storageClass: ${local.storage_class}
   license:
     accept: true
+    license: "Enterprise"
 EOF
 }
 
@@ -344,7 +345,7 @@ metadata:
   name: ibm-db2oltp-cp4d-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.db2_oltp.channel}
   installPlanApproval: Automatic
   name: ibm-db2oltp-cp4d-operator
   source: ibm-operator-catalog
@@ -377,7 +378,7 @@ metadata:
   name: ibm-cpd-ws-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v2.0
+  channel: ${var.watson_studio.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wsl
   source: ibm-operator-catalog
@@ -393,7 +394,7 @@ metadata:
   name: ws-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.watson_studio.version}
   size: "small"
   storageClass: ${local.storage_class}
   storageVendor: ${var.storage_option}
@@ -416,7 +417,7 @@ metadata:
   name: ibm-cpd-wml-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-    channel: v1.1
+    channel: ${var.watson_machine_learning.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-wml-operator
     source: ibm-operator-catalog
@@ -442,6 +443,7 @@ spec:
   docker_registry_prefix: "cp.icr.io/cp/cpd"
   storageClass: ${local.storage_class}
   storageVendor: ${var.storage_option}
+  version: ${var.watson_machine_learning.version}
   license:
     accept: true
     license: "Enterprise"
@@ -461,7 +463,7 @@ metadata:
     app.kubernetes.io/name: ibm-watson-openscale-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1
+  channel: ${var.watson_ai_openscale.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wos
   source: ibm-operator-catalog
@@ -479,7 +481,7 @@ metadata:
 spec:
   scaleConfig: small
   storageClass: "${local.storage_class}"
-  version: 4.0.1
+  version: ${var.watson_ai_openscale.version}
   type: service
   license:
     accept: true
@@ -519,7 +521,7 @@ metadata:
   name: ibm-cpd-spss-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-    channel: v1.0
+    channel: ${var.spss_modeler.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-spss
     source: ibm-operator-catalog
@@ -539,7 +541,7 @@ metadata:
     app.kubernetes.io/managed-by: ibm-cpd-spss-operator
     app.kubernetes.io/name: ibm-cpd-spss-operator
 spec:
-  version: "4.0.1"
+  version: ${var.spss_modeler.version}
   scaleConfig: "small"
   architecture: "amd64"
   docker_registry_prefix: "cp.icr.io/cp/cpd"
@@ -565,7 +567,7 @@ metadata:
   name: ibm-cpd-wkc-operator-catalog-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.watson_knowledge_catalog.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wkc
   source: ibm-operator-catalog
@@ -581,7 +583,7 @@ metadata:
   name: wkc-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.watson_knowledge_catalog.version}
   storageVendor: "${var.storage_option}"
   license:
     accept: true
@@ -603,7 +605,7 @@ metadata:
   name: ibm-datastage-operator
   namespace: ${local.operator_namespace}
 spec: 
-  channel: v1.0
+  channel: ${var.datastage.channel}
   installPlanApproval: Automatic 
   name: ibm-datastage-operator
   source: ibm-operator-catalog
@@ -623,7 +625,7 @@ spec:
     accept: true
     license: Enterprise
   scaleConfig: small
-  version: 4.0.1
+  version: ${var.datastage.version}
 EOF
 }
 
@@ -664,7 +666,7 @@ metadata:
     app.kubernetes.io/name: ibm-ca-operator
   namespace: ${local.operator_namespace}
 spec:
-  channel: v4.0
+  channel: ${var.cognos_analytics.channel}
   name: ibm-ca-operator
   installPlanApproval: Automatic
   source: ibm-operator-catalog
@@ -680,7 +682,7 @@ metadata:
   name: ca-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.cognos_analytics.version}
   license:
     accept: true
     license: "Enterprise"
@@ -698,7 +700,7 @@ metadata:
   name: ibm-dv-operator-catalog-subscription
   namespace: ${local.operator_namespace}        # Pick the project that contains the Cloud Pak for Data operator
 spec:
-  channel: v1.7
+  channel: ${var.data_virtualization.channel}
   installPlanApproval: Automatic
   name: ibm-dv-operator
   source: ibm-operator-catalog
@@ -717,7 +719,7 @@ spec:
   license:
     accept: true
     license: Enterprise
-  version: 1.7.1
+  version: ${var.data_virtualization.version}
   size: "small"
   docker_registry_prefix: cp.icr.io/cp/cpd
 EOF
@@ -732,7 +734,7 @@ metadata:
   name: ibm-dmc-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.data_management_console.channel}
   installPlanApproval: Automatic
   name: ibm-dmc-operator
   source: ibm-operator-catalog
@@ -751,7 +753,7 @@ spec:
   namespace: "${var.cpd_namespace}"
   storageClass: ${local.storage_class}
   pullPrefix: cp.icr.io/cp/cpd
-  version: "4.0.1"
+  version: ${var.data_management_console.version}
   license:
     accept: true
     license: Standard 
@@ -771,7 +773,7 @@ metadata:
   name: ibm-cde-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.0
+  channel: ${var.cognos_dashboard_embedded.channel}
   installPlanApproval: Automatic
   name: ibm-cde-operator
   source: ibm-operator-catalog
@@ -787,7 +789,7 @@ metadata:
   name: cdeproxyservice-cr 
   namespace: ${var.cpd_namespace}
 spec:
-  version: 4.0.1
+  version: ${var.cognos_dashboard_embedded.version}
   namespace: "${var.cpd_namespace}"
   storageClass: "${local.storage_class}"
   cert_manager_enabled: true
@@ -810,7 +812,7 @@ metadata:
   name: ibm-mdm-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
-  channel: v1.1
+  channel: ${ar.master_data_management.channel}
   installPlanApproval: Automatic
   name: ibm-mdm
   source: ibm-operator-catalog
@@ -851,7 +853,7 @@ metadata:
   name: ibm-cpd-dods-operator-catalog-subscription
   namespace: ${local.operator_namespace}        # Pick the project that contains the Cloud Pak for Data operator
 spec:
-    channel: v4.0
+    channel: ${var.decision_optimization.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-dods
     source: ibm-operator-catalog
@@ -870,7 +872,7 @@ spec:
   license:
     accept: true
     license: Enterprise
-  version: 4.0.1
+  version: ${var.decision_optimization.version}
 EOF
 }
 
