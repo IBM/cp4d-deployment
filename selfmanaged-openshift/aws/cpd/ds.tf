@@ -8,6 +8,11 @@ resource "local_file" "ds_sub_yaml" {
   filename = "${local.cpd_workspace}/ds_sub.yaml"
 }
 
+resource "local_file" "iis_sub_yaml" {
+  content  = data.template_file.iis_sub.rendered
+  filename = "${local.cpd_workspace}/iis_sub.yaml"
+}
+
 resource "local_file" "ds_iis_cr_yaml" {
   content  = data.template_file.ds_iis_cr.rendered
   filename = "${local.cpd_workspace}/ds_iis_cr.yaml"
@@ -28,8 +33,8 @@ echo "Create SCC for WKC-IIS"
 oc apply -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
 
 echo "Install IIS Operator"
-wget ${local.cpd_case_url}/ibm-iis-4.0.1.tgz -P ${self.triggers.cpd_workspace} -A 'ibm-iis-4.0.1.tgz'
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-iis-4.0.1.tgz --tolerance 1 --namespace ${local.operator_namespace} --action installOperator --inventory iisOperatorSetup
+oc apply -f ${self.triggers.cpd_workspace}/iis_sub.yaml
+sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator ${local.operator_namespace}
 
 echo "Create IIS CR"
@@ -39,12 +44,12 @@ echo 'check the IIS cr status'
 bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus; if [ $? -ne 0 ] ; then echo \"IIS service failed to install\" ; exit 1 ; fi
 
 echo 'Create Datastage sub'
-oc create -f ${self.triggers.cpd_workspace}/ds_sub.yaml
+oc apply -f ${self.triggers.cpd_workspace}/ds_sub.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-datastage-operator ${local.operator_namespace}
 
 echo 'Create Datastage CR'
-oc create -f ${self.triggers.cpd_workspace}/ds_cr.yaml
+oc apply -f ${self.triggers.cpd_workspace}/ds_cr.yaml
 
 echo 'check the Datastage cr status'
 bash cpd/scripts/check-cr-status.sh datastageservice datastage-cr ${var.cpd_namespace} dsStatus

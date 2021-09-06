@@ -630,6 +630,23 @@ EOF
 }
 
 #IIS
+
+data "template_file" "iis_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-iis-operator
+  namespace: ${local.operator_namespace}
+spec: 
+  channel: ${var.datastage.channel}
+  installPlanApproval: Automatic 
+  name: ibm-cpd-iis
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
 data "template_file" "ds_iis_cr" {
   template = <<EOF
 apiVersion: iis.cpd.ibm.com/v1alpha1
