@@ -26,9 +26,7 @@ datastage                       = {"enable":"no", "version":"4.0.1", "channel":"
 db2_warehouse                   = {"enable":"no", "version":"4.0.1", "channel":"v1.0"}
 db2_oltp                        = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
 cognos_analytics                = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
-data_management_console         = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
 master_data_management          = {"enable":"no",  "version":"4.0.1", "channel":"v1.1"}
-db2_aaservice                   = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
 decision_optimization           = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
 
 
