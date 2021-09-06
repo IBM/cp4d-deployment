@@ -58,6 +58,7 @@ EOF
   depends_on = [
     local_file.ds_cr_yaml,
     local_file.ds_sub_yaml,
+    local_file.iis_sub_yaml,
     local_file.ds_iis_cr_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
