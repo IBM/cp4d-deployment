@@ -55,4 +55,7 @@
 | `data_management_console` | no | Enter `yes` to install the data management console Add-on service. |
 | `cognos_analytics` | no | Enter `yes` to install the Cognos Analytics Add-on service. |
 | `spss-modeler` | no | Enter `yes` to install the SPSS Modeler Add-on service. |
+| `db2_oltp` | no | Enter `yes` to install the DB2OLTP service. |
+| `master_data_management` | no | Enter `yes` to install the Master Data Management 360 service. |
+| `decision_optimization` | no | Enter `yes` to install the Decision Optimization service. |
 
