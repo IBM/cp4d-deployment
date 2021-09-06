@@ -66,6 +66,7 @@ variable "cpd_storageclass" {
   default = {
     "portworx" = "portworx-shared-gp3"
     "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
@@ -75,6 +76,7 @@ variable "rwo_cpd_storageclass" {
   default = {
     "portworx" = "portworx-db2-rwo-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
+    "nfs"      = "nfs"
   }
 }
 

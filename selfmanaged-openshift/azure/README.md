@@ -1,4 +1,4 @@
-# Cloud Pak for Data on OCP 4.6 on Azure
+# Cloud Pak for Data 4.0 on Azure
 
 ## Deployment Topology
 
@@ -17,10 +17,32 @@ The template sets up the following:
 - Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or OCS (OpenShift Container Storage) v4.5 or on an exclusive node for NFS.
 - An Azure domain as your public Domain Name System (DNS) zone for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
-### Requirements
-
-* Install [az-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
-* Install [terraform](https://learn.hashicorp.com/terraform/getting-started/install.html).
+### Prerequisites
+* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+* Install `jq`
+  ```bash
+  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  mv jq-linux64 jq
+  chmod +x jq
+  mv jq /usr/local/bin
+  ```
+* Install `wget`, `htpasswd`, `python3` and [az-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) CLIs:
+  * RHEL:
+  ```bash
+  yum install wget jq httpd-tools python36 -y
+  ln -s /usr/bin/python3 /usr/bin/python
+  ln -s /usr/bin/pip3 /usr/bin/pip
+  pip install pyyaml
+  ```
+* Download Openshift CLI and move to `/usr/local/bin`:
+```bash
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.6.31.tar.gz
+tar -xvf openshift-client-linux-4.6.31.tar.gz
+chmod u+x oc kubectl
+sudo mv oc /usr/local/bin
+sudo mv kubectl /usr/local/bin
+oc version
+```
 
 
 ### Steps to Deploy
@@ -53,21 +75,43 @@ The template sets up the following:
 * Change to `azure_infra` folder:
 
 * Check that the roles are correctly assigned by executing the script `./validate_azure_subscription.sh`.
-* `[Optional]` If you choose to use the external registry for CPD installation with pre-loaded CPD images, please set the variables `cpd-external-registry`, `cpd-external-username` and the corresponding `apikey`. See the [Variables documentation](VARIABLES.md) for more details. If these values are not provided, by default the installation takes the images from the cp.icr.io/cp/cpd repo. In this case please ensure to provide the entitlement API key for variable `apikey`.
-* Enter configuration variables in `variables.tf` file. See the [Variables documentation](VARIABLES.md) for more details:
-* Deploy:
-  ```bash
-  terraform init
-  terraform apply
-  ```
+* You can use the `wkc-1az-ocs-new-vnet.tfvars` file in this folder with preset values for a cluster with WKC enabled on OCS storage on a new VPC cluster. Note that the `<required>` parameters need to be set.
+* You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
+
+* Deploy scripts by executing the one of following commands
+
+If using the variables.tf file
+
+```bash
+terraform init
+terraform apply | tee terraform.log
+```
+
+OR 
+
+if you are using the `wkc-1az-ocs-new-vnet.tfvars` file
+
+```bash
+terraform init
+terraform apply -var-file=wkc-1az-ocs-new-vnet.tfvars | tee terraform.log
+```
+
 ### Deploying to an existing network
 * The existing network and the new cluster must be deployed to the same region.
-* The existing network must have separate subnets for the master, bootnode, worker, and if nfs storage is chosen, nfs subnet.
+* The existing network must have separate subnets for the master, worker, and if nfs storage is chosen, nfs subnet.
+
+### Note:
+* For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
 
 ### Destroying the cluster
 
-* Run:
+* When cluster created successfully, execute following commands to delete the cluster:
   ```bash
   terraform destroy
+  ```
+* If cluster creation fails, execute following commands to delete the created resources:
+  ```bash
+  cd installer-files && ./openshift-install destroy cluster
+  terraform destroy -var-file="<Path To terraform.tfvars file>"
   ```
 

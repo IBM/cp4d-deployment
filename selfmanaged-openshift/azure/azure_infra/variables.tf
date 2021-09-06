@@ -1,22 +1,26 @@
 ## Azure Auth
 variable "azure-subscription-id" {
+
 }
 
 variable "azure-client-id" {
+
 }
 
 variable "azure-client-secret" {
+
 }
 
 variable "azure-tenant-id" {
+
 }
 
 variable "region" {
-  default = "eastus"
+  default = "centralus"
 }
 
 variable "resource-group" {
-  default = "mycpd-rg"
+
 }
 
 variable "existing-resource-group" {
@@ -24,7 +28,7 @@ variable "existing-resource-group" {
 }
 
 variable "cluster-name" {
-  default = "myocp-cluster"
+
 }
 
 # Resource group the DNS group was created in
@@ -35,8 +39,8 @@ variable "dnszone-resource-group" {
 variable "dnszone" {
 }
 
-variable "privateBootnode" {
-  default = "no"
+variable "admin-username" {
+  default = "core"
 }
 
 ### Network Config
@@ -56,17 +60,6 @@ variable "virtual-network-cidr" {
   default = "10.0.0.0/16"
 }
 
-variable "bootnode-subnet-name" {
-  default = "bootnode-subnet"
-}
-
-variable "bootnode-subnet-cidr" {
-  default = "10.0.3.0/24"
-}
-
-variable "bootnode-source-cidr" {
-  default = "0.0.0.0/0"
-}
 
 variable "master-subnet-name" {
   default = "master-subnet"
@@ -102,9 +95,6 @@ variable "worker-node-count" {
   default = 3
 }
 
-variable "bootnode-instance-type" {
-  default = "Standard_D8s_v3"
-}
 
 variable "master-instance-type" {
   default = "Standard_D8s_v3"
@@ -125,21 +115,20 @@ variable "clusterAutoscaler" {
   default = "no"
 }
 
-# Username for the bootnode VM
-variable "admin-username" {
-  default = "core"
-}
-
 variable "openshift-username" {
+  default = "ocadmin"
 }
 
 variable "openshift-password" {
 }
 
-variable "ssh-public-key" {
+variable "openshift_api" {
+  type    = string
+  default = ""
 }
 
-variable "ssh-private-key-file-path" {
+variable "ssh-public-key" {
+
 }
 
 # Internet facing endpoints
@@ -148,7 +137,7 @@ variable "private-or-public-cluster" {
 }
 
 variable "storage" {
-  default = "portworx"
+  default = "nfs"
 }
 
 variable "portworx-spec-url" {
@@ -175,15 +164,21 @@ variable "enableNFSBackup" {
 
 variable "cpd-external-registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
-  default     = ""
+  default     = "cp.icr.io"
 }
 
 variable "cpd-external-username" {
   description = "URL to external username for CPD install. Note: CPD images must already exist in the repo"
-  default     = ""
+  default     = "cp"
 }
 variable "ocp_version" {
   default = "4.6.31"
+}
+
+
+variable "openshift_installer_url_prefix" {
+  type    = string
+  default = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
 }
 
 variable "cloudctl_version" {
@@ -210,79 +205,176 @@ variable "operator-namespace" {
   default = "ibm-common-services"
 }
 
-variable "cpd-storageclass" {
+variable "cpd_storageclass" {
   type = map(any)
 
   default = {
     "portworx" = "portworx-shared-gp3"
-    "nfs"      = "nfs"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      =  "nfs"
   }
 }
 
-variable "ccs-storageclass-value" {
+variable "rwo_cpd_storageclass" {
   type = map(any)
 
   default = {
-    "portworx" = "storageVendor: portworx"
-    "nfs"      = "storageClass: nfs"
+    "portworx" = "portworx-db2-rwo-sc"
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+    "nfs"      =  "nfs"
   }
 }
-
 ############################################
 # CPD 4.0 service variables 
 ###########################################
-variable "wsl" {
-  default = "no"
+variable "cpd_platform" {
+  type        = map(string)
+  default = {
+    enable   = "yes"
+    version  = "4.0.1"
+    channel  = "v2.0"
+  }
 }
 
-variable "wml" {
-  default = "no"
+variable "data_virtualization" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "1.7.1"
+    channel  = "v1.7"
+  }
 }
 
-variable "aiopenscale" {
-  default = "no"
+variable "analytics_engine" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "stable-v1"
+  }
 }
 
-variable "spss" {
-  default = "no"
+variable "watson_knowledge_catalog" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "cde" {
-  default = "no"
+variable "watson_studio" {
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v2.0"
+  }
 }
 
-variable "dods" {
-  default = "no"
+variable "watson_machine_learning" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.1"
+  }
 }
 
-variable "spark" {
-  default = "no"
+variable "watson_ai_openscale" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1"
+  }
 }
 
-variable "dv" {
-  default = "no"
+variable "spss_modeler" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "bigsql" {
-  default = "no"
+variable "cognos_dashboard_embedded" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "ca" {
-  default = "no"
+variable "datastage" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "db2oltp" {
-  default = "no"
+variable "db2_warehouse" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "db2wh" {
-  default = "no"
+variable "db2_oltp" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
 }
 
-variable "wkc" {
-  default = "no"
+variable "cognos_analytics" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v4.0"
+  }
 }
 
-variable "ds" {
-  default = "no"
+variable "data_management_console" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "master_data_management" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.1"
+  }
+}
+
+variable "db2_aaservice" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
+
+variable "decision_optimization" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v4.0"
+  }
 }

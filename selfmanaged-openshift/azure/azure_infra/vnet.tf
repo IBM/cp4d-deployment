@@ -1,7 +1,5 @@
 locals {
   resource-group       = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
-  bootnode_ip_address  = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].private_ip_address : azurerm_public_ip.bootnode[0].ip_address
-  network_interface_id = var.privateBootnode == "yes" ? azurerm_network_interface.bootnode-pvt[0].id : azurerm_network_interface.bootnode-pub[0].id
 }
 
 resource "null_resource" "az_validation_check" {
@@ -34,17 +32,6 @@ resource "azurerm_virtual_network" "cpdvirtualnetwork" {
   ]
 }
 
-resource "azurerm_subnet" "bootnode" {
-  count                = var.new-or-existing == "new" ? 1 : 0
-  name                 = var.bootnode-subnet-name
-  resource_group_name  = var.resource-group
-  virtual_network_name = var.virtual-network-name
-  address_prefix       = var.bootnode-subnet-cidr
-  depends_on = [
-    azurerm_resource_group.cpdrg,
-    azurerm_virtual_network.cpdvirtualnetwork
-  ]
-}
 
 resource "azurerm_subnet" "masternode" {
   count                = var.new-or-existing == "new" ? 1 : 0
@@ -70,52 +57,6 @@ resource "azurerm_subnet" "workernode" {
   ]
 }
 
-resource "azurerm_public_ip" "bootnode" {
-  count               = var.privateBootnode == "no" ? 1 : 0
-  name                = "bootnode-pip"
-  location            = var.region
-  resource_group_name = var.resource-group
-  allocation_method   = "Static"
-  depends_on = [
-    azurerm_resource_group.cpdrg,
-  ]
-}
-
-resource "azurerm_network_interface" "bootnode-pub" {
-  count               = var.privateBootnode == "no" ? 1 : 0
-  name                = "bootnode-nic"
-  location            = var.region
-  resource_group_name = var.resource-group
-
-  ip_configuration {
-    name                          = "bootnode-nic-config"
-    subnet_id                     = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${var.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.bootnode-subnet-name}"
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.bootnode[count.index].id
-  }
-  depends_on = [
-    azurerm_resource_group.cpdrg,
-    azurerm_subnet.bootnode,
-  ]
-}
-
-resource "azurerm_network_interface" "bootnode-pvt" {
-  count               = var.privateBootnode == "yes" ? 1 : 0
-  name                = "bootnode-nic"
-  location            = var.region
-  resource_group_name = var.resource-group
-
-  ip_configuration {
-    name                          = "bootnode-nic-config"
-    subnet_id                     = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${var.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.bootnode-subnet-name}"
-    private_ip_address_allocation = "Static"
-  }
-  depends_on = [
-    azurerm_resource_group.cpdrg,
-    azurerm_subnet.bootnode,
-  ]
-}
-
 resource "azurerm_network_interface" "nfs" {
   count               = var.storage == "nfs" ? 1 : 0
   name                = "nfs-nic"
@@ -130,28 +71,6 @@ resource "azurerm_network_interface" "nfs" {
   depends_on = [
     azurerm_resource_group.cpdrg,
     azurerm_subnet.workernode,
-  ]
-}
-
-resource "azurerm_network_security_group" "bootnode" {
-  count               = var.new-or-existing == "new" ? 1 : 0
-  name                = "bootnode-nsg"
-  location            = var.region
-  resource_group_name = var.resource-group
-
-  security_rule {
-    name                       = "allSSHin"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = var.bootnode-source-cidr
-    destination_address_prefix = var.bootnode-subnet-cidr
-  }
-  depends_on = [
-    azurerm_resource_group.cpdrg,
   ]
 }
 
@@ -172,17 +91,6 @@ resource "azurerm_network_security_group" "master" {
     destination_port_range     = "6443"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-  }
-  security_rule {
-    name                       = "ssh"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = var.bootnode-subnet-cidr
-    destination_address_prefix = var.master-subnet-cidr
   }
   depends_on = [
     azurerm_resource_group.cpdrg,
@@ -247,21 +155,6 @@ resource "azurerm_network_security_rule" "worker-http" {
   network_security_group_name = azurerm_network_security_group.worker[count.index].name
 }
 
-resource "azurerm_network_security_rule" "worker-ssh" {
-  count                       = var.new-or-existing == "new" ? 1 : 0
-  name                        = "ssh"
-  priority                    = 503
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefix       = var.bootnode-subnet-cidr
-  destination_address_prefix  = var.worker-subnet-cidr
-  resource_group_name         = var.resource-group
-  network_security_group_name = azurerm_network_security_group.worker[count.index].name
-}
-
 resource "azurerm_subnet_network_security_group_association" "master" {
   count                     = var.new-or-existing == "new" ? 1 : 0
   subnet_id                 = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${var.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.master-subnet-name}"
@@ -281,16 +174,5 @@ resource "azurerm_subnet_network_security_group_association" "worker" {
     azurerm_resource_group.cpdrg,
     azurerm_virtual_network.cpdvirtualnetwork,
     azurerm_subnet.workernode
-  ]
-}
-
-resource "azurerm_subnet_network_security_group_association" "bootnode" {
-  count                     = var.new-or-existing == "new" ? 1 : 0
-  subnet_id                 = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${var.resource-group}/providers/Microsoft.Network/virtualNetworks/${var.virtual-network-name}/subnets/${var.bootnode-subnet-name}"
-  network_security_group_id = "/subscriptions/${var.azure-subscription-id}/resourceGroups/${var.resource-group}/providers/Microsoft.Network/networkSecurityGroups/${azurerm_network_security_group.bootnode[count.index].name}"
-  depends_on = [
-    azurerm_resource_group.cpdrg,
-    azurerm_virtual_network.cpdvirtualnetwork,
-    azurerm_subnet.bootnode
   ]
 }

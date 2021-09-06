@@ -23,7 +23,14 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `jq`, `python3` and `aws` CLIs:
+* Install `jq`
+  ```bash
+  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  mv jq-linux64 jq
+  chmod +x jq
+  mv jq /usr/local/bin
+  ```
+* Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
   * RHEL:
   ```bash
   yum install wget jq httpd-tools python36 -y
@@ -34,8 +41,8 @@ The deployment sets up the following as shown in the diagram.
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.9.tar.gz
-tar -xvf openshift-client-linux-4.8.9.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.6.31.tar.gz
+tar -xvf openshift-client-linux-4.6.31.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin
