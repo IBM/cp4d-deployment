@@ -418,9 +418,9 @@ sed -i -e s#REPLACE_REGION#${var.region}#g ${local.ocptemplates}/${local.ocs-mac
 sed -i -e s#REPLACE_VNET_RG#${var.resource-group}#g ${local.ocptemplates}/${local.ocs-machineset-file}
 sed -i -e s#REPLACE_WORKER_SUBNET#${var.worker-subnet-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
 sed -i -e s#REPLACE_VNET_NAME#${var.virtual-network-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
-oc create -f ${local.ocptemplates}/${local.ocs-machineset-file}
+oc apply -f ${local.ocptemplates}/${local.ocs-machineset-file}
 sleep 600
-oc create -f ${local.ocptemplates}/deploy-with-olm.yaml
+oc apply -f ${local.ocptemplates}/deploy-with-olm.yaml
 sleep 300
 oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml
 sleep 600
