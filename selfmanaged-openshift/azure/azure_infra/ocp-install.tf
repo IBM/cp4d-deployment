@@ -7,7 +7,8 @@ locals {
   install-config-file       = "install-config-${var.single-or-multi-zone}.tpl.yaml"
   machine-autoscaler-file   = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
   machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
-  openshift_installer_url   = "${var.openshift_installer_url_prefix}/${var.ocp_version}"  
+  openshift_installer_url   = "${var.openshift_installer_url_prefix}/${var.ocp_version}"
+  ocs-machineset-file   = var.single-or-multi-zone == "single" ? "ocs-machineset-singlezone.yaml" : "ocs-machineset-multizone.yaml"  
 }
 
 resource "null_resource" "download_binaries" {
@@ -188,6 +189,22 @@ resource "local_file" "toolbox_yaml" {
 resource "local_file" "deploy-with-olm_yaml" {
   content  = file("../ocs_module/deploy-with-olm.yaml")
   filename = "${local.ocptemplates}/deploy-with-olm.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-machineset-singlezone_yaml" {
+  content  = file("../ocs_module/ocs-machineset-singlezone.yaml")
+  filename = "${local.ocptemplates}/ocs-machineset-singlezone.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-machineset-multizone_yaml" {
+  content  = file("../ocs_module/ocs-machineset-multizone.yaml")
+  filename = "${local.ocptemplates}/ocs-machineset-multizone.yaml"
   depends_on = [
     null_resource.install_openshift
   ]
@@ -388,12 +405,21 @@ resource "null_resource" "install_ocs" {
   count = var.storage == "ocs" ? 1 : 0
   triggers = {
     username              = var.admin-username
+    ocp_directory             = local.ocpdir
   }
   provisioner "local-exec" {
     command = <<EOF
-chmod +x ${local.ocptemplates}/ocs-prereq.sh
+#chmod +x ${local.ocptemplates}/ocs-prereq.sh
 #export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig
-${local.ocptemplates}/ocs-prereq.sh
+#${local.ocptemplates}/ocs-prereq.sh
+CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
+sed -i -e s#REPLACE_CLUSTERID#$CLUSTERID#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_REGION#${var.region}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_VNET_RG#${var.resource-group}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_WORKER_SUBNET#${var.worker-subnet-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_VNET_NAME#${var.virtual-network-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+oc create -f ${local.ocptemplates}/${local.ocs-machineset-file}
+sleep 600
 oc create -f ${local.ocptemplates}/deploy-with-olm.yaml
 sleep 300
 oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml
@@ -408,7 +434,9 @@ EOF
     local_file.toolbox_yaml,
     local_file.deploy-with-olm_yaml,
     local_file.ocs-storagecluster_yaml,
-    local_file.ocs-prereq_yaml
+    local_file.ocs-prereq_yaml,
+    local_file.ocs-machineset-singlezone_yaml,
+    local_file.ocs-machineset-multizone_yaml
   ]
 }
 

@@ -16,7 +16,7 @@ module "cpd" {
   source                    = "./cpd"
   openshift_api             = var.openshift_api
   openshift_username        = var.openshift-username
-  openshift_password        = var.openshift-password 
+  openshift_password        = var.openshift-password
   openshift_token           = ""
   installer_workspace       = local.cpd_installer_workspace
   accept_cpd_license        = var.accept-cpd-license
