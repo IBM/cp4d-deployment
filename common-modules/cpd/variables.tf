@@ -74,7 +74,7 @@ variable "rwo_cpd_storageclass" {
   type = map(any)
 
   default = {
-    "portworx" = "portworx-db2-rwo-sc"
+    "portworx" = "portworx-metastoredb-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
     "nfs"      = "nfs"
   }

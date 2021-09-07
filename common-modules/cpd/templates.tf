@@ -5,6 +5,8 @@ locals {
   license            = var.accept_cpd_license == "accept" ? true : false
   storage_class      = lookup(var.cpd_storageclass, var.storage_option)
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
+  storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
+  storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
 }
 
 data "template_file" "crio_machineconfig" {
@@ -296,8 +298,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   version: ${var.analytics_engine.version}
-  storageClass: ${local.storage_class}
-  storageVendor: ${var.storage_option}
+  ${local.storage_type_key}: "${local.storage_type_value}" 
   license:
     accept: true
     license: Enterprise
@@ -584,7 +585,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   version: ${var.watson_knowledge_catalog.version}
-  storageVendor: "${var.storage_option}"
+  ${local.storage_type_key}: "${local.storage_type_value}"
   license:
     accept: true
     license: Enterprise
