@@ -26,7 +26,7 @@ echo 'Create wos CR'
 oc apply -f ${self.triggers.cpd_workspace}/wos_cr.yaml
 sleep 3
 echo 'check the wos cr status'
-bash cpd/scripts/check-cr-status.sh woservices aiopenscale-cr ${var.cpd_namespace} wosStatus
+bash cpd/scripts/check-cr-status.sh woservice aiopenscale-cr ${var.cpd_namespace} wosStatus
 EOF
   }
   depends_on = [
