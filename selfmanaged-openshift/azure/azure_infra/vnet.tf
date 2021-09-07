@@ -1,5 +1,5 @@
 locals {
-  resource-group       = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
+  resource-group = var.new-or-existing == "new" ? var.resource-group : var.existing-vnet-resource-group
 }
 
 resource "null_resource" "az_validation_check" {

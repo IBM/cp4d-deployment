@@ -2,7 +2,7 @@ locals {
   classic_lb_timeout = 600
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
-  cpd_case_url = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
+  cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
   db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
@@ -23,10 +23,10 @@ resource "local_file" "crio_machineconfig_yaml" {
 
 resource "null_resource" "login_cluster" {
   triggers = {
-    openshift_api       = var.openshift_api
-    openshift_username  = var.openshift_username
-    openshift_password  = var.openshift_password
-    login = var.rosa_cluster ? "${var.login_cmd} --insecure-skip-tls-verify=true" : "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
+    openshift_api      = var.openshift_api
+    openshift_username = var.openshift_username
+    openshift_password = var.openshift_password
+    login              = var.rosa_cluster ? "${var.login_cmd} --insecure-skip-tls-verify=true" : "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -72,7 +72,7 @@ EOF
 resource "null_resource" "configure_cluster" {
   triggers = {
     installer_workspace = var.installer_workspace
-    cpd_workspace = local.cpd_workspace
+    cpd_workspace       = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -158,7 +158,7 @@ resource "local_file" "db2u_catalog_yaml" {
 
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
-    namespace             = var.cpd_namespace
+    namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
 

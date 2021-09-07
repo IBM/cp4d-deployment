@@ -1,44 +1,44 @@
 ## Azure Auth
-azure-subscription-id        = "<required>" 
-azure-client-id              = "<required>" 
-azure-client-secret          = "<required>" 
-azure-tenant-id              = "<required>" 
+azure-subscription-id = "<required>"
+azure-client-id       = "<required>"
+azure-client-secret   = "<required>"
+azure-tenant-id       = "<required>"
 
 ## Azure topology
-region                       = "centralus" 
-resource-group               = "<required>" 
-existing-resource-group      = "no" 
-cluster-name                 = "<required>" 
-dnszone-resource-group       = "<required>"      # Resource group the DNS group was created in
-dnszone                      = "<required>"      # DNS Zone created in Step 1 of the Readme
-single-or-multi-zone         = "single" 
+region                  = "centralus"
+resource-group          = "<required>"
+existing-resource-group = "no"
+cluster-name            = "<required>"
+dnszone-resource-group  = "<required>" # Resource group the DNS group was created in
+dnszone                 = "<required>" # DNS Zone created in Step 1 of the Readme
+single-or-multi-zone    = "single"
 
 ## OpenShift auth & topology
-worker-node-count            = 3 
-pull-secret-file-path        = "<required>" 
-openshift-username           = "ocadmin" 
-openshift-password           = "<required>" 
-storage                      = "ocs"              # ocs or portworx or nfs
-ssh-public-key               = "<required>" 
-apikey                       = "<required>" 
+worker-node-count     = 3
+pull-secret-file-path = "<required>"
+openshift-username    = "ocadmin"
+openshift-password    = "<required>"
+storage               = "ocs" # ocs or portworx or nfs
+ssh-public-key        = "<required>"
+apikey                = "<required>"
 
 ## CPD services
-watson_knowledge_catalog     = {"enable":"yes", "version":"4.0.1", "channel":"v1.0"}
-data_virtualization          = {"enable":"no", "version":"1.7.1", "channel":"v1.7"}
-analytics_engine             = {"enable":"no", "version":"4.0.1", "channel":"stable-v1"}
-watson_studio                = {"enable":"no", "version":"4.0.1", "channel":"v2.0"}
-watson_machine_learning      = {"enable":"no", "version":"4.0.1", "channel":"v1.1"}
-watson_ai_openscale          = {"enable":"no",  "version":"4.0.1", "channel":"v1"}
-spss_modeler                 = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
-cognos_dashboard_embedded    = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
-datastage                    = {"enable":"no", "version":"4.0.1", "channel":"v1.0"}
-db2_warehouse                = {"enable":"no", "version":"4.0.1", "channel":"v1.0"}
-db2_oltp                     = {"enable":"no",  "version":"4.0.1", "channel":"v1.0"}
-cognos_analytics             = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
-master_data_management       = {"enable":"no",  "version":"4.0.1", "channel":"v1.1"}
-decision_optimization        = {"enable":"no",  "version":"4.0.1", "channel":"v4.0"}
+watson_knowledge_catalog  = { "enable" : "yes", "version" : "4.0.1", "channel" : "v1.0" }
+data_virtualization       = { "enable" : "no", "version" : "1.7.1", "channel" : "v1.7" }
+analytics_engine          = { "enable" : "no", "version" : "4.0.1", "channel" : "stable-v1" }
+watson_studio             = { "enable" : "no", "version" : "4.0.1", "channel" : "v2.0" }
+watson_machine_learning   = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.1" }
+watson_ai_openscale       = { "enable" : "no", "version" : "4.0.1", "channel" : "v1" }
+spss_modeler              = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
+cognos_dashboard_embedded = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
+datastage                 = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
+db2_warehouse             = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
+db2_oltp                  = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
+cognos_analytics          = { "enable" : "no", "version" : "4.0.1", "channel" : "v4.0" }
+master_data_management    = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.1" }
+decision_optimization     = { "enable" : "no", "version" : "4.0.1", "channel" : "v4.0" }
 
-accept-cpd-license           = "accept" 
+accept-cpd-license = "accept"
 
 
 ###################################  Defaults ###################################
