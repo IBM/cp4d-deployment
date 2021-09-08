@@ -1,0 +1,14 @@
+apiVersion: ws.cpd.ibm.com/v1beta1
+kind: NotebookRuntime
+metadata:
+  name: ibm-cpd-ws-runtime-py37
+  labels:
+    app.kubernetes.io/instance: notebookruntime
+    app.kubernetes.io/managed-by: ibm-cpd-ws-runtimes-operator
+    app.kubernetes.io/name: ibm-cpd-ws-runtimes
+spec:
+  license:
+    accept: true
+    license: "Enterprise"
+  kind: ibm-cpd-ws-runtime-py37
+  version: "4.0.0"

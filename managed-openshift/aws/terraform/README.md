@@ -3,41 +3,108 @@
 ### Architecture
 ![ROSA_Architecture](images/AWS_ROSA.png)
 
-### Installation
-* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+### Enable ROSA
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
-* Fill out the `variables.tf` in the root folder (or create a `terraform.tfvars` file) for your variables using the VARIABLES.md as a reference
-* Install `wget`,`jq`, `python`, `pip` and `aws` CLIs:
+
+### Prerequisites
+* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+* Install `jq`
+  ```bash
+  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  mv jq-linux64 jq
+  chmod +x jq
+  mv jq /usr/bin
+  ```
+* Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
   * RHEL:
   ```bash
   yum install wget jq httpd-tools python36 -y
-  ln -s /usr/bin/python3 /usr/bin/python; ln -s /usr/bin/pip3 /usr/bin/pip
+  ln -s /usr/bin/python3 /usr/bin/python
+  ln -s /usr/bin/pip3 /usr/bin/pip
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
-* Download Openshift CLI and move to `/usr/local/bin`:
+
+* Download Openshift CLI and move to `/usr/bin`:
+
+  ```bash
+  wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.6.31.tar.gz
+  tar -xvf openshift-client-linux-4.6.31.tar.gz
+  chmod u+x oc kubectl
+  sudo mv oc /usr/bin
+  sudo mv kubectl /usr/bin
+  oc version
+  ```
+
+* Download ROSA CLI
+  * MAC
+    ```
+    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-macosx.tar.gz
+    ```
+  * Linux
+
+    ```
+    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-linux.tar.gz
+    tar -xvf rosa-linux.tar.gz
+    mv rosa /usr/bin
+    ```
+
+### Steps to Deploy:
+* AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
+* Before deploying the infrastructure make sure you have `python3` installed in your local machine.
+* Create a Route 53 domain.
+* [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
+* [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
+* If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
+* Clone this repository:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.8.5.tar.gz
-tar -xvf openshift-client-linux-4.8.5.tar.gz
-chmod u+x oc kubectl
-sudo mv oc /usr/local/bin
-sudo mv kubectl /usr/local/bin
-oc version
+git clone <repo_url>
 ```
-  
-* Deploy scripts by executing the following command:
+* Change the current directory to `aws/terraform/`:
+```
+cd cp4d-deployment/managed-openshift/aws/terraform/
+```
+* Read the license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW) and accept it by setting variable `accept_cpd_license` to `accept`.
+* Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
+* If you want to hide sensitive data such as access_key_id or secret_access_key, create a `aws.tfvars` file and write all the sensitive variables.
+* You can use the `wkc-1az-ocs-new-vpc.tfvars` file in this folder with preset values for a cluster with WKC enabled on OCS storage on a new VPC cluster. Note that the `<required>` parameters need to be set.
+* You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
+
+* Deploy scripts by executing the one of following commands
+
+If using the variables.tf file
+
 ```bash
 terraform init
 terraform apply | tee terraform.log
 ```
 
-* Destroying the cluster:
-  * When cluster created successfully, execute following commands to delete the cluster:
-    ```bash
-    terraform destroy
-    ```
-Note: Terraform version `0.15.0` or later are supported.
+OR 
+
+if you are using the `wkc-1az-ocs-new-vpc.tfvars` file
+
+```bash
+terraform init
+terraform apply -var-file=wkc-1az-ocs-new-vpc.tfvars | tee terraform.log
+```
+
+### Destroying the cluster:
+* When cluster created successfully, execute following commands to delete the cluster:
+  ```bash
+  terraform destroy
+  ```
+* If cluster creation fails, execute following commands to delete the created resources:
+  ```bash
+  cd installer-files && ./openshift-install destroy cluster
+  terraform destroy -var-file="<Path To terraform.tfvars file>"
+  ```
+
+* If cluster creation fails, execute following commands to delete the created resources:
+  ```bash
+  cd installer-files && ./openshift-install destroy cluster
+  terraform destroy 
+  ```
 
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
 * Click Settings → Developer settings → OAuth Apps → Register a new OAuth application.

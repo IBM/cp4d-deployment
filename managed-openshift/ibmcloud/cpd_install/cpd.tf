@@ -20,132 +20,12 @@ resource "null_resource" "bedrock_zen_operator" {
     
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_bedrock_zen_operator.sh"
+    command = "./install-bedrock-zen-operator.sh"
   }
   
   depends_on = [
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
-  ]
-}
-
-resource "null_resource" "install_ccs" {
-  count = var.accept_cpd_license == "yes" && var.install_services["ccs"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    environment = {
-      CLUSTER_NAME = "${var.unique_id}-cluster"
-      NAMESPACE = var.cpd_project_name
-      OP_NAMESPACE = var.operator_namespace
-    }
-    
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install_ccs.sh"
-  }
-  
-  depends_on = [
-    var.portworx_is_ready,
-    null_resource.prereqs_checkpoint,
-    null_resource.bedrock_zen_operator,
-  ]
-}
-
-resource "null_resource" "install_data_refinery" {
-  count = var.accept_cpd_license == "yes" && var.install_services["data-refinery"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    environment = {
-      CLUSTER_NAME = "${var.unique_id}-cluster"
-      NAMESPACE = var.cpd_project_name
-      OP_NAMESPACE = var.operator_namespace
-    }
-    
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install-data-refinery.sh"
-  }
-  
-  depends_on = [
-    var.portworx_is_ready,
-    null_resource.prereqs_checkpoint,
-    null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-  ]
-}
-
-resource "null_resource" "install_db2uoperator" {
-  count = var.accept_cpd_license == "yes" && var.install_services["db2uoperator"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    environment = {
-      CLUSTER_NAME = "${var.unique_id}-cluster"
-      NAMESPACE = var.cpd_project_name
-      OP_NAMESPACE = var.operator_namespace
-    }
-    
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install-db2u-operator.sh"
-  }
-  
-  depends_on = [
-    var.portworx_is_ready,
-    null_resource.prereqs_checkpoint,
-    null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-  ]
-}
-
-resource "null_resource" "install_dmc" {
-  count = var.accept_cpd_license == "yes" && var.install_services["dmc"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    environment = {
-      CLUSTER_NAME = "${var.unique_id}-cluster"
-      NAMESPACE = var.cpd_project_name
-      OP_NAMESPACE = var.operator_namespace
-    }
-    
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install-dmc.sh"
-  }
-  
-  depends_on = [
-    var.portworx_is_ready,
-    null_resource.prereqs_checkpoint,
-    null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-  ]
-}
-
-resource "null_resource" "install_db2aaservice" {
-  count = var.accept_cpd_license == "yes" && var.install_services["db2aaservice"] ? 1 : 0
-  
-  provisioner "local-exec" {
-    environment = {
-      CLUSTER_NAME = "${var.unique_id}-cluster"
-      NAMESPACE = var.cpd_project_name
-      OP_NAMESPACE = var.operator_namespace
-    }
-    
-    working_dir = "${path.module}/scripts/"
-    interpreter = ["/bin/bash", "-c"]
-    command = "./install-db2aaservice.sh"
-  }
-  
-  depends_on = [
-    var.portworx_is_ready,
-    null_resource.prereqs_checkpoint,
-    null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
   ]
 }
 
@@ -161,18 +41,13 @@ resource "null_resource" "install_wsl" {
     
     working_dir = "${path.module}/scripts/"
     interpreter = ["/bin/bash", "-c"]
-    command = "./install_wsl.sh"
+    command = "./install-wsl.sh"
   }
   
   depends_on = [
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
   ]
 }
 
@@ -195,11 +70,6 @@ resource "null_resource" "install_aiopenscale" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
   ]
 }
@@ -223,11 +93,6 @@ resource "null_resource" "install_wml" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
   ]
@@ -252,11 +117,6 @@ resource "null_resource" "install_wkc" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -282,11 +142,6 @@ resource "null_resource" "install_dv" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -313,11 +168,6 @@ resource "null_resource" "install_spss" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -345,11 +195,6 @@ resource "null_resource" "install_cde" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -378,11 +223,6 @@ resource "null_resource" "install_spark" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -412,11 +252,6 @@ resource "null_resource" "install_dods" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -447,11 +282,6 @@ resource "null_resource" "install_ca" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -483,11 +313,6 @@ resource "null_resource" "install_ds" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -520,11 +345,6 @@ resource "null_resource" "install_db2oltp" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -558,11 +378,6 @@ resource "null_resource" "install_db2wh" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -597,11 +412,6 @@ resource "null_resource" "install_bigsql" {
     var.portworx_is_ready,
     null_resource.prereqs_checkpoint,
     null_resource.bedrock_zen_operator,
-    null_resource.install_ccs,
-    null_resource.install_data_refinery,
-    null_resource.install_db2uoperator,
-    null_resource.install_dmc,
-    null_resource.install_db2aaservice,
     null_resource.install_wsl,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
@@ -615,5 +425,41 @@ resource "null_resource" "install_bigsql" {
     null_resource.install_ds,
     null_resource.install_db2oltp,
     null_resource.install_db2wh,
+  ]
+}
+
+resource "null_resource" "install_wsruntime" {
+  count = var.accept_cpd_license == "yes" && var.install_services["runtime-addon-py37"] ? 1 : 0
+  
+  provisioner "local-exec" {
+    environment = {
+      CLUSTER_NAME = "${var.unique_id}-cluster"
+      NAMESPACE = var.cpd_project_name
+      OP_NAMESPACE = var.operator_namespace
+    }
+    
+    working_dir = "${path.module}/scripts/"
+    interpreter = ["/bin/bash", "-c"]
+    command = "./install-wsruntime.sh"
+  }
+  
+  depends_on = [
+    var.portworx_is_ready,
+    null_resource.prereqs_checkpoint,
+    null_resource.bedrock_zen_operator,
+    null_resource.install_wsl,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_wkc,
+    null_resource.install_dv,
+    null_resource.install_spss,
+    null_resource.install_cde,
+    null_resource.install_spark,
+    null_resource.install_dods,
+    null_resource.install_ca,
+    null_resource.install_ds,
+    null_resource.install_db2oltp,
+    null_resource.install_db2wh,
+    null_resource.install_bigsql,
   ]
 }

@@ -145,6 +145,7 @@ module "cpd" {
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
+  cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog
@@ -154,10 +155,16 @@ module "cpd" {
   cognos_dashboard_embedded = var.cognos_dashboard_embedded
   datastage                 = var.datastage
   db2_warehouse             = var.db2_warehouse
-  data_management_console   = var.data_management_console
+  cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
+  data_management_console   = var.data_management_console
+  db2_oltp                  = var.db2_oltp
+  master_data_management    = var.master_data_management
+  db2_aaservice             = var.db2_aaservice
+  decision_optimization     = var.decision_optimization
   login_cmd                 = module.ocp.login_cmd
-
+  rosa_cluster              = var.rosa_cluster
+  
   depends_on = [
     null_resource.create_workspace,
     module.portworx,

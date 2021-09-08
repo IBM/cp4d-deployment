@@ -5,24 +5,15 @@
 # Copy the required yaml files for wkc setup .. 
 cd wkc-files
 
-# Case package. 
+## Install WKC Operator
+oc project ${OP_NAMESPACE}
 
-# wkc case package 
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-wkc-4.0.0.tgz
+sed -i -e s#OPERATOR_NAMESPACE#${OP_NAMESPACE}#g wkc-sub.yaml
 
-# ## IIS case package 
-wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-iis-4.0.0.tgz
-
-
-CASE_PACKAGE_NAME="ibm-wkc-4.0.0.tgz"
-
-## Install Operator
-
-cloudctl case launch --case  ${CASE_PACKAGE_NAME} \
-    --tolerance 1 \
-    --namespace ${OP_NAMESPACE} \
-    --action installOperator \
-    --inventory wkcOperatorSetup
+echo '*** executing **** oc create -f wkc-sub.yaml'
+result=$(oc create -f wkc-sub.yaml)
+echo $result
+sleep 1m
 
 # Checking if the wkc operator pods are ready and running. 
 
@@ -32,10 +23,14 @@ cloudctl case launch --case  ${CASE_PACKAGE_NAME} \
 
 oc project ${NAMESPACE}
 
+sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g wkc-iis-scc.yaml
+echo '*** executing **** oc create -f wkc-iis-scc.yaml'
+result=$(oc create -f wkc-iis-scc.yaml)
+echo $result
 
 # # Install wkc Customer Resource
 
-#sed -i -e s#REPLACE_STORAGECLASS#${local.cpd-storageclass}#g wkc-cr.yaml
+sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g wkc-cr.yaml
 echo '*** executing **** oc create -f wkc-cr.yaml'
 result=$(oc create -f wkc-cr.yaml)
 echo $result
@@ -43,51 +38,8 @@ echo $result
 # check the wkc cr status
 ./../check-cr-status.sh wkc wkc-cr ${NAMESPACE} wkcStatus
 
-## IIS cr installation 
-
-sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g wkc-iis-scc.yaml
-echo '*** executing **** oc create -f wkc-iis-scc.yaml'
-result=$(oc create -f wkc-iis-scc.yaml)
-echo $result
-
-# Install IIS operator using CLI (OLM)
-
-CASE_PACKAGE_NAME="ibm-iis-4.0.0.tgz"
-
-## Install Operator
-
-cloudctl case launch --case  ${CASE_PACKAGE_NAME} \
-    --tolerance 1 \
-    --namespace ${OP_NAMESPACE} \
-    --action installOperator \
-    --inventory iisOperatorSetup
-
-# Checking if the wkc iis operator pods are ready and running. 
-# checking status of ibm-cpd-iis-operator
-./../pod-status-check.sh ibm-cpd-iis-operator ${OP_NAMESPACE}
-
-# switch to zen namespace
-
-oc project ${NAMESPACE}
-
-# # Install wkc Customer Resource
-sed -i -e s#REPLACE_NAMESPACE#${NAMESPACE}#g wkc-iis-cr.yaml
-echo '*** executing **** oc create -f wkc-iis-cr.yaml'
-result=$(oc create -f wkc-iis-cr.yaml)
-echo $result
-
-# check the wkc cr status
+# check the iis cr status
 ./../check-cr-status.sh iis iis-cr ${NAMESPACE} iisStatus
 
-# switch to zen namespace
-
-oc project ${NAMESPACE}
-
-# # Install wkc Customer Resource
-
-echo '*** executing **** oc create -f wkc-ug-cr.yaml'
-result=$(oc create -f wkc-ug-cr.yaml)
-echo $result
-
-# check the wkc cr status
+# check the ug cr status
 ./../check-cr-status.sh ug ug-cr ${NAMESPACE} ugStatus

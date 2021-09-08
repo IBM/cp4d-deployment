@@ -56,6 +56,21 @@ resource "azurerm_virtual_machine" "nfs" {
   ]
 }
 
+resource "azurerm_virtual_machine_extension" "nfsext" {
+  count                = var.storage == "nfs" ? 1 : 0
+  name                 = "${var.cluster-name}-nfsext"
+  virtual_machine_id   = azurerm_virtual_machine.nfs[count.index].id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  protected_settings = <<PROT
+    {
+        "script": "${base64encode(file("../nfs_module/setup-nfs.sh"))}"
+    }
+    PROT
+}
+
 resource "azurerm_recovery_services_vault" "cpd_vault" {
   count               = var.enableNFSBackup == "yes" ? 1 : 0
   name                = "cpd-vault"
