@@ -7,12 +7,12 @@ In the recent version of the openshift (4.6.34, 4.6.36 and 4.7.18) we have notic
 ### Issue:
 
 ```bash
-Error: Pods c-db2oltp-wkc-db2u-0  & c-db2oltp-iis-db2u-0 pods will have  Startup probe failed with bellow error message
+Error: Pods c-db2oltp-wkc-db2u-0  & c-db2oltp-iis-db2u-0 pods will have  Startup probe failed with bellow error message
 ```
 ```bash 
-Warning  Unhealthy       101m                    kubelet            Startup probe failed: time="2021-07-09T03:05:48-05:00" level=error msg="exec failed: open /dev/tty: no such device or address"
-  Normal   Pulled          34m (x4 over 87m)       kubelet            Container image "cp.icr.io/cp/db2u.restricted@sha256:c1aaa5dc86b01c7706ee0bf5d46da51cee628c77758b955385325a574e451372" already present on machine
-  Warning  Unhealthy       5m24s (x249 over 101m)  kubelet            (combined from similar events): Startup probe failed: time="2021-07-09T04:42:08-05:00" level=error msg="exec failed: open /dev/tty: no such device or address"
+Warning  Unhealthy       101m                    kubelet            Startup probe failed: time="2021-07-09T03:05:48-05:00" level=error msg="exec failed: open /dev/tty: no such device or address"
+  Normal   Pulled          34m (x4 over 87m)       kubelet            Container image "cp.icr.io/cp/db2u.restricted@sha256:c1aaa5dc86b01c7706ee0bf5d46da51cee628c77758b955385325a574e451372" already present on machine
+  Warning  Unhealthy       5m24s (x249 over 101m)  kubelet            (combined from similar events): Startup probe failed: time="2021-07-09T04:42:08-05:00" level=error msg="exec failed: open /dev/tty: no such device or address"
 ```
 ### Workaround:
 
@@ -23,18 +23,10 @@ Patch example for wkc:
 
 oc patch sts c-db2oltp-wkc-db2u -p='{"spec":{"template":{"spec":{"containers":[{"name":"db2u","tty":false}]}}}}}'
 
-Once the db2u pod is up:
-
-oc rsh c-db2oltp-wkc-db2u-0 
-
-bash
-ipclean -a && sleep 5
-db2start
-db2 -v activate db LINEAGE
 
 ```
 
-For IIS, the below patch should make the install proceed further.
+For IIS, the below patch should make the install proceed further. The patch needs to be run before init-job completes its retries or else UG install will fail.
 
 ``` bash
 oc patch sts c-db2oltp-iis-db2u -p='{"spec":{"template":{"spec":{"containers":[{"name":"db2u","tty":false}]}}}}}'

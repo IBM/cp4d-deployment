@@ -3,8 +3,6 @@
 ### Architecture
 ![ROSA_Architecture](images/AWS_ROSA.png)
 
-
-
 ### Enable ROSA
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
@@ -27,6 +25,7 @@
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
+
 * Download Openshift CLI and move to `/usr/bin`:
 
   ```bash
