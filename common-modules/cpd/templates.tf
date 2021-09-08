@@ -398,7 +398,7 @@ spec:
   version: ${var.watson_studio.version}
   size: "small"
   storageClass: ${local.storage_class}
-  storageVendor: ${var.storage_option}
+  ${local.storage_type_key}: "${local.storage_type_value}" 
   license:
     accept: true
     license: Enterprise
@@ -443,7 +443,7 @@ spec:
   ignoreForMaintenance: false
   docker_registry_prefix: "cp.icr.io/cp/cpd"
   storageClass: ${local.storage_class}
-  storageVendor: ${var.storage_option}
+  ${local.storage_type_key}: "${local.storage_type_value}" 
   version: ${var.watson_machine_learning.version}
   license:
     accept: true
@@ -659,7 +659,7 @@ spec:
   version: "4.0.1"
   size: small
   scaleConfig: small
-  storageVendor: "${var.storage_option}"
+  ${local.storage_type_key}: "${local.storage_type_value}" 
   storageClass: ${local.storage_class}
   storageOverride:
   license:

@@ -51,24 +51,6 @@ EOF
   ]
 }
 
-resource "null_resource" "patch_config_managed" {
-  count = var.rosa_cluster ? 1 : 0
-  provisioner "local-exec" {
-    command = <<EOF
-echo "Patch configuration managed"
-oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
-oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
-oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
-EOF
-  }
-  depends_on = [
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
-    null_resource.login_cluster,
-  ]
-}
-
 resource "null_resource" "configure_cluster" {
   triggers = {
     installer_workspace = var.installer_workspace
@@ -88,8 +70,8 @@ oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
 
-echo 'Sleeping for 10mins while MachineConfigs apply and the nodes restarts' 
-sleep 600
+echo 'Sleeping for 5mins while MachineConfigs apply and the nodes restarts' 
+sleep 300
 EOF
   }
   depends_on = [
@@ -97,8 +79,7 @@ EOF
     local_file.limits_machineconfig_yaml,
     local_file.crio_machineconfig_yaml,
     null_resource.login_cluster,
-    null_resource.patch_config_self,
-    null_resource.patch_config_managed,
+    null_resource.patch_config_self
   ]
 }
 
@@ -214,8 +195,7 @@ EOF
     local_file.db2u_catalog_yaml,
     null_resource.configure_cluster,
     null_resource.login_cluster,
-    null_resource.patch_config_self,
-    null_resource.patch_config_managed,
+    null_resource.patch_config_self
   ]
 }
 

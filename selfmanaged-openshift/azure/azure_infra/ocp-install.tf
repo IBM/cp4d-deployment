@@ -247,8 +247,6 @@ mkdir -p ${local.ocptemplates}
 cp ${local.ocpdir}/install-config.yaml ${local.ocpdir}/install-config.yaml_backup
 chmod +x ${local.ocpdir}/openshift-install
 cd ${local.ocpdir} && ./openshift-install create cluster --log-level=debug
-#mkdir -p ${pathexpand("~/.kube")} 
-#cp ${local.ocpdir}/auth/kubeconfig ${pathexpand("~/.kube/config")} 
 EOF
   }
 
