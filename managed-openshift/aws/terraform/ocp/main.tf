@@ -106,6 +106,22 @@ oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAG
 EOF
   }
   depends_on = [
-    null_resource.create_rosa_user,
+    null_resource.create_rosa_user
   ]
 }
+
+resource "null_resource" "configure_cluster_rosa" {
+  provisioner "local-exec" {
+    command =<<EOF
+echo "Patch configuration managed"
+oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
+bash ocp/scripts/nodes_running.sh
+EOF
+  }
+  depends_on = [
+    null_resource.configure_image_registry
+  ]
+}
+

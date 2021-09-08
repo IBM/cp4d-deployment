@@ -1,342 +1,457 @@
 locals {
-  ocpdir                    = "ocpfourx"
-  ocptemplates              = "ocpfourxtemplates"
+  openshift_installer_url_prefix   = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
+  ocpdir                    = "${path.root}/installer-files"
+  installer_workspace       = "${path.root}/installer-files"
+  azuredir                  = "${pathexpand("~/.azure")}"
+  ocptemplates              = "${path.root}/ocpfourxtemplates"
   install-config-file       = "install-config-${var.single-or-multi-zone}.tpl.yaml"
   machine-autoscaler-file   = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
   machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
+  openshift_installer_url   = "${var.openshift_installer_url_prefix}/${var.ocp_version}"
+  ocs-machineset-file   = var.single-or-multi-zone == "single" ? "ocs-machineset-singlezone.yaml" : "ocs-machineset-multizone.yaml"  
+}
+
+resource "null_resource" "download_binaries" {
+  triggers = {
+    installer_workspace = local.installer_workspace
+  }
+  provisioner "local-exec" {
+    when    = create
+    command = <<EOF
+mkdir -p ${local.azuredir}
+test -e ${self.triggers.installer_workspace} || mkdir ${self.triggers.installer_workspace}
+case $(uname -s) in
+  Darwin)
+    wget -r -l1 -np -nd -q ${local.openshift_installer_url} -P ${self.triggers.installer_workspace} -A 'openshift-install-mac-4*.tar.gz'
+    tar zxvf ${self.triggers.installer_workspace}/openshift-install-mac-4*.tar.gz -C ${self.triggers.installer_workspace}
+    wget -r -l1 -np -nd -q ${local.openshift_installer_url} -P ${self.triggers.installer_workspace} -A 'openshift-client-mac-4*.tar.gz'
+    tar zxvf ${self.triggers.installer_workspace}/openshift-client-mac-4*.tar.gz -C ${self.triggers.installer_workspace}
+    ;;
+  Linux)
+    wget -r -l1 -np -nd -q ${local.openshift_installer_url} -P ${self.triggers.installer_workspace} -A 'openshift-install-linux-4*.tar.gz'
+    tar zxvf ${self.triggers.installer_workspace}/openshift-install-linux-4*.tar.gz -C ${self.triggers.installer_workspace}
+    wget -r -l1 -np -nd -q ${local.openshift_installer_url} -P ${self.triggers.installer_workspace} -A 'openshift-client-linux-4*.tar.gz'
+    tar zxvf ${self.triggers.installer_workspace}/openshift-client-linux-4*.tar.gz -C ${self.triggers.installer_workspace}
+    ;;
+  *)
+    echo 'Supports only Linux and Mac OS at this time'
+    exit 1;;
+esac
+rm -f ${self.triggers.installer_workspace}/*.tar.gz ${self.triggers.installer_workspace}/README.md ${self.triggers.installer_workspace}/robots*.txt*
+EOF
+  }
+
+  /* provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+rm -rf ${self.triggers.installer_workspace}
+EOF
+  } */
+}
+
+resource "local_file" "install_config_yaml" {
+  content  = data.template_file.installconfig.rendered
+  filename = "${local.ocpdir}/install-config.yaml"
+  depends_on = [
+    null_resource.download_binaries
+  ]
+}
+
+resource "local_file" "machine-health-check_yaml" {
+  content  = data.template_file.machine-health-check.rendered
+  filename = "${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
+  depends_on = [
+    null_resource.download_binaries
+  ]
+}
+
+resource "local_file" "azurecreds_yaml" {
+  content  = data.template_file.azurecreds.rendered
+  filename = "${local.azuredir}/osServicePrincipal.json"
+  depends_on = [
+    null_resource.download_binaries
+  ]
+}
+
+resource "local_file" "registry-mc_yaml" {
+  content  = data.template_file.registry-mc.rendered
+  filename = "${local.ocptemplates}/insecure-registry-mc.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "sysctl-mc_yaml" {
+  content  = data.template_file.sysctl-mc.rendered
+  filename = "${local.ocptemplates}/sysctl-mc.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "limits-mc_yaml" {
+  content  = data.template_file.limits-mc.rendered
+  filename = "${local.ocptemplates}/limits-mc.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "crio-mc_yaml" {
+  content  = data.template_file.crio-mc.rendered
+  filename = "${local.ocptemplates}/crio-mc.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "chrony-mc_yaml" {
+  content  = data.template_file.chrony-mc.rendered
+  filename = "${local.ocptemplates}/chrony-mc.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "registry-conf_yaml" {
+  content  = data.template_file.registry-conf.rendered
+  filename = "${local.ocptemplates}/registries.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "multipath-mc_yaml" {
+  content  = data.template_file.multipath-mc.rendered
+  filename = "${local.ocptemplates}/multipath-machineconfig.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "clusterautoscaler_yaml" {
+  content  = data.template_file.clusterautoscaler.rendered
+  filename = "${local.ocptemplates}/cluster-autoscaler.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "machineautoscaler_yaml" {
+  content  = data.template_file.machineautoscaler.rendered
+  filename = "${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "htpasswd_yaml" {
+  content  = data.template_file.htpasswd.rendered
+  filename = "${local.ocptemplates}/auth.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "px-storageclasses_yaml" {
+  content  = data.template_file.px-storageclasses.rendered
+  filename = "${local.ocptemplates}/px-storageclasses.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "px-install_yaml" {
+  content  = data.template_file.px-install.rendered
+  filename = "${local.ocptemplates}/px-install.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+
+resource "local_file" "px-storageclasses-secure_yaml" {
+  content  = data.template_file.px-storageclasses-secure.rendered
+  filename = "${local.ocptemplates}/px-storageclasses-secure.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "toolbox_yaml" {
+  content  = file("../ocs_module/toolbox.yaml")
+  filename = "${local.ocptemplates}/toolbox.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "deploy-with-olm_yaml" {
+  content  = file("../ocs_module/deploy-with-olm.yaml")
+  filename = "${local.ocptemplates}/deploy-with-olm.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-machineset-singlezone_yaml" {
+  content  = file("../ocs_module/ocs-machineset-singlezone.yaml")
+  filename = "${local.ocptemplates}/ocs-machineset-singlezone.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-machineset-multizone_yaml" {
+  content  = file("../ocs_module/ocs-machineset-multizone.yaml")
+  filename = "${local.ocptemplates}/ocs-machineset-multizone.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-storagecluster_yaml" {
+  content  = file("../ocs_module/ocs-storagecluster.yaml")
+  filename = "${local.ocptemplates}/ocs-storagecluster.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "ocs-prereq_yaml" {
+  content  = file("../ocs_module/ocs-prereq.sh")
+  filename = "${local.ocptemplates}/ocs-prereq.sh"
+  depends_on = [
+    null_resource.install_openshift
+  ]
+}
+
+resource "local_file" "nfs-template_yaml" {
+  count = var.storage == "nfs" ? 1 : 0
+  content  = data.template_file.nfs-template[count.index].rendered
+  filename = "${local.ocptemplates}/nfs-template.yaml"
+  depends_on = [
+    null_resource.install_openshift
+  ]
 }
 
 resource "null_resource" "install_openshift" {
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
     directory             = local.ocpdir
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-install-linux.tar.gz",
-      "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${var.ocp_version}/openshift-client-linux.tar.gz",
-      "tar -xvf openshift-install-linux.tar.gz",
-      "sudo tar -xvf openshift-client-linux.tar.gz -C /usr/bin",
-      "mkdir -p ${local.ocpdir}",
-      "mkdir -p ${local.ocptemplates}",
-      "cat > ${local.ocpdir}/install-config.yaml <<EOL\n${data.template_file.installconfig.rendered}\nEOL",
-      "mkdir -p /home/${var.admin-username}/.azure",
-      "cp ${local.ocpdir}/install-config.yaml install-config.yaml_backup",
-      "cat > /home/${var.admin-username}/.azure/osServicePrincipal.json <<EOL\n${data.template_file.azurecreds.rendered}\nEOL",
-      "chmod +x openshift-install",
-      "sudo chmod +x /usr/bin/oc",
-      "sudo chmod +x /usr/bin/kubectl",
-      "sudo yum update -y --disablerepo=* --enablerepo=\"*microsoft*\"",
-      "sudo yum install -y podman",
-      "sudo yum install -y httpd-tools",
-      "./openshift-install create cluster --dir=${local.ocpdir} --log-level=debug",
-      "mkdir -p /home/${var.admin-username}/.kube",
-      "cp /home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig /home/${var.admin-username}/.kube/config",
-      "cat > ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machine-health-check.rendered}\nEOL",
-      "cat > /home/${var.admin-username}/.ssh/id_rsa <<EOL\n${file(var.ssh-private-key-file-path)}\nEOL",
-      "sudo chmod 0600 /home/${var.admin-username}/.ssh/id_rsa",
-      "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
-      "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml",
-      "oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api",
-      "oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml"
-    ]
+  provisioner "local-exec" {
+    when    = create
+    command = <<EOF
+mkdir -p ${local.ocptemplates}
+cp ${local.ocpdir}/install-config.yaml ${local.ocpdir}/install-config.yaml_backup
+chmod +x ${local.ocpdir}/openshift-install
+cd ${local.ocpdir} && ./openshift-install create cluster --log-level=debug
+EOF
   }
 
   # Destroy OCP Cluster before destroying the bootnode
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      host        = self.triggers.bootnode_ip_address
-      user        = self.triggers.username
-      private_key = file(self.triggers.private_key_file_path)
-    }
-    when = destroy
-    inline = [
-      "/home/${self.triggers.username}/openshift-install destroy cluster --dir=${self.triggers.directory} --log-level=debug",
-      "sleep 300"
-    ]
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+cd ${self.triggers.directory} && ./openshift-install destroy cluster --log-level=debug
+sleep 5
+EOF
   }
   depends_on = [
-    azurerm_virtual_machine.bootnode,
     azurerm_subnet.masternode,
-    azurerm_subnet.workernode
+    azurerm_subnet.workernode,
+    local_file.azurecreds_yaml,
+    local_file.install_config_yaml
   ]
 }
 
 resource "null_resource" "openshift_post_install" {
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
+    ocp_directory             = local.ocpdir
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = var.admin-username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "htpasswd -c -B -b /tmp/.htpasswd '${var.openshift-username}' '${var.openshift-password}'",
-      "sleep 3",
-      "oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config",
-      "cat > ${local.ocptemplates}/auth.yaml <<EOL\n${data.template_file.htpasswd.rendered}\nEOL",
-      "oc apply -f ${local.ocptemplates}/auth.yaml",
-      "oc adm policy add-cluster-role-to-user cluster-admin '${var.openshift-username}'",
-
-      #Delete kubeadmin
-      # "oc delete secrets kubeadmin -n kube-system",
-      # "rm /tmp/.htpasswd"
-
-      # Machine Configs
-      "oc project kube-system",
-      "cat > ${local.ocptemplates}/insecure-registry-mc.yaml <<EOL\n${data.template_file.registry-mc.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/sysctl-mc.yaml <<EOL\n${data.template_file.sysctl-mc.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/limits-mc.yaml <<EOL\n${data.template_file.limits-mc.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/crio-mc.yaml <<EOL\n${data.template_file.crio-mc.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/chrony-mc.yaml <<EOL\n${data.template_file.chrony-mc.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/registries.conf <<EOL\n${data.template_file.registry-conf.rendered}\nEOL",
-      "sudo mv ${local.ocptemplates}/registries.conf /etc/containers/registries.conf",
-      "oc create -f ${local.ocptemplates}/insecure-registry-mc.yaml",
-      "oc create -f ${local.ocptemplates}/sysctl-mc.yaml",
-      "oc create -f ${local.ocptemplates}/limits-mc.yaml",
-      "oc create -f ${local.ocptemplates}/crio-mc.yaml",
-      "oc create -f ${local.ocptemplates}/chrony-mc.yaml",
-
-      # multipath-machineconfig
-      "cat > ${local.ocptemplates}/multipath-machineconfig.yaml <<EOL\n${data.template_file.multipath-mc.rendered}\nEOL",
-      "oc create -f ${local.ocptemplates}/multipath-machineconfig.yaml",
-
-      # Create Registry Route
-      "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":${var.worker-node-count}}}'",
-      "echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' ",
-      "sleep 15m",
-      "result=$(oc wait machineconfigpool/worker --for condition=updated --timeout=15m)",
-      "echo $result",
-      "sudo oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u '${var.openshift-username}' -p '${var.openshift-password}' --insecure-skip-tls-verify=true"
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
+sed -i -e s/${random_id.randomId.hex}/$CLUSTERID/g ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml
+#oc login -u kubeadmin -p $(cat ${local.ocpdir}/auth/kubeadmin-password) -n openshift-machine-api --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/machine-health-check-${var.single-or-multi-zone}.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+htpasswd -c -B -b /tmp/.htpasswd '${var.openshift-username}' '${var.openshift-password}'
+sleep 3
+oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc apply -f ${local.ocptemplates}/auth.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc adm policy add-cluster-role-to-user cluster-admin '${var.openshift-username}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc project kube-system --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+#sudo mv ${local.ocptemplates}/registries.conf /etc/containers/registries.conf
+oc create -f ${local.ocptemplates}/insecure-registry-mc.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/sysctl-mc.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/limits-mc.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/crio-mc.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/chrony-mc.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/multipath-machineconfig.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true, "replicas":${var.worker-node-count}}}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+echo 'Sleeping for 15 mins while MCs apply and the cluster restarts' 
+sleep 15m
+result=$(oc wait machineconfigpool/worker --for condition=updated --timeout=15m --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
+echo $result
+oc login https://api.${var.cluster-name}.${var.dnszone}:6443 -u '${var.openshift-username}' -p '${var.openshift-password}' --insecure-skip-tls-verify=true
+EOF
   }
   depends_on = [
-    null_resource.install_openshift
+    null_resource.install_openshift,
+    local_file.machine-health-check_yaml,
+    local_file.registry-mc_yaml,
+    local_file.sysctl-mc_yaml,
+    local_file.limits-mc_yaml,
+    local_file.crio-mc_yaml,
+    local_file.chrony-mc_yaml,
+    local_file.registry-conf_yaml,
+    local_file.multipath-mc_yaml,
   ]
 }
 
 resource "null_resource" "cluster_autoscaler" {
   count = var.clusterAutoscaler == "yes" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = var.admin-username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\\.openshift\\.io/cluster-api-cluster}')",
-      "sed -i s/${random_id.randomId.hex}/$CLUSTERID/g /home/${var.admin-username}/${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
-      "cat > ${local.ocptemplates}/cluster-autoscaler.yaml <<EOL\n${data.template_file.clusterautoscaler.rendered}\nEOL",
-      "cat > ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml <<EOL\n${data.template_file.machineautoscaler.rendered}\nEOL",
-      "oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml",
-      "oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml",
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
+sed -i s/${random_id.randomId.hex}/$CLUSTERID/g ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml
+oc create -f ${local.ocptemplates}/cluster-autoscaler.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+oc create -f ${local.ocptemplates}/machine-autoscaler-${var.single-or-multi-zone}.yaml --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig
+EOF
   }
   depends_on = [
-    null_resource.install_openshift
+    null_resource.install_openshift,
+    local_file.clusterautoscaler_yaml,
+    local_file.clusterautoscaler_yaml,
+    local_file.machineautoscaler_yaml
   ]
 }
 
 resource "null_resource" "install_portworx" {
   count = var.storage == "portworx" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = var.admin-username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "cat > ${local.ocptemplates}/px-install.yaml <<EOL\n${data.template_file.px-install.rendered}\nEOL",
-      "result=$(oc create -f ${local.ocptemplates}/px-install.yaml)",
-      "sleep 60",
-      "echo $result",
-      "result=$(oc apply -f \"${var.portworx-spec-url}\")",
-      "echo $result",
-      "echo 'Sleeping for 5 mins to get portworx storage cluster up' ",
-      "sleep 5m"
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+result=$(oc create -f ${local.ocptemplates}/px-install.yaml)
+sleep 60
+echo $result
+result=$(oc apply -f "${var.portworx-spec-url}")
+echo $result
+echo 'Sleeping for 5 mins to get portworx storage cluster up' 
+sleep 5m
+EOF
   }
   depends_on = [
     null_resource.install_openshift,
-    null_resource.openshift_post_install
+    null_resource.openshift_post_install,
+    local_file.px-install_yaml
   ]
 }
 
 resource "null_resource" "setup_sc_with_pwx_encryption" {
   count = var.storage == "portworx" && var.portworx-encryption == "yes" && var.portworx-encryption-key != "" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      # Creating a cluster wide secret key and using it for portworx encryption
-      "result=$(oc -n kube-system create secret generic px-vol-encryption --from-literal=cluster-wide-secret-key=${var.portworx-encryption-key})",
-      "echo $result",
-      "PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')",
-      "echo $PX_POD",
-      "result=$(oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets set-cluster-key --secret cluster-wide-secret-key)",
-      "echo $result",
-      # Create storageclasse with secure flag as true. 
-      "cat > ${local.ocptemplates}/px-storageclasses-secure.yaml <<EOL\n${data.template_file.px-storageclasses-secure.rendered}\nEOL",
-      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses-secure.yaml)",
-      "echo $result"
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+result=$(oc -n kube-system create secret generic px-vol-encryption --from-literal=cluster-wide-secret-key=${var.portworx-encryption-key})
+echo $result
+PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')
+echo $PX_POD
+result=$(oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets set-cluster-key --secret cluster-wide-secret-key)
+echo $result
+result=$(oc create -f ${local.ocptemplates}/px-storageclasses-secure.yaml)
+echo $result
+EOF
   }
   depends_on = [
     null_resource.install_openshift,
     null_resource.openshift_post_install,
-    null_resource.install_portworx
+    null_resource.install_portworx,
+    local_file.px-storageclasses-secure_yaml
   ]
 }
-
 
 resource "null_resource" "setup_sc_without_pwx_encryption" {
   count = var.storage == "portworx" && var.portworx-encryption == "no" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "cat > ${local.ocptemplates}/px-storageclasses.yaml <<EOL\n${data.template_file.px-storageclasses.rendered}\nEOL",
-      "result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)",
-      "echo $result"
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)
+echo $result
+EOF
   }
   depends_on = [
     null_resource.install_openshift,
     null_resource.openshift_post_install,
-    null_resource.install_portworx
+    null_resource.install_portworx,
+    local_file.px-storageclasses_yaml
   ]
 }
 resource "null_resource" "install_ocs" {
   count = var.storage == "ocs" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
+    ocp_directory             = local.ocpdir
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = var.admin-username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "cat > ${local.ocptemplates}/toolbox.yaml <<EOL\n${file("../ocs_module/toolbox.yaml")}\nEOL",
-      "cat > ${local.ocptemplates}/deploy-with-olm.yaml <<EOL\n${file("../ocs_module/deploy-with-olm.yaml")}\nEOL",
-      "cat > ${local.ocptemplates}/ocs-storagecluster.yaml <<EOL\n${file("../ocs_module/ocs-storagecluster.yaml")}\nEOL",
-      "cat > ocs-prereq.sh <<EOL\n${file("../ocs_module/ocs-prereq.sh")}\nEOL",
-      "sudo chmod +x ocs-prereq.sh",
-      "export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig",
-
-      "./ocs-prereq.sh",
-      "oc create -f ${local.ocptemplates}/deploy-with-olm.yaml",
-      "sleep 300",
-      "oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml",
-      "sleep 600",
-      "oc apply -f ${local.ocptemplates}/toolbox.yaml",
-      "sleep 60",
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+#chmod +x ${local.ocptemplates}/ocs-prereq.sh
+#export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig
+#${local.ocptemplates}/ocs-prereq.sh
+CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
+sed -i -e s#REPLACE_CLUSTERID#$CLUSTERID#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_REGION#${var.region}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_VNET_RG#${var.resource-group}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_WORKER_SUBNET#${var.worker-subnet-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+sed -i -e s#REPLACE_VNET_NAME#${var.virtual-network-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
+oc apply -f ${local.ocptemplates}/${local.ocs-machineset-file}
+sleep 600
+oc apply -f ${local.ocptemplates}/deploy-with-olm.yaml
+sleep 300
+oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml
+sleep 600
+oc apply -f ${local.ocptemplates}/toolbox.yaml
+sleep 60
+EOF
   }
   depends_on = [
     null_resource.install_openshift,
-    null_resource.openshift_post_install
-  ]
-}
-
-resource "null_resource" "install-nfs-server" {
-  count = var.storage == "nfs" ? 1 : 0
-  triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
-    username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
-    nfsnode_ip_address    = azurerm_network_interface.nfs[count.index].private_ip_address
-  }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "cat > ${local.ocptemplates}/setup-nfs.sh <<EOL\n${file("../nfs_module/setup-nfs.sh")}\nEOL",
-      "scp -o \"StrictHostKeyChecking=no\" ${local.ocptemplates}/setup-nfs.sh ${var.admin-username}@${self.triggers.nfsnode_ip_address}:/home/${var.admin-username}/setup-nfs.sh",
-      "ssh -o \"StrictHostKeyChecking=no\" ${var.admin-username}@${self.triggers.nfsnode_ip_address} sudo sh /home/${var.admin-username}/setup-nfs.sh"
-    ]
-  }
-  depends_on = [
-    null_resource.install_openshift,
-    null_resource.openshift_post_install
+    null_resource.openshift_post_install,
+    local_file.toolbox_yaml,
+    local_file.deploy-with-olm_yaml,
+    local_file.ocs-storagecluster_yaml,
+    local_file.ocs-prereq_yaml,
+    local_file.ocs-machineset-singlezone_yaml,
+    local_file.ocs-machineset-multizone_yaml
   ]
 }
 
 resource "null_resource" "install_nfs_client" {
   count = var.storage == "nfs" ? 1 : 0
   triggers = {
-    bootnode_ip_address   = local.bootnode_ip_address
     username              = var.admin-username
-    private_key_file_path = var.ssh-private-key-file-path
   }
-  connection {
-    type        = "ssh"
-    host        = self.triggers.bootnode_ip_address
-    user        = self.triggers.username
-    private_key = file(self.triggers.private_key_file_path)
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:kube-system:nfs-client-provisioner",
-      "cat > ${local.ocptemplates}/nfs-template.yaml <<EOL\n${data.template_file.nfs-template[count.index].rendered}\nEOL",
-      "oc process -f ${local.ocptemplates}/nfs-template.yaml | oc create -n kube-system -f -",
-    ]
+  provisioner "local-exec" {
+    command = <<EOF
+oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:kube-system:nfs-client-provisioner
+oc process -f ${local.ocptemplates}/nfs-template.yaml | oc create -n kube-system -f -
+EOF
   }
   depends_on = [
     null_resource.install_openshift,
     null_resource.openshift_post_install,
-    null_resource.install-nfs-server
+    local_file.nfs-template_yaml
   ]
 }

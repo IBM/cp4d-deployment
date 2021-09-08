@@ -1,11 +1,12 @@
-output "bootnode_ssh_command" {
-  description = "The ip address allocated for the bootnode."
-  value       = "ssh ${var.admin-username}@${local.bootnode_ip_address}"
-}
 
 output "openshift_console_url" {
   description = "URL for OpenShift web console"
   value       = "https://console-openshift-console.apps.${var.cluster-name}.${var.dnszone}"
+}
+
+output "openshift_api" {
+  description = "API endpoint"
+  value       = "https://api.${var.cluster-name}.${var.dnszone}:6443"
 }
 
 output "openshift_console_username" {
@@ -21,4 +22,14 @@ output "openshift_console_password" {
 output "cpd_url" {
   description = "URL for cpd web console"
   value       = "https://${var.cpd-namespace}-cpd-${var.cpd-namespace}.apps.${var.cluster-name}.${var.dnszone}"
+}
+
+output "cpd_url_username" {
+  description = "Username for CPD Web console"
+  value       = "admin"
+}
+
+output "cpd_url_password" {
+  description = "URL for cpd web console"
+  value       = "$(oc extract secret/admin-user-details --keys=initial_admin_password --to=-)"
 }

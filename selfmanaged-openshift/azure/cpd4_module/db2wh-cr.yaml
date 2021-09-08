@@ -1,8 +1,0 @@
-apiVersion: databases.cpd.ibm.com/v1
-kind: Db2whService
-metadata:
-  name: db2wh-cr
-spec:
-  license:
-    accept: true
-    license: "Enterprise"

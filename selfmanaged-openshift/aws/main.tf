@@ -51,6 +51,7 @@ EOF
 }
 
 resource "null_resource" "permission_resource_validation" {
+  count = var.enable_permission_quota_check ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
   chmod +x scripts/*.sh scripts/*.py
@@ -167,6 +168,7 @@ module "ocs" {
   ocs = {
     enable                       = var.ocs.enable
     dedicated_nodes              = true
+    ami_id                       = var.ocs.ami_id
     dedicated_node_instance_type = var.ocs.dedicated_node_instance_type
     dedicated_node_zones         = var.az == "single_zone" ? [local.availability_zone1] : [local.availability_zone1, local.availability_zone2, local.availability_zone3]
     dedicated_node_subnet_ids    = var.az == "single_zone" ? local.single_zone_subnets : local.multi_zone_subnets
@@ -195,6 +197,7 @@ module "cpd" {
   cpd_namespace             = var.cpd_namespace
   cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
+  cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog
@@ -207,6 +210,12 @@ module "cpd" {
   cognos_analytics          = var.cognos_analytics
   spss_modeler              = var.spss_modeler
   data_management_console   = var.data_management_console
+  db2_oltp                  = var.db2_oltp
+  master_data_management    = var.master_data_management
+  db2_aaservice             = var.db2_aaservice
+  decision_optimization     = var.decision_optimization
+  login_cmd                 = var.login_cmd
+  rosa_cluster              = var.rosa_cluster
 
   depends_on = [
     module.ocp,

@@ -1,4 +1,4 @@
-# Cloud Pak for Data 4.0 on Red Hat OpenShift on IBM Cloud
+# Cloud Pak for Data 4.0.1 on Red Hat OpenShift on IBM Cloud
 
 [IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on IBM Cloud.
 
@@ -25,6 +25,8 @@ These scripts create resources on IBM Cloud. For cost estimates, see the pricing
 You must have a Cloud Pak for Data entitlement API key to download images from the IBM entitled Cloud Pak registry. If you don't have a paid entitlement, you can create a [60 day trial subscription key](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212). You can retrieve your entitlement key from the [container software library](https://myibm.ibm.com/products-services/containerlibrary).
 
 **Note**: After 60 days, contact [IBM Cloud Pak for Data sales](https://www.ibm.com/account/reg/us-en/signup?formid=MAIL-cloud).
+
+You will also need an IBM Cloud Api Key. Follow the steps here if you don't have one - https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui#create_user_key
 
 ## Deployment topology
 
@@ -57,24 +59,16 @@ As part of the deployment, any of the following services can be installed. For m
 * Watson Knowledge Catalog
 * Watson Studio
 * Watson Machine Learning
-* Watson OpenScale
-* Db2
-* Data Refinery
-* Db2 Data Management Console
-
-the following services will be supported soon - 
+* Watson AI OpenScale
 * Cognos Dashboard Engine
 * Analytics Engine powered by Apache Spark
-* Streams
 * DataStage
 * Db2 Warehouse
-* Db2 Data Gate
+* Db2oltp
 * Decision Optimization
 * Cognos Analytics
 * SPSS Modeler
 * Db2 Big SQL
-* Watson Studio Local RStudio
-* Hadoop Execution Addon
 * Jupyter Python 3.7 Runtime Addon
 
 ## Instructions
