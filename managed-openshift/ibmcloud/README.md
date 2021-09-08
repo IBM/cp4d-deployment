@@ -59,24 +59,16 @@ As part of the deployment, any of the following services can be installed. For m
 * Watson Knowledge Catalog
 * Watson Studio
 * Watson Machine Learning
-* Watson OpenScale
-* Db2
-* Data Refinery
-* Db2 Data Management Console
-
-the following services will be supported soon - 
+* Watson AI OpenScale
 * Cognos Dashboard Engine
 * Analytics Engine powered by Apache Spark
-* Streams
 * DataStage
 * Db2 Warehouse
-* Db2 Data Gate
+* Db2oltp
 * Decision Optimization
 * Cognos Analytics
 * SPSS Modeler
 * Db2 Big SQL
-* Watson Studio Local RStudio
-* Hadoop Execution Addon
 * Jupyter Python 3.7 Runtime Addon
 
 ## Instructions
