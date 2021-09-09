@@ -37,19 +37,6 @@
   oc version
   ```
 
-* Download ROSA CLI
-  * MAC
-    ```
-    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-macosx.tar.gz
-    ```
-  * Linux
-
-    ```
-    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-linux.tar.gz
-    tar -xvf rosa-linux.tar.gz
-    mv rosa /usr/bin
-    ```
-
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
 * Before deploying the infrastructure make sure you have `python3` installed in your local machine.
