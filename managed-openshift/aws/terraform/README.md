@@ -3,8 +3,6 @@
 ### Architecture
 ![ROSA_Architecture](images/AWS_ROSA.png)
 
-
-
 ### Enable ROSA
 * Enable ROSA [here](https://console.aws.amazon.com/rosa/home)
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
@@ -27,6 +25,7 @@
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
+
 * Download Openshift CLI and move to `/usr/bin`:
 
   ```bash
@@ -37,19 +36,6 @@
   sudo mv kubectl /usr/bin
   oc version
   ```
-
-* Download ROSA CLI
-  * MAC
-    ```
-    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-macosx.tar.gz
-    ```
-  * Linux
-
-    ```
-    wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/rosa-linux.tar.gz
-    tar -xvf rosa-linux.tar.gz
-    mv rosa /usr/bin
-    ```
 
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.

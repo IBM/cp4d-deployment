@@ -166,7 +166,7 @@ metadata:
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
+  image: ${var.db2u_catalog_source}
   imagePullPolicy: Always
   displayName: IBM Db2U Catalog
   publisher: IBM
