@@ -288,6 +288,7 @@ variable "watson_knowledge_catalog" {
 }
 
 variable "watson_studio" {
+  type        = map(string)
   default = {
     enable   = "no"
     version  = "4.0.1"
