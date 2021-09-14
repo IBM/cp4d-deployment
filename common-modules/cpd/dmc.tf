@@ -20,6 +20,7 @@ resource "null_resource" "install_dmc" {
 echo "Install DMC Operator"
 oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
 sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-dmc-controller-manager ${local.operator_namespace}
 
 echo "DMC CR"
 oc create -f ${self.triggers.cpd_workspace}/dmc_cr.yaml
