@@ -17,8 +17,8 @@ locals {
   private_subnet1_id  = var.new_or_existing_vpc_subnet == "new" ? module.network[0].private_subnet1_id : var.private_subnet1_id
   private_subnet2_id  = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet2_id[0] : var.private_subnet2_id
   private_subnet3_id  = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet3_id[0] : var.private_subnet3_id
-  single_zone_subnets = [local.public_subnet1_id, local.private_subnet1_id]
-  multi_zone_subnets  = [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
+  single_zone_subnets = var.private_cluster ? [local.private_subnet1_id] : [local.public_subnet1_id, local.private_subnet1_id]
+  multi_zone_subnets  = var.private_cluster ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
 }
 
 data "aws_availability_zones" "azs" {}
@@ -136,6 +136,21 @@ module "ocs" {
   ]
 }
 
+module "machineconfig" {
+  source              = "./machineconfig"
+  installer_workspace = local.installer_workspace
+  login_cmd           = module.ocp.login_cmd
+  rosa_cluster        = var.rosa_cluster
+  cpd_api_key         = var.cpd_api_key
+
+  depends_on = [
+    null_resource.create_workspace,
+    module.portworx,
+    module.ocp,
+    module.ocs,
+  ]
+}
+
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
@@ -170,5 +185,6 @@ module "cpd" {
     module.portworx,
     module.ocp,
     module.ocs,
+    module.machineconfig,
   ]
 }
