@@ -251,3 +251,12 @@ variable "decision_optimization" {
 variable "db2u_catalog_source" {
   default = "docker.io/ibmcom/ibm-db2uoperator-catalog@sha256:4ffd5b264e7baf36a0080cfc0a0dba13e22d6b1882bd4544f38b8e86b8b84bac"
 }
+
+variable "planning_analytics" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}
