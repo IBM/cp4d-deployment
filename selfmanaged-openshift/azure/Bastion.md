@@ -4,7 +4,7 @@ The below document explains how to setup a bastion node to deploy a private clus
 
 ## Prerequisites
 
-1) To provision a private cluster using our terrform scripts, create the below resources beforehand. 
+1) To provision a private cluster using the terrform scripts, create the below resources beforehand. 
 
 * Resource group 
 * Vnet in the above resource group. 
