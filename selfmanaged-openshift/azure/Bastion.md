@@ -67,6 +67,6 @@ pip install pyyaml
 
 ## Download terraform scripts: 
 
-In your bastion node download the terraform scripts from [here](https://github.com/IBM/cp4d-deployment) and follow the 'steps to deploy` section in the [readme](README.md). 
+In your bastion node download the terraform scripts from [here](https://github.com/IBM/cp4d-deployment) and follow the 'steps to deploy' section in the [readme](README.md). 
 
 To deploy the private cluster you can refer to the sample .tfvars file located [here - sample_private_cluster.tfvars](./azure_infra/sample_private_cluster.tfvars).
