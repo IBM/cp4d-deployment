@@ -180,6 +180,9 @@ oc project ${self.triggers.namespace}
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
 
+echo "Wait for Platform CR reconcile to start"
+sleep 240
+
 echo "Check the CPD Platform CR status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus; if [ $? -ne 0 ] ; then echo \"CPD control plane failed to install\" ; exit 1 ; fi
 
