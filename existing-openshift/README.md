@@ -8,5 +8,3 @@ This repository contains automated scripts to get you started on Cloud Pak for D
 - Cloud Pak for Data on Self Managed OpenShift
   - [AWS](./selfmanaged-openshift/README.md)
   - [Azure](./selfmanaged-openshift/README.md)
-- [Cloud Pak for Data on Existing OpenShift](./existing-openshift/README.md)
-
