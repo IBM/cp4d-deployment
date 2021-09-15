@@ -495,3 +495,12 @@ variable "decision_optimization" {
     channel  = "v4.0"
   }
 }
+
+variable "planning_analytics" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
+  }
+}

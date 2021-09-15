@@ -214,6 +214,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
+  planning_analytics        = var.planning_analytics
   login_cmd                 = var.login_cmd
   rosa_cluster              = var.rosa_cluster
 
