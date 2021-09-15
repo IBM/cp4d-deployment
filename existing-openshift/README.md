@@ -1,10 +1,27 @@
 # Cloud Pak for Data
-[IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM's deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data.
 
-This repository contains automated scripts to get you started on Cloud Pak for Data on different cloud providers on managed or self managed OpenShift platforms.
-- Cloud Pak for Data on Managed OpenShift
-  - [IBM Cloud (VPC Gen2)](./managed-openshift/ibmcloud/README.md)
-  - [AWS ROSA](./managed-openshift/aws/terraform/README.md)
-- Cloud Pak for Data on Self Managed OpenShift
-  - [AWS](./selfmanaged-openshift/README.md)
-  - [Azure](./selfmanaged-openshift/README.md)
+Use this terraform module to install Cloud Pak for Data on an existing openshift cluster. 
+
+The script does the cluster node configuration required for Cloud Pak for Data. For IBM Cloud, the cluster is expected to be pre-configured before running this script.
+
+Note: The script does not setup storage. It should be pre-configured
+
+## Pre-requisites
+
+- `Terraform`
+- `jq`
+- `oc`
+
+
+## Setup
+
+Fill in the `cpd.tfvars` with the existing openshift cluster details set up with storage.
+
+## Run Terraform
+
+```
+terraform init
+terraform apply -var-file=cpd.tfvars
+```
+
+
