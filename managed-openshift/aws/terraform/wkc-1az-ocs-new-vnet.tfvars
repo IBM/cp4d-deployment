@@ -6,8 +6,8 @@ secret_access_key     = "<required>"
 
 ##############################
 
- # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
- az                   = "multi_zone"
+ # Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
+ az                   = "single_zone"
  availability_zone1   = "<required>"
  availability_zone2   = "<required>"
  availability_zone3   = "<required>"
