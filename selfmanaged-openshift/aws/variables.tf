@@ -102,7 +102,7 @@ variable "cluster_name" {
 
 variable "rosa_cluster" {
   type        = bool
-  description = "Dummy variable, leave it true."
+  description = "Dummy variable, leave it false."
   default     = false
 }
 

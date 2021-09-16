@@ -97,7 +97,7 @@ bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${loca
 echo "checking status of ibm-common-service-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
 
-echo "Create CPD CPD Platform CR"
+echo "Create CPD Platform CR"
 oc project ${self.triggers.namespace}
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
