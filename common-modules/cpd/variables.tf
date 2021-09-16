@@ -260,3 +260,4 @@ variable "planning_analytics" {
     channel  = "v1.0"
   }
 }
+}
