@@ -188,7 +188,7 @@ module "machineconfig" {
   openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
   openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
   openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  login_cmd           = module.ocp.login_cmd
+  login_cmd           = var.login_cmd
   rosa_cluster        = var.rosa_cluster
   cpd_api_key         = var.cpd_api_key
 
