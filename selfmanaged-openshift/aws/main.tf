@@ -182,6 +182,25 @@ module "ocs" {
   ]
 }
 
+module "machineconfig" {
+  source              = "./machineconfig"
+  installer_workspace = local.installer_workspace
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  login_cmd           = module.ocp.login_cmd
+  rosa_cluster        = var.rosa_cluster
+  cpd_api_key         = var.cpd_api_key
+
+  depends_on = [
+    module.ocp,
+    module.network,
+    module.portworx,
+    module.ocs,
+    null_resource.aws_configuration,
+  ]
+}
+
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
@@ -223,5 +242,6 @@ module "cpd" {
     module.portworx,
     module.ocs,
     null_resource.aws_configuration,
+    module.machineconfig,
   ]
 }
