@@ -151,10 +151,10 @@ variable "service_network_cidr" {
   default = "172.30.0.0/16"
 }
 
-# Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
+# Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
-  default     = "multi_zone"
+  default     = "single_zone"
 }
 
 variable "login_cmd" {

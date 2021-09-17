@@ -30,7 +30,7 @@
 | `cluster_network_cidr` | 10.128.0.0/14 | The CIDR block for the Openshift cluster overlay network cidr to be created. |
 | `cluster_network_host_prefix` | 23 | Host prefix for the cluster network. |
 | `service_network_cidr` | 172.30.0.0/16 | The CIDR cidr block for Openshift cluster  services |
-| `az` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
+| `az` | single_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
 | `availability_zone1` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | `availability_zone2` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | `availability_zone3` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |

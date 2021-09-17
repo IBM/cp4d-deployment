@@ -21,7 +21,7 @@
 | `master-subnet-cidr` | 10.0.1.0/24 | Address space to deploy control plane nodes in. |
 | `worker-subnet-name` | worker-subnet | Subnet Name to deploy control plane nodes in. |
 | `worker-subnet-cidr` | 10.0.2.0/24 | Address space to deploy compute nodes in. |
-| `single-or-multi-zone` | multi | Deploy Openshift Cluster into a single zone or a multi-zone. Ensure the region selected supports Availability Zone. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region). To deploy in a region without Availability Zone support, set variable to `noha` |
+| `single-or-multi-zone` | single | Deploy Openshift Cluster into a single zone or a multi-zone. Ensure the region selected supports Availability Zone. See [link](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#services-support-by-region). To deploy in a region without Availability Zone support, set variable to `noha` |
 | `zone` | 1 | Zone to deploy nodes in. Applicable only if single zone deployment is selected |
 | `master-node-count` | 3 | Number of control plane nodes |
 | `worker-node-count` | 3 | Number of compute nodes |
