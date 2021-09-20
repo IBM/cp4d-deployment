@@ -188,6 +188,7 @@ module "ocs" {
 
 module "machineconfig" {
   source                       = "./machineconfig"
+  cpd_api_key                  = var.cpd_api_key
   installer_workspace          = local.installer_workspace
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
