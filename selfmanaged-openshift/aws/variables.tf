@@ -340,7 +340,7 @@ variable "cloudctl_version" {
 
 variable "openshift_version" {
   description = "Version >= 4.6.27"
-  default     = "4.6.31"
+  default     = "4.8.11"
 }
 
 variable "cpd_platform" {
