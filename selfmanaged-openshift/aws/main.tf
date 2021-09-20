@@ -232,6 +232,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
+  login_string              = "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
 
   depends_on = [
     module.ocp,

@@ -5,6 +5,17 @@ locals {
   cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
   db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
+
+resource "null_resource" "login_cluster" {
+  triggers = {
+    login     = var.login_string
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+  ${self.triggers.login}
+EOF
+  }
+}
 resource "null_resource" "download_cloudctl" {
   triggers = {
     cpd_workspace = local.cpd_workspace
@@ -110,6 +121,8 @@ oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path
 EOF
   }
   depends_on = [
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
