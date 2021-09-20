@@ -33,6 +33,7 @@ EOF
     local_file.spss_cr_yaml,
     local_file.spss_sub_yaml,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
     null_resource.install_aiopenscale,
     null_resource.install_ws,
     null_resource.install_wml,

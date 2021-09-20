@@ -32,5 +32,6 @@ EOF
     local_file.dmc_sub_yaml,
     null_resource.install_dv,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
   ]
 }

@@ -33,6 +33,7 @@ EOF
     local_file.db2wh_cr_yaml,
     local_file.db2wh_sub_yaml,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
   ]
 }
 

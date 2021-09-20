@@ -50,6 +50,7 @@ EOF
     null_resource.install_dv,
     null_resource.install_cde,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
     null_resource.install_db2aaservice,
   ]
 }

@@ -47,5 +47,6 @@ EOF
     null_resource.install_ws,
     null_resource.install_spss,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
   ]
 }

@@ -31,5 +31,6 @@ EOF
     local_file.db2aaservice_cr_yaml,
     local_file.db2aaservice_sub_yaml,
     null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
   ]
 }
