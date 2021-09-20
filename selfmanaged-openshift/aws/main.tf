@@ -20,6 +20,10 @@ locals {
   worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
   single_zone_subnets = [local.worker_subnet1_id]
   multi_zone_subnets  = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_token     = var.existing_openshift_token
 }
 
 resource "null_resource" "aws_configuration" {
@@ -203,10 +207,6 @@ module "machineconfig" {
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
-  openshift_api             = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username        = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password        = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  openshift_token           = var.existing_openshift_token
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
   cpd_external_registry     = var.cpd_external_registry

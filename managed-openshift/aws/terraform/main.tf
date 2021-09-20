@@ -138,6 +138,7 @@ module "ocs" {
 
 module "machineconfig" {
   source                       = "./machineconfig"
+  cpd_api_key                  = var.cpd_api_key
   installer_workspace          = local.installer_workspace
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
@@ -177,7 +178,6 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_cmd                 = module.ocp.login_cmd
   login_string              = "${var.login_cmd} --insecure-skip-tls-verify=true"
   
   depends_on = [
