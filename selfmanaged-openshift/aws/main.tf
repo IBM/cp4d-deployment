@@ -142,9 +142,9 @@ module "ocp" {
 module "portworx" {
   count                 = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
   source                = "./portworx"
-  openshift_api         = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username    = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password    = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_api         = local.openshift_api
+  openshift_username    = local.openshift_username
+  openshift_password    = local.openshift_password
   openshift_token       = var.existing_openshift_token
   installer_workspace   = local.installer_workspace
   region                = var.region
@@ -164,9 +164,9 @@ module "portworx" {
 module "ocs" {
   count               = var.ocs.enable ? 1 : 0
   source              = "./ocs"
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_api       = local.openshift_api
+  openshift_username  = local.openshift_username
+  openshift_password  = local.openshift_password
   openshift_token     = var.existing_openshift_token
   installer_workspace = local.installer_workspace
   ocs = {
@@ -192,9 +192,9 @@ module "machineconfig" {
   installer_workspace          = local.installer_workspace
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
-  openshift_api                = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username           = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password           = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_api                = local.openshift_api
+  openshift_username           = local.openshift_username
+  openshift_password           = local.openshift_password
 
   depends_on = [
     module.ocp,
@@ -233,7 +233,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_string              = "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
+  login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
 
   depends_on = [
     module.ocp,
