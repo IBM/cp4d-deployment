@@ -19,6 +19,7 @@ locals {
   private_subnet3_id  = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].private_subnet3_id[0] : var.private_subnet3_id
   single_zone_subnets = var.private_cluster ? [local.private_subnet1_id] : [local.public_subnet1_id, local.private_subnet1_id]
   multi_zone_subnets  = var.private_cluster ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
+  login_cmd           = module.ocp.login_cmd
 }
 
 data "aws_availability_zones" "azs" {}
@@ -114,7 +115,7 @@ module "portworx" {
   portworx_enterprise   = var.portworx_enterprise
   portworx_essentials   = var.portworx_essentials
   portworx_ibm          = var.portworx_ibm
-  login_cmd             = module.ocp.login_cmd
+  login_cmd             = "${local.login_cmd}"
 
   depends_on = [
     null_resource.create_workspace,
@@ -128,7 +129,7 @@ module "ocs" {
   installer_workspace = local.installer_workspace
   cluster_name        = var.cluster_name
   ocs_instance_type   = var.ocs.ocs_instance_type
-  login_cmd           = module.ocp.login_cmd
+  login_cmd           = "${local.login_cmd}"
 
   depends_on = [
     null_resource.create_workspace,
@@ -142,7 +143,7 @@ module "machineconfig" {
   installer_workspace          = local.installer_workspace
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
-  login_cmd                    = module.ocp.login_cmd
+  login_cmd                    = "${local.login_cmd}"
 
   depends_on = [
     null_resource.create_workspace,
@@ -178,7 +179,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_string              = "${var.login_cmd} --insecure-skip-tls-verify=true"
+  login_string              = "${local.login_cmd} --insecure-skip-tls-verify=true"
   
   depends_on = [
     null_resource.create_workspace,
