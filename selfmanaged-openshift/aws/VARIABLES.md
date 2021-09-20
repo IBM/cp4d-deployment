@@ -23,8 +23,15 @@
 | `worker_subnet3_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for worker subnet in zone 3. |
 | `enable_permission_quota_check` | Requires input | To enable permission and resource quota check for aws account. |
 | `openshift_version` | 4.7.12 | Openshift Cluster version |
-| `cluster_name` | my-ocp | All resources created by the Openshift Installer will have this name as prefix. |
-| `az` | multi_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
+| `cluster_name` | ibmrosa | All resources created by the Openshift Installer will have this name as prefix. |
+| `rosa_token` | - | Token generated from the RedHat portal [here](https://cloud.redhat.com/openshift/token/rosa) |
+| `worker_machine_type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
+| `worker_machine_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |
+| `private_cluster` | public | Public or Private. Set `public` to `private` to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_aws/installing-aws-private.html) for more details. |
+| `cluster_network_cidr` | 10.128.0.0/14 | The CIDR block for the Openshift cluster overlay network cidr to be created. |
+| `cluster_network_host_prefix` | 23 | Host prefix for the cluster network. |
+| `service_network_cidr` | 172.30.0.0/16 | The CIDR cidr block for Openshift cluster  services |
+| `az` | single_zone | The number of Availability Zones to be used for the deployment. Keep in mind that some Regions may be limited to two Availability Zones. For a IBM Cloud Pak for Data cluster to be highly available, three Availability Zones are needed to avoid a single point of failure. Allowed values: `single_zone` and `multi_zone`. |
 | `availability_zone1` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | `availability_zone2` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | `availability_zone3` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
@@ -80,3 +87,4 @@
 | `db2_oltp` | no | Enter `yes` to install the DB2OLTP service. |
 | `master_data_management` | no | Enter `yes` to install the Master Data Management 360 service. |
 | `decision_optimization` | no | Enter `yes` to install the Decision Optimization service. |
+| `planning_analytics` | no | Enter `yes` to install the Planning Analytics Add-on service. |

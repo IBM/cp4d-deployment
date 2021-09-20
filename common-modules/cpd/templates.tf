@@ -864,3 +864,39 @@ spec:
 EOF
 }
 
+#PA
+data "template_file" "pa_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-planning-analytics-subscription
+  namespace: ${local.operator_namespace}
+spec:
+  channel: ${var.planning_analytics.channel}
+  installPlanApproval: Automatic
+  name: ibm-planning-analytics-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "pa_cr" {
+  template = <<EOF
+apiVersion: pa.cpd.ibm.com/v1
+kind: PAService
+metadata:
+  name: ibm-planning-analytics-service
+  namespace: ${var.cpd_namespace}
+  labels:
+    app.kubernetes.io/instance: ibm-planning-analytics-service
+    app.kubernetes.io/managed-by: ibm-planning-analytics-operator
+    app.kubernetes.io/name: ibm-planning-analytics-service 
+  annotations:
+    ansible.sdk.operatorframework.io/verbosity: '3'
+spec:
+  license:
+    accept: true
+  version: ${var.planning_analytics.version}
+EOF
+}

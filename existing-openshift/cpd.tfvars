@@ -1,36 +1,23 @@
-##### AWS Configuration #####
-region                = "eu-west-2"
+openshift_api             = "<required>"
+openshift_username        = "<required>"
+openshift_password        = "<required>"
+openshift_token           = "<optional>"
 
-access_key_id         = "<required>"
-secret_access_key     = "<required>"
+login_cmd                 = "<optional>"
 
-##############################
+# login_cmd_set
+# configure_ocp
 
- # Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
- az                   = "single_zone"
- availability_zone1   = "<required>"
- availability_zone2   = "<required>"
- availability_zone3   = "<required>"
+installer_workspace       = "install"
+cpd_external_registry     = "cp.icr.io"
+cpd_external_username     = "cp"
+cpd_api_key               = "<required>"
 
-##########
-# ROSA
-##########
-
- cluster_name          = "<required>"
- rosa_token            = "<required>"
- worker_machine_type   = "m5.4xlarge"
- worker_machine_count  = 3     # set count depending on number of CPD services
- private_cluster       = false
-
-#############
-# CPD Variables
-###############
-
- cpd_api_key              = "<required>"
- accept_cpd_license       = "accept"
+storage_option            = "ocs"
 
 ## CPD services
-watson_knowledge_catalog  = { "enable" : "yes", "version" : "4.0.1", "channel" : "v1.0" }
+
+watson_knowledge_catalog  = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.0" }
 data_virtualization       = { "enable" : "no", "version" : "1.7.1", "channel" : "v1.7" }
 analytics_engine          = { "enable" : "no", "version" : "4.0.1", "channel" : "stable-v1" }
 watson_studio             = { "enable" : "no", "version" : "4.0.1", "channel" : "v2.0" }
@@ -45,7 +32,7 @@ cognos_analytics          = { "enable" : "no", "version" : "4.0.1", "channel" : 
 master_data_management    = { "enable" : "no", "version" : "4.0.1", "channel" : "v1.1" }
 decision_optimization     = { "enable" : "no", "version" : "4.0.1", "channel" : "v4.0" }
 
+accept-cpd-license        = "accept"
 
+rosa_cluster              = false
 
-
- 
