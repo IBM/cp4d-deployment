@@ -117,7 +117,7 @@ variable "configure_openshift_nodes" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.6.31"
+  default = "4.8.11"
 }
 
 variable "cluster_name" {
