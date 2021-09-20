@@ -1,25 +1,16 @@
+variable "configure_global_pull_secret" {
+  type        = bool
+  description = "Configuring global pull secret"
+  default     = true
+}
+variable "configure_openshift_nodes" {
+  type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
+}
 variable "login_cmd" {
   type = string
 }
-
-variable "rosa_cluster" {
-  type        = bool
-}
-variable "openshift_api" {
-  type    = string
-  default = ""
-}
-
-variable "openshift_username" {
-  type    = string
-  default = ""
-}
-
-variable "openshift_password" {
-  type    = string
-  default = ""
-}
-
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"

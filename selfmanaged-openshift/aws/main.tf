@@ -183,14 +183,13 @@ module "ocs" {
 }
 
 module "machineconfig" {
-  source              = "./machineconfig"
-  installer_workspace = local.installer_workspace
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  login_cmd           = var.login_cmd
-  rosa_cluster        = var.rosa_cluster
-  cpd_api_key         = var.cpd_api_key
+  source                       = "./machineconfig"
+  installer_workspace          = local.installer_workspace
+  configure_global_pull_secret = var.configure_global_pull_secret
+  configure_openshift_nodes    = var.configure_openshift_nodes
+  openshift_api                = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username           = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password           = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
 
   depends_on = [
     module.ocp,
@@ -233,8 +232,6 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_cmd                 = var.login_cmd
-  rosa_cluster              = var.rosa_cluster
 
   depends_on = [
     module.ocp,

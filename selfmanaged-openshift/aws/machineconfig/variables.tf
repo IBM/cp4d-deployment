@@ -1,9 +1,12 @@
-variable "login_cmd" {
-  type = string
-}
-
-variable "rosa_cluster" {
+variable "configure_global_pull_secret" {
   type        = bool
+  description = "Configuring global pull secret"
+  default     = true
+}
+variable "configure_openshift_nodes" {
+  type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
 }
 variable "openshift_api" {
   type    = string

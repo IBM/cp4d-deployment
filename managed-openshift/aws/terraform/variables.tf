@@ -98,6 +98,21 @@ variable "private_subnet3_id" {
 }
 #############################
 
+##################################
+# Cluster configuration variables
+##################################
+variable "configure_global_pull_secret" {
+  type        = bool
+  description = "Configuring global pull secret"
+  default     = true
+}
+
+variable "configure_openshift_nodes" {
+  type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
+}
+
 ##########
 # ROSA
 ##########
@@ -108,12 +123,6 @@ variable "openshift_version" {
 variable "cluster_name" {
   type    = string
   default = "ibmrosa"
-}
-
-variable "rosa_cluster" {
-  type        = bool
-  description = "Dummy variable, leave it true."
-  default     = true
 }
 
 variable "rosa_token" {
@@ -155,11 +164,6 @@ variable "service_network_cidr" {
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "multi_zone"
-}
-
-variable "login_cmd" {
-  description = "Dummy variable, leave it blank."
-  default     = ""
 }
 
 variable "availability_zone1" {

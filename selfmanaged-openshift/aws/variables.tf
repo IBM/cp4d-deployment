@@ -100,21 +100,10 @@ variable "cluster_name" {
   default = "my-ocp"
 }
 
-variable "rosa_cluster" {
-  type        = bool
-  description = "Dummy variable, leave it false."
-  default     = false
-}
-
 # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "multi_zone"
-}
-
-variable "login_cmd" {
-  description = "Dummy variable, leave it blank."
-  default     = ""
 }
 
 variable "availability_zone1" {
@@ -132,9 +121,9 @@ variable "availability_zone3" {
   default     = ""
 }
 
-#############################
+#######################################
 # Existing Openshift Cluster Variables
-#############################
+#######################################
 variable "existing_cluster" {
   type        = bool
   description = "Set true if you already have a running Openshift Cluster and you only want to install CPD."
@@ -264,6 +253,21 @@ variable "openshift_password" {
 variable "enable_autoscaler" {
   type    = bool
   default = false
+}
+
+##################################
+# Cluster configuration variables
+##################################
+variable "configure_global_pull_secret" {
+  type        = bool
+  description = "Configuring global pull secret"
+  default     = true
+}
+
+variable "configure_openshift_nodes" {
+  type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
 }
 
 ######################################
