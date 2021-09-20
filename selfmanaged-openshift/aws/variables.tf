@@ -103,7 +103,7 @@ variable "cluster_name" {
 # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
-  default     = "multi_zone"
+  default     = "single_zone"
 }
 
 variable "availability_zone1" {
@@ -497,5 +497,14 @@ variable "decision_optimization" {
     enable   = "no"
     version  = "4.0.1"
     channel  = "v4.0"
+  }
+}
+
+variable "planning_analytics" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.1"
+    channel  = "v1.0"
   }
 }

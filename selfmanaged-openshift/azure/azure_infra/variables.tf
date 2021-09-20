@@ -79,7 +79,7 @@ variable "worker-subnet-cidr" {
 
 # Deploy OCP into single or multi-zone
 variable "single-or-multi-zone" {
-  default = "multi"
+  default = "single"
 }
 
 # Applicable only if deploying in a single zone

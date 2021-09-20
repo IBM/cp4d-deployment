@@ -1,5 +1,30 @@
-variable "login_string" {
+variable "openshift_api" {
+  type    = string
+  default = ""
+}
+
+variable "openshift_username" {
+  type    = string
+  default = ""
+}
+
+variable "openshift_password" {
+  type    = string
+  default = ""
+}
+
+variable "openshift_token" {
+  type        = string
+  description = "For cases where you don't have the password but a token can be generated (e.g SSO is being used)"
+  default     = ""
+}
+
+variable "login_cmd" {
   type = string
+}
+
+variable "rosa_cluster" {
+  type        = bool
 }
 
 variable "installer_workspace" {
@@ -227,11 +252,6 @@ variable "db2u_catalog_source" {
   default = "docker.io/ibmcom/ibm-db2uoperator-catalog:latest"
 }
 
-variable "planning_analytics" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "4.0.1"
-    channel  = "v1.0"
-  }
+variable "accept-cpd-license" {
+  default         = "reject"
 }
