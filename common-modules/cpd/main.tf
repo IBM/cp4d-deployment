@@ -121,13 +121,13 @@ oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path
 EOF
   }
   depends_on = [
-    null_resource.login_cluster,
-    null_resource.download_cloudctl,
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
   ]
 }
 
