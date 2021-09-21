@@ -103,5 +103,5 @@ planning_analytics              = {"enable":"no",  "version":"4.0.1", "channel":
 #cpd_external_registry   = "cp.icr.io"
 #cpd_external_username   = "cp"
 #cpd_namespace           = "zen"
-#openshift_version       = "4.6.31"
+#openshift_version       = "4.8.11"
 #cloudctl_version        = "v3.7.1"
