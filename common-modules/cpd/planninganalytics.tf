@@ -31,7 +31,6 @@ EOF
   depends_on = [
     local_file.pa_cr_yaml,
     local_file.pa_sub_yaml,
-    null_resource.configure_cluster,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
   ]
