@@ -1,7 +1,7 @@
 locals {
-  crio_config_data   = base64encode(file("./config/crio.conf"))
-  limits_config_data = base64encode(file("./config/limits.conf"))
-  sysctl_config_data = base64encode(file("./config/sysctl.conf"))
+  crio_config_data   = base64encode(file("cpd/machineconfig/config/crio.conf"))
+  limits_config_data = base64encode(file("cpd/machineconfig/config/limits.conf"))
+  sysctl_config_data = base64encode(file("cpd/machineconfig/config/sysctl.conf"))
 }
 
 data "template_file" "crio_machineconfig" {
