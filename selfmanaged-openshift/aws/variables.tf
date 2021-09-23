@@ -246,7 +246,7 @@ variable "public_ssh_key" {
 
 variable "enable_fips" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "base_domain" {
