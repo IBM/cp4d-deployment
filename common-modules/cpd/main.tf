@@ -31,6 +31,9 @@ resource "null_resource" "login_cluster" {
 ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
+  depends_on = [
+    module.machineconfig,
+  ]
 }
 
 resource "null_resource" "download_cloudctl" {
@@ -60,6 +63,10 @@ esac
 chmod u+x ${self.triggers.cpd_workspace}/cloudctl
 EOF
   }
+  depends_on = [
+    null_resource.login_cluster,
+    module.machineconfig,
+  ]
 }
 
 resource "local_file" "ibm_operator_catalog_source_yaml" {
@@ -141,13 +148,14 @@ oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path
 EOF
   }
   depends_on = [
+    module.machineconfig,
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
-    null_resource.login_cluster,
-    null_resource.download_cloudctl,
   ]
 }
 

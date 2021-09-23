@@ -34,6 +34,12 @@ resource "null_resource" "login_cluster" {
 ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
+  depends_on = [
+    local_file.sysctl_worker_yaml,
+    local_file.sysctl_machineconfig_yaml,
+    local_file.limits_machineconfig_yaml,
+    local_file.crio_machineconfig_yaml,
+  ]
 }
 
 resource "null_resource" "patch_config_managed" {
