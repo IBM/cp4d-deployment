@@ -43,10 +43,6 @@ variable "configure_openshift_nodes" {
   default     = true
 }
 
-variable "login_cmd" {
-  type = string
-}
-
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"
