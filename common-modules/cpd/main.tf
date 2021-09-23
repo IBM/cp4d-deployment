@@ -17,7 +17,6 @@ module "machineconfig" {
   openshift_username           = var.openshift_username
   openshift_password           = var.openshift_password
   openshift_token              = var.openshift_token
-  login_cmd                    = var.login_cmd
   login_string                 = var.login_string
 }
 
@@ -27,12 +26,11 @@ resource "null_resource" "login_cluster" {
     openshift_username  = var.openshift_username
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
-    login_cmd           = var.login_cmd
     login_string        = var.login_string
   }
   provisioner "local-exec" {
     command = <<EOF
-${self.triggers.login_string} || ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
 }

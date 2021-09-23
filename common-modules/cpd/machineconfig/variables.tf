@@ -23,10 +23,6 @@ variable "openshift_token" {
   default     = ""
 }
 
-variable "login_cmd" {
-  type = string
-}
-
 variable "cluster_type" {
   type = string
 }
