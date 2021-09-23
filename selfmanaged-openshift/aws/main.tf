@@ -229,6 +229,5 @@ module "cpd" {
     module.portworx,
     module.ocs,
     null_resource.aws_configuration,
-    module.machineconfig,
   ]
 }

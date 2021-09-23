@@ -172,6 +172,5 @@ module "cpd" {
     module.portworx,
     module.ocp,
     module.ocs,
-    module.machineconfig,
   ]
 }
