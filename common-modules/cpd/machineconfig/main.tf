@@ -20,26 +20,48 @@ resource "local_file" "crio_machineconfig_yaml" {
   content  = data.template_file.crio_machineconfig.rendered
   filename = "${var.installer_workspace}/crio_machineconfig.yaml"
 }
+
 resource "null_resource" "login_cluster" {
   triggers = {
-    openshift_api      = var.openshift_api
-    openshift_username = var.openshift_username
-    openshift_password = var.openshift_password
-    login              = "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    login_cmd           = var.login_cmd
+    login_string        = var.login_string
   }
   provisioner "local-exec" {
     command = <<EOF
-  ${self.triggers.login}
+${self.triggers.login_string} || ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
 }
 
-resource "null_resource" "patch_config_self" {
-  count = var.configure_openshift_nodes ? 1 : 0
+resource "null_resource" "patch_config_managed" {
+  count = var.cluster_type == "managed" ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
 echo "Patch configuration self"
 oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+EOF
+  }
+  depends_on = [
+    local_file.sysctl_worker_yaml,
+    local_file.sysctl_machineconfig_yaml,
+    local_file.limits_machineconfig_yaml,
+    local_file.crio_machineconfig_yaml,
+    null_resource.login_cluster,
+  ]
+}
+
+resource "null_resource" "patch_config_self" {
+  count = var.cluster_type == "selfmanaged" ? 1 : 0
+  provisioner "local-exec" {
+    command = <<EOF
+echo "Patch configuration self"
+oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
 EOF
   }
   depends_on = [
@@ -69,12 +91,13 @@ EOF
     local_file.limits_machineconfig_yaml,
     local_file.crio_machineconfig_yaml,
     null_resource.login_cluster,
-    null_resource.patch_config_self
+    null_resource.patch_config_self,
+    null_resource.patch_config_managed,
   ]
 }
 
 resource "null_resource" "configure_cluster" {
-count = var.configure_openshift_nodes ? 1 : 0
+  count = var.configure_openshift_nodes ? 1 : 0
   triggers = {
     installer_workspace = var.installer_workspace
     cpd_workspace       = local.cpd_workspace
@@ -100,6 +123,7 @@ EOF
     local_file.crio_machineconfig_yaml,
     null_resource.login_cluster,
     null_resource.patch_config_self,
+    null_resource.patch_config_managed,
     null_resource.configure_global_pull_secret,
   ]
 }

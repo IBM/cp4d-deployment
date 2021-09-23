@@ -24,6 +24,7 @@ locals {
   openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
   openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
   openshift_token     = var.existing_openshift_token
+  cluster_type        = "selfmanaged"
 }
 
 resource "null_resource" "aws_configuration" {
@@ -186,28 +187,13 @@ module "ocs" {
   ]
 }
 
-module "machineconfig" {
-  source                       = "./machineconfig"
-  cpd_api_key                  = var.cpd_api_key
-  installer_workspace          = local.installer_workspace
-  configure_global_pull_secret = var.configure_global_pull_secret
-  configure_openshift_nodes    = var.configure_openshift_nodes
-  openshift_api                = local.openshift_api
-  openshift_username           = local.openshift_username
-  openshift_password           = local.openshift_password
-
-  depends_on = [
-    module.ocp,
-    module.network,
-    module.portworx,
-    module.ocs,
-    null_resource.aws_configuration,
-  ]
-}
-
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
+  openshift_api             = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username        = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password        = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_token           = var.existing_openshift_token
   installer_workspace       = local.installer_workspace
   accept_cpd_license        = var.accept_cpd_license
   cpd_external_registry     = var.cpd_external_registry
@@ -234,6 +220,7 @@ module "cpd" {
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
   planning_analytics        = var.planning_analytics
+  cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
 
   depends_on = [

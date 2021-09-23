@@ -6,16 +6,37 @@ locals {
   db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
+module "machineconfig" {
+  source                       = "./machineconfig"
+  cpd_api_key                  = var.cpd_api_key
+  installer_workspace          = local.installer_workspace
+  configure_global_pull_secret = var.configure_global_pull_secret
+  configure_openshift_nodes    = var.configure_openshift_nodes
+  cluster_type                 = var.cluster_type
+  openshift_api                = var.openshift_api
+  openshift_username           = var.openshift_username
+  openshift_password           = var.openshift_password
+  openshift_token              = var.openshift_token
+  login_cmd                    = var.login_cmd
+  login_string                 = var.login_string
+}
+
 resource "null_resource" "login_cluster" {
   triggers = {
-    login     = var.login_string
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    login_cmd           = var.login_cmd
+    login_string        = var.login_string
   }
   provisioner "local-exec" {
     command = <<EOF
-  ${self.triggers.login}
+${self.triggers.login_string} || ${self.triggers.login_cmd} --insecure-skip-tls-verify || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
 }
+
 resource "null_resource" "download_cloudctl" {
   triggers = {
     cpd_workspace = local.cpd_workspace

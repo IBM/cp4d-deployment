@@ -255,21 +255,6 @@ variable "enable_autoscaler" {
   default = false
 }
 
-##################################
-# Cluster configuration variables
-##################################
-variable "configure_global_pull_secret" {
-  type        = bool
-  description = "Configuring global pull secret"
-  default     = true
-}
-
-variable "configure_openshift_nodes" {
-  type        = bool
-  description = "Setting machineconfig parameters on worker nodes"
-  default     = true
-}
-
 ######################################
 # Storage Options: Enable only one   #
 ######################################
