@@ -9,9 +9,7 @@ locals {
 module "machineconfig" {
   source                       = "./machineconfig"
   cpd_api_key                  = var.cpd_api_key
-  installer_workspace          = local.installer_workspace
-  configure_global_pull_secret = var.configure_global_pull_secret
-  configure_openshift_nodes    = var.configure_openshift_nodes
+  installer_workspace          = var.installer_workspace
   cluster_type                 = var.cluster_type
   openshift_api                = var.openshift_api
   openshift_username           = var.openshift_username
