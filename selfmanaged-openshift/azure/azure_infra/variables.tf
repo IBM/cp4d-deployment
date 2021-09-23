@@ -108,7 +108,7 @@ variable "pull-secret-file-path" {
 }
 
 variable "fips" {
-  default = true
+  default = false
 }
 
 variable "clusterAutoscaler" {
