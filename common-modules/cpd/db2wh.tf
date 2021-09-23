@@ -32,6 +32,7 @@ EOF
   depends_on = [
     local_file.db2wh_cr_yaml,
     local_file.db2wh_sub_yaml,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
   ]

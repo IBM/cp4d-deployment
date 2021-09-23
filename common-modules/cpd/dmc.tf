@@ -32,6 +32,7 @@ EOF
     local_file.dmc_cr_yaml,
     local_file.dmc_sub_yaml,
     null_resource.install_dv,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
   ]

@@ -32,6 +32,7 @@ EOF
     local_file.dods_sub_yaml,
     null_resource.install_wml,
     null_resource.install_ws,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
   ]
