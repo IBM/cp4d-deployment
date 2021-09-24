@@ -587,7 +587,7 @@ metadata:
   name: iis-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.datastage.version}
   size: small
   scaleConfig: small
   ${local.storage_type_key}: "${local.storage_type_value}" 
