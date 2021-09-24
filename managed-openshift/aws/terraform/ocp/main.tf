@@ -2,6 +2,7 @@ locals {
   installer_workspace = "${path.root}/installer-files"
   rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.0.8"
   subnet_ids          = join(",", var.subnet_ids)
+  private_link        = var.private_cluster ? "--private-link" : ""
 }
 
 resource "null_resource" "download_binaries" {
@@ -49,7 +50,7 @@ resource "null_resource" "install_rosa" {
 ${self.triggers.installer_workspace}/rosa login --token='${var.rosa_token}'
 ${self.triggers.installer_workspace}/rosa init
 ${self.triggers.installer_workspace}/rosa verify quota
-${self.triggers.installer_workspace}/rosa create cluster --cluster-name='${self.triggers.cluster_name}' --compute-machine-type='${var.worker_machine_type}' --compute-nodes ${var.worker_machine_count} --region ${var.region} \
+${self.triggers.installer_workspace}/rosa create cluster ${local.private_link} --cluster-name='${self.triggers.cluster_name}' --compute-machine-type='${var.worker_machine_type}' --compute-nodes ${var.worker_machine_count} --region ${var.region} \
     --machine-cidr='${var.machine_network_cidr}' --service-cidr='${var.service_network_cidr}' --pod-cidr='${var.cluster_network_cidr}' --host-prefix='${var.cluster_network_host_prefix}' --private=${var.private_cluster} \
     --multi-az=${var.multi_zone} --version='${var.openshift_version}' --subnet-ids='${local.subnet_ids}' --watch --yes
 EOF

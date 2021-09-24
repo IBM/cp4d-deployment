@@ -100,21 +100,10 @@ variable "cluster_name" {
   default = "my-ocp"
 }
 
-variable "rosa_cluster" {
-  type        = bool
-  description = "Dummy variable, leave it true."
-  default     = false
-}
-
 # Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "single_zone"
-}
-
-variable "login_cmd" {
-  description = "Dummy variable, leave it blank."
-  default     = ""
 }
 
 variable "availability_zone1" {
@@ -132,9 +121,9 @@ variable "availability_zone3" {
   default     = ""
 }
 
-#############################
+#######################################
 # Existing Openshift Cluster Variables
-#############################
+#######################################
 variable "existing_cluster" {
   type        = bool
   description = "Set true if you already have a running Openshift Cluster and you only want to install CPD."

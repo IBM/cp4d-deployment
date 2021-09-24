@@ -20,6 +20,11 @@ locals {
   worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
   single_zone_subnets = [local.worker_subnet1_id]
   multi_zone_subnets  = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
+  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_token     = var.existing_openshift_token
+  cluster_type        = "selfmanaged"
 }
 
 resource "null_resource" "aws_configuration" {
@@ -138,9 +143,9 @@ module "ocp" {
 module "portworx" {
   count                 = var.portworx_enterprise.enable || var.portworx_essentials.enable || var.portworx_ibm.enable ? 1 : 0
   source                = "./portworx"
-  openshift_api         = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username    = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password    = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_api         = local.openshift_api
+  openshift_username    = local.openshift_username
+  openshift_password    = local.openshift_password
   openshift_token       = var.existing_openshift_token
   installer_workspace   = local.installer_workspace
   region                = var.region
@@ -160,9 +165,9 @@ module "portworx" {
 module "ocs" {
   count               = var.ocs.enable ? 1 : 0
   source              = "./ocs"
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_api       = local.openshift_api
+  openshift_username  = local.openshift_username
+  openshift_password  = local.openshift_password
   openshift_token     = var.existing_openshift_token
   installer_workspace = local.installer_workspace
   ocs = {
@@ -215,8 +220,8 @@ module "cpd" {
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
   planning_analytics        = var.planning_analytics
-  login_cmd                 = var.login_cmd
-  rosa_cluster              = var.rosa_cluster
+  cluster_type              = local.cluster_type
+  login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
 
   depends_on = [
     module.ocp,

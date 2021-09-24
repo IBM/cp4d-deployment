@@ -110,12 +110,6 @@ variable "cluster_name" {
   default = "ibmrosa"
 }
 
-variable "rosa_cluster" {
-  type        = bool
-  description = "Dummy variable, leave it true."
-  default     = true
-}
-
 variable "rosa_token" {
   type = string
 }
@@ -155,11 +149,6 @@ variable "service_network_cidr" {
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "single_zone"
-}
-
-variable "login_cmd" {
-  description = "Dummy variable, leave it blank."
-  default     = ""
 }
 
 variable "availability_zone1" {

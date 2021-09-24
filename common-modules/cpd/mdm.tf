@@ -31,7 +31,7 @@ EOF
   depends_on = [
     local_file.mdm_cr_yaml,
     local_file.mdm_sub_yaml,
-    null_resource.configure_cluster,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
   ]

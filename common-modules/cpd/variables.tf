@@ -1,3 +1,7 @@
+variable "login_string" {
+  type = string
+}
+
 variable "openshift_api" {
   type    = string
   default = ""
@@ -19,12 +23,8 @@ variable "openshift_token" {
   default     = ""
 }
 
-variable "login_cmd" {
+variable "cluster_type" {
   type = string
-}
-
-variable "rosa_cluster" {
-  type        = bool
 }
 
 variable "installer_workspace" {

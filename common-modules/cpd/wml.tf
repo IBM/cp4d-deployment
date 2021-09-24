@@ -32,10 +32,10 @@ EOF
   depends_on = [
     local_file.wml_cr_yaml,
     local_file.wml_sub_yaml,
-    null_resource.configure_cluster,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
-    null_resource.install_ws,
     null_resource.login_cluster,
+    null_resource.install_ws,
   ]
 }
 
