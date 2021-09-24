@@ -115,9 +115,36 @@ spec:
         path: /etc/crio/crio.conf
 EOF"
 
+runuser -l $SUDOUSER -c "cat > $OCPTEMPLATES/sysctl-worker.yaml <<EOF
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: db2u-kubelet
+spec:
+  kubeletConfig:
+    evictionHard:
+      imagefs.available: 15%
+      memory.available: 500Mi
+      nodefs.available: 10%
+      nodefs.inodesFree: 5%
+    systemReserved:
+      memory: 2000Mi
+    allowedUnsafeSysctls:
+      - \"kernel.msg*\"
+      - \"kernel.shm*\"
+      - \"kernel.sem\"
+  machineConfigPoolSelector:
+    matchLabels:
+      db2u-kubelet: sysctl
+EOF"
+
 runuser -l $SUDOUSER -c "oc create -f $OCPTEMPLATES/sysctl-mc.yaml"
 runuser -l $SUDOUSER -c "oc create -f $OCPTEMPLATES/limits-mc.yaml"
 runuser -l $SUDOUSER -c "oc create -f $OCPTEMPLATES/crio-mc.yaml"
+
+runuser -l $SUDOUSER -c "oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl"
+runuser -l $SUDOUSER -c "oc label mcp worker aro.openshift.io/limits-"
+runuser -l $SUDOUSER -c "oc create -f $OCPTEMPLATES/sysctl-worker.yaml"
 
 runuser -l $SUDOUSER -c "echo 'Sleeping for 12mins while MCs apply and the cluster restarts' "
 runuser -l $SUDOUSER -c "sleep 12m"
