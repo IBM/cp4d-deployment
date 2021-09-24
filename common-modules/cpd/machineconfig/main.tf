@@ -42,7 +42,7 @@ EOF
   ]
 }
 
-resource "null_resource" "patch_config_managed" {
+resource "null_resource" "patch_config_self" {
   count = var.cluster_type == "selfmanaged" ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
@@ -59,7 +59,7 @@ EOF
   ]
 }
 
-resource "null_resource" "patch_config_self" {
+resource "null_resource" "patch_config_managed" {
   count = var.cluster_type == "managed" ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
