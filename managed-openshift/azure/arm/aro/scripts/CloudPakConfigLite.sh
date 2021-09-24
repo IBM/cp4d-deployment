@@ -66,27 +66,7 @@ var=$?
 echo "exit code: $var"
 done
 
-# Update global pull secret and sysctl changes: 
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/sysctl-worker.yaml <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: KubeletConfig
-metadata:
-  name: db2u-kubelet
-spec:
-  machineConfigPoolSelector:
-    matchLabels:
-      db2u-kubelet: sysctl
-  kubeletConfig:
-    systemReserved:
-      cpu: 1000m
-      memory: 1Gi
-    allowedUnsafeSysctls:
-      - \"kernel.msg*\"
-      - \"kernel.shm*\"
-      - \"kernel.sem\"
-EOF"
-
+# Update global pull secret 
 
 export ENTITLEMENT_USER=cp
 export ENTITLEMENT_KEY=$APIKEY
@@ -94,12 +74,6 @@ pull_secret=$(echo -n "$ENTITLEMENT_USER:$ENTITLEMENT_KEY" | base64 -w0)
 oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > $OCPTEMPLATES/dockerconfig.json
 sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' $OCPTEMPLATES/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=$OCPTEMPLATES/dockerconfig.json
-
-runuser -l $SUDOUSER -c "oc patch kubeletconfig aro-limits --type='json' -p='[{\"op\": \"remove\", \"path\": \"/spec/machineConfigPoolSelector/matchLabels\"}]'"
-runuser -l $SUDOUSER -c "oc patch kubeletconfig aro-limits --type merge -p '{\"spec\":{\"machineConfigPoolSelector\":{\"matchLabels\":{\"pools.operator.machineconfiguration.openshift.io/master\":\"\"}}}}'"
-runuser -l $SUDOUSER -c "oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl"
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/sysctl-worker.yaml"
-runuser -l $SUDOUSER -c "sleep 3m"
 
 # Check nodestatus if they are ready.
 
