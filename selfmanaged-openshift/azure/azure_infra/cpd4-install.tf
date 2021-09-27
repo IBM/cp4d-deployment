@@ -43,8 +43,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_cmd                 = ""
-  rosa_cluster              = false
+  cluster_type              = "selfmanaged"
 
   depends_on = [
     null_resource.openshift_post_install,

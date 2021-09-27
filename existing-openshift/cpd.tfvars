@@ -3,17 +3,17 @@ openshift_username        = "<required>"
 openshift_password        = "<required>"
 openshift_token           = "<optional>"
 
-login_cmd                 = "<optional>"
+configure_global_pull_secret = true   # false if pull secret is already created
+configure_openshift_nodes    = true   # false if nodes are already configured
+cluster_type                 = "selfmanaged"   # managed or selfmanaged
 
-# login_cmd_set
-# configure_ocp
+cpd_external_registry        = "cp.icr.io"
+cpd_external_username        = "cp"
+cpd_api_key                  = "<required>"
+cpd_namespace                = "<required>"
 
-installer_workspace       = "install"
-cpd_external_registry     = "cp.icr.io"
-cpd_external_username     = "cp"
-cpd_api_key               = "<required>"
-
-storage_option            = "ocs"
+storage_option               = "<required>"  # ocs or portworx. if nfs set  variable cpd_storageclass
+#cpd_storageclass            =  { "portworx": "", "ocs" : "", "nfs" : "<nfs storage class>" }
 
 ## CPD services
 
@@ -34,5 +34,5 @@ decision_optimization     = { "enable" : "no", "version" : "4.0.1", "channel" : 
 
 accept-cpd-license        = "accept"
 
-rosa_cluster              = false
+
 

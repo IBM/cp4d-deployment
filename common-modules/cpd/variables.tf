@@ -1,5 +1,6 @@
 variable "login_string" {
   type = string
+  default = "na"
 }
 
 variable "openshift_api" {
@@ -25,6 +26,18 @@ variable "openshift_token" {
 
 variable "cluster_type" {
   type = string
+}
+
+variable "configure_global_pull_secret" {
+  type        = bool
+  description = "Configuring global pull secret"
+  default     = true
+}
+
+variable "configure_openshift_nodes" {
+  type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
 }
 
 variable "installer_workspace" {
