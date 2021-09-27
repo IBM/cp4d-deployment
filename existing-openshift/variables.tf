@@ -19,18 +19,22 @@ variable "openshift_token" {
   default     = ""
 }
 
-variable "login_cmd" {
-  type = string
+variable "configure_global_pull_secret" {
+  type        = bool
+  description = "Configuring global pull secret"
+  default     = true
 }
 
-variable "rosa_cluster" {
+variable "configure_openshift_nodes" {
   type        = bool
+  description = "Setting machineconfig parameters on worker nodes"
+  default     = true
 }
 
 variable "installer_workspace" {
   type        = string
   description = "Folder find the installation files"
-  default     = ""
+  default     = "install"
 }
 
 variable "accept_cpd_license" {
@@ -58,6 +62,14 @@ variable "cpd_namespace" {
 
 variable "storage_option" {
   type = string
+}
+
+variable "login_string" {
+  default = ""
+}
+
+variable "cluster_type" {
+  default = ""
 }
 
 variable "cpd_storageclass" {

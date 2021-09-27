@@ -16,6 +16,8 @@ module "machineconfig" {
   openshift_password           = var.openshift_password
   openshift_token              = var.openshift_token
   login_string                 = var.login_string
+  configure_global_pull_secret = var.configure_global_pull_secret
+  configure_openshift_nodes    = var.configure_openshift_nodes
 }
 
 resource "null_resource" "login_cluster" {
