@@ -64,10 +64,6 @@ variable "storage_option" {
   type = string
 }
 
-variable "login_string" {
-  default = ""
-}
-
 variable "cluster_type" {
   default = ""
 }
