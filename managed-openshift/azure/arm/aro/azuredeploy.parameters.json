@@ -3,22 +3,27 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "adminUsername": {
-          "value": "GEN-UNIQUE"
+          "value": "core"
         },
         "apiKey": {
-            "reference": "GEN-KEYVAULT-CLOUDPAK-APIKEY-REFERENCE"
+            "value": "specify cpd registry apikey here"
         },
         "sshPublicKey": {
-            "value": "GEN-SSH-PUB-KEY"
+            "value": "specify public ssh key here"
         },
         "pullSecret": {
-          "reference": "GEN-KEYVAULT-OPENSHIFT-PULLSECRET-REFERENCE"
+            "reference": {
+              "keyVault": {
+                  "id": "/subscriptions/<subscription id>/resourceGroups/<resource group name>/providers/Microsoft.KeyVault/vaults/<vault name>"
+              },
+              "secretName": "pullsecret"
+          }
         },
         "aadClientId": {
-            "value": "see readme.md for details on how to create the SP"
+            "value": "specify azure appId or client id here"
         },
         "aadClientSecret": {
-            "value": "see readme.md for details on how to create the SP"
+            "value": "specify azure client secret or password here"
         },
         "cloudPakLicenseAgreement": {
           "value": "accept"
@@ -30,7 +35,7 @@
           "value": "no"
         },
         "installWatsonKnowledgeCatalog": {
-          "value": "yes"
+          "value": "no"
         },
         "installDataVirtualization": {
           "value": "no"

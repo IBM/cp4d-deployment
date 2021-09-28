@@ -24,8 +24,8 @@ username: $OPENSHIFTUSER
 password: $OPENSHIFTPASSWORD
 EOF"
 
-runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
-runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
+#runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
+#runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
 
 #CPD Config
 
@@ -248,8 +248,10 @@ runuser -l $SUDOUSER -c "sleep 2m"
 
 if [[ $STORAGEOPTION == "nfs" ]];then 
     export STORAGECLASS_VALUE="nfs"
+    export STORAGECLASS_RWO_VALUE="nfs"
 elif [[ $STORAGEOPTION == "ocs" ]];then 
     export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+    export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
 fi
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibmcpd-cr.yaml <<EOF
@@ -263,11 +265,12 @@ spec:
     accept: true
     license: Enterprise                                   # Specify the Cloud Pak for Data license you purchased
   storageClass: \"REPLACE_STORAGECLASS\"                    # Replace with the name of a RWX storage class
-  zenCoreMetadbStorageClass: \"REPLACE_STORAGECLASS\"       # (Recommended) Replace with the name of a RWO storage class
+  zenCoreMetadbStorageClass: \"REPLACE_STORAGECLASS_RWO\"       # (Recommended) Replace with the name of a RWO storage class
   version: \"4.0.1\"
 EOF"
 
 runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
+runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS_RWO#$STORAGECLASS_RWO_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
 runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
 runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibmcpd-cr.yaml"
 
