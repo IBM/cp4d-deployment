@@ -87,10 +87,19 @@ Example:
 ./az-group-deploy.sh -a aro -l westus2 -g myocp-rg -e aro/azuredeploy.parameters.json
 ```
 
-* The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`azuredeploy`>`Outputs`.
+* The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`Outputs`.
 
+* The cluster credentials are located on the bastion node at this path
 
-Use the default credentials for Cloud Pak for Data `admin` / `password` to log in to CPD console. Ensure to change the password after your first login.
+```
+~/.openshift/templates/kubecredentials
+```
+
+* The deployment logs are located on the bastion node at this path
+
+```
+/var/lib/waagent/custom-script/download
+```
 
 ## Cloud Pak for Data Services
 
