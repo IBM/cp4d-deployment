@@ -95,6 +95,12 @@ Example:
 ~/.openshift/templates/kubecredentials
 ```
 
+You can also list the credentials using this command
+
+```
+az aro list-credentials --name <cluster-name> --resource-group <resource group name>
+```
+
 * The deployment logs are located on the bastion node at this path
 
 ```
