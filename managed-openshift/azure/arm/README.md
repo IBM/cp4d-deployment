@@ -5,7 +5,7 @@ Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations m
 
 Cloud Pak for Data uses cloud native services and features including VNets, VPCs, Availability Zones, security groups, Managed Disks, and Load Balancers to build a highly available, reliable, and scalable cloud platform.
 
-This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a [Azure Red Hat OpenShift](https://docs.microsoft.com/en-us/azure/openshift).
+This deployment guide provides step-by-step instructions for deploying IBM Cloud Pak for Data on a Azure ARO.
 
 This reference deployment provides ARM templates to deploy Azure ARO Cluster with cloupak for data installation.
 
@@ -77,6 +77,7 @@ The Service Principal can be created by running the azure CLI commands from any 
 
 ## Using Command Line
 
+
 * Enter variables in `azuredeploy.parameters.json`. See the [PARAMETERS.md](./PARAMETERS.md) for detailed descriptions.
 ```bash
 az login
@@ -89,6 +90,12 @@ Example:
 
 * The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`azuredeploy`>`Outputs`.
 
+* Access the respective console on a web browser.
+* example:
+
+![Alt text](images/Output.png?raw=true "output")
+
+<br/>
 
 Use the default credentials for Cloud Pak for Data `admin` / `password` to log in to CPD console. Ensure to change the password after your first login.
 
@@ -106,6 +113,10 @@ As part of the deployment, the following services can be enabled:
  - Watson Openscale
  - Cognos Dashboard
  - Apache Spark
+You can browse the various services that are available for use by navigating to the services catalog page in Cloud Pak for Data
+
+![Alt text](images/services.png?raw=true "parameters2")
+
 
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html)
