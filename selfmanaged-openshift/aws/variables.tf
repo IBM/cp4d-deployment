@@ -100,7 +100,8 @@ variable "cluster_name" {
   default = "my-ocp"
 }
 
-# Enter the number of availability zones the cluster is to be deployed, default is multi zone deployment.
+
+# Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
 variable "az" {
   description = "single_zone / multi_zone"
   default     = "single_zone"
