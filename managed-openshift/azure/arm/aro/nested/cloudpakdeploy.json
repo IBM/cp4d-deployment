@@ -108,6 +108,18 @@
 			"metadata": {
 				"description": "IBM Container Registry API Key. See README on how to obtain this"
 			}
+		},
+		"subscriptionChannel": {
+			"type": "string",
+			"metadata": {
+				"description": "Subscription channel of the CPD service operator"
+			}
+		},
+		"version": {
+			"type": "string",
+			"metadata": {
+				"description": "CPD service version"
+			}
 		}
 	},
 	"variables": {
@@ -135,7 +147,7 @@
 					]
 				},
 				"protectedSettings": {
-					"commandToExecute": "[concat('bash ', parameters('cloudPakDeploymentScriptFileName'), ' \"', parameters('location'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('workerInstanceCount'), '\"', ' \"', parameters('projectName'), '\"', ' \"', parameters('storageOption'), '\"', ' \"', parameters('apiKey'), '\"', ' \"' , listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername, '\"',' \"', listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword, '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('clusterName'), '\"')]"
+					"commandToExecute": "[concat('bash ', parameters('cloudPakDeploymentScriptFileName'), ' \"', parameters('location'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('workerInstanceCount'), '\"', ' \"', parameters('projectName'), '\"', ' \"', parameters('storageOption'), '\"', ' \"', parameters('apiKey'), '\"', ' \"' , listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername, '\"',' \"', listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword, '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('clusterName'), '\"', ' \"',  parameters('subscriptionChannel'), '\"', ' \"', parameters('version'), '\"')]"
 				}
 			}
 		}

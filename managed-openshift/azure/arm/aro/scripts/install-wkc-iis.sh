@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x 
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -10,6 +13,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -110,20 +115,27 @@ users:
 - system:serviceaccount:$CPDNAMESPACE:wkc-iis-sa
 EOF"
 
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-sub.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-iis-operator
+  namespace: $CPDNAMESPACE
+spec: 
+  channel: $VERSION
+  installPlanApproval: Automatic 
+  name: ibm-cpd-iis
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF"
+
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-scc.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
 runuser -l $SUDOUSER -c "sleep 1m"
 
 # Check ibm-cpd-iis-operator pod status
 
-runuser -l $SUDOUSER -c "wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-iis/4.0.0/ibm-iis-4.0.0.tgz -P $CPDTEMPLATES -A 'ibm-iis-4.0.0.tgz'"
-
-runuser -l $SUDOUSER -c "cloudctl case launch  \
-    --case $CPDTEMPLATES/ibm-iis-4.0.0.tgz     \
-    --namespace $OPERATORNAMESPACE             \
-    --inventory iisOperatorSetup               \
-    --action installOperator                   \
-    --tolerance=1"
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-sub.yaml"
 
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"

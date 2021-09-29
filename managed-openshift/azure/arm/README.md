@@ -13,7 +13,7 @@ This reference deployment provides ARM templates to deploy Azure ARO Cluster wit
  - A highly available storage infrastructure with NFS or OpenShift Container Storage.
  - Scalable OpenShift compute nodes running Cloud Pak for Data services. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
  
- Note: ARO at this time provisions OpenShift Container Platform v4.7.x. This may be changed when new versions are released. See support lifecycle [here](https://docs.microsoft.com/en-us/azure/openshift/support-lifecycle)
+ Note: ARO at this time provisions OpenShift Container Platform v4.8.x. This may be changed when new versions are released. See support lifecycle [here](https://docs.microsoft.com/en-us/azure/openshift/support-lifecycle)
 
 ## Cost and licenses
 Cloud Pak for Data offers a try and buy experience.
@@ -87,7 +87,7 @@ Example:
 ./az-group-deploy.sh -a aro -l westus2 -g myocp-rg -e aro/azuredeploy.parameters.json
 ```
 
-* The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`Outputs`.
+* The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`CPD`>`Outputs`.
 
 * The cluster credentials are located on the bastion node at this path
 

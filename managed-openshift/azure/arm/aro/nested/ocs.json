@@ -73,6 +73,12 @@
 			"metadata": {
 				"description": "If NFS is chosen, the private IP address of the server"
 			}
+		},
+		"resourceGroupName": {
+			"type": "string",
+			"metadata": {
+				"description": "Resource Group Name"
+			}
 		}
 	},
 	"variables": {
@@ -100,7 +106,7 @@
 					]
 				},
 				"protectedSettings": {
-					"commandToExecute": "[concat('bash ', parameters('installOCSScriptFileName'), ' \"', parameters('adminUsername'), '\"', ' \"', parameters('openshiftUsername'), '\"', ' \"', parameters('openshiftPassword'), '\"', ' \"', parameters('clusterName'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('location'), '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('nfsIpAddress'), '\"')]"
+					"commandToExecute": "[concat('bash ', parameters('installOCSScriptFileName'), ' \"', parameters('adminUsername'), '\"', ' \"', parameters('openshiftUsername'), '\"', ' \"', parameters('openshiftPassword'), '\"', ' \"', parameters('clusterName'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('location'), '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('nfsIpAddress'), '\"', ' \"', parameters('resourceGroupName'), '\"')]"
 				}
 			}
 		}

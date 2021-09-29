@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x 
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -10,6 +13,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -60,12 +65,13 @@ metadata:
   name: wkc-cr
   namespace: $CPDNAMESPACE
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   storageVendor: \"ocs\"
   license:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
+  useODLM: false
 EOF"
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wkc-nfs-cr.yaml <<EOF
@@ -75,12 +81,13 @@ metadata:
   name: wkc-cr
   namespace: $CPDNAMESPACE
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   storageClass: \"nfs\"
   license:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
+  useODLM: false
 EOF"
 
 ## Creating Subscription 

@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x 
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -10,6 +13,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -41,7 +46,7 @@ metadata:
   name: ug-cr
   namespace: $CPDNAMESPACE
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   size: \"small\"
   storageVendor: \"ocs\"
   license:
@@ -57,7 +62,7 @@ metadata:
   name: ug-cr
   namespace: $CPDNAMESPACE
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   size: \"small\"
   storageClass: \"nfs\"
   license:

@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -10,6 +13,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -34,23 +39,6 @@ done
 
 # db2aaservice operator and CR creation 
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2aaservice-catalogsource.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-db2aaservice-cp4d-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: IBM Db2aaservice CP4D Catalog
-  image: icr.io/cpopen/ibm-db2aaservice-cp4d-operator-catalog@sha256:a0d9b6c314193795ec1918e4227ede916743381285b719b3d8cfb05c35fec071
-  imagePullPolicy: Always
-  publisher: IBM
-  sourceType: grpc
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF"
-
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2aaservice-sub.yaml <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -58,10 +46,10 @@ metadata:
   name: ibm-db2aaservice-cp4d-operator
   namespace: $OPERATORNAMESPACE
 spec:
-  channel: v1.0
+  channel: $CHANNEL
   name: ibm-db2aaservice-cp4d-operator
   installPlanApproval: Automatic
-  source: ibm-db2aaservice-cp4d-operator-catalog
+  source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF"
 
@@ -79,9 +67,9 @@ EOF"
 
 # Create Catalogsource and subscription. 
 
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2aaservice-catalogsource.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping 2m for catalogsource to be created'"
-runuser -l $SUDOUSER -c "sleep 2m"
+#runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2aaservice-catalogsource.yaml"
+#runuser -l $SUDOUSER -c "echo 'Sleeping 2m for catalogsource to be created'"
+#runuser -l $SUDOUSER -c "sleep 2m"
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2aaservice-sub.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for sub to be created'"

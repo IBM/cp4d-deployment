@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x 
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -8,8 +11,10 @@ export STORAGEOPTION=$6
 export APIKEY=$7
 export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
-export CUSTOMDOMAIN=$10
+export CUSTOMDOMAIN=${10}
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -19,10 +24,6 @@ export CPDTEMPLATES=/home/$SUDOUSER/.cpd/templates
 runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
 runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
 runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
-runuser -l $SUDOUSER -c "cat > $OCPTEMPLATES/kubecredentials <<EOF
-username: $OPENSHIFTUSER
-password: $OPENSHIFTPASSWORD
-EOF"
 
 #runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
 #runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
@@ -31,24 +32,20 @@ EOF"
 
 runuser -l $SUDOUSER -c "wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz"
 runuser -l $SUDOUSER -c "https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz.sig -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz.sig"
-runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/local/bin"
-runuser -l $SUDOUSER -c "chmod +x /usr/local/bin/cloudctl-linux-amd64"
-runuser -l $SUDOUSER -c "sudo mv /usr/local/bin/cloudctl-linux-amd64 /usr/local/bin/cloudctl"
+runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/bin"
+runuser -l $SUDOUSER -c "chmod +x /usr/bin/cloudctl-linux-amd64"
+runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
-runuser -l $SUDOUSER -c "oc create serviceaccount cpdtoken"
-runuser -l $SUDOUSER -c "oc policy add-role-to-user admin system:serviceaccount:$CPDNAMESPACE:cpdtoken"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $OPERATORNAMESPACE"
-runuser -l $SUDOUSER -c "oc create serviceaccount cpdtoken"
-runuser -l $SUDOUSER -c "oc policy add-role-to-user admin system:serviceaccount:$OPERATORNAMESPACE:cpdtoken"
 
 ## Installing jq
 runuser -l $SUDOUSER -c "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O  $CPDTEMPLATES/jq"
-runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/jq /usr/local/bin"
-runuser -l $SUDOUSER -c "sudo chmod +x /usr/local/bin/jq"
+runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/jq /usr/bin"
+runuser -l $SUDOUSER -c "sudo chmod +x /usr/bin/jq"
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then
@@ -118,20 +115,6 @@ spec:
   - ibm-common-services
 EOF"
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-operator-sub.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: ibm-common-service-operator
-  namespace: ibm-common-services
-spec:
-  channel: v3
-  installPlanApproval: Automatic
-  name: ibm-common-service-operator
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF"
-
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/cpd-platform-operator-sub.yaml <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -139,7 +122,7 @@ metadata:
   name: cpd-operator
   namespace: ibm-common-services    # The project that contains the Cloud Pak for Data operator
 spec:
-  channel: stable-v1
+  channel: $CHANNEL
   installPlanApproval: Automatic
   name: cpd-platform-operator
   source: ibm-operator-catalog
@@ -151,7 +134,7 @@ apiVersion: operator.ibm.com/v1alpha1
 kind: OperandRequest
 metadata:
   name: empty-request
-  namespace: zen        # Replace with the project where you will install Cloud Pak for Data
+  namespace: $CPDNAMESPACE        # Replace with the project where you will install Cloud Pak for Data
 spec:
   requests: []
 EOF"
@@ -186,30 +169,9 @@ done
 
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-og.yaml"
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-sub.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 5m' "
-runuser -l $SUDOUSER -c "sleep 5m"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+runuser -l $SUDOUSER -c "sleep 1m"
 
-# Check operand-deployment-lifecycle-manager pod status
-
-podname="operand-deployment-lifecycle-manager"
-name_space=$OPERATORNAMESPACE
-status="unknown"
-while [ "$status" != "Running" ]
-do
-  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
-  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
-  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
-  echo $pod_name State - $ready_status, podstatus - $pod_status
-  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
-  then 
-  status="Running"
-  else
-  status="starting"
-  sleep 10 
-  fi
-  echo "$pod_name is $status"
-done
 
 # Creating CPD Platform operator subscription: 
 
@@ -259,20 +221,40 @@ apiVersion: cpd.ibm.com/v1
 kind: Ibmcpd
 metadata:
   name: ibmcpd-cr                                         # This is the recommended name, but you can change it
-  namespace: REPLACE_NAMESPACE                            # Replace with the project where you will install Cloud Pak for Data
+  namespace: $CPDNAMESPACE                            # Replace with the project where you will install Cloud Pak for Data
 spec:
   license:
     accept: true
     license: Enterprise                                   # Specify the Cloud Pak for Data license you purchased
-  storageClass: \"REPLACE_STORAGECLASS\"                    # Replace with the name of a RWX storage class
-  zenCoreMetadbStorageClass: \"REPLACE_STORAGECLASS_RWO\"       # (Recommended) Replace with the name of a RWO storage class
-  version: \"4.0.1\"
+  storageClass: \"$STORAGECLASS_VALUE\"                    # Replace with the name of a RWX storage class
+  zenCoreMetadbStorageClass: \"$STORAGECLASS_RWO_VALUE\"       # (Recommended) Replace with the name of a RWO storage class
+  version: \"$VERSION\"
 EOF"
 
-runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
-runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS_RWO#$STORAGECLASS_RWO_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
-runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
 runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibmcpd-cr.yaml"
+
+
+# Check operand-deployment-lifecycle-manager pod status
+
+podname="operand-deployment-lifecycle-manager"
+name_space=$OPERATORNAMESPACE
+status="unknown"
+while [ "$status" != "Running" ]
+do
+  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
+  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
+  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
+  echo $pod_name State - $ready_status, podstatus - $pod_status
+  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+  then 
+  status="Running"
+  else
+  status="starting"
+  sleep 10 
+  fi
+  echo "$pod_name is $status"
+done
+
 
 # Check CR Status
 

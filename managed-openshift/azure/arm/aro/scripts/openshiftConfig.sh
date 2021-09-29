@@ -1,4 +1,6 @@
 #!/bin/sh
+set -x
+
 export LOCATION=$1
 export DOMAINNAME=$2
 export SUDOUSER=$3
@@ -25,8 +27,8 @@ EOF"
 
 #setup oc and kubectl binaries
 runuser -l $SUDOUSER -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz"
-runuser -l $SUDOUSER -c "sudo tar -xvf openshift-client-linux-4.7.18.tar.gz -C /usr/bin"
-runuser -l $SUDOUSER -c "rm -f openshift-client-linux-4.7.18.tar.gz"
+runuser -l $SUDOUSER -c "sudo tar -xvf openshift-client-linux-*.tar.gz -C /usr/bin"
+runuser -l $SUDOUSER -c "rm -f openshift-client-linux-*.tar.gz"
 chmod +x /usr/bin/kubectl
 chmod +x /usr/bin/oc
 
@@ -49,8 +51,10 @@ var=$?
 echo "exit code: $var"
 done
 
-# Create Registry Route
+cp -rf .kube /home/$SUDOUSER/
+chown -R $SUDOUSER:$SUDOUSER /home/$SUDOUSER/.kube
 runuser -l $SUDOUSER -c "oc login https://api.${SUBURL}:6443 -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD --insecure-skip-tls-verify=true"
+# Create Registry Route
 runuser -l $SUDOUSER -c "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true, \"replicas\":$WORKERNODECOUNT}}'"
 runuser -l $SUDOUSER -c "sleep 20"
 runuser -l $SUDOUSER -c "oc project kube-system"
@@ -119,6 +123,8 @@ runuser -l $SUDOUSER -c "cat > $OCPTEMPLATES/sysctl-worker.yaml <<EOF
 apiVersion: machineconfiguration.openshift.io/v1
 kind: KubeletConfig
 metadata:
+  labels:
+    db2u-kubelet: sysctl
   name: db2u-kubelet
 spec:
   kubeletConfig:

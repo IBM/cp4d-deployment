@@ -154,8 +154,8 @@ then
 else
     if [[ $uploadArtifacts || $_artifactsLocationParameter != null ]]
     then
-        az group deployment create -g "$resourceGroupName" -n AzureRMSamples --template-uri $templateUri --parameters "$parameterJson" --verbose
+        az group deployment create -g "$resourceGroupName" -n CPD --template-uri $templateUri --parameters "$parameterJson" --verbose
     else
-        az group deployment create -g "$resourceGroupName" -n AzureRMSamples --template-file $templateFile --parameters "$parameterJson" --verbose
+        az group deployment create -g "$resourceGroupName" -n CPD --template-file $templateFile --parameters "$parameterJson" --verbose
     fi
 fi
