@@ -31,7 +31,7 @@ To get pricing information, or to use your existing Cloud Pak for Data entitleme
 ## Deployment on Azure
 
 ### Prerequisites
-- Azure Client (az cli)
+- [Azure Client (az cli)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - Azure Service Principal, with Contributor and User Access Administrator.
 
 The Service Principal can be created by running the azure CLI commands from any host where azure CLI is installed.
@@ -86,6 +86,8 @@ Example:
 ```bash
 ./az-group-deploy.sh -a aro -l westus2 -g myocp-rg -e aro/azuredeploy.parameters.json
 ```
+
+## Access CPD
 
 * The webconsole URL can be found in the `ResourceGroup`>`Deployments`>`CPD`>`Outputs`.
 
