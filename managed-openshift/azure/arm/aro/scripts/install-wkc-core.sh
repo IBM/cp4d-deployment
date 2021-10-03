@@ -50,7 +50,7 @@ metadata:
   name: ibm-cpd-wkc-operator
   namespace: ibm-common-services
 spec:
-  channel: v1.0
+  channel: $CHANNEL
   installPlanApproval: Automatic
   name: ibm-cpd-wkc
   source: ibm-operator-catalog
@@ -71,7 +71,7 @@ spec:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
-  useODLM: false
+  useODLM: true
 EOF"
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wkc-nfs-cr.yaml <<EOF
@@ -87,14 +87,14 @@ spec:
     accept: true
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
-  useODLM: false
+  useODLM: true
 EOF"
 
 ## Creating Subscription 
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-wkc-sub.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 5m' "
-runuser -l $SUDOUSER -c "sleep 5m"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+runuser -l $SUDOUSER -c "sleep 2m"
 
 # Check ibm-cpd-wkc-operator pod status
 
@@ -117,6 +117,53 @@ do
   echo "$pod_name is $status"
 done
 
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+allowedCapabilities: null
+apiVersion: security.openshift.io/v1
+defaultAddCapabilities: null
+fsGroup:
+  type: RunAsAny
+kind: SecurityContextConstraints
+metadata:
+  annotations:
+    kubernetes.io/description: WKC/IIS provides all features of the restricted SCC
+      but runs as user 10032.
+  name: wkc-iis-scc
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
+runAsUser:
+  type: MustRunAs
+  uid: 10032
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- persistentVolumeClaim
+- projected
+- secret
+users:
+- system:serviceaccount:$CPDNAMESPACE:wkc-iis-sa
+EOF"
+
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-scc.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+runuser -l $SUDOUSER -c "sleep 1m"
+
 ## Creating ibm-wkc cr
 
 if [[ $STORAGEOPTION == "nfs" ]];then 
@@ -133,23 +180,23 @@ fi
 SERVICE="WKC"
 CRNAME="wkc-cr"
 SERVICE_STATUS="wkcStatus"
+end=$((SECONDS+4500))
 
 STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
 
-while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
+while  [[ $SECONDS -lt $end && ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120 
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then
         echo "**********************************"
         echo "$CRNAME Installation Failed!!!!"
         echo "**********************************"
-        exit
     fi
 done 
 echo "*************************************"
-echo "$CRNAME Installation Finished!!!!"
+echo "$CRNAME Installation Status - $STATUS"
 echo "*************************************"
 
 echo "$(date) - ############### Script Complete #############"

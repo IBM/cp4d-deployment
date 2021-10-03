@@ -2,12 +2,6 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"assembly": {
-			"type": "string",
-			"metadata": {
-				"description": "CloudPak assembly to install"
-			}
-		},
 		"cloudPakDeploymentScriptUrl": {
 			"type": "string",
 			"metadata": {

@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -53,7 +55,7 @@ metadata:
     app.kubernetes.io/name: ibm-watson-openscale-operator
   namespace: $OPERATORNAMESPACE
 spec:
-  channel: alpha
+  channel: $CHANNEL
   installPlanApproval: Automatic
   name: ibm-cpd-wos
   source: ibm-operator-catalog
@@ -69,7 +71,7 @@ metadata:
 spec:
   scaleConfig: small
   storageClass: \"$STORAGECLASS_VALUE\"
-  version: 4.0.0
+  version: $VERSION
   type: service
   license:
     accept: true
@@ -79,8 +81,8 @@ EOF"
 ## Creating Subscription 
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-wos-sub.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 5m' "
-runuser -l $SUDOUSER -c "sleep 5m"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+runuser -l $SUDOUSER -c "sleep 2m"
 
 # Check ibm-cpd-wos-operator pod status
 
@@ -117,7 +119,7 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120 
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then

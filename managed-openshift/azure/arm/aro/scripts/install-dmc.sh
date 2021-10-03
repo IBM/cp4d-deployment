@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -38,54 +40,19 @@ elif [[ $STORAGEOPTION == "ocs" ]];then
     export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
 fi
 
-# dmc operator and CR creation 
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dmc-catalogsource.yaml <<EOF
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dmc-sub.yaml <<
 apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
+kind: Subscription
 metadata:
-  name: ibm-cloud-databases-redis-operator-catalog
-  namespace: openshift-marketplace
+  name: ibm-dmc-operator-subscription
+  namespace: $OPERATORNAMESPACE
 spec:
-  displayName: ibm-cloud-databases-redis-operator-catalog
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-cloud-databases-redis-catalog@sha256:980e4182ec20a01a93f3c18310e0aa5346dc299c551bd8aca070ddf2a5bf9ca5
-  updateStrategy:
-    registryPoll:
-      interval: 45m
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-dmc-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: ibm-dmc-operator-catalog
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-dmc-operator-catalog@sha256:a3a395ffec07b3f426718aed54ec164badfd55a7445c29f317da242409ae5d00
-  updateStrategy:
-    registryPoll:
-      interval: 45m
+  channel: $CHANNEL
+  installPlanApproval: Automatic
+  name: ibm-dmc-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
 EOF"
-
-# Download dmc case package. 
-runuser -l $SUDOUSER -c "wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dmc-4.0.0.tgz -P $CPDTEMPLATES -A 'ibm-dmc-4.0.0.tgz'"
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dmc-catalogsource.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping 2m for catalogsource to be created'"
-runuser -l $SUDOUSER -c "sleep 2m"
-
-runuser -l $SUDOUSER -c "cloudctl case launch  \
-    --case $CPDTEMPLATES/ibm-dmc-4.0.0.tgz     \
-    --namespace $OPERATORNAMESPACE             \
-    --inventory dmcOperatorSetup               \
-    --action installOperator                   \
-    --tolerance=1"
-
-runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
-runuser -l $SUDOUSER -c "sleep 2m"
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dmc-cr.yaml <<EOF
 apiVersion: dmc.databases.ibm.com/v1
@@ -97,11 +64,17 @@ spec:
   namespace: $CPDNAMESPACE
   storageClass: $STORAGECLASS_VALUE
   pullPrefix: cp.icr.io/cp/cpd
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   license:
     accept: true
     license: Standard 
 EOF"
+
+## Creating Subscription 
+
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dmc-sub.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 5m' "
+runuser -l $SUDOUSER -c "sleep 5m"
 
 # Check ibm-cpd-ae-operator pod status
 
@@ -138,7 +111,7 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then

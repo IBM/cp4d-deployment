@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -32,28 +34,6 @@ var=$?
 echo "exit code: $var"
 done
 
-# Datarefinery Catalog source 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dr-catalogsource.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-cpd-datarefinery-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-cpd-datarefinery-operator-catalog@sha256:27c6b458244a7c8d12da72a18811d797a1bef19dadf84b38cedf6461fe53643a
-  imagePullPolicy: Always
-  displayName: Cloud Pak for Data IBM DataRefinery
-  publisher: IBM
-EOF"
-
-# Create CCS and DR catalog source. 
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dr-catalogsource.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
-runuser -l $SUDOUSER -c "sleep 1m"
-
-
 # WOS subscription and CR creation 
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wsl-sub.yaml <<EOF
@@ -64,7 +44,7 @@ metadata:
   name: ibm-cpd-ws-operator-catalog
   namespace: $OPERATORNAMESPACE
 spec:
-  channel: v2.0
+  channel: $CHANNEL
   installPlanApproval: Automatic
   name: ibm-cpd-wsl
   source: ibm-operator-catalog
@@ -77,7 +57,7 @@ kind: WS
 metadata:
   name: ws-cr
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   size: \"small\"
   storageClass: \"ocs-storagecluster-cephfs\"
   storageVendor: \"ocs\"
@@ -93,7 +73,7 @@ kind: WS
 metadata:
   name: ws-cr
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   size: \"small\"
   storageClass: \"nfs\"
   license:
@@ -150,7 +130,7 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120 
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then

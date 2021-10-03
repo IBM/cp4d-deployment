@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -54,7 +56,7 @@ metadata:
   name: ibm-cpd-ae-operator-subscription
   namespace: $OPERATORNAMESPACE
 spec:
-    channel: stable-v1
+    channel: $CHANNEL
     installPlanApproval: Automatic
     name: analyticsengine-operator
     source: ibm-operator-catalog
@@ -73,7 +75,7 @@ metadata:
     app.kubernetes.io/name: ibm-analyticsengine-operator
     build: 4.0.0
 spec:
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   storageClass: $STORAGECLASS_VALUE
   license:
     accept: true
@@ -82,8 +84,8 @@ EOF"
 ## Creating Subscription 
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-spark-sub.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 5m' "
-runuser -l $SUDOUSER -c "sleep 5m"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+runuser -l $SUDOUSER -c "sleep 2m"
 
 # Check ibm-cpd-ae-operator pod status
 

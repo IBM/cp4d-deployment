@@ -121,14 +121,14 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then
         echo "**********************************"
         echo "$CRNAME Installation Failed!!!!"
         echo "**********************************"
-        exit
+        exit 1
     fi
 done 
 echo "*************************************"

@@ -37,52 +37,53 @@ var=$?
 echo "exit code: $var"
 done
 
-# db2aaservice operator and CR creation 
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2aaservice-sub.yaml <<EOF
+if [[ $STORAGEOPTION == "nfs" ]];then 
+    export STORAGECLASS_VALUE="nfs"
+elif [[ $STORAGEOPTION == "ocs" ]];then 
+    export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+fi
+
+# dr operator and CR creation 
+
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dr-sub.yaml <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-db2aaservice-cp4d-operator
+  name: ibm-cpd-datarefinery
   namespace: $OPERATORNAMESPACE
 spec:
   channel: $CHANNEL
-  name: ibm-db2aaservice-cp4d-operator
+  name: ibm-cpd-datarefinery
   installPlanApproval: Automatic
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF"
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2aaservice-cr.yaml <<EOF
-apiVersion: databases.cpd.ibm.com/v1
-kind: Db2aaserviceService
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dr-cr.yaml <<EOF
+apiVersion: datarefinery.cpd.ibm.com/v1beta1
+kind: DataRefinery
 metadata:
-  name: db2aaservice-cr
+  name: datarefinery-sample
   namespace: $CPDNAMESPACE
 spec:
+  docker_registry_prefix: cp.icr.io/cp/cpd
+  ignoreForMaintenance: false
   license:
     accept: true
-    license: \"Enterprise\"
+    license: Standard
+  scaleConfig: small
+  storageClass: $STORAGECLASS_VALUE
+  storageVendor: ocs
 EOF"
 
 # Create Catalogsource and subscription. 
 
-#runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2aaservice-catalogsource.yaml"
-#runuser -l $SUDOUSER -c "echo 'Sleeping 2m for catalogsource to be created'"
-#runuser -l $SUDOUSER -c "sleep 2m"
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2aaservice-sub.yaml"
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dr-sub.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for sub to be created'"
 runuser -l $SUDOUSER -c "sleep 2m"
 
-runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
-runuser -l $SUDOUSER -c "sleep 2m"
-
-
-
-# Check ibm-db2aaservice-cp4d-operator-controller-manager pod status
-
-podname="ibm-db2aaservice-cp4d-operator-controller-manager"
+podname="ibm-cpd-datarefinery-operator"
 name_space=$OPERATORNAMESPACE
 status="unknown"
 while [ "$status" != "Running" ]
@@ -101,15 +102,15 @@ do
   echo "$pod_name is $status"
 done
 
-## Creating ibm-db2aaservice cr
+## Creating ibm-dr cr
 
-runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibm-db2aaservice-cr.yaml"
+runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibm-dr-cr.yaml"
 
 # Check CR Status
 
-SERVICE="Db2aaserviceService"
-CRNAME="db2aaservice-cr"
-SERVICE_STATUS="db2aaserviceStatus"
+SERVICE="DataRefinery"
+CRNAME="datarefinery-sample"
+SERVICE_STATUS="datarefineryStatus"
 
 STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
 

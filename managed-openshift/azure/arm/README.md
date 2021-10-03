@@ -129,6 +129,13 @@ You can browse the various services that are available for use by navigating to 
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html)
 
+## Delete the Cluster
+
+```
+az aro delete --resource-group <resource_group> --name <cluster_name> --yes
+az group delete -n <resource_group> --yes
+```
+
 ## Troubleshoot 
 
 ### Insufficient CPU/Memory (Scale Up the cluster)

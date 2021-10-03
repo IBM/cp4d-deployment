@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -x
+
 yum update --disablerepo=* --enablerepo="*microsoft*"
 yum install -y nfs-utils
 yum install -y rpcbind
@@ -11,7 +14,7 @@ echo "/exports/home *(rw,sync,subtree_check,no_root_squash)" >> /etc/exports
 mkfs.xfs /dev/sdb
 sleep 10
 mount /dev/sdb /exports/home
-chown -R nfsnobody:nfsnobody /exports/home
+#chown -R nfsnobody:nfsnobody /exports/home
 chmod -R 777 /exports/home
 exportfs -a
 firewall-cmd --permanent --add-service=mountd

@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -23,6 +25,13 @@ else
 export SUBURL="${DOMAINNAME}.${LOCATION}.aroapp.io"
 fi
 
+
+if [[ $STORAGEOPTION == "nfs" ]];then 
+    export STORAGECLASS_VALUE="nfs"
+elif [[ $STORAGEOPTION == "ocs" ]];then 
+    export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+fi
+
 #Login
 var=1
 while [ $var -ne 0 ]; do
@@ -32,31 +41,58 @@ var=$?
 echo "exit code: $var"
 done
 
-# DV operator and CR creation 
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dmc-operator-catalogsource.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-dmc-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: \"IBM DMC Operator Catalog\" 
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF"
 
-# Download DV case package. 
 
-runuser -l $SUDOUSER -c "wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-dv-case/1.7.0/ibm-dv-case-1.7.0.tgz -P $CPDTEMPLATES -A 'ibm-dv-case-1.7.0.tgz'"
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dv-sub.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-dv-operator-subscription
+  namespace: $OPERATORNAMESPACE
+spec:
+    channel: $CHANNEL
+    installPlanApproval: Automatic
+    name: ibm-dv-operator
+    source: ibm-operator-catalog
+    sourceNamespace: openshift-marketplace
+EOF"
 
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dv-case-1.7.0.tgz --namespace openshift-marketplace --action installCatalog --inventory dv --tolerance 1
-${self.triggers.cpd_workspace}/cloudctl case launch --case ${self.triggers.cpd_workspace}/ibm-dv-case-1.7.0.tgz --namespace ${local.operator_namespace} --action installOperator --inventory dv --tolerance 1
-bash cpd/scripts/pod-status-check.sh ibm-dv-operator ${local.operator_namespace}
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dv-cr.yaml <<EOF
+apiVersion: db2u.databases.ibm.com/v1
+kind: DvService
+metadata:
+  name: dv-service-cr
+  namespace: $CPDNAMESPACE
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  version: \"$VERSION\"
+  storageClass: $STORAGECLASS_VALUE
+  docker_registry_prefix: cp.icr.io/cp/cpd
+EOF"
 
-runuser -l $SUDOUSER -c "cloudctl case launch  \
-    --case $CPDTEMPLATES/ibm-dv-case-1.7.0.tgz     \
-    --namespace openshift-marketplace             \
-    --inventory dv               \
-    --action installCatalog                   \
-    --tolerance=1"
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dmc-operator-catalogsource.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+runuser -l $SUDOUSER -c "sleep 1m"
 
-runuser -l $SUDOUSER -c "cloudctl case launch      \
-    --case $CPDTEMPLATES/ibm-dv-case-1.7.0.tgz     \
-    --namespace $OPERATORNAMESPACE                 \
-    --inventory dv                                 \
-    --action installOperator                       \
-    --tolerance=1"
-
-runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-dv-sub.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
 runuser -l $SUDOUSER -c "sleep 2m"
 
 # Check ibm-dv-operator pod status
@@ -82,25 +118,20 @@ done
 
 ## Creating ibm-DV cr
 
-runuser -l $SUDOUSER -c "cloudctl case launch      \
-    --case $CPDTEMPLATES/ibm-dv-case-1.7.0.tgz     \
-    --namespace $CPDNAMESPACE                      \
-    --inventory dv                                 \
-    --action applyCustomResources                  \
-    --tolerance=1"
+runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibm-dv-cr.yaml"
 
 
 # Check CR Status
 
 SERVICE="dvservice"
-CRNAME="dv-service"
+CRNAME="dv-service-cr"
 SERVICE_STATUS="reconcileStatus"
 
 STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then

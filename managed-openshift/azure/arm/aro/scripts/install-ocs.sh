@@ -361,18 +361,24 @@ echo "exit code: $var"
 done
 
 #OCS Operator will install its components only on nodes labelled for OCS with the key
-#OCS_NODES=$(oc get nodes --show-labels | grep node-role.kubernetes.io/worker= |cut -d' ' -f1)
-#for ocsnode in ${OCS_NODES[@]}; do
-#oc label nodes $ocsnode cluster.ocs.openshift.io/openshift-storage=''
+OCS_NODE_1=$(oc get nodes --show-labels | grep node-role.kubernetes.io/worker= | grep topology.kubernetes.io/zone=${REGION}-1 | head -n 1 | cut -d' ' -f1)
+oc label node $OCS_NODE_1 cluster.ocs.openshift.io/openshift-storage=''
+oc adm taint node $OCS_NODE_1 node.ocs.openshift.io/storage=true:NoSchedule
+OCS_NODE_2=$(oc get nodes --show-labels | grep node-role.kubernetes.io/worker= | grep topology.kubernetes.io/zone=${REGION}-2 | head -n 1 | cut -d' ' -f1)
+oc label node $OCS_NODE_2 cluster.ocs.openshift.io/openshift-storage=''
+oc adm taint node $OCS_NODE_2 node.ocs.openshift.io/storage=true:NoSchedule
+OCS_NODE_3=$(oc get nodes --show-labels | grep node-role.kubernetes.io/worker= | grep topology.kubernetes.io/zone=${REGION}-3 | head -n 1 | cut -d' ' -f1)
+oc label node $OCS_NODE_3 cluster.ocs.openshift.io/openshift-storage=''
+oc adm taint node $OCS_NODE_3 node.ocs.openshift.io/storage=true:NoSchedule
 #done
 
 runuser -l $SUDOUSER -c "oc login https://api.${SUBURL}:6443 -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD --insecure-skip-tls-verify=true"
 
 CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}')
-runuser -l $SUDOUSER -c "sed -i -e s/CLUSTERID/$CLUSTERID/g $OCSTEMPLATES/ocs-machineset-multizone.yaml"
-runuser -l $SUDOUSER -c "oc create -f $OCSTEMPLATES/ocs-machineset-multizone.yaml"
-runuser -l $SUDOUSER -c "echo sleeping for 10mins until the node comes up"
-runuser -l $SUDOUSER -c "sleep 600"
+#runuser -l $SUDOUSER -c "sed -i -e s/CLUSTERID/$CLUSTERID/g $OCSTEMPLATES/ocs-machineset-multizone.yaml"
+#runuser -l $SUDOUSER -c "oc create -f $OCSTEMPLATES/ocs-machineset-multizone.yaml"
+#runuser -l $SUDOUSER -c "echo sleeping for 10mins until the node comes up"
+#runuser -l $SUDOUSER -c "sleep 600"
 
 runuser -l $SUDOUSER -c "oc create -f $OCSTEMPLATES/ocs-olm.yaml"
 runuser -l $SUDOUSER -c "echo sleeping for 5mins"

@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -42,15 +44,23 @@ fi
 
 # CDE operator and CR creation 
 
-# Download cde case package. 
-runuser -l $SUDOUSER -c "wget https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case/ibm-cde-2.0.0.tgz -P $CPDTEMPLATES -A 'ibm-cde-2.0.0.tgz'"
-
-runuser -l $SUDOUSER -c "cloudctl case launch  \
-    --case $CPDTEMPLATES/ibm-cde-2.0.0.tgz     \
-    --namespace $OPERATORNAMESPACE             \
-    --inventory cdeOperatorSetup               \
-    --action installOperator                   \
-    --tolerance=1"
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-cde-sub.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cde-operator-subscription
+    app.kubernetes.io/managed-by: ibm-cde-operator
+    app.kubernetes.io/name: ibm-cde-operator-subscription
+  name: ibm-cde-operator-subscription
+  namespace: $OPERATORNAMESPACE
+spec:
+  channel: $CHANNEL
+  installPlanApproval: Automatic
+  name: ibm-cde-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF"
 
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"
@@ -62,7 +72,7 @@ metadata:
   name: cde-cr
   namespace: $CPDNAMESPACE
 spec:
-  version: 4.0.0
+  version: $VERSION
   size: \"small\"
   namespace: \"$CPDNAMESPACE\"
   storageClass: \"$STORAGECLASS_VALUE\"

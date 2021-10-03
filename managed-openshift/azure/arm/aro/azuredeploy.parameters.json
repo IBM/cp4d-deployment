@@ -28,6 +28,12 @@
         "aadClientSecret": {
             "value": "specify azure client secret or password here"
         },
+        "workerInstanceCount": {
+          "value": "specify worker count"
+        },
+        "storageOption": {
+          "value": "specify nfs or ocs"
+        },
         "cloudPakLicenseAgreement": {
           "value": "accept"
         },

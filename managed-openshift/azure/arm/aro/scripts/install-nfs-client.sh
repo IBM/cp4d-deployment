@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -x
+
 export SUDOUSER=$1
 export OPENSHIFTUSER=$2
 export OPENSHIFTPASSWORD=$3
@@ -96,7 +99,7 @@ objects:
           serviceAccountName: nfs-client-provisioner
           containers:
             - name: nfs-client-provisioner
-              image: quay.io/external_storage/nfs-client-provisioner:latest
+              image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
               volumeMounts:
                 - name: nfs-client-root
                   mountPath: /persistentvolumes

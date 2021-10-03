@@ -25,16 +25,13 @@ runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
 runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
 runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
 
-#runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_STORAGECLASS#$STORAGECLASS_VALUE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
-#runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_NAMESPACE#$CPDNAMESPACE#g $CPDTEMPLATES/ibmcpd-cr.yaml"
-
 #CPD Config
 
-runuser -l $SUDOUSER -c "wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz"
-runuser -l $SUDOUSER -c "https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz.sig -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz.sig"
-runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/bin"
-runuser -l $SUDOUSER -c "chmod +x /usr/bin/cloudctl-linux-amd64"
-runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
+# runuser -l $SUDOUSER -c "wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz"
+# runuser -l $SUDOUSER -c "https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz.sig -O $CPDTEMPLATES/cloudctl-linux-amd64.tar.gz.sig"
+# runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cloudctl-linux-amd64.tar.gz -C /usr/bin"
+# runuser -l $SUDOUSER -c "chmod +x /usr/bin/cloudctl-linux-amd64"
+# runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
@@ -99,6 +96,25 @@ spec:
   publisher: IBM
   sourceType: grpc
   image: icr.io/cpopen/ibm-operator-catalog:latest
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF"
+
+# DB2u subscription and operator creation 
+
+runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2u-cs.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-db2uoperator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Db2U Catalog
+  image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
+  imagePullPolicy: Always
+  publisher: IBM
+  sourceType: grpc
   updateStrategy:
     registryPoll:
       interval: 45m
@@ -172,6 +188,12 @@ runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-og.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
 runuser -l $SUDOUSER -c "sleep 1m"
 
+## Creating db2u CS 
+
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-cs.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+runuser -l $SUDOUSER -c "sleep 1m"
+
 
 # Creating CPD Platform operator subscription: 
 
@@ -232,7 +254,7 @@ spec:
 EOF"
 
 runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibmcpd-cr.yaml"
-
+sleep 240 
 
 # Check operand-deployment-lifecycle-manager pod status
 
@@ -266,14 +288,14 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120 
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then
         echo "**********************************"
         echo "$CRNAME Installation Failed!!!!"
         echo "**********************************"
-        exit
+        exit 1
     fi
 done 
 echo "*************************************"

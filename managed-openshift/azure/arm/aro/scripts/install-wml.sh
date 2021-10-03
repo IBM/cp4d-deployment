@@ -10,6 +10,8 @@ export OPENSHIFTUSER=$8
 export OPENSHIFTPASSWORD=$9
 export CUSTOMDOMAIN=$10
 export CLUSTERNAME=${11}
+export CHANNEL=${12}
+export VERSION=${13}
 
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
@@ -45,7 +47,7 @@ metadata:
   name: ibm-cpd-wml-operator
   namespace: $OPERATORNAMESPACE
 spec:
-    channel: alpha
+    channel: $CHANNEL
     installPlanApproval: Automatic
     name: ibm-cpd-wml-operator
     source: ibm-operator-catalog
@@ -69,7 +71,7 @@ spec:
   docker_registry_prefix: \"cp.icr.io/cp/cpd\"
   storageClass: ocs-storagecluster-cephfs
   storageVendor: ocs
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   license:
     accept: true
     license: \"Enterprise\"
@@ -91,7 +93,7 @@ spec:
   ignoreForMaintenance: false
   docker_registry_prefix: \"cp.icr.io/cp/cpd\"
   storageClass: nfs
-  version: \"4.0.0\"
+  version: \"$VERSION\"
   license:
     accept: true
     license: \"Enterprise\"
@@ -143,7 +145,7 @@ STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_
 
 while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
     echo "$CRNAME is Installing!!!!"
-    sleep 60 
+    sleep 120 
     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
     if [ "$STATUS" == "Failed" ]
     then
