@@ -193,6 +193,7 @@ while  [[ $SECONDS -lt $end && ! $STATUS =~ ^(Completed|Complete)$ ]]; do
         echo "**********************************"
         echo "$CRNAME Installation Failed!!!!"
         echo "**********************************"
+        exit 1
     fi
 done 
 echo "*************************************"

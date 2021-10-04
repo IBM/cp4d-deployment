@@ -124,7 +124,7 @@ while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
         echo "**********************************"
         echo "$CRNAME Installation Failed!!!!"
         echo "**********************************"
-        exit
+        exit 1
     fi
 done 
 echo "*************************************"
