@@ -1,0 +1,62 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+          "value": "specify unique cluster name here"
+        },
+        "adminUsername": {
+          "value": "core"
+        },
+        "apiKey": {
+            "value": "specify cpd registry apikey here"
+        },
+        "sshPublicKey": {
+            "value": "specify public ssh key here"
+        },
+        "pullSecret": {
+            "reference": {
+              "keyVault": {
+                  "id": "/subscriptions/<subscription id>/resourceGroups/<resource group name>/providers/Microsoft.KeyVault/vaults/<vault name>"
+              },
+              "secretName": "pullsecret"
+          }
+        },
+        "aadClientId": {
+            "value": "specify azure appId or client id here"
+        },
+        "aadClientSecret": {
+            "value": "specify azure client secret or password here"
+        },
+        "workerInstanceCount": {
+          "value": "specify worker count"
+        },
+        "storageOption": {
+          "value": "specify nfs or ocs"
+        },
+        "cloudPakLicenseAgreement": {
+          "value": "accept"
+        },
+        "installWatsonStudioLocal": {
+          "value": "no"
+        },
+        "installWatsonMachineLearning": {
+          "value": "no"
+        },
+        "installWatsonKnowledgeCatalog": {
+          "value": "no"
+        },
+        "installDataVirtualization": {
+          "value": "no"
+        },
+        "installCognosDashboard": {
+          "value": "no"
+        },
+        "installWatsonOpenscale": {
+          "value": "no"
+        },
+        "installApacheSpark": {
+          "value": "no"
+        }
+    }
+  }
