@@ -83,17 +83,6 @@ data "template_file" "htpasswd" {
   template = file("../openshift_module/auth.yaml")
 }
 
-data "template_file" "px-install" {
-  template = file("../portworx_module/px-install.yaml")
-}
-
-data "template_file" "px-storageclasses" {
-  template = file("../portworx_module/px-storageclasses.yaml")
-}
-
-data "template_file" "px-storageclasses-secure" {
-  template = file("../portworx_module/px-storageclasses-secure.yaml")
-}
 data "template_file" "nfs-template" {
   count    = var.storage == "nfs" ? 1 : 0
   template = file("../nfs_module/nfs-template.tpl.yaml")
