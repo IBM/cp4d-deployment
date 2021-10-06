@@ -10,7 +10,7 @@ This deployment guide provides step-by-step instructions for deploying IBM Cloud
 This reference deployment provides ARM templates to deploy Azure ARO Cluster with cloupak for data installation.
 
  - A Azure ARO cluster.
- - A highly available storage infrastructure with NFS or OpenShift Container Storage.
+ - A highly available storage infrastructure with OpenShift Container Storage.
  - Scalable OpenShift compute nodes running Cloud Pak for Data services. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
  
  Note: ARO at this time provisions OpenShift Container Platform v4.8.x. This may be changed when new versions are released. See support lifecycle [here](https://docs.microsoft.com/en-us/azure/openshift/support-lifecycle)
@@ -123,11 +123,8 @@ As part of the deployment, the following services can be enabled:
  - Watson Openscale
  - Cognos Dashboard
  - Apache Spark
-You can browse the various services that are available for use by navigating to the services catalog page in Cloud Pak for Data
-
-![Alt text](images/services.png?raw=true "parameters2")
-
-
+ 
+You can browse the various services that are available for use by navigating to the services catalog page in Cloud Pak for Data.
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html)
 
@@ -138,7 +135,7 @@ az aro delete --resource-group <resource_group> --name <cluster_name> --yes
 az group delete -n <resource_group> --yes
 ```
 
-## Troubleshoot 
+## Troubleshooting
 
 ### Insufficient CPU/Memory (Scale Up the cluster)
 **Switch to `openshift-machine-api` namespace:**
