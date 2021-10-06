@@ -491,6 +491,6 @@ variable "planning_analytics" {
   default = {
     enable   = "no"
     version  = "4.0.2"
-    channel  = "v1.0"
+    channel  = "v4.0"
   }
 }
