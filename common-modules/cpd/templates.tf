@@ -534,12 +534,12 @@ data "template_file" "ds_sub" {
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-datastage-operator
+  name: ibm-cpd-datastage-operator-subscription
   namespace: ${local.operator_namespace}
-spec: 
+spec:
   channel: ${var.datastage.channel}
-  installPlanApproval: Automatic 
-  name: ibm-datastage-operator
+  installPlanApproval: Automatic
+  name: ibm-cpd-datastage-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
@@ -547,8 +547,8 @@ EOF
 
 data "template_file" "ds_cr" {
   template = <<EOF
-apiVersion: dfd.cpd.ibm.com/v1alpha1
-kind: DataStageService
+apiVersion: ds.cpd.ibm.com/v1alpha1
+kind: DataStage
 metadata:
   name: datastage-cr
   namespace: ${var.cpd_namespace}
@@ -556,7 +556,6 @@ spec:
   license:
     accept: true
     license: Enterprise
-  scaleConfig: small
   version: ${var.datastage.version}
 EOF
 }

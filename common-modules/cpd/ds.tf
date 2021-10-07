@@ -46,13 +46,13 @@ bash cpd/scripts/check-cr-status.sh IIS iis-cr ${var.cpd_namespace} iisStatus; i
 echo 'Create Datastage sub'
 oc apply -f ${self.triggers.cpd_workspace}/ds_sub.yaml
 sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-datastage-operator ${local.operator_namespace}
+bash cpd/scripts/pod-status-check.sh ibm-cpd-datastage-operator ${local.operator_namespace}
 
 echo 'Create Datastage CR'
 oc apply -f ${self.triggers.cpd_workspace}/ds_cr.yaml
 
 echo 'check the Datastage cr status'
-bash cpd/scripts/check-cr-status.sh datastageservice datastage-cr ${var.cpd_namespace} dsStatus
+bash cpd/scripts/check-cr-status.sh datastage datastage-cr ${var.cpd_namespace} dsStatus
 EOF
   }
   depends_on = [
