@@ -675,6 +675,44 @@ spec:
 EOF
 }
 
+#BIGSQL
+data "template_file" "bigsql_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-bigsql-operator-catalog-subscription
+  namespace: ${local.operator_namespace}
+spec:   
+  channel: ${var.bigsql.channel}
+  installPlanApproval: Automatic
+  name: ibm-bigsql-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "bigsql_cr" {
+  template = <<EOF
+apiVersion: db2u.databases.ibm.com/v1
+kind: BigsqlService
+metadata:
+  name: bigsql-service-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}    # Replace with the project where you will install Db2 Big SQL
+labels:
+  app.kubernetes.io/component: operator
+  app.kubernetes.io/instance: db2-bigsql
+  app.kubernetes.io/managed-by: ibm-bigsql-operator
+  app.kubernetes.io/name: db2-bigsql
+spec:
+  license:
+    accept: true
+    license: Enterprise    # Specify the license you purchased
+  version: ${var.bigsql.version}
+  storageClass: ${local.storage_class}     # See the guidance in "Information you need to complete this task"
+EOF
+}
+
 #DMC
 data "template_file" "dmc_sub" {
   template = <<EOF
