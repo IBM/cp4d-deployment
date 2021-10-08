@@ -30,6 +30,7 @@ module "cpd" {
   master_data_management       = var.master_data_management
   db2_aaservice                = var.db2_aaservice
   decision_optimization        = var.decision_optimization
+  bigsql                       = var.bigsql
   cluster_type                 = var.cluster_type
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes

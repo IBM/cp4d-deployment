@@ -43,6 +43,7 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
+  bigsql                    = var.bigsql
   cluster_type              = "selfmanaged"
   login_string              = "oc login ${var.openshift_api} -u ${var.openshift-username} -p ${var.openshift-password} --insecure-skip-tls-verify=true"
 
