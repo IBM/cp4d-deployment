@@ -557,7 +557,6 @@ spec:
     accept: true
     license: Enterprise
   version: ${var.datastage.version}
-  storageClass: ${local.storage_class}
 EOF
 }
 
@@ -603,6 +602,25 @@ EOF
 }
 
 #CA
+data "template_file" "ibm_cpd_ccs_operator_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cpd-ccs-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: "IBM CPD CCS Operator Catalog"
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  imagePullPolicy: IfNotPresent
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "ca_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -641,6 +659,25 @@ EOF
 }
 
 #DV
+data "template_file" "ibm_dmc_operator_catalog_source" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-dmc-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: "IBM DMC Operator Catalog"
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  imagePullPolicy: IfNotPresent
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 
 data "template_file" "dv_sub" {
   template = <<EOF
@@ -808,7 +845,8 @@ spec:
 EOF
 }
 
-data "template_file" "mdm_cr" {
+
+data "template_file" "mdm_ocs_cr" {
   template = <<EOF
 apiVersion: mdm.cpd.ibm.com/v1
 kind: MasterDataManagement
@@ -823,6 +861,24 @@ spec:
     storageClass: "${local.storage_class}"     # See the guidance in "Information you need to complete this task"
   shared_persistence:     # Include this for OCS storage
     storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+  wkc:
+    enabled: true     # Include this if you have installed Watson Knowledge Catalog
+EOF
+}
+
+data "template_file" "mdm_cr" {
+  template = <<EOF
+apiVersion: mdm.cpd.ibm.com/v1
+kind: MasterDataManagement
+metadata:
+  name: mdm-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}   # Replace with the project where you will install IBM Match 360 with Watson
+spec:
+  license:
+    accept: true
+    license: Enterprise     # Specify the license you purchased
+  persistence:
+    storage_class: ${local.storage_class}   # See the guidance in "Information you need to complete this task"
   wkc:
     enabled: true     # Include this if you have installed Watson Knowledge Catalog
 EOF
