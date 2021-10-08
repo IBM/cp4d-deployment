@@ -28,7 +28,9 @@ db2_oltp                  = { "enable" : "no", "version" : "4.0.2", "channel" : 
 cognos_analytics          = { "enable" : "no", "version" : "4.0.2", "channel" : "v4.0" }
 master_data_management    = { "enable" : "no", "version" : "4.0.2", "channel" : "v1.1" }
 decision_optimization     = { "enable" : "no", "version" : "4.0.2", "channel" : "v4.0" }
-planning_analytics        = {"enable":"no",  "version":"4.0.2", "channel":"v4.0"}
+planning_analytics        = { "enable" : "no", "version" : "4.0.2", "channel" : "v4.0" }
+bigsql                    = { "enable" : "no", "version" : "7.2.2", "channel" : "v7.2" }
+
 
 
 ##################################################################### DEFAULTS ##################################################################

@@ -494,3 +494,12 @@ variable "planning_analytics" {
     channel  = "v4.0"
   }
 }
+
+variable "bigsql" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "7.2.2"
+    channel  = "v7.2"
+  }
+}

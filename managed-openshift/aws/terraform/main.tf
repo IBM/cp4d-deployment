@@ -164,6 +164,8 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
+  planning_analytics        = var.planning_analytics
+  bigsql                    = var.bigsql
   cluster_type              = local.cluster_type
   login_string              = "${local.login_cmd} --insecure-skip-tls-verify=true"
   
