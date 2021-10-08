@@ -220,6 +220,7 @@ module "cpd" {
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
   planning_analytics        = var.planning_analytics
+  bigsql                    = var.bigsql
   cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
 
