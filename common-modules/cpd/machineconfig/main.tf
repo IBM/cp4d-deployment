@@ -66,7 +66,7 @@ resource "null_resource" "patch_config_managed" {
 echo "Patch configuration self"
 oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
 oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
-oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
+oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl --overwrite
 EOF
   }
   depends_on = [
