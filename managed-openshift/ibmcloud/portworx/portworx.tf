@@ -1,7 +1,13 @@
 provider "kubernetes" {
   config_path = var.kube_config_path
 }
-
+terraform {
+  required_providers {
+    ibm = {
+      source = "ibm-cloud/ibm"
+    }
+  }
+}
 ##################################################
 # Create and attach block storage to worker nodes
 ##################################################
@@ -68,20 +74,20 @@ resource "null_resource" "volume_attachment" {
 
   # this breaks beyond terraform 0.12 because destroy provisioners are not allowed to reference other resources
   # check with ibm terraform providers team for a volume_attachment resource
-  provisioner "local-exec" {
-    when = destroy
-    environment = {
-      TOKEN             = data.ibm_iam_auth_token.this.iam_access_token
-      REGION            = var.region
-      RESOURCE_GROUP_ID = var.resource_group_id
-      CLUSTER_ID        = var.cluster_id
-      WORKER_ID         = data.ibm_container_vpc_cluster_worker.this[count.index].id
-      VOLUME_ID         = ibm_is_volume.this[count.index].id
-    }
+  # provisioner "local-exec" {
+  #   when = destroy
+  #   environment = {
+  #     TOKEN             = data.ibm_iam_auth_token.this.iam_access_token
+  #     REGION            = var.region
+  #     RESOURCE_GROUP_ID = var.resource_group_id
+  #     CLUSTER_ID        = var.cluster_id
+  #     WORKER_ID         = data.ibm_container_vpc_cluster_worker.this[count.index].id
+  #     VOLUME_ID         = ibm_is_volume.this[count.index].id
+  #   }
   
-    interpreter = ["/bin/bash", "-c"]
-    command     = file("${path.module}/scripts/volume_attachment_destroy.sh")
-  }
+  #   interpreter = ["/bin/bash", "-c"]
+  #   command     = file("${path.module}/scripts/volume_attachment_destroy.sh")
+  # }
 }
 
 #############################################

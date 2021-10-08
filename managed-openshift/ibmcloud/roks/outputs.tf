@@ -10,3 +10,11 @@ output "ingress_hostname" {
 output "kube_config_path" {
   value = data.ibm_container_cluster_config.this.config_file_path
 }
+
+output "openshift_token" {
+  value = data.ibm_container_cluster_config.this.token
+}
+
+output "openshift_api" {
+  value = data.ibm_container_cluster_config.this.host
+}

@@ -96,6 +96,32 @@ resource "local_file" "db2u_catalog_yaml" {
   filename = "${local.cpd_workspace}/db2u_catalog.yaml"
 }
 
+resource "null_resource" "node_check" {
+  triggers = {
+    namespace     = var.cpd_namespace
+    cpd_workspace = local.cpd_workspace
+  }
+  #adding a negative check for managed-ibm as it doesn't support machine config 
+  #so that this block runs for all other stack except ibmcloud
+  count = var.cluster_type != "managed-ibm" ? 1 : 0
+  provisioner "local-exec" {
+    command = <<-EOF
+echo "Ensure the nodes are running"
+bash cpd/scripts/nodes_running.sh
+EOF
+  }
+  depends_on = [
+    module.machineconfig,
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
+    local_file.ibmcpd_cr_yaml,
+    local_file.operand_requests_yaml,
+    local_file.cpd_operator_yaml,
+    local_file.ibm_operator_catalog_source_yaml,
+    local_file.db2u_catalog_yaml,
+  ]
+}
+
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -104,8 +130,6 @@ resource "null_resource" "cpd_foundational_services" {
 
   provisioner "local-exec" {
     command = <<-EOF
-echo "Ensure the nodes are running"
-bash cpd/scripts/nodes_running.sh
 
 echo "Create Operator Catalog Source"
 oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
@@ -158,6 +182,7 @@ EOF
     local_file.cpd_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
+    null_resource.node_check,
   ]
 }
 
