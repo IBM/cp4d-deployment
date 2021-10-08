@@ -534,12 +534,12 @@ data "template_file" "ds_sub" {
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-datastage-operator
+  name: ibm-cpd-datastage-operator-subscription
   namespace: ${local.operator_namespace}
-spec: 
+spec:
   channel: ${var.datastage.channel}
-  installPlanApproval: Automatic 
-  name: ibm-datastage-operator
+  installPlanApproval: Automatic
+  name: ibm-cpd-datastage-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
@@ -547,8 +547,8 @@ EOF
 
 data "template_file" "ds_cr" {
   template = <<EOF
-apiVersion: dfd.cpd.ibm.com/v1alpha1
-kind: DataStageService
+apiVersion: ds.cpd.ibm.com/v1alpha1
+kind: DataStage
 metadata:
   name: datastage-cr
   namespace: ${var.cpd_namespace}
@@ -556,8 +556,8 @@ spec:
   license:
     accept: true
     license: Enterprise
-  scaleConfig: small
   version: ${var.datastage.version}
+  storageClass: ${local.storage_class}
 EOF
 }
 
@@ -603,25 +603,6 @@ EOF
 }
 
 #CA
-data "template_file" "ibm_cpd_ccs_operator_catalog" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-cpd-ccs-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM CPD CCS Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
 data "template_file" "ca_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -660,25 +641,6 @@ EOF
 }
 
 #DV
-data "template_file" "ibm_dmc_operator_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-dmc-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM DMC Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
 
 data "template_file" "dv_sub" {
   template = <<EOF
@@ -710,6 +672,44 @@ spec:
   version: ${var.data_virtualization.version}
   size: "small"
   docker_registry_prefix: cp.icr.io/cp/cpd
+EOF
+}
+
+#BIGSQL
+data "template_file" "bigsql_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-bigsql-operator-catalog-subscription
+  namespace: ${local.operator_namespace}
+spec:   
+  channel: ${var.bigsql.channel}
+  installPlanApproval: Automatic
+  name: ibm-bigsql-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "bigsql_cr" {
+  template = <<EOF
+apiVersion: db2u.databases.ibm.com/v1
+kind: BigsqlService
+metadata:
+  name: bigsql-service-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}    # Replace with the project where you will install Db2 Big SQL
+labels:
+  app.kubernetes.io/component: operator
+  app.kubernetes.io/instance: db2-bigsql
+  app.kubernetes.io/managed-by: ibm-bigsql-operator
+  app.kubernetes.io/name: db2-bigsql
+spec:
+  license:
+    accept: true
+    license: Enterprise    # Specify the license you purchased
+  version: ${var.bigsql.version}
+  storageClass: ${local.storage_class}     # See the guidance in "Information you need to complete this task"
 EOF
 }
 
