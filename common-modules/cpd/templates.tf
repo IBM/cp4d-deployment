@@ -557,7 +557,7 @@ spec:
     accept: true
     license: Enterprise
   version: ${var.datastage.version}
-  storageClass: ${local.storage_class}
+  storage_class: "${local.storage_class}"
 EOF
 }
 
@@ -603,6 +603,7 @@ EOF
 }
 
 #CA
+
 data "template_file" "ca_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -808,7 +809,8 @@ spec:
 EOF
 }
 
-data "template_file" "mdm_cr" {
+
+data "template_file" "mdm_ocs_cr" {
   template = <<EOF
 apiVersion: mdm.cpd.ibm.com/v1
 kind: MasterDataManagement
@@ -823,6 +825,24 @@ spec:
     storageClass: "${local.storage_class}"     # See the guidance in "Information you need to complete this task"
   shared_persistence:     # Include this for OCS storage
     storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+  wkc:
+    enabled: true     # Include this if you have installed Watson Knowledge Catalog
+EOF
+}
+
+data "template_file" "mdm_cr" {
+  template = <<EOF
+apiVersion: mdm.cpd.ibm.com/v1
+kind: MasterDataManagement
+metadata:
+  name: mdm-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}   # Replace with the project where you will install IBM Match 360 with Watson
+spec:
+  license:
+    accept: true
+    license: Enterprise     # Specify the license you purchased
+  persistence:
+    storage_class: ${local.storage_class}   # See the guidance in "Information you need to complete this task"
   wkc:
     enabled: true     # Include this if you have installed Watson Knowledge Catalog
 EOF
