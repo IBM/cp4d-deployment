@@ -557,6 +557,7 @@ spec:
     accept: true
     license: Enterprise
   version: ${var.datastage.version}
+  storage_class: "${local.storage_class}"
 EOF
 }
 
@@ -602,24 +603,6 @@ EOF
 }
 
 #CA
-data "template_file" "ibm_cpd_ccs_operator_catalog" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-cpd-ccs-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM CPD CCS Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
 
 data "template_file" "ca_sub" {
   template = <<EOF
