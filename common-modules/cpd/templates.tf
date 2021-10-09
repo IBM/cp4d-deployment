@@ -822,7 +822,8 @@ spec:
     accept: true
     license: Enterprise
   persistence:
-    storageClass: "${local.storage_class}"     # See the guidance in "Information you need to complete this task"
+    storageClass: "ocs-storagecluster-ceph-rbd"     # See the guidance in "Information you need to complete this task"
+    storage_vendor: "ocs"
   shared_persistence:     # Include this for OCS storage
     storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
   wkc:
