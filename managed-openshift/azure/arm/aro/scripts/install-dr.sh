@@ -50,7 +50,7 @@ runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-dr-sub.yaml <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-cpd-datarefinery
+  name: ibm-cpd-datarefinery-operator
   namespace: $OPERATORNAMESPACE
 spec:
   channel: $CHANNEL
