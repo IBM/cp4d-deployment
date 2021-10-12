@@ -557,7 +557,7 @@ spec:
     accept: true
     license: Enterprise
   version: ${var.datastage.version}
-  storage_class: "${local.storage_class}"
+  storageClass: "${local.storage_class}"
 EOF
 }
 
