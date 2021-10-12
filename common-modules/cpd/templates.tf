@@ -822,10 +822,10 @@ spec:
     accept: true
     license: Enterprise
   persistence:
-    storageClass: "ocs-storagecluster-ceph-rbd"     # See the guidance in "Information you need to complete this task"
+    storage_class: "ocs-storagecluster-ceph-rbd"     # See the guidance in "Information you need to complete this task"
     storage_vendor: "ocs"
   shared_persistence:     # Include this for OCS storage
-    storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+    storage_class: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
   wkc:
     enabled: true     # Include this if you have installed Watson Knowledge Catalog
 EOF
