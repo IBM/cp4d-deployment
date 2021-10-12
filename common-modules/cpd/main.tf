@@ -6,80 +6,35 @@ locals {
   db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
 }
 
-resource "local_file" "sysctl_machineconfig_yaml" {
-  content  = data.template_file.sysctl_machineconfig.rendered
-  filename = "${var.installer_workspace}/sysctl_machineconfig.yaml"
-}
-
-resource "local_file" "limits_machineconfig_yaml" {
-  content  = data.template_file.limits_machineconfig.rendered
-  filename = "${var.installer_workspace}/limits_machineconfig.yaml"
-}
-
-resource "local_file" "crio_machineconfig_yaml" {
-  content  = data.template_file.crio_machineconfig.rendered
-  filename = "${var.installer_workspace}/crio_machineconfig.yaml"
+module "machineconfig" {
+  source                       = "./machineconfig"
+  cpd_api_key                  = var.cpd_api_key
+  installer_workspace          = var.installer_workspace
+  cluster_type                 = var.cluster_type
+  openshift_api                = var.openshift_api
+  openshift_username           = var.openshift_username
+  openshift_password           = var.openshift_password
+  openshift_token              = var.openshift_token
+  login_string                 = var.login_string
+  configure_global_pull_secret = var.configure_global_pull_secret
+  configure_openshift_nodes    = var.configure_openshift_nodes
 }
 
 resource "null_resource" "login_cluster" {
   triggers = {
-    openshift_api      = var.openshift_api
-    openshift_username = var.openshift_username
-    openshift_password = var.openshift_password
-    login              = var.rosa_cluster ? "${var.login_cmd} --insecure-skip-tls-verify=true" : "oc login ${var.openshift_api} -u ${var.openshift_username} -p ${var.openshift_password} --insecure-skip-tls-verify=true"
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    login_string        = var.login_string
   }
   provisioner "local-exec" {
     command = <<EOF
-  ${self.triggers.login}
-EOF
-  }
-}
-
-resource "null_resource" "patch_config_self" {
-  count = var.rosa_cluster ? 0 : 1
-  provisioner "local-exec" {
-    command = <<EOF
-echo "Patch configuration self"
-oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
   depends_on = [
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
-    null_resource.login_cluster,
-  ]
-}
-
-resource "null_resource" "configure_cluster" {
-  triggers = {
-    installer_workspace = var.installer_workspace
-    cpd_workspace       = local.cpd_workspace
-  }
-  provisioner "local-exec" {
-    command = <<EOF
-echo "Configuring global pull secret"
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"${var.cpd_external_registry}":{"username":"${var.cpd_external_username}","password":"${var.cpd_api_key}"},|' > /tmp/dockerconfig.json
-oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
-
-echo "Sysctl changes"
-oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
-
-echo "Creating MachineConfig files"
-oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
-oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
-oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
-
-echo 'Sleeping for 5mins while MachineConfigs apply and the nodes restarts' 
-sleep 300
-EOF
-  }
-  depends_on = [
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
-    null_resource.login_cluster,
-    null_resource.patch_config_self
+    module.machineconfig,
   ]
 }
 
@@ -110,6 +65,10 @@ esac
 chmod u+x ${self.triggers.cpd_workspace}/cloudctl
 EOF
   }
+  depends_on = [
+    null_resource.login_cluster,
+    module.machineconfig,
+  ]
 }
 
 resource "local_file" "ibm_operator_catalog_source_yaml" {
@@ -137,6 +96,32 @@ resource "local_file" "db2u_catalog_yaml" {
   filename = "${local.cpd_workspace}/db2u_catalog.yaml"
 }
 
+resource "null_resource" "node_check" {
+  triggers = {
+    namespace     = var.cpd_namespace
+    cpd_workspace = local.cpd_workspace
+  }
+  #adding a negative check for managed-ibm as it doesn't support machine config 
+  #so that this block runs for all other stack except ibmcloud
+  count = var.cluster_type != "managed-ibm" ? 1 : 0
+  provisioner "local-exec" {
+    command = <<-EOF
+echo "Ensure the nodes are running"
+bash cpd/scripts/nodes_running.sh
+EOF
+  }
+  depends_on = [
+    module.machineconfig,
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
+    local_file.ibmcpd_cr_yaml,
+    local_file.operand_requests_yaml,
+    local_file.cpd_operator_yaml,
+    local_file.ibm_operator_catalog_source_yaml,
+    local_file.db2u_catalog_yaml,
+  ]
+}
+
 resource "null_resource" "cpd_foundational_services" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -145,8 +130,6 @@ resource "null_resource" "cpd_foundational_services" {
 
   provisioner "local-exec" {
     command = <<-EOF
-echo "Ensure the nodes are running"
-bash cpd/scripts/nodes_running.sh
 
 echo "Create Operator Catalog Source"
 oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
@@ -175,7 +158,7 @@ bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${loca
 echo "checking status of ibm-common-service-operator"
 bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
 
-echo "Create CPD CPD Platform CR"
+echo "Create CPD Platform CR"
 oc project ${self.triggers.namespace}
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
@@ -191,14 +174,15 @@ oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path
 EOF
   }
   depends_on = [
+    module.machineconfig,
+    null_resource.login_cluster,
+    null_resource.download_cloudctl,
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
     local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
-    null_resource.configure_cluster,
-    null_resource.login_cluster,
-    null_resource.patch_config_self
+    null_resource.node_check,
   ]
 }
 

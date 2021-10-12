@@ -23,13 +23,10 @@ variable "unique_id" {
 # Cloud Pak for Data license configuration
 ###########################################
 variable "accept_cpd_license" {
-  description = "I have read and agree to the license terms for IBM Cloud Pak for Data at https://ibm.biz/BdffBz [yes/no]"
-  
-  # validation {
-  #   condition = var.accept_cpd_license == "yes"
-  #   error_message = "You must read and agree to the license terms for IBM Cloud Pak for Data to proceed."
-  # }
+  description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
+  default     = "reject"
 }
+
 variable "cpd_registry_username" {
   default = "cp"
 }
@@ -43,39 +40,184 @@ variable "operator_namespace" {
   default = "ibm-common-services"
 }
 
-###############################################
-# Cloud Pak for Data application configuration
-###############################################
-variable "cpd_project_name" {
-  description = "Name of the project (namespace) in which CP4D will be installed"
+variable "cloudctl_version" {
+  default = "v3.8.0"
+}
+
+############################################
+# CPD 4.0 service variables 
+###########################################
+
+variable "cpd-namespace" {
   default = "zen"
 }
 
-variable "install_services" {
-  type = map
-  description = "Choose the Cloud Pak for Data services to be installed"
+variable "openshift-username" {
+  default = "admin"
+}
+
+variable "openshift_api" {
+  default = ""
+}
+
+variable "openshift_token" {
+  default = ""
+}
+
+variable "cpd_storageclass" {
+  default = "portworx"
+}
+
+variable "cpd_platform" {
+  type = map(string)
   default = {
-    spark              = false, # Analytics Engine powered by Apache Spark
-    dv                 = false, # Data Virtualization
-    wkc                = false, # Watson Knowledge Catalog
-    wsl                = false, # Watson Studio
-    wml                = false, # Watson Machine Learning
-    aiopenscale        = false, # Watson OpenScale
-    cde                = false, # Cognos Dashboard Engine
-    streams            = false, # Streams
-    ds                 = false, # DataStage
-    dmc                = false, # Db2 Data Management Console
-    db2wh              = false, # Db2 Warehouse
-    db2oltp            = false, # Db2
-    datagate           = false, # Db2 Data Gate
-    dods               = false, # Decision Optimization
-    ca                 = false, # Cognos Analytics
-    spss-modeler       = false, # SPSS Modeler
-    big-sql            = false, # Db2 Big SQL
-    #rstudio            = false, # Watson Studio Local RStudio
-    #hadoop-addon       = false, # Hadoop Execution Addon
-    # mongodb            = false, # MongoDB Enterprise
-    runtime-addon-py37 = false, # Jupyter Python 3.7 Runtime Addon
+    enable  = "yes"
+    version = "4.0.2"
+    channel = "v2.0"
+  }
+}
+
+variable "data_virtualization" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "1.7.2"
+    channel = "v1.7"
+  }
+}
+
+variable "analytics_engine" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "stable-v1"
+  }
+}
+
+variable "watson_knowledge_catalog" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "watson_studio" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v2.0"
+  }
+}
+
+variable "watson_machine_learning" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.1"
+  }
+}
+
+variable "watson_ai_openscale" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1"
+  }
+}
+
+variable "spss_modeler" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "cognos_dashboard_embedded" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "datastage" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "db2_warehouse" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "db2_oltp" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "cognos_analytics" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v4.0"
+  }
+}
+
+variable "data_management_console" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "master_data_management" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.1"
+  }
+}
+
+variable "db2_aaservice" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v1.0"
+  }
+}
+
+variable "decision_optimization" {
+  type = map(string)
+  default = {
+    enable  = "no"
+    version = "4.0.2"
+    channel = "v4.0"
   }
 }
 
@@ -198,7 +340,7 @@ variable "entitlement" {
 }
 
 variable "kube_version" {
-  default = "4.6_openshift"
+  default = "4.8_openshift"
 }
 
 variable "worker_node_flavor" {
@@ -214,3 +356,4 @@ variable "no_of_zones" {
   description = "Number of Zones for the ROKS cluster"
   default = "3"
 }
+

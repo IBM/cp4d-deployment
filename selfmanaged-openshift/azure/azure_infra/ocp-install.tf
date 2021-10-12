@@ -1,14 +1,14 @@
 locals {
-  openshift_installer_url_prefix   = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
-  ocpdir                    = "${path.root}/installer-files"
-  installer_workspace       = "${path.root}/installer-files"
-  azuredir                  = "${pathexpand("~/.azure")}"
-  ocptemplates              = "${path.root}/ocpfourxtemplates"
-  install-config-file       = "install-config-${var.single-or-multi-zone}.tpl.yaml"
-  machine-autoscaler-file   = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
-  machine-health-check-file = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
-  openshift_installer_url   = "${var.openshift_installer_url_prefix}/${var.ocp_version}"
-  ocs-machineset-file   = var.single-or-multi-zone == "single" ? "ocs-machineset-singlezone.yaml" : "ocs-machineset-multizone.yaml"  
+  openshift_installer_url_prefix = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
+  ocpdir                         = "${path.root}/installer-files"
+  installer_workspace            = "${path.root}/installer-files"
+  azuredir                       = pathexpand("~/.azure")
+  install-config-file            = "install-config-${var.single-or-multi-zone}.tpl.yaml"
+  machine-autoscaler-file        = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
+  machine-health-check-file      = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
+  ocptemplates                   = "${path.root}/ocpfourxtemplates"
+  openshift_installer_url        = "${var.openshift_installer_url_prefix}/${var.ocp_version}"
+  ocs-machineset-file            = var.single-or-multi-zone == "single" ? "ocs-machineset-singlezone.yaml" : "ocs-machineset-multizone.yaml"
 }
 
 resource "null_resource" "download_binaries" {
@@ -153,81 +153,8 @@ resource "local_file" "htpasswd_yaml" {
   ]
 }
 
-resource "local_file" "px-storageclasses_yaml" {
-  content  = data.template_file.px-storageclasses.rendered
-  filename = "${local.ocptemplates}/px-storageclasses.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "px-install_yaml" {
-  content  = data.template_file.px-install.rendered
-  filename = "${local.ocptemplates}/px-install.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-
-resource "local_file" "px-storageclasses-secure_yaml" {
-  content  = data.template_file.px-storageclasses-secure.rendered
-  filename = "${local.ocptemplates}/px-storageclasses-secure.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "toolbox_yaml" {
-  content  = file("../ocs_module/toolbox.yaml")
-  filename = "${local.ocptemplates}/toolbox.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "deploy-with-olm_yaml" {
-  content  = file("../ocs_module/deploy-with-olm.yaml")
-  filename = "${local.ocptemplates}/deploy-with-olm.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "ocs-machineset-singlezone_yaml" {
-  content  = file("../ocs_module/ocs-machineset-singlezone.yaml")
-  filename = "${local.ocptemplates}/ocs-machineset-singlezone.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "ocs-machineset-multizone_yaml" {
-  content  = file("../ocs_module/ocs-machineset-multizone.yaml")
-  filename = "${local.ocptemplates}/ocs-machineset-multizone.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "ocs-storagecluster_yaml" {
-  content  = file("../ocs_module/ocs-storagecluster.yaml")
-  filename = "${local.ocptemplates}/ocs-storagecluster.yaml"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
-resource "local_file" "ocs-prereq_yaml" {
-  content  = file("../ocs_module/ocs-prereq.sh")
-  filename = "${local.ocptemplates}/ocs-prereq.sh"
-  depends_on = [
-    null_resource.install_openshift
-  ]
-}
-
 resource "local_file" "nfs-template_yaml" {
-  count = var.storage == "nfs" ? 1 : 0
+  count    = var.storage == "nfs" ? 1 : 0
   content  = data.template_file.nfs-template[count.index].rendered
   filename = "${local.ocptemplates}/nfs-template.yaml"
   depends_on = [
@@ -237,8 +164,8 @@ resource "local_file" "nfs-template_yaml" {
 
 resource "null_resource" "install_openshift" {
   triggers = {
-    username              = var.admin-username
-    directory             = local.ocpdir
+    username  = var.admin-username
+    directory = local.ocpdir
   }
   provisioner "local-exec" {
     when    = create
@@ -269,8 +196,8 @@ EOF
 
 resource "null_resource" "openshift_post_install" {
   triggers = {
-    username              = var.admin-username
-    ocp_directory             = local.ocpdir
+    username      = var.admin-username
+    ocp_directory = local.ocpdir
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -315,7 +242,7 @@ EOF
 resource "null_resource" "cluster_autoscaler" {
   count = var.clusterAutoscaler == "yes" ? 1 : 0
   triggers = {
-    username              = var.admin-username
+    username = var.admin-username
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -333,115 +260,53 @@ EOF
   ]
 }
 
-resource "null_resource" "install_portworx" {
-  count = var.storage == "portworx" ? 1 : 0
-  triggers = {
-    username              = var.admin-username
-  }
-  provisioner "local-exec" {
-    command = <<EOF
-result=$(oc create -f ${local.ocptemplates}/px-install.yaml)
-sleep 60
-echo $result
-result=$(oc apply -f "${var.portworx-spec-url}")
-echo $result
-echo 'Sleeping for 5 mins to get portworx storage cluster up' 
-sleep 5m
-EOF
-  }
+
+module "portworx" {
+  count                   = var.storage == "portworx" ? 1 : 0
+  source                  = "../portworx"
+  openshift_api           = var.openshift_api
+  openshift_username      = var.openshift-username
+  openshift_password      = var.openshift-password
+  openshift_token         = ""
+  installer_workspace     = local.installer_workspace
+  region                  = var.region
+  storage                 = var.storage
+  portworx-encryption     = var.portworx-encryption
+  portworx-encryption-key = var.portworx-encryption-key
+  portworx-spec-url       = var.portworx-spec-url
+
   depends_on = [
     null_resource.install_openshift,
     null_resource.openshift_post_install,
-    local_file.px-install_yaml
   ]
 }
 
-resource "null_resource" "setup_sc_with_pwx_encryption" {
-  count = var.storage == "portworx" && var.portworx-encryption == "yes" && var.portworx-encryption-key != "" ? 1 : 0
-  triggers = {
-    username              = var.admin-username
-  }
-  provisioner "local-exec" {
-    command = <<EOF
-result=$(oc -n kube-system create secret generic px-vol-encryption --from-literal=cluster-wide-secret-key=${var.portworx-encryption-key})
-echo $result
-PX_POD=$(oc get pods -l name=portworx -n kube-system -o jsonpath='{.items[0].metadata.name}')
-echo $PX_POD
-result=$(oc exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl secrets set-cluster-key --secret cluster-wide-secret-key)
-echo $result
-result=$(oc create -f ${local.ocptemplates}/px-storageclasses-secure.yaml)
-echo $result
-EOF
-  }
-  depends_on = [
-    null_resource.install_openshift,
-    null_resource.openshift_post_install,
-    null_resource.install_portworx,
-    local_file.px-storageclasses-secure_yaml
-  ]
-}
+module "ocs" {
+  count                = var.storage == "ocs" ? 1 : 0
+  source               = "../ocs"
+  openshift_api        = var.openshift_api
+  openshift_username   = var.openshift-username
+  openshift_password   = var.openshift-password
+  openshift_token      = ""
+  installer_workspace  = local.installer_workspace
+  region               = var.region
+  storage              = var.storage
+  single-or-multi-zone = var.single-or-multi-zone
+  master-subnet-name   = var.master-subnet-name
+  worker-subnet-name   = var.worker-subnet-name
+  virtual-network-name = var.virtual-network-name
+  resource-group       = var.resource-group
 
-resource "null_resource" "setup_sc_without_pwx_encryption" {
-  count = var.storage == "portworx" && var.portworx-encryption == "no" ? 1 : 0
-  triggers = {
-    username              = var.admin-username
-  }
-  provisioner "local-exec" {
-    command = <<EOF
-result=$(oc create -f ${local.ocptemplates}/px-storageclasses.yaml)
-echo $result
-EOF
-  }
   depends_on = [
     null_resource.install_openshift,
     null_resource.openshift_post_install,
-    null_resource.install_portworx,
-    local_file.px-storageclasses_yaml
-  ]
-}
-resource "null_resource" "install_ocs" {
-  count = var.storage == "ocs" ? 1 : 0
-  triggers = {
-    username              = var.admin-username
-    ocp_directory             = local.ocpdir
-  }
-  provisioner "local-exec" {
-    command = <<EOF
-#chmod +x ${local.ocptemplates}/ocs-prereq.sh
-#export KUBECONFIG=/home/${var.admin-username}/${local.ocpdir}/auth/kubeconfig
-#${local.ocptemplates}/ocs-prereq.sh
-CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig ${self.triggers.ocp_directory}/auth/kubeconfig)
-sed -i -e s#REPLACE_CLUSTERID#$CLUSTERID#g ${local.ocptemplates}/${local.ocs-machineset-file}
-sed -i -e s#REPLACE_REGION#${var.region}#g ${local.ocptemplates}/${local.ocs-machineset-file}
-sed -i -e s#REPLACE_VNET_RG#${var.resource-group}#g ${local.ocptemplates}/${local.ocs-machineset-file}
-sed -i -e s#REPLACE_WORKER_SUBNET#${var.worker-subnet-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
-sed -i -e s#REPLACE_VNET_NAME#${var.virtual-network-name}#g ${local.ocptemplates}/${local.ocs-machineset-file}
-oc apply -f ${local.ocptemplates}/${local.ocs-machineset-file}
-sleep 600
-oc apply -f ${local.ocptemplates}/deploy-with-olm.yaml
-sleep 300
-oc apply -f ${local.ocptemplates}/ocs-storagecluster.yaml
-sleep 600
-oc apply -f ${local.ocptemplates}/toolbox.yaml
-sleep 60
-EOF
-  }
-  depends_on = [
-    null_resource.install_openshift,
-    null_resource.openshift_post_install,
-    local_file.toolbox_yaml,
-    local_file.deploy-with-olm_yaml,
-    local_file.ocs-storagecluster_yaml,
-    local_file.ocs-prereq_yaml,
-    local_file.ocs-machineset-singlezone_yaml,
-    local_file.ocs-machineset-multizone_yaml
   ]
 }
 
 resource "null_resource" "install_nfs_client" {
   count = var.storage == "nfs" ? 1 : 0
   triggers = {
-    username              = var.admin-username
+    username = var.admin-username
   }
   provisioner "local-exec" {
     command = <<EOF

@@ -3,6 +3,14 @@ locals {
   zones = var.multizone ? ["${var.region}-1", "${var.region}-2", "${var.region}-3"] : ["${var.region}-1"]
 }
 
+terraform {
+  required_providers {
+    ibm = {
+      source = "ibm-cloud/ibm"
+    }
+  }
+}
+
 resource "ibm_is_vpc" "this" {
   count = local.create_resources ? 1 : 0
   address_prefix_management = "manual"
