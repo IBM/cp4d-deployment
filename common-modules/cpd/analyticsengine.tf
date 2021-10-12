@@ -26,12 +26,12 @@ echo 'Create analyticsengine CR'
 oc create -f ${self.triggers.cpd_workspace}/analyticsengine_cr.yaml
 sleep 3
 echo 'check the analyticsengine cr status'
-bash cpd/scripts/check-cr-status.sh ae analyticsengine-cr ${var.cpd_namespace} analyticsengineStatus
+bash cpd/scripts/check-cr-status.sh AnalyticsEngine analyticsengine-cr ${var.cpd_namespace} analyticsengineStatus
 EOF
   }
   depends_on = [
     local_file.spss_cr_yaml,
-    null_resource.configure_cluster,
+    module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
     null_resource.install_aiopenscale,

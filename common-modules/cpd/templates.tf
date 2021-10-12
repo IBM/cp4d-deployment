@@ -1,78 +1,9 @@
 locals {
-  crio_config_data   = base64encode(file("cpd/config/crio.conf"))
-  limits_config_data = base64encode(file("cpd/config/limits.conf"))
-  sysctl_config_data = base64encode(file("cpd/config/sysctl.conf"))
   license            = var.accept_cpd_license == "accept" ? true : false
   storage_class      = lookup(var.cpd_storageclass, var.storage_option)
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
   storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
   storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
-}
-
-data "template_file" "crio_machineconfig" {
-  template = <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  labels:
-    machineconfiguration.openshift.io/role: worker
-  name: 90-worker-crio
-spec:
-  config:
-    ignition:
-      version: 2.2.0
-    storage:
-      files:
-      - contents:
-          source: data:text/plain;charset=utf-8;base64,${local.crio_config_data}
-        filesystem: root
-        mode: 0644
-        path: /etc/crio/crio.conf
-EOF
-}
-
-data "template_file" "limits_machineconfig" {
-  template = <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  labels:
-    machineconfiguration.openshift.io/role: worker
-  name: 90-worker-limits
-spec:
-  config:
-    ignition:
-      version: 2.2.0
-    storage:
-      files:
-      - contents:
-          source: data:text/plain;charset=utf-8;base64,${local.limits_config_data}
-        filesystem: root
-        mode: 0644
-        path: /etc/security/limits.conf
-EOF
-}
-
-data "template_file" "sysctl_machineconfig" {
-  template = <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: MachineConfig
-metadata:
-  labels:
-    machineconfiguration.openshift.io/role: worker
-  name: 90-worker-sysctl
-spec:
-  config:
-    ignition:
-      version: 2.2.0
-    storage:
-      files:
-      - contents:
-          source: data:text/plain;charset=utf-8;base64,${local.sysctl_config_data}
-        filesystem: root
-        mode: 0644
-        path: /etc/sysctl.conf
-EOF
 }
 
 data "template_file" "sysctl_worker" {
@@ -603,12 +534,12 @@ data "template_file" "ds_sub" {
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-datastage-operator
+  name: ibm-cpd-datastage-operator-subscription
   namespace: ${local.operator_namespace}
-spec: 
+spec:
   channel: ${var.datastage.channel}
-  installPlanApproval: Automatic 
-  name: ibm-datastage-operator
+  installPlanApproval: Automatic
+  name: ibm-cpd-datastage-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
@@ -616,8 +547,8 @@ EOF
 
 data "template_file" "ds_cr" {
   template = <<EOF
-apiVersion: dfd.cpd.ibm.com/v1alpha1
-kind: DataStageService
+apiVersion: ds.cpd.ibm.com/v1alpha1
+kind: DataStage
 metadata:
   name: datastage-cr
   namespace: ${var.cpd_namespace}
@@ -625,8 +556,8 @@ spec:
   license:
     accept: true
     license: Enterprise
-  scaleConfig: small
   version: ${var.datastage.version}
+  storageClass: "${local.storage_class}"
 EOF
 }
 
@@ -656,7 +587,7 @@ metadata:
   name: iis-cr
   namespace: ${var.cpd_namespace}
 spec:
-  version: "4.0.1"
+  version: ${var.datastage.version}
   size: small
   scaleConfig: small
   ${local.storage_type_key}: "${local.storage_type_value}" 
@@ -672,24 +603,6 @@ EOF
 }
 
 #CA
-data "template_file" "ibm_cpd_ccs_operator_catalog" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-cpd-ccs-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM CPD CCS Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
 
 data "template_file" "ca_sub" {
   template = <<EOF
@@ -729,25 +642,6 @@ EOF
 }
 
 #DV
-data "template_file" "ibm_dmc_operator_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-dmc-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM DMC Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
 
 data "template_file" "dv_sub" {
   template = <<EOF
@@ -779,6 +673,44 @@ spec:
   version: ${var.data_virtualization.version}
   size: "small"
   docker_registry_prefix: cp.icr.io/cp/cpd
+EOF
+}
+
+#BIGSQL
+data "template_file" "bigsql_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-bigsql-operator-catalog-subscription
+  namespace: ${local.operator_namespace}
+spec:   
+  channel: ${var.bigsql.channel}
+  installPlanApproval: Automatic
+  name: ibm-bigsql-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "bigsql_cr" {
+  template = <<EOF
+apiVersion: db2u.databases.ibm.com/v1
+kind: BigsqlService
+metadata:
+  name: bigsql-service-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}    # Replace with the project where you will install Db2 Big SQL
+labels:
+  app.kubernetes.io/component: operator
+  app.kubernetes.io/instance: db2-bigsql
+  app.kubernetes.io/managed-by: ibm-bigsql-operator
+  app.kubernetes.io/name: db2-bigsql
+spec:
+  license:
+    accept: true
+    license: Enterprise    # Specify the license you purchased
+  version: ${var.bigsql.version}
+  storageClass: ${local.storage_class}     # See the guidance in "Information you need to complete this task"
 EOF
 }
 
@@ -877,7 +809,8 @@ spec:
 EOF
 }
 
-data "template_file" "mdm_cr" {
+
+data "template_file" "mdm_ocs_cr" {
   template = <<EOF
 apiVersion: mdm.cpd.ibm.com/v1
 kind: MasterDataManagement
@@ -889,9 +822,28 @@ spec:
     accept: true
     license: Enterprise
   persistence:
-    storageClass: "${local.storage_class}"     # See the guidance in "Information you need to complete this task"
+    storage_class: "ocs-storagecluster-ceph-rbd"     # See the guidance in "Information you need to complete this task"
+    storage_vendor: "ocs"
   shared_persistence:     # Include this for OCS storage
-    storageClass: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+    storage_class: "${local.storage_class}"     # Include this for OCS storage. See the guidance in "Information you need to complete this task"
+  wkc:
+    enabled: true     # Include this if you have installed Watson Knowledge Catalog
+EOF
+}
+
+data "template_file" "mdm_cr" {
+  template = <<EOF
+apiVersion: mdm.cpd.ibm.com/v1
+kind: MasterDataManagement
+metadata:
+  name: mdm-cr     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}   # Replace with the project where you will install IBM Match 360 with Watson
+spec:
+  license:
+    accept: true
+    license: Enterprise     # Specify the license you purchased
+  persistence:
+    storage_class: ${local.storage_class}   # See the guidance in "Information you need to complete this task"
   wkc:
     enabled: true     # Include this if you have installed Watson Knowledge Catalog
 EOF
@@ -933,3 +885,39 @@ spec:
 EOF
 }
 
+#PA
+data "template_file" "pa_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-planning-analytics-subscription
+  namespace: ${local.operator_namespace}
+spec:
+  channel: ${var.planning_analytics.channel}
+  installPlanApproval: Automatic
+  name: ibm-planning-analytics-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "pa_cr" {
+  template = <<EOF
+apiVersion: pa.cpd.ibm.com/v1
+kind: PAService
+metadata:
+  name: ibm-planning-analytics-service
+  namespace: ${var.cpd_namespace}
+  labels:
+    app.kubernetes.io/instance: ibm-planning-analytics-service
+    app.kubernetes.io/managed-by: ibm-planning-analytics-operator
+    app.kubernetes.io/name: ibm-planning-analytics-service 
+  annotations:
+    ansible.sdk.operatorframework.io/verbosity: '3'
+spec:
+  license:
+    accept: true
+  version: ${var.planning_analytics.version}
+EOF
+}

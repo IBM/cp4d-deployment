@@ -1,10 +1,17 @@
 terraform {
-  required_version = "v0.12.31"
+  required_version = "v0.13.0"
   required_providers {
-    ibm = "1.28.0"
+    ibm = {
+         source = "IBM-Cloud/ibm"
+         version = "1.33.0"
+      }
     kubernetes = "1.13.3"
     null = "~> 3.0"
   }
+}
+
+locals {
+  cpd_installer_workspace = "${path.root}/installer-files"
 }
 
 provider "ibm" {
@@ -69,23 +76,55 @@ module "portworx" {
   worker_nodes         = var.multizone ? var.no_of_zones*var.worker_nodes_per_zone : var.worker_nodes_per_zone
 }
 
-module "cpd_install" {
-  source = "./cpd_install"
-
+module "cpd_prereq" {
+  source = "./prereq"
+  
   accept_cpd_license    = var.accept_cpd_license
-  cluster_id            = module.roks.cluster_id
-  cpd_project_name      = var.cpd_project_name
-  cpd_registry_password = var.cpd_registry_password
-  cpd_registry          = var.cpd_registry
-  cpd_registry_username = var.cpd_registry_username
-  operator_namespace    = var.operator_namespace
-  install_services      = var.install_services
-  multizone             = var.multizone
   portworx_is_ready     = module.portworx.portworx_is_ready
-  region                = var.region
-  resource_group_id     = data.ibm_resource_group.this.id
-  unique_id             = var.unique_id
   worker_node_flavor    = var.worker_node_flavor
+  region                = var.region
+  cpd_registry_password = var.cpd_registry_password
+  cpd_registry_username = var.cpd_registry_username
+  unique_id             = var.unique_id
   ibmcloud_api_key      = var.ibmcloud_api_key
   resource_group_name   = var.resource_group_name
+}
+
+module "cpd" {
+  count                     = var.accept_cpd_license == "yes" ? 1 : 0
+  source                    = "./cpd"
+  openshift_api             = module.roks.openshift_api
+  openshift_username        = var.openshift-username
+  openshift_password        = ""
+  openshift_token           = module.roks.openshift_token
+  installer_workspace       = "${path.module}"
+  accept_cpd_license        = var.accept_cpd_license
+  cpd_api_key               = var.cpd_registry_password
+  cpd_namespace             = var.cpd-namespace
+  cloudctl_version          = var.cloudctl_version
+  storage_option            = var.cpd_storageclass
+  cpd_platform              = var.cpd_platform
+  data_virtualization       = var.data_virtualization
+  analytics_engine          = var.analytics_engine
+  watson_knowledge_catalog  = var.watson_knowledge_catalog
+  watson_studio             = var.watson_studio
+  watson_machine_learning   = var.watson_machine_learning
+  watson_ai_openscale       = var.watson_ai_openscale
+  cognos_dashboard_embedded = var.cognos_dashboard_embedded
+  datastage                 = var.datastage
+  db2_warehouse             = var.db2_warehouse
+  cognos_analytics          = var.cognos_analytics
+  spss_modeler              = var.spss_modeler
+  data_management_console   = var.data_management_console
+  db2_oltp                  = var.db2_oltp
+  master_data_management    = var.master_data_management
+  db2_aaservice             = var.db2_aaservice
+  decision_optimization     = var.decision_optimization
+  cluster_type              = "managed-ibm"
+  configure_global_pull_secret = false
+  configure_openshift_nodes    = false
+
+  depends_on = [
+    module.cpd_prereq
+  ]
 }

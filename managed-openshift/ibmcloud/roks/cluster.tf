@@ -3,6 +3,14 @@ locals {
   # zones = ["${var.region}-1", "${var.region}-2", "${var.region}-3"]
 }
 
+terraform {
+  required_providers {
+    ibm = {
+      source = "ibm-cloud/ibm"
+    }
+  }
+}
+
 resource "ibm_resource_instance" "cos_instance" {
   count = var.cos_instance_crn == null ? 1 : 0
   

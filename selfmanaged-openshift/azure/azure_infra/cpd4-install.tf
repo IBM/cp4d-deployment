@@ -43,15 +43,15 @@ module "cpd" {
   master_data_management    = var.master_data_management
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
-  login_cmd                 = ""
-  rosa_cluster              = false
+  bigsql                    = var.bigsql
+  cluster_type              = "selfmanaged"
+  login_string              = "oc login ${var.openshift_api} -u ${var.openshift-username} -p ${var.openshift-password} --insecure-skip-tls-verify=true"
+
 
   depends_on = [
     null_resource.openshift_post_install,
-    null_resource.install_portworx,
-    null_resource.setup_sc_with_pwx_encryption,
-    null_resource.setup_sc_without_pwx_encryption,
-    null_resource.install_ocs,
+    module.portworx,
+    module.ocs,
     null_resource.install_nfs_client,
   ]
 }

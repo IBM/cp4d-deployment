@@ -1,4 +1,4 @@
-# Cloud Pak for Data 4.0.1 on Red Hat OpenShift on IBM Cloud
+# Cloud Pak for Data 4.0.2 on Red Hat OpenShift on IBM Cloud
 
 [IBM Cloud Pak for Data](https://www.ibm.com/ca-en/products/cloud-pak-for-data) is an end-to-end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform. Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on IBM Cloud.
 
@@ -68,8 +68,7 @@ As part of the deployment, any of the following services can be installed. For m
 * Decision Optimization
 * Cognos Analytics
 * SPSS Modeler
-* Db2 Big SQL
-* Jupyter Python 3.7 Runtime Addon
+* Master Data Management
 
 ## Instructions
 
@@ -83,23 +82,25 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 1. Clone this repo.
 
-2. Navigate to the directory containing this README.
+2. Navigate to the home directory - `cd cp4d-deployment`
 
-2. Run `docker build . -t cpd-roks-terraform`.
+3. Run `docker build . -t cpd-roks-terraform`.
 
-3. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
+4. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
 The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa.
 
 ### Deploying Cloud Pak for Data
 
-1. Copy `terraform.tfvars.template` to `terraform.tfvars`. This file can be used to define values for variables. Refer to [VARIABLES.md](VARIABLES.md) and [vars.tf](vars.tf) for a list of available variables.
+1. Copy the contents of `terraform.tfvars.template` to `terraform.tfvars`. This file can be used to define values for variables. Refer to [VARIABLES.md](VARIABLES.md) and [vars.tf](vars.tf) for a list of available variables and their usage.
 
 2. Log in to your container with `docker exec -it my-container bash --login`.
 
-3. Run `terraform init`.
+3. Navigate to the managed-ibmcloud directory - `cd managed-openshift/ibmcloud/`
 
-4. Run `terraform apply`.
+4. Run `terraform init`.
+
+5. Run `terraform apply`.
 
 ### Securing your VPC and cluster
 
@@ -111,7 +112,7 @@ These templates can be used to install Cloud Pak for Data in an existing VPC on 
 
 * `existing_vpc_id`
 * `existing_vpc_subnets` — A list of subnet IDs in your VPC in which to install the cluster. Every subnet must belong to a different zone. Thus, in a non-multizone deployment only supply one subnet in a list. Public gateways must be enabled on all provided subnets.
-* `multizone`
+* `multizone` and `no_of_zones` are advised to be set carefully
 
 When installing in an existing VPC, all other VPC configuration variables such as `enable_public_gateway`, `allowed_cidr_range`, `acl_rules` are ignored.
 
@@ -131,6 +132,10 @@ usage: ./vpc_upgrade.sh clustername replace/upgrade workerid
 If we do replace/upgrade from IBM cloud console, block storage would get detached and portwox will consider that node as storageless. The data stored in the block storage would not be available to the application
 
 IBM Cloud documentation for this issue - https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_limitations
+
+### Portworx volume detachment after destroy
+Cuurent implement doesn't support automated detachment of volumes. It should be deleted from IBM Cloud console after the deletion of the cluster.
+
 
 ## Troubleshooting
 
@@ -160,6 +165,7 @@ Resource provisioning can fail due to random errors such as latency timeouts, to
 
 ## Coming soon
 
+* Support for ODF (previously OCS) Storage
 * Support for application access restrictions based on `allowed_cidr_range`
 * Support for additional Cloud Pak for Data services
 * Support for IBM Key Protect volume encryption at deploy time.
