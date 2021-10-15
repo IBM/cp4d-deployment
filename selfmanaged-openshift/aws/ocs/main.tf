@@ -39,6 +39,7 @@ resource "null_resource" "deploy_storage_nodes" {
     when    = create
     command = <<EOF
 echo "Attempting login.."
+export KUBECONFIG=${self.triggers.installer_workspace}/auth/kubeconfig
 oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 echo "Creating OCS MachineSet"
 CLUSTERID=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}')
