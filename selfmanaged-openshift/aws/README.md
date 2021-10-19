@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 4.0 on OCP 4.6 on AWS
+# Cloud Pak for Data 4.0 on AWS
 
 ## Deployment Topology:
 

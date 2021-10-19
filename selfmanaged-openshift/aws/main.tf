@@ -223,6 +223,7 @@ module "cpd" {
   bigsql                    = var.bigsql
   cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
+  vpc_id                    = local.vpc_id
 
   depends_on = [
     module.ocp,
