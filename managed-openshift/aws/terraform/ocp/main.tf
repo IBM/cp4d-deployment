@@ -1,4 +1,6 @@
 locals {
+  classic_lb_timeout = 600
+  
   installer_workspace = "${path.root}/installer-files"
   rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.0.8"
   subnet_ids          = join(",", var.subnet_ids)
@@ -104,6 +106,9 @@ echo 'Sleeping for 3m'
 sleep 180
 oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry
 oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000
+
+sleep 2m
+bash ocp/scripts/update-elb-timeout.sh ${var.vpc_id} ${local.classic_lb_timeout}
 EOF
   }
   depends_on = [

@@ -99,6 +99,7 @@ module "ocp" {
   installer_workspace         = local.installer_workspace
   openshift_version           = var.openshift_version
   subnet_ids                  = var.az == "multi_zone" ? local.multi_zone_subnets : local.single_zone_subnets
+  vpc_id                      = local.vpc_id
 
   depends_on = [
     null_resource.aws_configuration,
