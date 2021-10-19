@@ -164,3 +164,7 @@ variable "installer_workspace" {
   type        = string
   description = "Folder to store/find the installation files"
 }
+
+variable "vpc_id" {
+  type = string
+}

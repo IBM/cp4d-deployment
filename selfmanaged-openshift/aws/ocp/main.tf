@@ -1,4 +1,5 @@
 locals {
+  classic_lb_timeout = 600
   installer_workspace     = "${path.root}/installer-files"
   openshift_installer_url = "${var.openshift_installer_url}/${var.openshift_version}"
 }
@@ -170,6 +171,9 @@ echo 'Sleeping for 3m'
 sleep 3m
 oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n openshift-image-registry --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000 --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+
+sleep 2m
+bash ocp/scripts/update-elb-timeout.sh ${var.vpcid} ${locals.classic_lb_timeout}
 EOF
   }
   depends_on = [
