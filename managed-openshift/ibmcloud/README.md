@@ -88,6 +88,8 @@ It is recommended that these scripts be executed from a Docker container to ensu
 
 4. Run `docker run -d --name my-container --mount type=bind,source="$(pwd)",target=/root/templates cpd-roks-terraform`.
 
+5. Execute an interactive `bash` shell on the container `docker exec -it my-container bash`
+
 The current directory on the host has beeen bind-mounted to `~/templates` in the container. This allows file changes made in the host to be reflected in the container and vice versa.
 
 ### Deploying Cloud Pak for Data
