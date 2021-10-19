@@ -108,6 +108,7 @@ resource "null_resource" "node_check" {
     command = <<-EOF
 echo "Ensure the nodes are running"
 bash cpd/scripts/nodes_running.sh
+
 EOF
   }
   depends_on = [
