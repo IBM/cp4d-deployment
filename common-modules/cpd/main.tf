@@ -109,7 +109,6 @@ resource "null_resource" "node_check" {
 echo "Ensure the nodes are running"
 bash cpd/scripts/nodes_running.sh
 
-bash cpd/scripts/update-elb-timeout.sh ${var.vpcid} ${locals.classic_lb_timeout}
 EOF
   }
   depends_on = [

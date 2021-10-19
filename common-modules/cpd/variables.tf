@@ -28,10 +28,6 @@ variable "cluster_type" {
   type = string
 }
 
-variable "vpc_id" {
-  type = string
-}
-
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
