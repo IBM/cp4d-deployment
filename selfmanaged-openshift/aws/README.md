@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 4.0 on OCP 4.6 on AWS
+# Cloud Pak for Data 4.0 on AWS
 
 ## Deployment Topology:
 
@@ -23,13 +23,6 @@ The deployment sets up the following as shown in the diagram.
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `jq`
-  ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  mv jq-linux64 jq
-  chmod +x jq
-  mv jq /usr/local/bin
-  ```
 * Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
   * RHEL:
   ```bash
@@ -38,6 +31,13 @@ The deployment sets up the following as shown in the diagram.
   ln -s /usr/bin/pip3 /usr/bin/pip
   pip install awscli --upgrade --user
   pip install pyyaml
+  ```
+* Install `jq`
+  ```bash
+  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  mv jq-linux64 jq
+  chmod +x jq
+  mv jq /usr/local/bin
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash

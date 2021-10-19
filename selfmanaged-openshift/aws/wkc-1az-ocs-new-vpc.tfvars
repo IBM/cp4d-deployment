@@ -101,7 +101,7 @@ bigsql                    = { "enable" : "no", "version" : "7.2.2", "channel" : 
 #portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
 #portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package 
 
-#cpd_platform           = {"enable":"yes",  "version":"4.0.1", "channel":"v2.0"}
+#cpd_platform           = {"enable":"yes",  "version":"4.0.2", "channel":"v2.0"}
 #cpd_external_registry   = "cp.icr.io"
 #cpd_external_username   = "cp"
 #cpd_namespace           = "zen"

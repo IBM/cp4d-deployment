@@ -9,13 +9,6 @@
 
 ### Prerequisites
 * Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `jq`
-  ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  mv jq-linux64 jq
-  chmod +x jq
-  mv jq /usr/bin
-  ```
 * Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
   * RHEL:
   ```bash
@@ -25,7 +18,13 @@
   pip install awscli --upgrade --user
   pip install pyyaml
   ```
-
+* Install `jq`
+  ```bash
+  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+  mv jq-linux64 jq
+  chmod +x jq
+  mv jq /usr/bin
+  ```
 * Download Openshift CLI and move to `/usr/bin`:
 
   ```bash
