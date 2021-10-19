@@ -34,9 +34,7 @@ RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/
  && mv kubectl /usr/bin/
 
 # ibmcloud cli (not essential)
-RUN wget --no-verbose -O ibmcloud-installer.tgz https://clis.cloud.ibm.com/download/bluemix-cli/latest/linux64 \
- && tar -xzf ibmcloud-installer.tgz \
- && Bluemix_CLI/install \
+RUN curl -fsSL https://clis.cloud.ibm.com/install/linux | sh \
  && echo 'alias ic=ibmcloud' >> $HOME/.profile
 
 # ibmcloud plugins
