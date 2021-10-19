@@ -173,7 +173,7 @@ oc annotate route default-route haproxy.router.openshift.io/timeout=600s -n open
 oc set env deployment/image-registry -n openshift-image-registry REGISTRY_STORAGE_S3_CHUNKSIZE=1048576000 --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 
 sleep 2m
-bash ocp/scripts/update-elb-timeout.sh ${var.vpcid} ${locals.classic_lb_timeout}
+bash ocp/scripts/update-elb-timeout.sh ${var.vpc_id} ${local.classic_lb_timeout}
 EOF
   }
   depends_on = [
