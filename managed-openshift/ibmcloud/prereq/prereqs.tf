@@ -4,6 +4,7 @@
 locals {
   setkernelparams_file = local.worker_node_memory < 128 ? "setkernelparams.yaml" : "setkernelparams_128gbRAM.yaml"
   worker_node_memory = tonumber(regex("[0-9]+$", var.worker_node_flavor))
+  cluster_name = var.existing_roks_cluster == null ? "${var.unique_id}-cluster" : var.existing_roks_cluster
 }
 resource "null_resource" "setkernelparams" {
   depends_on = [var.portworx_is_ready]
@@ -67,7 +68,7 @@ resource "null_resource" "set_pull_secret" {
 echo "Setting pull secret on all the nodes"
 ./setup-global-pull-secret-bedrock.sh ${var.cpd_registry_username} ${var.cpd_registry_password}
 ibmcloud login --apikey ${var.ibmcloud_api_key} -g ${var.resource_group_name} -r ${var.region}
-./roks-update.sh "${var.unique_id}-cluster"
+./roks-update.sh ${local.cluster_name}
 EOF
   }
   depends_on = [

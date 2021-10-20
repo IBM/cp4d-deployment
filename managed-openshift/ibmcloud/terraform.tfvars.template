@@ -15,9 +15,11 @@ multizone = <true|false>
 worker_nodes_per_zone = "3"
 no_of_zones = "1"
 # operator_namespace = ""
+
+# set the following variables for existing Openshift cluster along with the multizone above
 # existing_vpc_id = ""
 # existing_vpc_subnets = ["xyz"]
-# existing_roks_cluster = ""
+# existing_roks_cluster = ""   # cluster name
 
 create_external_etcd = true
 
