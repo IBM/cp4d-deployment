@@ -14,3 +14,4 @@ variable "ibmcloud_api_key" {}
 variable "unique_id" {}
 variable "resource_group_name" {}
 variable "region" {}
+variable "existing_roks_cluster" {}

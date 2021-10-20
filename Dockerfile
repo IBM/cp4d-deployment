@@ -33,7 +33,7 @@ RUN wget --no-verbose https://mirror.openshift.com/pub/openshift-v4/clients/ocp/
  && mv oc /usr/bin/ \
  && mv kubectl /usr/bin/
 
-# ibmcloud cli (not essential)
+# ibmcloud cli
 RUN curl -fsSL https://clis.cloud.ibm.com/install/linux | sh \
  && echo 'alias ic=ibmcloud' >> $HOME/.profile
 
