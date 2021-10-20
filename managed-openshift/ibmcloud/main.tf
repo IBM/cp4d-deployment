@@ -88,6 +88,7 @@ module "cpd_prereq" {
   unique_id             = var.unique_id
   ibmcloud_api_key      = var.ibmcloud_api_key
   resource_group_name   = var.resource_group_name
+  existing_roks_cluster = var.existing_roks_cluster
 }
 
 module "cpd" {
