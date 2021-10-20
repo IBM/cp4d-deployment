@@ -561,47 +561,6 @@ spec:
 EOF
 }
 
-#IIS
-
-data "template_file" "iis_sub" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: ibm-cpd-iis-operator
-  namespace: ${local.operator_namespace}
-spec: 
-  channel: ${var.datastage.channel}
-  installPlanApproval: Automatic 
-  name: ibm-cpd-iis
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF
-}
-
-data "template_file" "ds_iis_cr" {
-  template = <<EOF
-apiVersion: iis.cpd.ibm.com/v1alpha1
-kind: IIS
-metadata:
-  name: iis-cr
-  namespace: ${var.cpd_namespace}
-spec:
-  version: ${var.datastage.version}
-  size: small
-  scaleConfig: small
-  ${local.storage_type_key}: "${local.storage_type_value}" 
-  storageClass: ${local.storage_class}
-  storageOverride:
-  license:
-    accept: true
-    license: Enterprise
-  docker_registry_prefix: cp.icr.io/cp/cpd
-  use_dynamic_provisioning: true
-  cert_manager_enabled: true
-EOF
-}
-
 #CA
 
 data "template_file" "ca_sub" {
