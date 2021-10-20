@@ -22,32 +22,18 @@ The deployment sets up the following as shown in the diagram.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Prerequisites
-* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
-  * RHEL:
+* Run the below command to install prerequisites:
+  * For RHEL:
   ```bash
-  yum install wget jq httpd-tools python36 -y
-  ln -s /usr/bin/python3 /usr/bin/python
-  ln -s /usr/bin/pip3 /usr/bin/pip
-  pip install awscli --upgrade --user
-  pip install pyyaml
+  chmod u+x linux-prereq-install.sh
+  ./linux-prereq-install.sh
   ```
-* Install `jq`
+
+  * For Mac:
   ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  mv jq-linux64 jq
-  chmod +x jq
-  mv jq /usr/local/bin
+  chmod u+x mac-prereq-install.sh
+  ./mac-prereq-install.sh
   ```
-* Download Openshift CLI and move to `/usr/local/bin`:
-```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz
-tar -xvf openshift-client-linux-4.8.11.tar.gz
-chmod u+x oc kubectl
-sudo mv oc /usr/local/bin
-sudo mv kubectl /usr/local/bin
-oc version
-```
 
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.

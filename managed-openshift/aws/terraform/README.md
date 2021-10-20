@@ -8,34 +8,19 @@
 * Get RedHat ROSA token [here](https://cloud.redhat.com/openshift/token/rosa)
 
 ### Prerequisites
-* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
-  * RHEL:
+* Run the below command to install prerequisites:
+  * For RHEL:
   ```bash
-  yum install wget jq httpd-tools python36 -y
-  ln -s /usr/bin/python3 /usr/bin/python
-  ln -s /usr/bin/pip3 /usr/bin/pip
-  pip install awscli --upgrade --user
-  pip install pyyaml
-  ```
-* Install `jq`
-  ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  mv jq-linux64 jq
-  chmod +x jq
-  mv jq /usr/bin
-  ```
-* Download Openshift CLI and move to `/usr/bin`:
-
-  ```bash
-  wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz
-  tar -xvf openshift-client-linux-4.8.11.tar.gz
-  chmod u+x oc kubectl
-  sudo mv oc /usr/bin
-  sudo mv kubectl /usr/bin
-  oc version
+  chmod u+x linux-prereq-install.sh
+  ./linux-prereq-install.sh
   ```
 
+  * For Mac:
+  ```bash
+  chmod u+x mac-prereq-install.sh
+  ./mac-prereq-install.sh
+  ```
+  
 ### Steps to Deploy:
 * AWS `Access key ID` and `Secret access key` will be required for the deployment. Also `AdministratorAccess` policy is required for the IAM user which will be used for deploying the cluster.
 * Before deploying the infrastructure make sure you have `python3` installed in your local machine.
