@@ -120,7 +120,7 @@ When installing in an existing VPC, all other VPC configuration variables such a
 
 These templates can also deploy Cloud Pak for Data on an existing VPC Gen 2 OpenShift on IBM Cloud cluster. In addition to the values in the "Deploying in an existing VPC" section, provide values for the following variables.
 
-* `existing_roks_cluster` — Name or ID of the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
+* `existing_roks_cluster` — Name the cluster to deploy in. It is assumed that Portworx has *not* already been installed on this cluster. All worker nodes will be used.
 
 ### Replace / Upgrading worker nodes
 
