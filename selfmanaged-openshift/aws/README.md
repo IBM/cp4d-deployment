@@ -22,76 +22,23 @@ The deployment sets up the following as shown in the diagram.
  - Amazon Route 53 as your public Domain Name System (DNS) for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Prerequisites
-* Run below commands to install all prerequisites manually:
-* Install terraform using this [link](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* Install `wget`, `htpasswd`, `python3` and `aws` CLIs:
-  * RHEL:
-  ```bash
-  yum install wget httpd-tools python36 -y
-  ln -s /usr/bin/python3 /usr/bin/python
-  ln -s /usr/bin/pip3 /usr/bin/pip
-  pip install awscli --upgrade --user
-  pip install pyyaml
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  unzip awscliv2.zip
-  sudo ./aws/install
-  ```
-  * MAC:
-  ```bash
-  brew install wget
-  brew install python3
-  ln -s /usr/local/bin/python3 /usr/local/bin/python
-  ln -s /usr/local/bin/pip3 /usr/local/bin/pip
-  pip install awscli --upgrade --user
-  pip install pyyaml
-  curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
-  sudo installer -pkg AWSCLIV2.pkg -target /
-  ```
-* Install `jq`
-  * RHEL:
-  ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  mv jq-linux64 jq
-  chmod +x jq
-  mv jq /usr/local/bin
-  ```
-  * MAC:
-  ```bash
-  wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64
-  mv jq-osx-amd64 jq
-  chmod +x jq
-  mv jq /usr/local/bin
-  ```
-* Download Openshift CLI and move to `/usr/local/bin`:
-  * RHEL:
-  ```bash
-  wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz
-  tar -xvf openshift-client-linux-4.8.11.tar.gz
-  chmod u+x oc kubectl
-  sudo mv oc /usr/local/bin
-  sudo mv kubectl /usr/local/bin
-  oc version
-  ```
-  * MAC:
-  ```bash
-  wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-mac-4.8.11.tar.gz
-  tar -xvf openshift-client-mac-4.8.11.tar.gz
-  chmod u+x oc kubectl
-  sudo mv oc /usr/local/bin
-  sudo mv kubectl /usr/local/bin
-  oc version
-  ```
-  
-* Run the below commands to install prerequisites by running scripts:
+* Following modules are required to be installed as prerequisites:
+  * Terraform 
+  * wget
+  * htpasswd
+  * python3
+  * AWS CLI
+  * jq
+  * Openshift CLI with version 4.8.11
+ 
+* Alternatively run the below scripts to install all prerequisites:
   * For RHEL:
   ```bash
-  chmod u+x linux-prereq-install.sh
   ./linux-prereq-install.sh
   ```
 
   * For Mac:
   ```bash
-  chmod u+x mac-prereq-install.sh
   ./mac-prereq-install.sh
   ```
 
