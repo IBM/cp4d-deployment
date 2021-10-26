@@ -293,7 +293,7 @@ variable "watson_assistant" {
 }
 
 variable "watson_assistant_cr" {
-  type = map(any)
+  type        = map(any)
 
   default = {
     "portworx" = "wa_cr_portworx"
