@@ -7,6 +7,7 @@ resource "null_resource" "install_ebd" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.operator_namespace}
 echo 'Create Watson Assistant CR'
 cloudctl case save \
 --case https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-watson-assistant-${var.watson_assistant.version}.tgz \
