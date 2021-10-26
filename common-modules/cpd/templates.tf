@@ -4,7 +4,7 @@ locals {
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
   storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
   storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
-  wa_instance        = wa
+  wa_instance        = "wa"
   
   wa_cr              = lookup(var.watson_assistant_cr, var.storage_option)
 }
@@ -891,7 +891,7 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: ibm-watson-assistant-operator-subscription
-  namespace: ${var.operator_namespace}    # Pick the project that contains the Cloud Pak for Data operator
+  namespace: ${local.operator_namespace}    # Pick the project that contains the Cloud Pak for Data operator
 spec:
   channel: ${var.watson_assistant.channel}
   name: ibm-watson-assistant-operator
