@@ -26,6 +26,7 @@ resource "null_resource" "install_wa" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd_namespace}
 echo "Creating Watson Assistant Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/wa_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-watson-assistant-operator ${local.operator_namespace}
