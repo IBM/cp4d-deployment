@@ -282,3 +282,21 @@ variable "bigsql" {
     channel  = "v7.2"
   }
 }
+
+variable "watson_assistant" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.2"
+    channel  = "v4.0"
+  }
+}
+
+variable "watson_assistant_cr" {
+  type = map(any)
+
+  default = {
+    "portworx" = "wa_cr_portworx"
+    "ocs"      = "wa_cr_ocs"
+  }
+}
