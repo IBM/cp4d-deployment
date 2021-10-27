@@ -33,13 +33,13 @@ bash cpd/scripts/pod-status-check.sh ibm-watson-assistant-operator ${local.opera
 echo 'Apply the following temporary fix to allow certificates to be enabled for the Certificate management service'
 export INSTANCE=${local.wa_instance}
 oc create -f ${self.triggers.cpd_workspace}/wa_temp_patch.yaml
-sleep 5
+sleep 5m
 
 echo 'Create Watson Assistant CR'
 oc create -f ${self.triggers.cpd_workspace}/${local.wa_cr}
-sleep 3
+sleep 30
 echo 'check the Watson Assistant cr status'
-bash cpd/scripts/check-cr-status.sh WatsonAssistant wa ${var.cpd_namespace} edbStatus
+bash cpd/scripts/check-cr-status.sh WatsonAssistant wa ${var.cpd_namespace} watsonAssistantStatus
 EOF
   }
   depends_on = [
