@@ -296,7 +296,7 @@ variable "watson_assistant_cr" {
   type        = map(any)
 
   default = {
-    "portworx" = "wa_cr_portworx"
-    "ocs"      = "wa_cr_ocs"
+    "portworx" = "wa_cr_portworx.yaml"
+    "ocs"      = "wa_cr_ocs.yaml"
   }
 }
