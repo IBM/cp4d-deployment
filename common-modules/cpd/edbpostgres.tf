@@ -7,7 +7,7 @@ resource "null_resource" "install_ebd" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-oc adm policy add-scc-to-group restricted system:serviceaccounts:${local.operator_namespace}
+oc adm policy add-scc-to-group restricted system:serviceaccounts:${var.cpd_namespace}
 echo 'Create Watson Assistant CR'
 cloudctl case save \
 --case https://github.com/IBM/cloud-pak/raw/master/repo/case/ibm-watson-assistant-${var.watson_assistant.version}.tgz \
@@ -18,17 +18,17 @@ cloudctl case launch \
   --case ${self.triggers.cpd_workspace}/ibm-watson-assistant-${var.watson_assistant.version}.tgz \
   --inventory assistantOperator \
   --action create-postgres-licensekey \
-  --namespace ${local.operator_namespace}
+  --namespace ${var.cpd_namespace}
 
 echo 'Install the EDB Cloud Native PostgreSQL operator'
 cloudctl case launch \
   --case ${self.triggers.cpd_workspace}/ibm-watson-assistant-${var.watson_assistant.version}.tgz \
   --inventory assistantOperator \
   --action install-postgres-operator \
-  --namespace ${local.operator_namespace} \
+  --namespace ${var.cpd_namespace} \
   --args "--inputDir ${self.triggers.cpd_workspace}"
 sleep 3
-bash cpd/scripts/pod-status-check.sh postgresql-operator-controller-manager ${local.operator_namespace}
+bash cpd/scripts/pod-status-check.sh postgresql-operator-controller-manager ${var.cpd_namespace}
 EOF
   }
   depends_on = [
