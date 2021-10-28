@@ -89,3 +89,4 @@
 | `decision_optimization` | no | Enter `yes` to install the Decision Optimization service. |
 | `planning_analytics` | no | Enter `yes` to install the Planning Analytics Add-on service. |
 | `bigsql` | no | Enter `yes` to install the BigSQL. |
+| `watson_assistant` | no | Enter `yes` to install the Watson Assistant. |
