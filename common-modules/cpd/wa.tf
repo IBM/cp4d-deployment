@@ -39,7 +39,7 @@ echo 'Create Watson Assistant CR'
 oc create -f ${self.triggers.cpd_workspace}/${local.wa_cr}
 sleep 30
 echo 'check the Watson Assistant cr status'
-bash cpd/scripts/check-cr-status.sh WatsonAssistant wa ${var.cpd_namespace} watsonAssistantStatus
+bash cpd/scripts/check-wa-cr-status.sh WatsonAssistant wa ${var.cpd_namespace} watsonAssistantStatus
 EOF
   }
   depends_on = [
