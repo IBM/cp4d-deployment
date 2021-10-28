@@ -4,6 +4,9 @@ locals {
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
   storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
   storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
+  wa_instance        = "wa"
+  
+  wa_cr              = lookup(var.watson_assistant_cr, var.storage_option)
 }
 
 data "template_file" "sysctl_worker" {
@@ -878,5 +881,445 @@ spec:
   license:
     accept: true
   version: ${var.planning_analytics.version}
+EOF
+}
+
+#WA
+data "template_file" "wa_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-watson-assistant-operator-subscription
+  namespace: ${local.operator_namespace}    # Pick the project that contains the Cloud Pak for Data operator
+spec:
+  channel: ${var.watson_assistant.channel}
+  name: ibm-watson-assistant-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+EOF
+}
+
+data "template_file" "wa_cr_ocs" {
+  template = <<EOF
+apiVersion: assistant.watson.ibm.com/v1
+kind: WatsonAssistant
+metadata:
+  name: wa     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}     # Replace with the project where you will install
+  annotations:
+    oppy.ibm.com/disable-rollback: "true"
+    oppy.ibm.com/log-default-level: "debug"
+    oppy.ibm.com/log-filters: ""
+    oppy.ibm.com/log-thread-id: "false"
+    oppy.ibm.com/log-json: "false"
+    oppy.ibm.com/temporary-patches: '{"wa-fix-wa-certs": {"timestamp": "2021-10-13T18:45:57.959534", "api_version": "assistant.watson.ibm.com/v1"}}'     # If your instance name is not "wa", then substitute the first occurrence of "wa" in "wa-fix-wa-certs" with the name of your instance. Do not change the timestamp
+  labels:
+    app.kubernetes.io/managed-by: "Ansible"
+    app.kubernetes.io/name: "watson-assistant"
+    app.kubernetes.io/instance: "wa"     # This should match the value for metadata.name
+spec:
+  backup:
+    offlineQuiesce: false
+    onlineQuiesce: false
+  cluster:
+    dockerRegistryPrefix: ""
+    imagePullSecrets: []
+    storageClassName: ocs-storagecluster-ceph-rbd     # If you use a different storage class, replace it with the appropriate storage class
+    type: private
+    name: prod     # Do not change this value 
+  cpd:
+    namespace: ${var.cpd_namespace}     # Replace with the project where Cloud Pak for Data is installed. This value will most likely match metadata.namespace
+  datastores:
+    cos:
+      storageClassName: "" 
+      storageSize: 20Gi
+    datagovernor:
+      elasticSearch:
+        storageSize: 55Gi
+      etcd:
+        storageSize: 55Gi
+      kafka:
+        storageSize: 55Gi
+      storageClassName: "ocs-storagecluster-ceph-rbd"
+      zookeeper:
+        storageSize: 55Gi
+    elasticSearch:
+      analytics:
+        storageClassName: ""
+        storageSize: ""
+      store:
+        storageClassName: ""
+        storageSize: ""
+    etcd:
+      storageClassName: ""
+      storageSize: 2Gi
+    kafka:
+      storageClassName: ""
+      storageSize: 5Gi
+      zookeeper:
+        storageSize: 1Gi
+    modelTrain:
+      postgres:
+        storageClassName: "ocs-storagecluster-ceph-rbd"
+        storageSize: 55Gi
+      rabbitmq:
+        storageClassName: "ocs-storagecluster-ceph-rbd"
+        storageSize: 55Gi
+    postgres:
+      backupStorageClassName: ""
+      storageClassName: ""
+      storageSize: 5Gi
+    redis:
+      storageClassName: ""
+      storageSize: ""
+  features:
+    analytics:
+      enabled: true
+    recommends:
+      enabled: true
+    tooling:
+      enabled: true
+    voice:
+      enabled: false
+  labels: {}
+  languages:
+  - en
+  #- es
+  #- pt-br
+  #- fr
+  #- it
+  #- ja
+  #- de
+  #- ko
+  #- ar
+  #- nl
+  #- zh-tw
+  #- zh-cn
+  #- cs
+  license:
+    accept: true     # Change to true if you accept the WA license terms
+  size: medium     # Options are small, medium, and large
+  version: ${var.watson_assistant.version}
+EOF
+}
+
+data "template_file" "wa_cr_portworx" {
+  template = <<EOF
+apiVersion: assistant.watson.ibm.com/v1
+kind: WatsonAssistant
+metadata:
+  name: wa     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}     # Replace with the project where you will install 
+  annotations:
+    oppy.ibm.com/disable-rollback: "true"
+    oppy.ibm.com/log-default-level: "debug"
+    oppy.ibm.com/log-filters: ""
+    oppy.ibm.com/log-thread-id: "false"
+    oppy.ibm.com/log-json: "false"
+    oppy.ibm.com/temporary-patches: '{"wa-fix-wa-certs": {"timestamp": "2021-10-13T18:45:57.959534", "api_version": "assistant.watson.ibm.com/v1"}}'     # If your instance name is not "wa", then substitute the first occurrence of "wa" in "wa-fix-wa-certs" with the name of your instance. Do not change the timestamp
+  labels:
+    app.kubernetes.io/managed-by: "Ansible"
+    app.kubernetes.io/name: "watson-assistant"
+    app.kubernetes.io/instance: "wa"     # This should match the value for metadata.name
+spec:
+  backup:
+    offlineQuiesce: false
+    onlineQuiesce: false
+  cluster:
+    dockerRegistryPrefix: ""
+    imagePullSecrets: []
+    storageClassName: portworx-watson-assistant-sc     # If you use a different storage class, replace it with the appropriate storage class
+    type: private
+    name: prod     # Do not change this value 
+  cpd:
+    namespace: ${var.cpd_namespace}     # Replace with the project where Cloud Pak for Data is installed. This value will most likely match metadata.namespace
+  datastores:
+    cos:
+      storageClassName: ""
+      storageSize: 20Gi
+    datagovernor:
+      elasticSearch:
+        storageSize: ""
+      etcd:
+        storageSize: ""
+      kafka:
+        storageSize: ""
+      storageClassName: ""
+      zookeeper:
+        storageSize: ""
+    elasticSearch:
+      analytics:
+        storageClassName: ""
+        storageSize: ""
+      store:
+        storageClassName: ""
+        storageSize: ""
+    etcd:
+      storageClassName: ""
+      storageSize: 2Gi
+    kafka:
+      storageClassName: ""
+      storageSize: 5Gi
+      zookeeper:
+        storageSize: 1Gi
+    modelTrain:
+      postgres:
+        storageClassName: "portworx-watson-assistant-sc"
+        storageSize: ""
+      rabbitmq:
+        storageClassName: "portworx-watson-assistant-sc"
+        storageSize: ""
+    postgres:
+      backupStorageClassName: ""
+      storageClassName: ""
+      storageSize: 5Gi
+    redis:
+      storageClassName: ""
+      storageSize: ""
+  features:
+    analytics:
+      enabled: true
+    recommends:
+      enabled: true
+    tooling:
+      enabled: true
+    voice:
+      enabled: false
+  labels: {}
+  languages:
+  - en
+  #- es
+  #- pt-br
+  #- fr
+  #- it
+  #- ja
+  #- de
+  #- ko
+  #- ar
+  #- nl
+  #- zh-tw
+  #- zh-cn
+  #- cs
+  license:
+    accept: true     # Change to true if you accept the WA license terms
+  size: medium     # Options are small, medium, and large
+  version: ${var.watson_assistant.version}
+EOF
+}
+
+data "template_file" "wa_temporary_patch" {
+  template = <<EOF
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-clu-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistantClu
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-nlu:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-clu-embedding:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-clu-serving:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-clu-training:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-dragonfly-clu-mm:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-ed:
+          - op: remove
+            path: /spec/dnsNames/4
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-master:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-recommends:
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-spellchecker-mm:
+          - op: remove
+            path: /spec/dnsNames/15
+          - op: remove
+            path: /spec/dnsNames/14
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-system-entities:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+        cert-tfmm:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+---
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-analytics-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistantAnalytics
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-analytics:
+          - op: remove
+            path: /spec/dnsNames/3
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+---
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-integrations-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistantIntegrations
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-integrations:
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+---
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-recommends-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistantRecommends
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-recommends:
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+---
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-ui-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistantUi
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-ui:
+          - op: remove
+            path: /spec/dnsNames/2
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1", "::1"]
+---
+apiVersion: assistant.watson.ibm.com/v1
+kind: TemporaryPatch
+metadata:
+  name: ${local.wa_instance}-fix-wa-certs
+spec:
+  apiVersion: assistant.watson.ibm.com/v1
+  kind: WatsonAssistant
+  name: ${local.wa_instance}
+  patchType: patchJson6902
+  patch:
+      certmanager:
+        cert-elasticSearch-store:
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1"]
+          - op: add
+            path: /spec/commonName
+            value: localhost
+        cert-cos:
+          - op: remove
+            path: /spec/dnsNames/1
+          - op: add
+            path: /spec/ipAddresses
+            value: ["127.0.0.1"]
 EOF
 }
