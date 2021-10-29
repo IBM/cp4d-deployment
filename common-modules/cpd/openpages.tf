@@ -24,7 +24,7 @@ echo 'Create OpenPages CR'
 oc create -f ${self.triggers.cpd_workspace}/op_cr.yaml
 sleep 30
 echo 'check the OpenPages cr status'
-bash cpd/scripts/check-cr-status.sh OpenPagesService openpages ${var.cpd_namespace} openPagesStatus
+bash cpd/scripts/check-wa-cr-status.sh OpenPagesService openpages ${var.cpd_namespace} openPagesStatus
 EOF
   }
   depends_on = [

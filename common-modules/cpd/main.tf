@@ -3,7 +3,7 @@ locals {
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
   cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
-  db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" ? "yes" : "no")
+  db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" || var.openpages == "yes" ? "yes" : "no")
 }
 
 module "machineconfig" {
