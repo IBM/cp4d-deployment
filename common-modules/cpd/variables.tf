@@ -292,11 +292,29 @@ variable "watson_assistant" {
   }
 }
 
-variable "watson_assistant_cr" {
+variable "wa_storage_class" {
   type        = map(any)
 
   default = {
-    "portworx" = "wa_cr_portworx.yaml"
-    "ocs"      = "wa_cr_ocs.yaml"
+    "portworx" = "portworx-watson-assistant-sc"
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "wa_kafka_storage_class" {
+  type        = map(any)
+
+  default = {
+    "portworx" = ""
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "wa_storage_size" {
+  type        = map(any)
+
+  default = {
+    "portworx" = ""
+    "ocs"      = "55Gi"
   }
 }
