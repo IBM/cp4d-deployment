@@ -5,8 +5,9 @@ locals {
   storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
   storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
   wa_instance        = "wa"
-  
-  wa_cr              = lookup(var.watson_assistant_cr, var.storage_option)
+  wa_sc              = lookup(var.wa_storage_class, var.storage_option)
+  wa_kafka_sc        = lookup(var.wa_kafka_storage_class, var.storage_option)
+  wa_sc_size         = lookup(var.wa_storage_size, var.storage_option)
 }
 
 data "template_file" "sysctl_worker" {
@@ -901,7 +902,7 @@ spec:
 EOF
 }
 
-data "template_file" "wa_cr_ocs" {
+data "template_file" "wa_cr" {
   template = <<EOF
 apiVersion: assistant.watson.ibm.com/v1
 kind: WatsonAssistant
@@ -926,7 +927,7 @@ spec:
   cluster:
     dockerRegistryPrefix: ""
     imagePullSecrets: []
-    storageClassName: ocs-storagecluster-ceph-rbd     # If you use a different storage class, replace it with the appropriate storage class
+    storageClassName: ${local.wa_sc}    # If you use a different storage class, replace it with the appropriate storage class
     type: private
     name: prod     # Do not change this value 
   cpd:
@@ -937,14 +938,14 @@ spec:
       storageSize: 20Gi
     datagovernor:
       elasticSearch:
-        storageSize: 55Gi
+        storageSize: ${local.wa_sc_size} 
       etcd:
-        storageSize: 55Gi
+        storageSize: ${local.wa_sc_size}
       kafka:
-        storageSize: 55Gi
-      storageClassName: "ocs-storagecluster-ceph-rbd"
+        storageSize: ${local.wa_sc_size}
+      storageClassName: ${local.wa_kafka_sc}
       zookeeper:
-        storageSize: 55Gi
+        storageSize: ${local.wa_sc_size}
     elasticSearch:
       analytics:
         storageClassName: ""
@@ -962,11 +963,11 @@ spec:
         storageSize: 1Gi
     modelTrain:
       postgres:
-        storageClassName: "ocs-storagecluster-ceph-rbd"
-        storageSize: 55Gi
+        storageClassName: ${local.wa_sc}
+        storageSize: ${local.wa_sc_size}
       rabbitmq:
-        storageClassName: "ocs-storagecluster-ceph-rbd"
-        storageSize: 55Gi
+        storageClassName: ${local.wa_sc}
+        storageSize: ${local.wa_sc_size}
     postgres:
       backupStorageClassName: ""
       storageClassName: ""
@@ -986,122 +987,6 @@ spec:
   labels: {}
   languages:
   - en
-  #- es
-  #- pt-br
-  #- fr
-  #- it
-  #- ja
-  #- de
-  #- ko
-  #- ar
-  #- nl
-  #- zh-tw
-  #- zh-cn
-  #- cs
-  license:
-    accept: true     # Change to true if you accept the WA license terms
-  size: medium     # Options are small, medium, and large
-  version: ${var.watson_assistant.version}
-EOF
-}
-
-data "template_file" "wa_cr_portworx" {
-  template = <<EOF
-apiVersion: assistant.watson.ibm.com/v1
-kind: WatsonAssistant
-metadata:
-  name: wa     # This is the recommended name, but you can change it
-  namespace: ${var.cpd_namespace}     # Replace with the project where you will install 
-  annotations:
-    oppy.ibm.com/disable-rollback: "true"
-    oppy.ibm.com/log-default-level: "debug"
-    oppy.ibm.com/log-filters: ""
-    oppy.ibm.com/log-thread-id: "false"
-    oppy.ibm.com/log-json: "false"
-    oppy.ibm.com/temporary-patches: '{"wa-fix-wa-certs": {"timestamp": "2021-10-13T18:45:57.959534", "api_version": "assistant.watson.ibm.com/v1"}}'     # If your instance name is not "wa", then substitute the first occurrence of "wa" in "wa-fix-wa-certs" with the name of your instance. Do not change the timestamp
-  labels:
-    app.kubernetes.io/managed-by: "Ansible"
-    app.kubernetes.io/name: "watson-assistant"
-    app.kubernetes.io/instance: "wa"     # This should match the value for metadata.name
-spec:
-  backup:
-    offlineQuiesce: false
-    onlineQuiesce: false
-  cluster:
-    dockerRegistryPrefix: ""
-    imagePullSecrets: []
-    storageClassName: portworx-watson-assistant-sc     # If you use a different storage class, replace it with the appropriate storage class
-    type: private
-    name: prod     # Do not change this value 
-  cpd:
-    namespace: ${var.cpd_namespace}     # Replace with the project where Cloud Pak for Data is installed. This value will most likely match metadata.namespace
-  datastores:
-    cos:
-      storageClassName: ""
-      storageSize: 20Gi
-    datagovernor:
-      elasticSearch:
-        storageSize: ""
-      etcd:
-        storageSize: ""
-      kafka:
-        storageSize: ""
-      storageClassName: ""
-      zookeeper:
-        storageSize: ""
-    elasticSearch:
-      analytics:
-        storageClassName: ""
-        storageSize: ""
-      store:
-        storageClassName: ""
-        storageSize: ""
-    etcd:
-      storageClassName: ""
-      storageSize: 2Gi
-    kafka:
-      storageClassName: ""
-      storageSize: 5Gi
-      zookeeper:
-        storageSize: 1Gi
-    modelTrain:
-      postgres:
-        storageClassName: "portworx-watson-assistant-sc"
-        storageSize: ""
-      rabbitmq:
-        storageClassName: "portworx-watson-assistant-sc"
-        storageSize: ""
-    postgres:
-      backupStorageClassName: ""
-      storageClassName: ""
-      storageSize: 5Gi
-    redis:
-      storageClassName: ""
-      storageSize: ""
-  features:
-    analytics:
-      enabled: true
-    recommends:
-      enabled: true
-    tooling:
-      enabled: true
-    voice:
-      enabled: false
-  labels: {}
-  languages:
-  - en
-  #- es
-  #- pt-br
-  #- fr
-  #- it
-  #- ja
-  #- de
-  #- ko
-  #- ar
-  #- nl
-  #- zh-tw
-  #- zh-cn
-  #- cs
   license:
     accept: true     # Change to true if you accept the WA license terms
   size: medium     # Options are small, medium, and large

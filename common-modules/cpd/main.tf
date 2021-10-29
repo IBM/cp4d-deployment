@@ -63,7 +63,7 @@ case $(uname -s) in
     exit 1;;
 esac
 chmod u+x ${self.triggers.cpd_workspace}/cloudctl
-sudo mv ${self.triggers.cpd_workspace}/cloudctl /usr/local/bin
+sudo cp ${self.triggers.cpd_workspace}/cloudctl /usr/local/bin
 EOF
   }
   depends_on = [

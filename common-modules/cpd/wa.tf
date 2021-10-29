@@ -1,11 +1,6 @@
-resource "local_file" "wa_cr_ocs_yaml" {
-  content  = data.template_file.wa_cr_ocs.rendered
-  filename = "${local.cpd_workspace}/wa_cr_ocs.yaml"
-}
-
-resource "local_file" "wa_cr_portworx_yaml" {
-  content  = data.template_file.wa_cr_portworx.rendered
-  filename = "${local.cpd_workspace}/wa_cr_portworx.yaml"
+resource "local_file" "wa_cr_yaml" {
+  content  = data.template_file.wa_cr.rendered
+  filename = "${local.cpd_workspace}/wa_cr.yaml"
 }
 
 resource "local_file" "wa_sub_yaml" {
@@ -36,7 +31,7 @@ oc create -f ${self.triggers.cpd_workspace}/wa_temp_patch.yaml
 sleep 3m
 
 echo 'Create Watson Assistant CR'
-oc create -f ${self.triggers.cpd_workspace}/${local.wa_cr}
+oc create -f ${self.triggers.cpd_workspace}/wa_cr.yaml
 sleep 30
 echo 'check the Watson Assistant cr status'
 bash cpd/scripts/check-wa-cr-status.sh WatsonAssistant wa ${var.cpd_namespace} watsonAssistantStatus
@@ -44,8 +39,7 @@ EOF
   }
   depends_on = [
     null_resource.install_ebd,
-    local_file.wa_cr_ocs_yaml,
-    local_file.wa_cr_portworx_yaml,
+    local_file.wa_cr_yaml,
     local_file.wa_sub_yaml,
     local_file.wa_temp_patch_yaml,
     module.machineconfig,
