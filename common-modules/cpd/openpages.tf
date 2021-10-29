@@ -31,6 +31,7 @@ EOF
     null_resource.install_ebd,
     null_resource.install_wa,
     null_resource.install_wd,
+    null_resource.install_db2aaservice,
     local_file.op_cr_yaml,
     local_file.op_sub_yaml,
     module.machineconfig,
