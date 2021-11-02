@@ -503,3 +503,12 @@ variable "bigsql" {
     channel  = "v7.2"
   }
 }
+
+variable "watson_assistant" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.2"
+    channel  = "v4.0"
+  }
+}
