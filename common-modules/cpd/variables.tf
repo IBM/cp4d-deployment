@@ -282,3 +282,39 @@ variable "bigsql" {
     channel  = "v7.2"
   }
 }
+
+variable "watson_assistant" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.2"
+    channel  = "v4.0"
+  }
+}
+
+variable "wa_storage_class" {
+  type        = map(any)
+
+  default = {
+    "portworx" = "portworx-watson-assistant-sc"
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "wa_kafka_storage_class" {
+  type        = map(any)
+
+  default = {
+    "portworx" = ""
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "wa_storage_size" {
+  type        = map(any)
+
+  default = {
+    "portworx" = ""
+    "ocs"      = "55Gi"
+  }
+}
