@@ -28,14 +28,13 @@ bash cpd/scripts/check-wa-cr-status.sh OpenPagesService openpages ${var.cpd_name
 EOF
   }
   depends_on = [
-    null_resource.install_ebd,
+    module.machineconfig,
+    null_resource.cpd_foundational_services,
+    null_resource.login_cluster,
     null_resource.install_wa,
     null_resource.install_wd,
     null_resource.install_db2aaservice,
     local_file.op_cr_yaml,
     local_file.op_sub_yaml,
-    module.machineconfig,
-    null_resource.cpd_foundational_services,
-    null_resource.login_cluster,
   ]
 }

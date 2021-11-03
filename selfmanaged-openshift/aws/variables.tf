@@ -526,7 +526,7 @@ variable "openpages" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "4.0.2"
+    version  = "8.203.2"
     channel  = "v1.0"
   }
 }
