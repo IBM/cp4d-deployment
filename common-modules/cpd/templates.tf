@@ -1208,3 +1208,43 @@ spec:
             value: ["127.0.0.1"]
 EOF
 }
+
+data "template_file" "wd_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-watson-discovery-operator-subscription
+    app.kubernetes.io/managed-by: ibm-watson-discovery-operator
+    app.kubernetes.io/name: ibm-watson-discovery-operator-subscription
+  name: ibm-watson-discovery-operator-subscription
+  namespace: ${local.operator_namespace}   # Pick the project that contains the Cloud Pak for Data operator
+spec:
+  channel: ${var.watson_discovery.channel}
+  name: ibm-watson-discovery-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+EOF
+}
+
+data "template_file" "wd_cr" {
+  template = <<EOF
+apiVersion: discovery.watson.ibm.com/v1
+kind: WatsonDiscovery
+metadata:
+  annotations:
+    oppy.ibm.com/disable-rollback: 'true'
+  name: wd     # This is the recommended name, but you can change it
+  namespace: ${var.cpd_namespace}     # Replace with the project where you will install Watson Discovery
+spec:
+  license:
+    accept: true
+  version: ${var.watson_discovery.version}
+  shared: 
+    storageClassName: ${local.storage_class}     # See the guidance in "Information you need to complete this task"
+  watsonGateway:
+    version: main
+EOF
+}

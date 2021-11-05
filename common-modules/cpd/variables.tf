@@ -318,3 +318,12 @@ variable "wa_storage_size" {
     "ocs"      = "55Gi"
   }
 }
+
+variable "watson_discovery" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.2"
+    channel  = "v4.0"
+  }
+}

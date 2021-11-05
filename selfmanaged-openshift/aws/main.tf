@@ -223,6 +223,7 @@ module "cpd" {
   planning_analytics        = var.planning_analytics
   bigsql                    = var.bigsql
   watson_assistant          = var.watson_assistant
+  watson_discovery          = var.watson_discovery
   cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
   
