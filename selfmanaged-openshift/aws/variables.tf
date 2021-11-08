@@ -512,3 +512,12 @@ variable "watson_assistant" {
     channel  = "v4.0"
   }
 }
+
+variable "watson_discovery" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.2"
+    channel  = "v4.0"
+  }
+}
