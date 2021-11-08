@@ -90,3 +90,4 @@
 | `planning_analytics` | no | Enter `yes` to install the Planning Analytics Add-on service. |
 | `bigsql` | no | Enter `yes` to install the BigSQL. |
 | `watson_assistant` | no | Enter `yes` to install the Watson Assistant. |
+| `watson_discovery` | no | Enter `yes` to install the Watson Discovery. |

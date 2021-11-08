@@ -1,6 +1,6 @@
 
 resource "null_resource" "install_ebd" {
-  count = var.watson_assistant.enable == "yes" ? 1 : 0
+  count = var.watson_assistant.enable == "yes" || var.watson_discovery.enable == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
