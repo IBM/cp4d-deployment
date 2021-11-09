@@ -1248,3 +1248,39 @@ spec:
     version: main
 EOF
 }
+
+data "template_file" "op_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-openpages-operator
+  namespace: ${local.operator_namespace}    # Pick the project that contains the Cloud Pak for Data operator
+spec:
+  channel: ${var.openpages.channel}
+  installPlanApproval: Automatic
+  name: ibm-cpd-openpages-operator
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+data "template_file" "op_cr" {
+  template = <<EOF
+apiVersion: openpages.cpd.ibm.com/v1 
+kind: OpenPagesService 
+metadata:
+  name: openpages
+  namespace: ${var.cpd_namespace}
+  labels:
+    app.kubernetes.io/name: openpages
+    app.kubernetes.io/instance: openpages-service
+    app.kubernetes.io/version: "${var.openpages.version}"
+    app.kubernetes.io/managed-by: ibm-cpd-openpages-operator 
+spec:
+  version: "${var.openpages.version}"
+  license:
+    accept: true
+    license: Enterprise     # Specify the license that you purchased
+EOF
+}
