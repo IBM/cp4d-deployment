@@ -327,3 +327,12 @@ variable "watson_discovery" {
     channel  = "v4.0"
   }
 }
+
+variable "openpages" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "8.203.2"
+    channel  = "v1.0"
+  }
+}
