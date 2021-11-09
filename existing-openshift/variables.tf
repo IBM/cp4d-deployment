@@ -256,6 +256,15 @@ variable "decision_optimization" {
   }
 }
 
+variable "bigsql" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "7.2.2"
+    channel  = "v7.2"
+  }
+}
+
 variable "db2u_catalog_source" {
   default = "docker.io/ibmcom/ibm-db2uoperator-catalog:latest"
 }
