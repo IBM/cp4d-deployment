@@ -2,10 +2,13 @@ locals {
   license            = var.accept_cpd_license == "accept" ? true : false
   storage_class      = lookup(var.cpd_storageclass, var.storage_option)
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
+
+  wa_storage_class   = lookup(var.wa_storageclass, var.storage_option)
+
+  wd_storage_class   = lookup(var.wd_storageclass, var.storage_option)
   storage_type_key   = var.storage_option == "ocs" || var.storage_option == "portworx" ? "storageVendor" : "storageClass"
   storage_type_value = var.storage_option == "ocs" || var.storage_option == "portworx" ? var.storage_option : lookup(var.cpd_storageclass, var.storage_option)
   wa_instance        = "wa"
-  wa_sc              = lookup(var.wa_storage_class, var.storage_option)
   wa_kafka_sc        = lookup(var.wa_kafka_storage_class, var.storage_option)
   wa_sc_size         = lookup(var.wa_storage_size, var.storage_option)
 }
@@ -927,7 +930,7 @@ spec:
   cluster:
     dockerRegistryPrefix: ""
     imagePullSecrets: []
-    storageClassName: ${local.wa_sc}    # If you use a different storage class, replace it with the appropriate storage class
+    storageClassName: ${local.wa_storage_class}    # If you use a different storage class, replace it with the appropriate storage class
     type: private
     name: prod     # Do not change this value 
   cpd:
@@ -963,10 +966,10 @@ spec:
         storageSize: 1Gi
     modelTrain:
       postgres:
-        storageClassName: ${local.wa_sc}
+        storageClassName: ${local.wa_storage_class}
         storageSize: ${local.wa_sc_size}
       rabbitmq:
-        storageClassName: ${local.wa_sc}
+        storageClassName: ${local.wa_storage_class}
         storageSize: ${local.wa_sc_size}
     postgres:
       backupStorageClassName: ""
@@ -1243,7 +1246,7 @@ spec:
     accept: true
   version: ${var.watson_discovery.version}
   shared: 
-    storageClassName: ${local.storage_class}     # See the guidance in "Information you need to complete this task"
+    storageClassName: ${local.wd_storage_class}     # See the guidance in "Information you need to complete this task"
   watsonGateway:
     version: main
 EOF
