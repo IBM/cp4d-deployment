@@ -93,6 +93,24 @@ variable "rwo_cpd_storageclass" {
   }
 }
 
+variable "wd_storageclass" {
+  type = map(any)
+
+  default = {
+    "portworx" = "portworx-db-gp2-sc"
+    "ocs"      = "ocs-storagecluster-ceph-rbd"
+  }
+}
+
+variable "wa_storageclass" {
+  type = map(any)
+
+  default = {
+    "portworx" = "portworx-watson-assistant-sc"
+    "ocs"      = "ocs-storagecluster-cephfs"
+  }
+}
+
 variable "cpd_version" {
   type    = string
   default = "4.0.0"
@@ -289,15 +307,6 @@ variable "watson_assistant" {
     enable   = "no"
     version  = "4.0.2"
     channel  = "v4.0"
-  }
-}
-
-variable "wa_storage_class" {
-  type        = map(any)
-
-  default = {
-    "portworx" = "portworx-watson-assistant-sc"
-    "ocs"      = "ocs-storagecluster-ceph-rbd"
   }
 }
 
