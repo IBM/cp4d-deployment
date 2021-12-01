@@ -280,7 +280,7 @@ variable "decision_optimization" {
 }
 
 variable "db2u_catalog_source" {
-  default = "docker.io/ibmcom/ibm-db2uoperator-catalog:v1.1"
+  default = "docker.io/ibmcom/ibm-db2uoperator-catalog:latest"
 }
 
 variable "planning_analytics" {
