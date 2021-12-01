@@ -186,7 +186,7 @@ variable "watson_ai_openscale" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "4.0.3"
+    version  = "4.0.2"
     channel  = "v1"
   }
 }
@@ -307,7 +307,7 @@ variable "watson_assistant" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "4.0.3"
+    version  = "4.0.2"
     channel  = "v4.0"
   }
 }
