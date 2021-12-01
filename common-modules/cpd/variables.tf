@@ -99,6 +99,7 @@ variable "wd_storageclass" {
   default = {
     "portworx" = "portworx-db-gp2-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
+    "nfs"      = "nfs"
   }
 }
 
@@ -108,6 +109,7 @@ variable "wa_storageclass" {
   default = {
     "portworx" = "portworx-watson-assistant-sc"
     "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
   }
 }
 
@@ -316,6 +318,7 @@ variable "wa_kafka_storage_class" {
   default = {
     "portworx" = ""
     "ocs"      = "ocs-storagecluster-ceph-rbd"
+    "nfs"      = "nfs"
   }
 }
 
@@ -325,6 +328,7 @@ variable "wa_storage_size" {
   default = {
     "portworx" = ""
     "ocs"      = "55Gi"
+    "nfs"      = ""
   }
 }
 
