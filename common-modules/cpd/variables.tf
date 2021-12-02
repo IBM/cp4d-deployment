@@ -249,7 +249,7 @@ variable "data_management_console" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "3.1.6"
+    version  = "4.0.3"
     channel  = "v1.0"
   }
 }
