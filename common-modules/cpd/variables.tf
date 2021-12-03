@@ -222,7 +222,7 @@ variable "db2_warehouse" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "4.0.3"
+    version  = "4.0.5"
     channel  = "v1.0"
   }
 }
@@ -231,7 +231,7 @@ variable "db2_oltp" {
   type        = map(string)
   default = {
     enable   = "no"
-    version  = "4.0.3"
+    version  = "4.0.5"
     channel  = "v1.0"
   }
 }
