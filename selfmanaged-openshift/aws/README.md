@@ -97,6 +97,14 @@ After openshift cluster installation is finished and cloud pak for data installa
 ### Note:
 * For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
 
+### Exception:
+* After deploying `Watson Discovery` on cluster, execute following command to set the memory limit of RabbitMQ pod (wd-rabbitmq-discovery-0) to 2GB:
+  ```
+  oc patch wd wd --type=merge --patch '{"spec": {"rabbitmq": {"resource": {"limits": {"memory": "2Gi"}}}}}'
+  ```
+  After you execute the oc patch command, the RabbitMQ pod (wd-rabbitmq-discovery-0) will be restarted automatically. You can check the completion of the restarting of the pod with "oc get po wd-rabbitmq-discovery-0" where you can see its readiness new age.
+
+
 ### Changelog
 * Install CPD 4.0.1
 * Added service parameters
