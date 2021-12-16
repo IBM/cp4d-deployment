@@ -50,3 +50,8 @@ variable "cluster_name" {
   type = string
   default = "cpd-cluster-id"
 }
+
+variable "installer_workspace" {
+  type        = string
+  description = "Folder to store/find the installation files"
+}
