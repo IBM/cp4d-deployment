@@ -177,6 +177,14 @@ variable "ocs" {
   }
 }
 
+# EFS for Tech Preview Only
+variable "efs" {
+  type = map(string)
+  default = {
+    enable            = false
+  }
+}
+
 variable "portworx_enterprise" {
   type        = map(string)
   description = "See PORTWORX.md on how to get the Cluster ID."
