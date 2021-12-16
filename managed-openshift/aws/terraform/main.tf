@@ -150,6 +150,7 @@ module "efs" {
   vpc_id                = local.vpc_id
   aws_access_key_id     = var.access_key_id
   aws_secret_access_key = var.secret_access_key
+  subnet_ids            = var.az == "multi_zone" ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.private_subnet1_id]
   depends_on = [
     null_resource.create_workspace,
     module.ocp,

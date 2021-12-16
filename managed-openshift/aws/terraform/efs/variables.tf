@@ -55,3 +55,7 @@ variable "installer_workspace" {
   type        = string
   description = "Folder to store/find the installation files"
 }
+
+variable "subnet_ids" {
+  type = list
+}
