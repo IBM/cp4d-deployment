@@ -10,17 +10,17 @@ data "aws_vpc" "cpd_vpc" {
   id = var.vpc_id
 }
 
-data "aws_subnet_ids" "cpd_subnets" {
-  vpc_id = var.vpc_id
-  tags = {
-    Name = "*private*"
-  }
-}
+#data "aws_subnet_ids" "cpd_subnets" {
+#  vpc_id = var.vpc_id
+#  tags = {
+#    Name = "*private*"
+#  }
+#}
 
-data "aws_subnet" "cpd_subnet" {
-  count = "${length(data.aws_subnet_ids.cpd_subnets.ids)}"
-  id    = "${tolist(data.aws_subnet_ids.cpd_subnets.ids)[count.index]}"
-}
+#data "aws_subnet" "cpd_subnet" {
+#  count = "${length(data.aws_subnet_ids.cpd_subnets.ids)}"
+#  id    = "${tolist(data.aws_subnet_ids.cpd_subnets.ids)[count.index]}"
+#}
 
 resource "aws_efs_file_system" "cpd_efs" {
    creation_token = "cpd_efs"
@@ -38,11 +38,8 @@ resource "aws_efs_file_system" "cpd_efs" {
 resource "aws_efs_mount_target" "cpd-efs-mt" {
    count = var.az == "multi_zone" ? 3 : 1
    file_system_id  = aws_efs_file_system.cpd_efs.id
-   subnet_id = data.aws_subnet.cpd_subnet[count.index].id
+   subnet_id = var.subnet_ids[count.index]
    security_groups = [aws_security_group.efs_sg.id]
-  depends_on = [
-    data.aws_subnet.cpd_subnet
-  ]
  }
 
 resource "aws_security_group" "efs_sg" {
