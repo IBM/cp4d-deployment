@@ -21,7 +21,7 @@
 | `private_subnet2_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 2 |
 | `private_subnet3_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 3 |
 | ROSA |
-| `openshift_version` | 4.7.12 | Openshift Cluster version |
+| `openshift_version` | 4.8.11 | Openshift Cluster version |
 | `cluster_name` | ibmrosa | All resources created by the Openshift Installer will have this name as prefix. |
 | `rosa_token` | - | Token generated from the RedHat portal [here](https://cloud.redhat.com/openshift/token/rosa) |
 | `worker_machine_type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
@@ -36,6 +36,7 @@
 | `availability_zone3` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | STORAGE |
 | `ocs` |`enable = true` | Set to enable, if OCS. The EC2 instance type for the OpenShift container storage (OCS) instances. Make sure your region supports the selected instance type. Supported ocs instance types [here](./INSTANCE-TYPES.md) |
+| `efs` | `enable = false` | Tech Preview only |
 | `portworx_enterprise` | `enable = false` | See PORTWORX.md on how to get the Cluster ID. |
 | `portworx_essentials` | `enable = false`  | See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint |
 | `portworx_ibm` | | NOTE: This option will only work if deployed from a RHEL machine with podman installed. This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes. |
