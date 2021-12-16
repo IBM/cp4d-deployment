@@ -1,8 +1,8 @@
-provider "aws" {
-  region     = var.region
-  access_key = var.aws_access_key_id
-  secret_key = var.aws_secret_access_key
-}
+#provider "aws" {
+#  region     = var.region
+#  access_key = var.aws_access_key_id
+#  secret_key = var.aws_secret_access_key
+#}
 
 #data "aws_availability_zones" "available" {}
 
@@ -165,6 +165,5 @@ resource "local_file" "efs_ns_yaml" {
 }
 
 locals {
-  rootpath            = abspath(path.root)
-  installer_workspace = "${local.rootpath}/installer-files"
+  installer_workspace = var.installer_workspace
 }

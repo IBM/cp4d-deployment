@@ -144,7 +144,6 @@ module "efs" {
   source                = "./efs"
   installer_workspace   = local.installer_workspace
   cluster_name          = var.cluster_name
-  ocs_instance_type     = var.ocs.ocs_instance_type
   login_cmd             = "${local.login_cmd}"
   region                = var.region
   az                    = var.az
