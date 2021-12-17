@@ -73,7 +73,7 @@ spec:
   name: portworx-certified
   source: certified-operators
   sourceNamespace: openshift-marketplace
-  startingCSV:  portworx-operator.v1.4.4
+  startingCSV:  portworx-operator.v1.6.1
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
