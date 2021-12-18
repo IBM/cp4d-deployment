@@ -21,6 +21,8 @@ secret_access_key     = "<required>"
  worker_machine_type   = "m5.4xlarge"
  worker_machine_count  = 3     # set count depending on number of CPD services
  private_cluster       = false
+ ocs                   = { "enable" : "true", "ocs_instance_type" : "m5.4xlarge" } 
+#efs                   = { "enable" : "false" } 
 
 #############
 # CPD Variables
