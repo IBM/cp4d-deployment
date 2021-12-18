@@ -1,5 +1,5 @@
 ##### AWS Configuration #####
-region                = "eu-west-2"
+region                = "us-east-2"
 
 access_key_id         = "<required>"
 secret_access_key     = "<required>"
@@ -8,9 +8,6 @@ secret_access_key     = "<required>"
 
  # Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
  az                   = "single_zone"
- availability_zone1   = "<required>"
- availability_zone2   = "<required>"
- availability_zone3   = "<required>"
 
 ##########
 # ROSA
@@ -21,6 +18,8 @@ secret_access_key     = "<required>"
  worker_machine_type   = "m5.4xlarge"
  worker_machine_count  = 3     # set count depending on number of CPD services
  private_cluster       = false
+ ocs                   = { "enable" : "true", "ocs_instance_type" : "m5.4xlarge" }  
+#efs                   = { "enable" : "false" } 
 
 #############
 # CPD Variables
@@ -30,7 +29,7 @@ secret_access_key     = "<required>"
  accept_cpd_license       = "accept"
 
 ## CPD services
-watson_knowledge_catalog  = { "enable" : "no", "version" : "4.0.3", "channel" : "v1.0" }
+watson_knowledge_catalog  = { "enable" : "yes", "version" : "4.0.3", "channel" : "v1.0" }
 data_virtualization       = { "enable" : "no", "version" : "1.7.3", "channel" : "v1.7" }
 analytics_engine          = { "enable" : "no", "version" : "4.0.3", "channel" : "stable-v1" }
 watson_studio             = { "enable" : "no", "version" : "4.0.3", "channel" : "v2.0" }
