@@ -80,7 +80,7 @@ variable "cpd_storageclass" {
     "portworx" = "portworx-shared-gp3"
     "ocs"      = "ocs-storagecluster-cephfs"
     "nfs"      = "nfs"
-    "efs"      = "aws-efs"
+    "efs"      = "aws-efs-csi"
   }
 }
 
@@ -91,7 +91,7 @@ variable "rwo_cpd_storageclass" {
     "portworx" = "portworx-metastoredb-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
     "nfs"      = "nfs"
-    "efs"      = "aws-efs"
+    "efs"      = "aws-efs-csi"
   }
 }
 
@@ -102,7 +102,7 @@ variable "wd_storageclass" {
     "portworx" = "portworx-db-gp2-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
     "nfs"      = "nfs"
-    "efs"      = "aws-efs"
+    "efs"      = "aws-efs-csi"
   }
 }
 
@@ -113,7 +113,7 @@ variable "wa_storageclass" {
     "portworx" = "portworx-watson-assistant-sc"
     "ocs"      = "ocs-storagecluster-cephfs"
     "nfs"      = "nfs"
-    "efs"      = "aws-efs"
+    "efs"      = "aws-efs-csi"
   }
 }
 
@@ -323,7 +323,7 @@ variable "wa_kafka_storage_class" {
     "portworx" = ""
     "ocs"      = "ocs-storagecluster-ceph-rbd"
     "nfs"      = "nfs"
-    "efs"      = "aws-efs"
+    "efs"      = "aws-efs-csi"
   }
 }
 
