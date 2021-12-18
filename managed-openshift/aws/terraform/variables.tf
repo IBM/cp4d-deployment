@@ -172,7 +172,7 @@ variable "availability_zone3" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable            = true
+    enable            = false
     ocs_instance_type = "m5.4xlarge"
   }
 }
@@ -252,7 +252,7 @@ variable "cpd_platform" {
   type        = map(string)
   default = {
     enable   = "yes"
-    version  = "4.0.2"
+    version  = "4.0.3"
     channel  = "v2.0"
   }
 }
