@@ -4,8 +4,6 @@
 #  secret_key = var.aws_secret_access_key
 #}
 
-#data "aws_availability_zones" "available" {}
-
 data "aws_vpc" "cpd_vpc" {
   id = var.vpc_id
 }
@@ -132,6 +130,9 @@ echo "Creating EFS CSI deployment"
 oc  apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.3"
 echo "Waiting for 2mins"
 sleep 120
+echo "switch to latest controller image"
+oc patch deploy efs-csi-controller -n kube-system --patch='{"spec":{"template":{"spec":{"containers":[{"name": "efs-plugin", "image":"amazon/aws-efs-csi-driver:master"}]}}}}'
+sleep 60
 echo "Creating SC"
 oc create -f ${self.triggers.installer_workspace}/efs_sc.yaml
 echo "Creating test pvc"

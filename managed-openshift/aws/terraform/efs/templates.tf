@@ -30,6 +30,9 @@ mountOptions:
 parameters:
   provisioningMode: efs-ap
   fileSystemId: ${aws_efs_file_system.cpd_efs.id} 
-  directoryPerms: "0755"
+  directoryPerms: "777"
+  gid: "1000" 
+  uid: "500" 
+  basePath: "/cpd"
 EOF
 }
