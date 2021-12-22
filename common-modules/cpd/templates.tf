@@ -11,6 +11,7 @@ locals {
   wa_instance        = "wa"
   wa_kafka_sc        = lookup(var.wa_kafka_storage_class, var.storage_option)
   wa_sc_size         = lookup(var.wa_storage_size, var.storage_option)
+  storage_type_value_wkc = var.storage_option == "efs" ? lookup(var.wkc_storageclass, var.storage_option): local.storage_type_value
 }
 
 data "template_file" "sysctl_worker" {
@@ -523,7 +524,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   version: ${var.watson_knowledge_catalog.version}
-  ${local.storage_type_key}: "${local.storage_type_value}"
+  ${local.storage_type_key}: "${local.storage_type_value_wkc}"
   license:
     accept: true
     license: Enterprise
