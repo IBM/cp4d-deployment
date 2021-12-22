@@ -18,6 +18,24 @@ spec:
 EOF
 }
 
+data "template_file" "efs_sc_wkc" {
+  template = <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: aws-efs-csi-wkc
+provisioner: efs.csi.aws.com
+mountOptions:
+  - tls
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: ${aws_efs_file_system.cpd_efs.id} 
+  directoryPerms: "777"
+  gid: "1000" 
+  uid: "500" 
+EOF
+}
+
 data "template_file" "efs_sc" {
   template = <<EOF
 kind: StorageClass
@@ -31,8 +49,7 @@ parameters:
   provisioningMode: efs-ap
   fileSystemId: ${aws_efs_file_system.cpd_efs.id} 
   directoryPerms: "777"
-  gid: "1000" 
-  uid: "500" 
-  basePath: "/cpd"
+  gidRangeStart: "2000"
+  gidRangeEnd: "2000000"
 EOF
 }

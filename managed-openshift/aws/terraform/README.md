@@ -115,6 +115,33 @@ $ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autos
 $ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autoscaling=false --replicas=<number>
 ```
 
+
+## Known Issues with EFS
+
+EFS has [quotas](https://docs.aws.amazon.com/efs/latest/ug/limits.html#limits-client-specific) for NFS clients. The clients can encounter issues
+which are documented in AWS [here](https://docs.aws.amazon.com/efs/latest/ug/troubleshooting-efs-fileop-errors.html)
+
+As a result of the [Disk Quota Limitations](https://docs.aws.amazon.com/efs/latest/ug/troubleshooting-efs-fileop-errors.html#diskquotaerror), you might see errors in `couchdb` 
+
+```
+[ERROR] [v2-get-project-list-controller] Cloudant Error:
+{
+   "name": "Error",
+   "statusCode": 500,
+   "error": "text_search_error",
+   "reason": "<<\"Lock obtain timed out: NativeFSLock@/opt/couchdb/data/search_indexes/shards/00000000-1fffffff/ngp-projects-api_icp_test.1640134610/f864815c98e8fa122eb388e72060c105/write.lock: java.io.IOException: Disk quota exceeded\">>",
+   "description": "couch returned 500",
+   "scope": "couch",
+   "errid": "non_200"
+}
+```
+
+This may be because of file locks exceeding the EFS limits. To workaround this issue , you can restart the couchdb pods.
+
+```
+oc delete pod $(oc get pods | grep couchdb | awk '{ print $1}')
+```
+
 ### Pricing Information for ROSA
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
 1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)

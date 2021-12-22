@@ -7,7 +7,7 @@
 data "aws_vpc" "cpd_vpc" {
   id = var.vpc_id
 }
-
+# maxIO or generalPurpose
 resource "aws_efs_file_system" "cpd_efs" {
    creation_token = "cpd_efs"
    performance_mode = "generalPurpose"
@@ -135,6 +135,7 @@ oc patch deploy efs-csi-controller -n kube-system --patch='{"spec":{"template":{
 sleep 60
 echo "Creating SC"
 oc create -f ${self.triggers.installer_workspace}/efs_sc.yaml
+oc create -f ${self.triggers.installer_workspace}/efs_sc_wkc.yaml
 echo "Creating test pvc"
 oc create -f ${self.triggers.installer_workspace}/efs_test_pvc.yaml
 sleep 60
@@ -157,6 +158,14 @@ resource "local_file" "efs_test_pvc_yaml" {
 resource "local_file" "efs_sc_yaml" {
   content  = data.template_file.efs_sc.rendered
   filename = "${local.installer_workspace}/efs_sc.yaml"
+  depends_on = [
+    resource.aws_efs_mount_target.cpd-efs-mt
+  ]
+}
+
+resource "local_file" "efs_sc_wkc_yaml" {
+  content  = data.template_file.efs_sc_wkc.rendered
+  filename = "${local.installer_workspace}/efs_sc_wkc.yaml"
   depends_on = [
     resource.aws_efs_mount_target.cpd-efs-mt
   ]
