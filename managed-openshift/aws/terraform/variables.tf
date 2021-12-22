@@ -177,7 +177,7 @@ variable "ocs" {
   }
 }
 
-# EFS for Tech Preview Only
+# EFS - See known issues
 variable "efs" {
   type = map(string)
   default = {

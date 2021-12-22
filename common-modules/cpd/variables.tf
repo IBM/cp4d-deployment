@@ -95,6 +95,17 @@ variable "rwo_cpd_storageclass" {
   }
 }
 
+variable "wkc_storageclass" {
+  type = map(any)
+
+  default = {
+    "portworx" = "portworx-shared-gp3"
+    "ocs"      = "ocs-storagecluster-cephfs"
+    "nfs"      = "nfs"
+    "efs"      = "aws-efs-csi-wkc"
+  }
+}
+
 variable "wd_storageclass" {
   type = map(any)
 
