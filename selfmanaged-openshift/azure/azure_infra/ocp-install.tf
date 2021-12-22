@@ -7,7 +7,7 @@ locals {
   machine-autoscaler-file        = "machine-autoscaler-${var.single-or-multi-zone}.tpl.yaml"
   machine-health-check-file      = "machine-health-check-${var.single-or-multi-zone}.tpl.yaml"
   ocptemplates                   = "${path.root}/ocpfourxtemplates"
-  openshift_installer_url        = "${var.openshift_installer_url_prefix}/${var.ocp_version}"
+  openshift_installer_url        = "${var.openshift_installer_url_prefix}/${var.ocp_version}/"
   ocs-machineset-file            = var.single-or-multi-zone == "single" ? "ocs-machineset-singlezone.yaml" : "ocs-machineset-multizone.yaml"
 }
 
