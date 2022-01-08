@@ -85,7 +85,7 @@ spec:
     license: Enterprise
 EOF"
 
-# Check ibm-cpd-ae-operator pod status
+# Check ibm-cde-operator pod status
 
 podname="ibm-cde-operator"
 name_space=$OPERATORNAMESPACE
