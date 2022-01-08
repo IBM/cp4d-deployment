@@ -62,6 +62,9 @@ spec:
   sourceNamespace: openshift-marketplace
 EOF"
 
+## Creating ibm-cde sub
+
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-cde-sub.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"
 
