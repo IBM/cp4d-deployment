@@ -237,7 +237,7 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   version: ${var.analytics_engine.version}
-  ${local.storage_type_key}: "${local.storage_type_value}" 
+  ${local.storage_type_key}: "${local.storage_type_value}"
   license:
     accept: true
     license: Enterprise
@@ -337,7 +337,7 @@ spec:
   version: ${var.watson_studio.version}
   size: "small"
   storageClass: ${local.storage_class}
-  ${local.storage_type_key}: "${local.storage_type_value}" 
+  ${local.storage_type_key}: "${local.storage_type_value}"
   license:
     accept: true
     license: Enterprise
@@ -382,7 +382,7 @@ spec:
   ignoreForMaintenance: false
   docker_registry_prefix: "cp.icr.io/cp/cpd"
   storageClass: ${local.storage_class}
-  ${local.storage_type_key}: "${local.storage_type_value}" 
+  ${local.storage_type_key}: "${local.storage_type_value}"
   version: ${var.watson_machine_learning.version}
   license:
     accept: true
@@ -530,8 +530,8 @@ spec:
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
   useODLM: true
-  # wkc_db2u_set_kernel_params: True
-  # iis_db2u_set_kernel_params: True
+  wkc_db2u_set_kernel_params: True
+  iis_db2u_set_kernel_params: True
   # install_wkc_core_only: true     # To install the core version of the service, remove the comment tagging from the beginning of the line.
 EOF
 }
@@ -651,7 +651,7 @@ kind: Subscription
 metadata:
   name: ibm-bigsql-operator-catalog-subscription
   namespace: ${local.operator_namespace}
-spec:   
+spec:
   channel: ${var.bigsql.channel}
   installPlanApproval: Automatic
   name: ibm-bigsql-operator
@@ -712,7 +712,7 @@ spec:
   version: ${var.data_management_console.version}
   license:
     accept: true
-    license: Standard 
+    license: Standard
 EOF
 }
 
@@ -742,7 +742,7 @@ data "template_file" "cde_cr" {
 apiVersion: cde.cpd.ibm.com/v1
 kind: CdeProxyService
 metadata:
-  name: cdeproxyservice-cr 
+  name: cdeproxyservice-cr
   namespace: ${var.cpd_namespace}
 spec:
   version: ${var.cognos_dashboard_embedded.version}
@@ -879,7 +879,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: ibm-planning-analytics-service
     app.kubernetes.io/managed-by: ibm-planning-analytics-operator
-    app.kubernetes.io/name: ibm-planning-analytics-service 
+    app.kubernetes.io/name: ibm-planning-analytics-service
   annotations:
     ansible.sdk.operatorframework.io/verbosity: '3'
 spec:
@@ -933,16 +933,16 @@ spec:
     imagePullSecrets: []
     storageClassName: ${local.wa_storage_class}    # If you use a different storage class, replace it with the appropriate storage class
     type: private
-    name: prod     # Do not change this value 
+    name: prod     # Do not change this value
   cpd:
     namespace: ${var.cpd_namespace}     # Replace with the project where Cloud Pak for Data is installed. This value will most likely match metadata.namespace
   datastores:
     cos:
-      storageClassName: "" 
+      storageClassName: ""
       storageSize: 20Gi
     datagovernor:
       elasticSearch:
-        storageSize: ${local.wa_sc_size} 
+        storageSize: ${local.wa_sc_size}
       etcd:
         storageSize: ${local.wa_sc_size}
       kafka:
@@ -1246,7 +1246,7 @@ spec:
   license:
     accept: true
   version: ${var.watson_discovery.version}
-  shared: 
+  shared:
     storageClassName: ${local.wd_storage_class}     # See the guidance in "Information you need to complete this task"
   watsonGateway:
     version: main
@@ -1271,8 +1271,8 @@ EOF
 
 data "template_file" "op_cr" {
   template = <<EOF
-apiVersion: openpages.cpd.ibm.com/v1 
-kind: OpenPagesService 
+apiVersion: openpages.cpd.ibm.com/v1
+kind: OpenPagesService
 metadata:
   name: openpages
   namespace: ${var.cpd_namespace}
@@ -1280,7 +1280,7 @@ metadata:
     app.kubernetes.io/name: openpages
     app.kubernetes.io/instance: openpages-service
     app.kubernetes.io/version: "${var.openpages.version}"
-    app.kubernetes.io/managed-by: ibm-cpd-openpages-operator 
+    app.kubernetes.io/managed-by: ibm-cpd-openpages-operator
 spec:
   version: "${var.openpages.version}"
   license:
