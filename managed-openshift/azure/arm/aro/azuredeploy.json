@@ -936,6 +936,12 @@
 					},
 					"resourceGroupName": {
 						"value": "[resourceGroup().name]"
+					},
+					"virtualNetworkName": {
+						"value": "[parameters('virtualNetworkName')]"
+					},
+					"workerSubnetName": {
+						"value": "[parameters('workerSubnetName')]"
 					}
 				}
 			}
@@ -994,6 +1000,12 @@
 					},
 					"resourceGroupName": {
 						"value": "[resourceGroup().name]"
+					},
+					"virtualNetworkName": {
+						"value": "[parameters('virtualNetworkName')]"
+					},
+					"workerSubnetName": {
+						"value": "[parameters('workerSubnetName')]"
 					}
 				}
 			}
@@ -1065,7 +1077,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1137,7 +1149,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1209,7 +1221,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1281,7 +1293,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1353,7 +1365,7 @@
 						"value": "v1.1"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1425,7 +1437,7 @@
 						"value": "v1"
 					},
 					"version": {
-						"value": "4.0.2"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1498,7 +1510,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1642,7 +1654,7 @@
 						"value": "stable-v1"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}
@@ -1714,7 +1726,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.3"
+						"value": "4.0.4"
 					}
 				}
 			}

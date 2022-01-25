@@ -79,7 +79,20 @@
 			"metadata": {
 				"description": "Resource Group Name"
 			}
+		},
+		"virtualNetworkName": {
+			"type": "string",
+			"metadata": {
+				"description": "Virtual Network name"
+			}
+		},
+		"workerSubnetName": {
+			"type": "string",
+			"metadata": {
+				"description": "Worker Subnet name"
+			}
 		}
+
 	},
 	"variables": {
 	},
@@ -106,7 +119,7 @@
 					]
 				},
 				"protectedSettings": {
-					"commandToExecute": "[concat('bash ', parameters('installOCSScriptFileName'), ' \"', parameters('adminUsername'), '\"', ' \"', parameters('openshiftUsername'), '\"', ' \"', parameters('openshiftPassword'), '\"', ' \"', parameters('clusterName'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('location'), '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('nfsIpAddress'), '\"', ' \"', parameters('resourceGroupName'), '\"')]"
+					"commandToExecute": "[concat('bash ', parameters('installOCSScriptFileName'), ' \"', parameters('adminUsername'), '\"', ' \"', parameters('openshiftUsername'), '\"', ' \"', parameters('openshiftPassword'), '\"', ' \"', parameters('clusterName'), '\"', ' \"', parameters('domainName'), '\"', ' \"', parameters('location'), '\"', ' \"', parameters('customDomain'), '\"', ' \"', parameters('nfsIpAddress'), '\"', ' \"', parameters('resourceGroupName'), '\"', ' \"', parameters('virtualNetworkName'), '\"', ' \"', parameters('workerSubnetName'), '\"')]"
 				}
 			}
 		}
