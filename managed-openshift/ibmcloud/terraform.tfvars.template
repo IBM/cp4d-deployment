@@ -28,7 +28,7 @@ cpd_platform             = {"enable":"yes", "version":"4.0.4", "channel":"v2.0"}
 # KNOWN ISSUE: Disable data_management_console if installing data_virtualization (DV installs DMC as a dependancy)
 #############
 watson_knowledge_catalog  = { "enable" : "no", "version" : "4.0.4", "channel" : "v1.0" }
-data_virtualization       = { "enable" : "no", "version" : "1.7.2", "channel" : "v1.7" }
+data_virtualization       = { "enable" : "no", "version" : "1.7.3", "channel" : "v1.7" }
 analytics_engine          = { "enable" : "no", "version" : "4.0.4", "channel" : "stable-v1" }
 watson_studio             = { "enable" : "no", "version" : "4.0.4", "channel" : "v2.0" }
 watson_machine_learning   = { "enable" : "no", "version" : "4.0.4", "channel" : "v1.1" }

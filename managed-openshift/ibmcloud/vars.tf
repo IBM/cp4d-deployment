@@ -81,7 +81,7 @@ variable "data_virtualization" {
   type = map(string)
   default = {
     enable  = "no"
-    version = "1.7.2"
+    version = "1.7.3"
     channel = "v1.7"
   }
 }
