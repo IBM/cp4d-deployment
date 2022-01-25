@@ -1000,6 +1000,12 @@
 					},
 					"resourceGroupName": {
 						"value": "[resourceGroup().name]"
+					},
+					"virtualNetworkName": {
+						"value": "[parameters('virtualNetworkName')]"
+					},
+					"workerSubnetName": {
+						"value": "[parameters('workerSubnetName')]"
 					}
 				}
 			}
