@@ -687,7 +687,7 @@ data "template_file" "dmc_sub" {
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-dmc-operator-subscription
+  name: ibm-databases-dmc-operator-subscription
   namespace: ${local.operator_namespace}
 spec:
   channel: ${var.data_management_console.channel}
@@ -703,7 +703,7 @@ data "template_file" "dmc_cr" {
 apiVersion: dmc.databases.ibm.com/v1
 kind: Dmcaddon
 metadata:
-  name: dmcaddon-cr
+  name: data-management-console-addon
   namespace: ${var.cpd_namespace}
 spec:
   namespace: "${var.cpd_namespace}"

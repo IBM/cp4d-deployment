@@ -25,7 +25,7 @@ bash cpd/scripts/pod-status-check.sh ibm-dmc-controller-manager ${local.operator
 echo "DMC CR"
 oc create -f ${self.triggers.cpd_workspace}/dmc_cr.yaml
 echo 'check the DMC cr status'
-bash cpd/scripts/check-cr-status.sh Dmcaddon dmcaddon-cr ${var.cpd_namespace} dmcAddonStatus
+bash cpd/scripts/check-cr-status.sh Dmcaddon data-management-console-addon ${var.cpd_namespace} dmcAddonStatus
 EOF
   }
   depends_on = [
