@@ -20,7 +20,7 @@ mv jq /usr/local/bin
 
 ## Download Openshift CLI and move to /usr/local/bin
 
-wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.9.15/openshift-client-mac-4.8.11.tar.gz"
+wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-mac-4.8.11.tar.gz"
 tar -xvf openshift-client-mac-4.8.11.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
