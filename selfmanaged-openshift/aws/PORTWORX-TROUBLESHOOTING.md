@@ -33,7 +33,7 @@ More details at  [Limitations and known issues in Db2 Data Management Console](h
 
 ## Match 360 with Watson
 
-The following steps should be considered when deploying on single zone AWS cluster with Portworx storage.
+The following steps should be considered when deploying on single zone AWS cluster with Portworx storage if the Elastic Search pods are not in running state.
 
 Set the same values for requests and limits for ElasticSearch.
 ```
