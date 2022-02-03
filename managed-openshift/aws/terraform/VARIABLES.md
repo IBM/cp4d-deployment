@@ -36,7 +36,6 @@
 | `availability_zone3` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | STORAGE |
 | `ocs` |`enable = false` | Set to enable, if OCS. The EC2 instance type for the OpenShift container storage (OCS) instances. Make sure your region supports the selected instance type. Supported ocs instance types [here](./INSTANCE-TYPES.md) |
-| `efs` | `enable = false` | See [known issues](./README#known-issues-with-efs) with EFS. [EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) is used as part of this deployment.  |
 | `portworx_enterprise` | `enable = false` | See PORTWORX.md on how to get the Cluster ID. |
 | `portworx_essentials` | `enable = false`  | See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint |
 | `portworx_ibm` | | NOTE: This option will only work if deployed from a RHEL machine with podman installed. This is the IBM freemium version of Portworx. It is limited to 5TB and 5Nodes. |

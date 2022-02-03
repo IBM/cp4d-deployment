@@ -106,7 +106,7 @@ After openshift cluster installation is finished and cloud pak for data installa
 
 
 ### Changelog
-* Install CPD 4.0.1
+* Install CPD 4.0.4
 * Added service parameters
 * Removed the bastion node
 * Dropped support for EFS.
