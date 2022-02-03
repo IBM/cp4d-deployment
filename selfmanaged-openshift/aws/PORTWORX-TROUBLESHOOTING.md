@@ -33,9 +33,82 @@ More details at  [Limitations and known issues in Db2 Data Management Console](h
 
 ## Match 360 with Watson
 
+The following steps should be considered when deploying on single zone AWS cluster with Portworx storage.
+
+Set the same values for requests and limits for ElasticSearch.
 ```
-TBD
+ master:
+   resources:
+     requests:
+       cpu: "1"
+       memory: "1Gi"
+     limits:
+       cpu: "1"
+       memory: "1Gi"
+ data:
+   resources:
+     requests:
+       cpu: "1"
+       memory: "3Gi"
+     limits:
+       cpu: "1"
+       memory: "3Gi"
 ```
+Don't specify storage class field in mdm-cr and should have only storage vendor field defined.
+```
+    persistence:
+      storage_vendor: portworx 
+```
+Example CR:
+
+```
+cat <<EOF |oc apply -f -
+apiVersion: mdm.cpd.ibm.com/v1
+kind: MasterDataManagement
+metadata:
+  name: mdm-cr     # This is the recommended name, but you can change it
+  namespace: zen    # Replace with the project where you will install IBM Match 360 with Watson
+spec:
+  license:
+    accept: true
+    license: Enterprise      # Specify the license you purchased
+  version: 1.1.167
+  persistence:
+    storage_vendor: portworx    # Specify the storage vendor (ocs | portworx)
+  common_core_services:
+    enabled: true
+  elasticsearch:
+    master:
+      resources:
+        requests:
+          cpu: "1"
+          memory: "1Gi"
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+    data:
+      resources:
+        requests:
+          cpu: "1"
+          memory: "3Gi"
+        limits:
+          cpu: "1"
+          memory: "3Gi"
+EOF
+```
+
+When ElasticSearchCluster got created during installation, edit the ES cr and enable sidecar by adding the following specs.
+```
+    spec:
+      storageCheckSidecar:
+        enabled: true
+```
+Edit it and enable sidecar.
+```
+	oc get elasticsearchcluster
+```
+This should resolve the issue and get the elastic search pods to running state.
+
 
 ## Watson Machine Learning
 
