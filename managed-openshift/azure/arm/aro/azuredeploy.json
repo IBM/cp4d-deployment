@@ -1077,7 +1077,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1149,7 +1149,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1221,7 +1221,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1293,7 +1293,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1362,10 +1362,10 @@
 						"value": "[variables('customDomain')]"
 					},
 					"subscriptionChannel": {
-						"value": "v1.1"
+						"value": "v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1437,7 +1437,7 @@
 						"value": "v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1510,7 +1510,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1582,7 +1582,7 @@
 						"value": "v1.7"
 					},
 					"version": {
-						"value": "1.7.3"
+						"value": "1.7.5"
 					}
 				}
 			}
@@ -1654,7 +1654,7 @@
 						"value": "stable-v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1726,7 +1726,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
