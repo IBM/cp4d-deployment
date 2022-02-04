@@ -52,7 +52,7 @@ resource "null_resource" "volume_attachment" {
   # count = length(data.ibm_container_vpc_cluster_worker.worker)
   count = var.worker_nodes
   # for_each = local.worker_volume_map
-  
+
   triggers = {
     volume = ibm_is_volume.this[count.index].id
     worker = data.ibm_container_vpc_cluster_worker.this[count.index].id
@@ -84,7 +84,7 @@ resource "null_resource" "volume_attachment" {
   #     WORKER_ID         = data.ibm_container_vpc_cluster_worker.this[count.index].id
   #     VOLUME_ID         = ibm_is_volume.this[count.index].id
   #   }
-  
+
   #   interpreter = ["/bin/bash", "-c"]
   #   command     = file("${path.module}/scripts/volume_attachment_destroy.sh")
   # }
@@ -120,7 +120,7 @@ locals {
 
 resource "kubernetes_secret" "etcd" {
   count = var.create_external_etcd ? 1 : 0
-  
+
   metadata {
     name = var.etcd_secret_name
     namespace = "kube-system"
@@ -131,7 +131,7 @@ resource "kubernetes_secret" "etcd" {
     username = var.etcd_username
     password = var.etcd_password
   }
-  
+
 }
 
 ##################################
@@ -163,7 +163,7 @@ resource "ibm_resource_instance" "portworx" {
     )
     etcd_secret      = var.create_external_etcd ? var.etcd_secret_name : null
     internal_kvdb    = var.create_external_etcd ? "external" : "internal"
-    portworx_version = "Portworx: 2.7.2 , Stork: 2.6.2"
+    portworx_version = "Portworx: 2.9.0 , Stork: 2.7.0"
     secret_type      = "k8s"
   }
 

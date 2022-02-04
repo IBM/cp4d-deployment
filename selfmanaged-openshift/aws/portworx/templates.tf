@@ -399,9 +399,12 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwx-sc
 parameters:
+  io_profile: cms
   block_size: 4096b
+  nfs_v4: "true"
   repl: "3"%{if var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption}${indent(2, "\nsecure: \"true\"")}%{endif}
   sharedv4: "true"
+  priority_io: high
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -412,10 +415,11 @@ kind: StorageClass
 metadata:
   name: portworx-db2-rwo-sc
 parameters:
+  block_size: 4096b
+  io_profile: db_remote
   priority_io: high
   repl: "3"%{if var.portworx_enterprise.enable && var.portworx_enterprise.enable_encryption}${indent(2, "\nsecure: \"true\"")}%{endif}
   sharedv4: "false"
-  io_profile: "db_remote"
   disable_io_profile_protection: "1"
 provisioner: kubernetes.io/portworx-volume
 reclaimPolicy: Retain

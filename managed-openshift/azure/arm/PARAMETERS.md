@@ -12,7 +12,7 @@
 | `pullSecret` | - | The pull secret that you obtained from the [Pull Secret](https://cloud.redhat.com/openshift/install/pull-secret) page on the Red Hat OpenShift Cluster Manager site. You use this pull secret to authenticate with the services that are provided by the included authorities, including Quay.io, which serves the container images for OpenShift Container Platform components. Example: "reference": { "keyVault": { "id": "/subscriptions/SUBSCRIPTION-ID/resourceGroups/RESOURCE-GROUP-NAME/providers/Microsoft.KeyVault/vaults/VAULT-NAME" }, "secretName": "pullsecret" } |
 | `adminUsername` | core | Admin username for the bootnode |
 | `sshPublicKey` | - | SSH Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
-| `storageOption` | ocs | Only OCS storage option is supported for now. |
+| `storageOption` | ocs | OCS and NFS storage options are supported for now. Values: `ocs/nfs` |
 | `projectName` | zen | Openshift namespace or project to deploy CPD into |
 | `apikey` | - | IBM Container Registry API Key |
 | `cloudPakLicenseAgreement` | reject | Accept Cloud Pak for Data License Agreement to install below services through Azure Deploy script. Values: `accept/reject` |

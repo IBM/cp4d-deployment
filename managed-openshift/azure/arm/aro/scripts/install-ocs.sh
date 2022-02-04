@@ -10,6 +10,8 @@ export DOMAINNAME=$5
 export REGION=$6
 export CUSTOMDOMAIN=$7
 export RESOURCEGROUPNAME=$9
+export VNETNAME=${10}
+export WORKERSUBNETNAME=${11}
 
 export MULTIZONE1=1
 export MULTIZONE2=2
@@ -210,11 +212,11 @@ spec:
           publicIP: false
           publicLoadBalancer: CLUSTERID
           resourceGroup: aro-$CLUSTERNAME
-          subnet: workerSubnet
+          subnet: $WORKERSUBNETNAME
           userDataSecret:
             name: worker-user-data
           vmSize: Standard_D16s_v3
-          vnet: myVNet
+          vnet: $VNETNAME
           zone: \"1\"
 ---
 apiVersion: machine.openshift.io/v1beta1
@@ -273,11 +275,11 @@ spec:
           publicIP: false
           publicLoadBalancer: CLUSTERID
           resourceGroup: aro-$CLUSTERNAME
-          subnet: workerSubnet
+          subnet: $WORKERSUBNETNAME
           userDataSecret:
             name: worker-user-data
           vmSize: Standard_D16s_v3
-          vnet: myVNet
+          vnet: $VNETNAME
           zone: \"2\"
 ---
 apiVersion: machine.openshift.io/v1beta1
@@ -336,11 +338,11 @@ spec:
           publicIP: false
           publicLoadBalancer: CLUSTERID
           resourceGroup: aro-$CLUSTERNAME
-          subnet: workerSubnet
+          subnet: $WORKERSUBNETNAME
           userDataSecret:
             name: worker-user-data
           vmSize: Standard_D16s_v3
-          vnet: myVNet
+          vnet: $VNETNAME
           zone: \"3\"
 EOF"
 
