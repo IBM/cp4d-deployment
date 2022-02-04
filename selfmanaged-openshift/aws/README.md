@@ -49,7 +49,7 @@ The deployment sets up the following as shown in the diagram.
 * S3 is the default repository storage for the OpenShift image registry.
 * [Download](https://cloud.redhat.com/openshift/install/pull-secret) a pull secret. Create a Red Hat account if you do not have one.
 * [Sign up](https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212) for a Cloud Pak for Data Trial Key if you don't have the API key.
-* If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`.
+* If you choose Portworx as your storage class, see [Portworx documentation](PORTWORX.md) for generating `portworx spec url`. Also see [Portworx troubleshooting documentation](PORTWORX-TROUBLESHOOTING.md) to fix commonly encountered issues when installing Cloud Pak for Data on Portworx storage on AWS.
 * Clone this repository:
 ```bash
 git clone <repo_url>
@@ -106,7 +106,7 @@ After openshift cluster installation is finished and cloud pak for data installa
 
 
 ### Changelog
-* Install CPD 4.0.1
+* Install CPD 4.0.4
 * Added service parameters
 * Removed the bastion node
 * Dropped support for EFS.

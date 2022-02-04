@@ -62,6 +62,9 @@ spec:
   sourceNamespace: openshift-marketplace
 EOF"
 
+## Creating ibm-cde sub
+
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-cde-sub.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"
 
@@ -82,7 +85,7 @@ spec:
     license: Enterprise
 EOF"
 
-# Check ibm-cpd-ae-operator pod status
+# Check ibm-cde-operator pod status
 
 podname="ibm-cde-operator"
 name_space=$OPERATORNAMESPACE

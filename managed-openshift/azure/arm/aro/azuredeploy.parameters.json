@@ -29,7 +29,7 @@
             "value": "specify azure client secret or password here"
         },
         "workerInstanceCount": {
-          "value": "specify worker count"
+          "value": "specify worker count <Type: Integer> (Allowed Values: 3/4/5/6/7/8/9/10)"
         },
         "storageOption": {
           "value": "specify nfs or ocs"

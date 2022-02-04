@@ -29,6 +29,10 @@ resource "null_resource" "install_wkc" {
 echo "Create SCC for WKC-IIS"
 oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
 
+#echo "Create RBAC for WKC-IIS"
+#oc create clusterrole system:openshift:scc:wkc-iis-scc --verb=use --resource=scc --resource-name=wkc-iis-scc
+#oc create rolebinding wkc-iis-scc-rb --namespace ${var.cpd_namespace} --clusterrole=system:openshift:scc:wkc-iis-scc --serviceaccount=${var.cpd_namespace}:wkc-iis-sa
+
 echo "Creating WKC Operator"
 oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}

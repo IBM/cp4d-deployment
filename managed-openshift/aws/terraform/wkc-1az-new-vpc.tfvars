@@ -1,23 +1,35 @@
-openshift_api      = "<required>"
-openshift_username = "<required>"
-openshift_password = "<required>"
-openshift_token    = "<optional>"
+##### AWS Configuration #####
+region                = "us-east-2"
 
-configure_global_pull_secret = true          # false if pull secret is already created
-configure_openshift_nodes    = true          # false if nodes are already configured
-cluster_type                 = "selfmanaged" # managed or selfmanaged
+access_key_id         = "<required>"
+secret_access_key     = "<required>"
 
-cpd_external_registry = "cp.icr.io"
-cpd_external_username = "cp"
-cpd_api_key           = "<required>"
-cpd_namespace         = "<required>"
+##############################
 
-storage_option = "<required>" # ocs or portworx. if nfs set  variable cpd_storageclass
-#cpd_storageclass            =  { "portworx": "", "ocs" : "", "nfs" : "<nfs storage class>" }
+ # Enter the number of availability zones the cluster is to be deployed, default is single zone deployment.
+ az                   = "single_zone"
+
+##########
+# ROSA
+##########
+
+ cluster_name          = "<required>"
+ rosa_token            = "<required>"
+ worker_machine_type   = "m5.4xlarge"
+ worker_machine_count  = 3     # set count depending on number of CPD services
+ private_cluster       = false
+ ocs                   = { "enable" : "true", "ocs_instance_type" : "m5.4xlarge" }  
+#efs                   = { "enable" : "false" } 
+
+#############
+# CPD Variables
+###############
+
+ cpd_api_key              = "<required>"
+ accept_cpd_license       = "accept"
 
 ## CPD services
-
-watson_knowledge_catalog  = { "enable" : "no", "version" : "4.0.4", "channel" : "v1.0" }
+watson_knowledge_catalog  = { "enable" : "yes", "version" : "4.0.4", "channel" : "v1.0" }
 data_virtualization       = { "enable" : "no", "version" : "1.7.3", "channel" : "v1.7" }
 analytics_engine          = { "enable" : "no", "version" : "4.0.4", "channel" : "stable-v1" }
 watson_studio             = { "enable" : "no", "version" : "4.0.4", "channel" : "v2.0" }
@@ -31,9 +43,10 @@ db2_oltp                  = { "enable" : "no", "version" : "4.0.5", "channel" : 
 cognos_analytics          = { "enable" : "no", "version" : "4.0.4", "channel" : "v4.0" }
 master_data_management    = { "enable" : "no", "version" : "1.1.167", "channel" : "v1.1" }
 decision_optimization     = { "enable" : "no", "version" : "4.0.4", "channel" : "v4.0" }
+planning_analytics        = { "enable" : "no", "version" : "4.0.4", "channel" : "v4.0" }
 bigsql                    = { "enable" : "no", "version" : "7.2.3", "channel" : "v7.2" }
 
-accept-cpd-license = "accept"
 
 
 
+ 
