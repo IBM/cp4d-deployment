@@ -55,6 +55,8 @@ ${self.triggers.installer_workspace}/rosa verify quota
 ${self.triggers.installer_workspace}/rosa create cluster ${local.private_link} --cluster-name='${self.triggers.cluster_name}' --compute-machine-type='${var.worker_machine_type}' --compute-nodes ${var.worker_machine_count} --region ${var.region} \
     --machine-cidr='${var.machine_network_cidr}' --service-cidr='${var.service_network_cidr}' --pod-cidr='${var.cluster_network_cidr}' --host-prefix='${var.cluster_network_host_prefix}' --private=${var.private_cluster} \
     --multi-az=${var.multi_zone} --version='${var.openshift_version}' --subnet-ids='${local.subnet_ids}' --watch --yes
+${self.triggers.installer_workspace}/rosa logs install --cluster=${self.triggers.cluster_name} --watch
+${self.triggers.installer_workspace}/rosa describe cluster --cluster='${self.triggers.cluster_name}'
 EOF
   }
   provisioner "local-exec" {
