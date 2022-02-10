@@ -70,7 +70,7 @@ The Service Principal can be created by running the azure CLI commands from any 
 
 ## Using your Azure Account Portal
 
-[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/IBM/cp4d-deployment/master/managed-openshift/azure/arm/aro/azuredeploy.json)
+[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FIBM%2Fcp4d-deployment%2Fmaster%2Fmanaged-openshift%2Fazure%2Farm%2Faro%2Fazuredeploy.json)
 
 
 * Click on the above button and input the variables in the template in the azure portal 
