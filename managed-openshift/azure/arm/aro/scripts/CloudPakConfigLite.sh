@@ -208,7 +208,7 @@ name_space=$OPERATORNAMESPACE
 status="unknown"
 while [ "$status" != "Running" ]
 do
-  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
+  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}')
   ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
   pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
   echo $pod_name State - $ready_status, podstatus - $pod_status

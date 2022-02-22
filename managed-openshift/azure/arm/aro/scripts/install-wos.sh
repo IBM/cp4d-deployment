@@ -50,9 +50,9 @@ kind: Subscription
 metadata:
   name: ibm-watson-openscale-operator
   labels:
-    app.kubernetes.io/instance: ibm-watson-openscale-operator
+    app.kubernetes.io/instance: ibm-watson-openscale-operator-subscription
     app.kubernetes.io/managed-by: ibm-watson-openscale-operator
-    app.kubernetes.io/name: ibm-watson-openscale-operator
+    app.kubernetes.io/name: ibm-watson-openscale-operator-subscription
   namespace: $OPERATORNAMESPACE
 spec:
   channel: $CHANNEL
