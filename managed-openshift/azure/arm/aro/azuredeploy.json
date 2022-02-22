@@ -7,7 +7,7 @@
 			"metadata": {
 				"description": "The base URL where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
 			},
-			"defaultValue": ""
+			"defaultValue": "https://raw.githubusercontent.com/IBM/cp4d-deployment/master/managed-openshift/azure/arm/aro/azuredeploy.json"
 		},
 		"_artifactsLocationSasToken": {
 			"type": "securestring",
@@ -1299,7 +1299,7 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonStudioLocal'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonMachineLearning'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-05-01",
 			"name": "CloudPakWMLDeployment",
