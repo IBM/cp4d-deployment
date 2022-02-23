@@ -379,8 +379,8 @@
 		"installDataRefineryScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-dr.sh', parameters('_artifactsLocationSasToken')))]",
 		"installCdeScriptFileName": "install-cde.sh",
 		"installCdeScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-cde.sh', parameters('_artifactsLocationSasToken')))]",
-		"installWkcCoreScriptFileName": "install-wkc-core.sh",
-		"installWkcCoreScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc-core.sh', parameters('_artifactsLocationSasToken')))]",
+		"installWkcScriptFileName": "install-wkc.sh",
+		"installWkcScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc.sh', parameters('_artifactsLocationSasToken')))]",
 		"installDVScriptFileName": "install-dv.sh",
 		"installDVScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-dv.sh', parameters('_artifactsLocationSasToken')))]",
 		"deployOpenshiftExt": "[concat('Microsoft.Compute/virtualMachines/', variables('bastionHostname'), '/extensions/deployOpenshift')]",
@@ -1077,7 +1077,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1149,7 +1149,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1221,7 +1221,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1293,7 +1293,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1362,10 +1362,10 @@
 						"value": "[variables('customDomain')]"
 					},
 					"subscriptionChannel": {
-						"value": "v1.1"
+						"value": "v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1437,7 +1437,7 @@
 						"value": "v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1510,7 +1510,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1582,7 +1582,7 @@
 						"value": "v1.7"
 					},
 					"version": {
-						"value": "1.7.3"
+						"value": "1.7.5"
 					}
 				}
 			}
@@ -1654,7 +1654,7 @@
 						"value": "stable-v1"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
@@ -1663,7 +1663,7 @@
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-05-01",
-			"name": "CloudPakWKCCoreDeployment",
+			"name": "CloudPakWKCDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
 				"CloudPakDataRefineryDeployment",
@@ -1678,10 +1678,10 @@
 				},
 				"parameters": {
 					"cloudPakDeploymentScriptUrl": {
-						"value": "[variables('installWkcCoreScriptUrl')]"
+						"value": "[variables('installWkcScriptUrl')]"
 					},
 					"cloudPakDeploymentScriptFileName": {
-						"value": "[variables('installWkcCoreScriptFileName')]"
+						"value": "[variables('installWkcScriptFileName')]"
 					},
 					"redHatTags": {
 						"value": "[variables('redHatTags')]"
@@ -1726,7 +1726,7 @@
 						"value": "v1.0"
 					},
 					"version": {
-						"value": "4.0.4"
+						"value": "4.0.5"
 					}
 				}
 			}
