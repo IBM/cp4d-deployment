@@ -17,7 +17,7 @@ metadata:
     ansible.sdk.operatorframework.io/verbosity: "4"  
 spec:
   arch: x86_64
-  version: 4.0.1
+  version: 4.0.5
   description: "Data Management Console"
   scaleConfig: small
   storageClass: "YOUR_STORAGECLASS"
@@ -72,7 +72,7 @@ spec:
   license:
     accept: true
     license: Enterprise      # Specify the license you purchased
-  version: 1.1.167
+  version: 1.1.175
   persistence:
     storage_vendor: portworx    # Specify the storage vendor (ocs | portworx)
   common_core_services:
@@ -206,18 +206,34 @@ spec:
   license:
     accept: true
     license: Enterprise
-  version: 4.0.4
+  version: 4.0.5
   type: service
   storageClass: portworx-shared-gp3
   rwoStorageClass: portworx-metastoredb-sc
 EOF
 ```
 
+After installation if the status of the default Openscale instance on CP4D Web Console is shown as failed, execute this command on the terminal 
+```
+oc label deployment aiopenscale-ibm-aios-nginx icpd-addon/status=`oc get cm aios-openscale-defaultinstance-cm -o jsonpath='{.data.instance_id}'`
+```
+Refresh the CP4D Web console, this instance should be in running state.
 
+## Watson Knowledge Catalog
 
-
-
-
-
-
+While creation of Data Discovery job, if there is an error while adding a data connection, Diasble the audit logging in IIS service. Execute the following commands
+to disable the logging
+Get in to the IIS services pod by running this command
+```
+oc rsh <services pod name>
+```
+Execute this command
+```
+ /opt/IBM/InformationServer/ASBServer/bin/iisAdmin.sh -set -key com.ibm.iis.isf.auditing.enable -value false
+```
+Delete the IIS services pod 
+```
+oc delete pod <pod name>
+```
+This should resolve the error.
 
