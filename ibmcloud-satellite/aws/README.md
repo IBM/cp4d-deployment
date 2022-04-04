@@ -1,29 +1,27 @@
 
-**Cloud Paks on Satellite Using AWS Infrastructure**
-\------------------------------------------------------------------------------------------------------
+                                    **Cloud Paks on Satellite Using AWS Infrastructure**
+
 
 **Part 1: Creating a Satellite location in IBM Cloud using AWS infrastructure**
-\--------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 Before you begin this process, you will need the following information:
 
 - AWS Access key and secret ( AdministratorAccess policy is required for the IAM user who will be used for deploying the cluster.)
 - Size of nodes to provision (CPU and RAM) (Minimum 16core\*64GB each node - md5.4xlarge)
-- Number of nodes required (Minimum 3 worker nodes). Please refer Cloud pak for data hardware requirements:
+- Every time we create satellite cluster by default 3 nodes are assignedto control planeand remaining will be worker nodes (Minimum 3 worker nodes). Please refer Cloud pak for   data hardware requirements:https://www.ibm.com/docs/en/SSQNUZ_4.0/sys-reqs/hardware-reqs.html
 
-https://www.ibm.com/docs/en/SSQNUZ\_4.0/sys-reqs/hardware-reqs.html
+**AWS Access key and secret:**
 
-AWS Access key and secret:
-\----------------------------------------------
-\1. After logging to cloud.ibm.com, From Menu, Select **Satellite** > **Locations** > **Create location**
+1. After logging to cloud.ibm.com, From Menu, Select **Satellite** > **Locations** > **Create location**
 When you select the **Amazon Web Services template** you will need to provide your AWS **access key ID** and **secret access key**.
 
 ![](images/satellite-templates.png)
 
 ![](images/satellite-aws-options.png)
 
-Size of nodes to provision (CPU and RAM)
-\--------------------------------------------------------
+**Size of nodes to provision (CPU and RAM)**
+
 The minimum requirement is 16 CPU X 64GB memory, our EC2 instances should be configured in such a way to offer mentioned configuration. (for example m5d.4xlarge 16 cpu x 64GB)
 
 ![](images/aws-hardware-configuration.png)
@@ -34,7 +32,7 @@ After you click Create, the EC2 Instances are provisioned for you on AWS. This c
 
 
 **Part 2: Create an OpenShift cluster at the location**
-\----------------------------------------------------------------------------------------------------
+
 In the **Satellite > Cluster** page select **Create Cluster** then select **Satellite** as your infrastructure and then select your **Satellite Location**.
 ![](images/satellite-cluster-creation.png)
 
@@ -44,8 +42,8 @@ Under Worker Pools, you also need to select the size of the nodes for your clust
 
 The cluster is ready when it shows as Normal in the **Openshift clusters** page.
 
-**Part 3: Configure the cluster for public log in
--------------------------------------------------------------------------------------**
+**Part 3: Configure the cluster for public log in**
+
 After the cluster is provisioned, in order to log in to the openshift web console, you need to update the DNS and cluster subdomain. In AWS, open your EC2 instances and record the public and private IP addresses for each of the control plane and worker nodes.
 
 ![](images/cluster-config-public-login.png)
@@ -81,14 +79,14 @@ You have now successfully configured a Satellite Location in IBM Cloud using AWS
 Please refer <https://cloud.ibm.com/docs/openshift?topic=openshift-access_cluster#sat_public_access> for detailed info.
 
 **Part 5: Configure storage**
-**------------------------------------------------------**
+
 We need to complete below steps in order to configure storage on satellite cluster. These steps describes how to install ODF on OCP 4.8.
 
-\1. Create two volumes for each AWS node and attach them to the node.
-\2. Get the device details for your storage configuration and install ODF.
+1. Create two volumes for each AWS node and attach them to the node.
+2. Get the device details for your storage configuration and install ODF.
 
-\1. Create two volumes for each AWS node and attach them to the node
-\-------------------------------------------------------------------------------------------------
+1. **Create two volumes for each AWS node and attach them to the node**
+
 
 ODF requires two volumes on each worker node.
 
@@ -121,16 +119,15 @@ Search for the EC2 Instance that you want to attach the volume to. As you can se
 **Figure 6. Select which EC2 instance to attach the volume to.**
 
 
-**Get the device details for your storage configuration and install ODF
------------------------------------------------------------------------------------------------**
+**Get the device details for your storage configuration and install ODF**
 
 Now that the storage volumes are configured on the worker nodes on AWS, you can install ODF. The overall process consists of:
 
 - Creating a satellite storage configuration that contains the paths to the storage volumes on AWS.
 - Creating a satellite storage assignment which uses the storage configuration.
 
-Creating a satellite storage configuration that contains the paths to the storage volumes
-\-----------------------------------------------------------------------------------------------------------------------
+**Creating a satellite storage configuration that contains the paths to the storage volumes**
+
 
 Use below command template to create storage configuration 
 ibmcloud sat storage config create --name odf-local-config --location <location> --template-name odf-local --template-version 4.8 -p "ocs-cluster-name=testocscluster" -p "osd-device-path=/dev/disk/by-id/<device-1>,/dev/disk/by-id/<device-2>,/dev/disk/by-id/<device-3>" -p "num-of-osd=1" -p "worker-nodes=<worker-node-name>,<worker-node-name>,<worker-node-name>" -p "iam-api-key=<iam-api-key>"
@@ -147,17 +144,19 @@ To fetch osd-device-path please follow below commands:
 \> lsblk
 
 ` `> ls -l /dev/disk/by-id/
+
 ![](images/verify-odf-cluster.png)
+
 You can note down the osd-device-path and mount-device-path for each node in same way as above.
 
 An enhancement was made to the ODF storage with the addition of a new parameter auto-discover-devices=true. When this parameter is specified, you no longer need to provide the mon-device-path or osd-device-path parameters when you create the satellite storage configuration.  Instead the command uses the OCP 4.8 template and contains:
 
-ibmcloud sat storage config create --name ocs-template4 --template-name odf-local --template-version 4.8 --location ps-aws-satellite-9 -p "ocs-cluster-name=ocs-cluster" -p "auto-discover-devices=true" -p "iam-api-key=<my\_key>" 
+ibmcloud sat storage config create --name <config-name> --template-nameodf-local --template-version 4.8 --location <sat-location> -p " ocs-cluster-name=ocs-cluster " -p " auto-discover-devices = true " -p " iam-api-key=<my_key> " 
 
 
 Once storage configuration is created we need to create satellite storage assignment which uses the storage configuration. Use below commands to create assignment:
 
-ibmcloud sat storage assignment create --cluster c4ojhf4w0st5udsp5fbg --config ocs-template4 --name odf-storage-1
+ibmcloud sat storage assignment create --cluster <cluster-id/name> --config <config-name> --name <assignment-name>
 
 
 
@@ -167,24 +166,24 @@ After you run this command, it will take a few minutes for the ODF cluster to be
 \> oc get pods -n openshift-storage
 **The OCS cluster is also visible in the OpenShift web console. From the** openshift-storage **project, navigate to**  Operators **>** Installed Operators > OpenShift Container Storage. 
 
-**Part 6: Install Cloud Paks
-------------------------------**
+**Part 6: Install Cloud Paks**
+
 Now that we have configured storage on our cluster on our satellite location, we can install a Cloud Pak. When installing Cloud Paks on a Satellite cluster, you can use the same instructions to install the Cloud Pak that you would use if your OpenShift cluster was running as a managed service in IBM Cloud. Only difference is updating pull secrets to cluster nodes for that please follow below instruction:
 
 **Steps to configure global pull secret**
-**-------------------------------------------**
+
 The Cloud Pak for Data resources such as pods are set up to pull from the IBM Entitled Registry.  This registry is secured and can only be accessed with your entitlement key.  In order to download the images for the pods, your entitlement key needs to be configured in the config.json file on each worker node. To update the config.json file on each worker node, use a daemonset.
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ## First, you will need to create a secret with the entitlement key in the default namespace. You can get your entitlement key from <https://myibm.ibm.com/products-services/containerlibrary>.
 ##
 ## ```oc create secret docker-registry docker-auth-secret \--docker-server=cp.icr.io \--docker-username=cp \--docker-password=<entitlement-key> \--namespace default```
-##
+
 Once the secret is created, you can use a daemonset to update your worker nodes.  If you choose to use a daemonset make sure it's working on each node prior to starting the installation.
 
 **NOTE**: Below is an example of a daemonset yaml that can accomplish updating the global pull secret on each of your worker nodes.
 
-apiVersion: apps/v1
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## cat <<EOF |oc apply -f -apiVersion: apps/v1
+## apiVersion: apps/v1
 ## kind: DaemonSet
 ## metadata:
 ## `   `name: update-docker-config
@@ -252,7 +251,8 @@ apiVersion: apps/v1
 ## `         `- name: lib64
 ## `           `hostPath:
 ## `             `path: /lib64
-`             `hostPathType: Directory**
+##`             `hostPathType: Directory
+## 'EOF
 
 The daemonset schedules pod on every worker node and configures every worker node the ability to pull cloud pak for data images.
 --------------------------------------------------------------------------------------------------------------------------------
