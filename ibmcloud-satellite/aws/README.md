@@ -18,15 +18,15 @@ AWS Access key and secret:
 \1. After logging to cloud.ibm.com, From Menu, Select **Satellite** > **Locations** > **Create location**
 When you select the **Amazon Web Services template** you will need to provide your AWS **access key ID** and **secret access key**.
 
-![](satellite-templates.png)
+![](images/satellite-templates.png)
 
-![](satellite-aws-options.png)
+![](images/satellite-aws-options.png)
 
 Size of nodes to provision (CPU and RAM)
 \--------------------------------------------------------
 The minimum requirement is 16 CPU X 64GB memory, our EC2 instances should be configured in such a way to offer mentioned configuration. (for example m5d.4xlarge 16 cpu x 64GB)
 
-![](aws-hardware-configuration.png)
+![](images/aws-hardware-configuration.png)
 
 **Note**: You do not need to create Object storage as we will configure storage later.
 
@@ -36,11 +36,11 @@ After you click Create, the EC2 Instances are provisioned for you on AWS. This c
 **Part 2: Create an OpenShift cluster at the location**
 \----------------------------------------------------------------------------------------------------
 In the **Satellite > Cluster** page select **Create Cluster** then select **Satellite** as your infrastructure and then select your **Satellite Location**.
-![](satellite-cluster-creation.png)
+![](images/satellite-cluster-creation.png)
 
 Under Worker Pools, you also need to select the size of the nodes for your cluster and which zone they reside in.When the cluster is provisioned, it will use the number of nodes you specified from each selected zone as worker nodes.Finally, click **Enable cluster admin access for Satellite Config**  which ensures that all of the Satellite Config components will work, and then give your cluster a name.
 
-![](cluster-admin-access-on-satellite.png)
+![](images/cluster-admin-access-on-satellite.png)
 
 The cluster is ready when it shows as Normal in the **Openshift clusters** page.
 
@@ -48,7 +48,7 @@ The cluster is ready when it shows as Normal in the **Openshift clusters** page.
 -------------------------------------------------------------------------------------**
 After the cluster is provisioned, in order to log in to the openshift web console, you need to update the DNS and cluster subdomain. In AWS, open your EC2 instances and record the public and private IP addresses for each of the control plane and worker nodes.
 
-![](cluster-config-public-login.png)
+![](images/cluster-config-public-login.png)
 
 Then using those IP addresses run below commands.:
 
@@ -93,7 +93,7 @@ We need to complete below steps in order to configure storage on satellite clust
 ODF requires two volumes on each worker node.
 
 **Note**: The volumes need to be created in the same zone as the EC2 Instance that you will to attach them to. To find the availability zone where the instance resides, open each EC2 instance and locate its availability zone. You will need to create the volumes for the instance in that zone.
-![](determine-az-of-ec2-instance.png)
+![](images/determine-az-of-ec2-instance.png)
 
 Figure 1: **How to determine the availability zone of an EC2 instance**
 
@@ -102,21 +102,21 @@ Create two volumes per EC2 Instance. To work with the Cloud Paks, we created 100
 **Note**: This step is only required for EC2 instances that serve as worker nodes and is not required for control plane nodes.
 
 
-![](create-volume.png)
+![](images/create-volume.png)
 **Figure 2: Create two storage volume in AWS, 100GiB, 500GiB**
 
 
-![](two-storage-volumes.png)
+![](images/two-storage-volumes.png)
 **Figure 3: Two storage volumes, 100 GiB, 500GiB.**
 
 After the two volumes are created, attach them to their corresponding EC2 instance:
 
-![](attach-volumes.png)
+![](images/attach-volumes.png)
 
 **Figure 5. Attach volume to EC2 instance.**
 
 Search for the EC2 Instance that you want to attach the volume to. As you can see in the screenshot below, only the instances in the associated zone are displayed. Pick your instance and click Attach.
-![](fetch-device-osd-path.png)
+![](images/fetch-device-osd-path.png)
 
 **Figure 6. Select which EC2 instance to attach the volume to.**
 
@@ -147,7 +147,7 @@ To fetch osd-device-path please follow below commands:
 \> lsblk
 
 ` `> ls -l /dev/disk/by-id/
-![](verify-odf-cluster.png)
+![](images/verify-odf-cluster.png)
 You can note down the osd-device-path and mount-device-path for each node in same way as above.
 
 An enhancement was made to the ODF storage with the addition of a new parameter auto-discover-devices=true. When this parameter is specified, you no longer need to provide the mon-device-path or osd-device-path parameters when you create the satellite storage configuration.  Instead the command uses the OCP 4.8 template and contains:
