@@ -22,6 +22,6 @@ This repository contains automated scripts/deployment steps to get you started o
 -  [Cloud Pak for Data on Existing OpenShift](./existing-openshift/README.md)
 
 - Cloud Pak for Data on IBM Cloud Satellite locations
-   	-  [AWS](./ibmcloud-satellite/aws)
+   	- [AWS](./ibmcloud-satellite/aws)
 
-	  -  [On-Premises](./ibmcloud-satellite/on-premises)
+	  - [On-Premises](./ibmcloud-satellite/on-premises)
