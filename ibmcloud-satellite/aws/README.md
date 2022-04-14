@@ -24,8 +24,8 @@ In order to deliver consistent experience across various form factors including 
   
 1. [Creating a Satellite location in IBM Cloud using AWS infrastructure](#step-1-creating-a-satellite-location-in-ibm-cloud-using-aws-infrastructure)
 2. [Create an OpenShift cluster at the location](#step-2-create-an-openshift-cluster-at-the-satellite-location)
-3. [Configure storage](step-3-configure-storage)
-4. [Install Cloud Pak for Data](step-4-install-cloud-pak-for-data)
+3. [Configure storage](#step-3-configure-storage)
+4. [Install Cloud Pak for Data](#step-4-install-cloud-pak-for-data)
 
 
 ## Prerequisites
