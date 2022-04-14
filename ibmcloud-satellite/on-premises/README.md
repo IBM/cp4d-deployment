@@ -41,21 +41,21 @@ The following are the steps to be followed to deploy:
 
 1. [Create a satellite location](#1create-a-satellite-location)
 
-2. [Provision machines]()
+2. [Provision host machines](#2-provision-host-machines)
 
-3. [Update machines]()
+3. [Update host machines](#3-update-the-host-machines)
 
-4. [Assign hosts to Control Plane]()
+4. [Assign hosts to Control Plane](#4-assign-the-control-plane-hosts-to-the-satellite-location)
 
-5. [Assign hosts to OCP cluster]()
+5. [Assign hosts to OCP cluster](#5-assign-remaining-hosts-to-the-satellite-location-for-the-openshift-cluster)
 
-6. [Install Red Hat Openshift]()
+6. [Install Red Hat Openshift](#6-create-openshift-cluster)
 
-7. [Setup storage and install ODF]()
+7. [Setup storage and install ODF](#7-install-openshift-data-foundation-odf-storage)
 
-8. [Configuring OCP cluster pull secret]()
+8. [Configuring OCP cluster pull secret](#8-configuring-your-cluster-pull-secret)
 
-9. [Install Cloud Pak for Data]()
+9. [Install Cloud Pak for Data](#9-install-cloud-pak-for-data)
 
   
   
