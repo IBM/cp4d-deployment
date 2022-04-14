@@ -22,11 +22,10 @@ In order to deliver consistent experience across various form factors including 
   
   The following  are the steps to be followed to deploy 
   
-1. Creating a Satellite location in IBM Cloud using AWS infrastructure
-2. Create an OpenShift cluster at the location
-3. Configure the cluster for public log in
-4. Configure storage
-5. Install Cloud Pak for Data
+1. [Creating a Satellite location in IBM Cloud using AWS infrastructure](#step-1-creating-a-satellite-location-in-ibm-cloud-using-aws-infrastructure)
+2. [Create an OpenShift cluster at the location](#step-2-create-an-openshift-cluster-at-the-satellite-location)
+3. [Configure storage](step-3-configure-storage)
+4. [Install Cloud Pak for Data](step-4-install-cloud-pak-for-data)
 
 
 ## Prerequisites
@@ -97,13 +96,8 @@ Under Worker Pools, you also need to select the size of the nodes for your clust
 
 The cluster is ready when it shows as Normal in the **Openshift clusters** page.
 
- ## Step 3: Configure the cluster for public log in
-
-  
-
 After the cluster is provisioned, in order to log in to the Openshift web console, you need to update the DNS and cluster subdomain. In AWS, open your EC2 instances and record the public and private IP addresses for each of the control plane and worker nodes.
 
-  
 
 ![](images/cluster-config-public-login.png)
 
@@ -159,7 +153,7 @@ You have now successfully configured a Satellite Location in IBM Cloud using AWS
 
 Please refer [Accessing clusters from the public network](https://cloud.ibm.com/docs/openshift?topic=openshift-access_cluster#sat_public_access) for more detailed information.
 
-##  Step 4: Configure storage
+##  Step 3: Configure storage
 
   
 
@@ -328,7 +322,7 @@ After you run this command, it will take a few minutes for the ODF cluster to be
 ```
 The OCS cluster is also visible in the OpenShift web console. From the openshift-storage project, navigate to ** Operators > Installed Operators > OpenShift Container Storage **.
 
- ## Step 5: Install Cloud Pak for Data
+ ## Step 4: Install Cloud Pak for Data
 
   
 
