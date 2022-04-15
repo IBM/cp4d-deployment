@@ -73,7 +73,9 @@ The minimum requirement is 16 CPU X 64GB memory for each worker node on a Cloud 
 
   
 
-After you click Create, the EC2 Instances are provisioned for you on AWS. This can take a while and you’ll know the hosts are ready when the Satellite Location status is Normal. For reference you can always check the logs in workspace. ( Schematics -> Workspaces). ![](satellite-location-status.png)
+After you click Create, the EC2 Instances are provisioned for you on AWS. This can take a while and you’ll know the hosts are ready when the Satellite Location status is Normal. For reference you can always check the logs in workspace. ( Schematics -> Workspaces). 
+
+![](images/satellite-location-status.png)
 
   
  

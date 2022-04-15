@@ -64,28 +64,20 @@ The following are the steps to be followed to deploy:
 
 - Navigate to https://cloud.ibm.com/satellite/locations and click Create Location. Select On-premises & edge:
 
-  
+![image](images/satellite-locations-templates.png)
 
-![image](https://media.github.ibm.com/user/12103/files/65a6ea80-b666-11ec-8fb1-93c53f9fcfbd)
-
-  
-  
 
 - Edit the name, location, and resource group as required:
 
-  
-
-![image](https://media.github.ibm.com/user/12103/files/72c3d980-b666-11ec-8d02-5858c97c02e6)
+![image](images/create-satellite-location.png)
 
   
   
 
 - Generate and download the attach script after creating the location, this is to be run later on the on-premises VMs:
 
-  
 
-![image](https://media.github.ibm.com/user/12103/files/79525100-b666-11ec-9ed4-2c1c826ecc1b)
-
+![image](images/generate-script.png)
   
 
 ### 2. Provision host machines 
@@ -186,10 +178,7 @@ Copy the attach script that you downloaded in step one from the Satellite locati
 
 Then in the satellite location "Hosts" tab, use the action menu for three of the Hosts to assign the node to the control plane, each in a separate "zone".
 
-![image](https://media.github.ibm.com/user/12103/files/8bcc8a80-b666-11ec-931a-5016d9aa4218)
-
-  
-  
+![image](images/assign-host-to-control-plane.png)
 
 ### 5. Assign remaining hosts to the satellite location for the OpenShift cluster:
 
@@ -201,20 +190,19 @@ Then in the satellite location "Hosts" tab, use the action menu for three of the
 
 Important: Wait until the Satellite Location state becomes: **Normal**
 
-![image](https://media.github.ibm.com/user/12103/files/9424c580-b666-11ec-9432-32b6277ca7f9)
-
+![image](images/normal-status.png)
   
 
 Before you create the OpenShift cluster.
 
 Click Satellite > Locations > Getting started > Create cluster to create the OpenShift cluster, selecting Satellite as the Infrastructure, and selecting your Location.
 
+![image](images/create-cluster.png)
   
 
 In the **Default work pool**, select the CPU and Memory sizes that are less than or equal to the VMs you provisioned (i.e. don't select sizes that are bigger than the nodes available). Select the number of VMs to include as worker nodes in your cluster and select to **Enable cluster admin access**.
 
-![image](https://media.github.ibm.com/user/12103/files/9b4bd380-b666-11ec-88b8-103ea073de3e)
-
+![image](images/default-worker-pool.png)
   
 
 Note: After the nodes are assigned to the Location, either as a control plane or worker node, you can no longer ssh into them from your Terminal window. You can however access them the OpenShift console under Compute > Nodes > <node> > Terminal or log into the IBM Cloud CLI and use the oc debug node/<node-name> command.
