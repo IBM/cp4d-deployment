@@ -99,7 +99,7 @@ Please refer to [Cloud Pak for data hardware requirements](https://www.ibm.com/d
 
 Storage:
 
-You can use OpenShift Data Foundation (ODF) storage, which means that each host that is included in the ODF storage cluster must have at least two raw unformatted unmounted disks attached.  The minimum requirements are 100 GB for disk 1 and 500 GB for disk 2 for each VM.
+You can use OpenShift Data Foundation (ODF) storage, which means that each host that is included in the ODF storage cluster must have at least two raw unformatted unmounted disks attached.  The minimum requirements are 100 GB for disk 1 and 500 GB for disk 2 for each host.
 
 TIP: If you have the available quota, it can be useful to provision an extra host or two to have in case you need to add additional worker nodes to your cluster or if one of the nodes fail.
 

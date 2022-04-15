@@ -94,7 +94,9 @@ Under Worker Pools, you also need to select the size of the nodes for your clust
 
   
 
-The cluster is ready when it shows as Normal in the **Openshift clusters** page.
+The cluster is ready when it shows as Active in the **Openshift clusters** page.
+
+![](images/satellite-cluster-status.png)
 
 After the cluster is provisioned, in order to log in to the Openshift web console, you need to update the DNS and cluster subdomain. In AWS, open your EC2 instances and record the public and private IP addresses for each of the control plane and worker nodes.
 
@@ -284,8 +286,6 @@ To fetch osd-device-path please follow below commands:
 	ls -l /dev/disk/by-id/
 ```
   
-
-![](images/verify-odf-cluster.png)
 
   
 
