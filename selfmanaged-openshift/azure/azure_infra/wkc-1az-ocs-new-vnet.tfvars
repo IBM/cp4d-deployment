@@ -23,6 +23,7 @@ ssh-public-key        = "<required>"
 apikey                = "<required>"
 
 ## CPD services
+
 cpd_version               = "4.5.0"
 watson_knowledge_catalog  = "yes"
 data_virtualization       = "no"
