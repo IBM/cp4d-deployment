@@ -36,9 +36,13 @@ datastage                 = { "enable" : "no", "version" : "4.0.4", "channel" : 
 db2_warehouse             = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
 db2_oltp                  = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
 cognos_analytics          = { "enable" : "no", "version" : "4.0.4", "channel" : "v4.0" }
-master_data_management    = { "enable" : "no", "version" : "1.1.167", "channel" : "v1.1" }
+master_data_management    = { "enable" : "no", "version" : "1.1.167","channel" : "v1.1"}
 decision_optimization     = { "enable" : "no", "version" : "4.0.4", "channel" : "v4.0" }
 bigsql                    = { "enable" : "no", "version" : "7.2.3", "channel" : "v7.2" }
+openpages                 = { "enable" : "no", "version" : "8.204.2","channel": "v1.0" }
+watson_discovery          = { "enable" : "no", "version" : "4.0.5", "channel": "v4.0" }
+planning_analytics        = { "enable" : "no", "version" : "4.0.5", "channel": "v4.0" }
+
 
 accept-cpd-license = "accept"
 
