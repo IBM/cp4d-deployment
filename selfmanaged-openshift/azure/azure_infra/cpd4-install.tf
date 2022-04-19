@@ -44,6 +44,9 @@ module "cpd" {
   db2_aaservice             = var.db2_aaservice
   decision_optimization     = var.decision_optimization
   bigsql                    = var.bigsql
+  openpages                 = var.openpages
+  watson_discovery          = var.watson_discovery 
+  planning_analytics        = var.planning_analytics
   cluster_type              = "selfmanaged"
   login_string              = "oc login ${var.openshift_api} -u ${var.openshift-username} -p ${var.openshift-password} --insecure-skip-tls-verify=true"
 
