@@ -142,6 +142,10 @@ oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
 echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
 bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
+echo "create cpd catalog"
+oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-cpd-platform-operator-catalog openshift-marketplace
+
 echo "create cpd operator"
 oc create -f  ${self.triggers.cpd_workspace}/cpd_operator.yaml
 

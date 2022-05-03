@@ -115,6 +115,24 @@ spec:
 EOF
 }
 
+data "template_file" "cpd_operator_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: cpd-platform
+spec:
+  image: icr.io/cpopen/ibm-cpd-platform-operator-catalog@sha256:5550dbf568c0efa04e60efda893acf55be6ad06ebe1b128dce41f0eca5a59832
+  displayName: Cloud Pak for Data
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "cpd_operator" {
   template = <<EOF
 apiVersion: v1
@@ -140,7 +158,7 @@ spec:
   channel: ${var.cpd_platform.channel}
   installPlanApproval: Automatic
   name: cpd-platform-operator
-  source: ibm-operator-catalog
+  source: ibm-cpd-platform-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -309,6 +327,27 @@ EOF
 }
 
 #WSL
+
+# Catalog source
+data "template_file" "ws_catalog" {
+  template = <<EOF
+  apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ws-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ws-operator-catalog@sha256:6b4c184c9de257441cb15e4e05141ec7bfb6e45177625b31387a860b3c4c875f
+  displayName: CPD IBM Watson Studio
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Subscription
 data "template_file" "ws_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -321,7 +360,7 @@ spec:
   channel: ${var.watson_studio.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wsl
-  source: ibm-operator-catalog
+  source: ibm-cpd-ws-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
