@@ -77,6 +77,11 @@ resource "local_file" "ibm_operator_catalog_source_yaml" {
   filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
 }
 
+resource "local_file" "cpd_catalog_source_yaml" {
+  content  = data.template_file.cpd_operator_catalog.rendered
+  filename = "${local.cpd_workspace}/cpd_operator_catalog_source.yaml"
+}
+
 resource "local_file" "cpd_operator_yaml" {
   content  = data.template_file.cpd_operator.rendered
   filename = "${local.cpd_workspace}/cpd_operator.yaml"
@@ -143,7 +148,7 @@ echo "Waiting and checking till the ibm-operator-catalog is ready in the openshi
 bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
 echo "create cpd catalog"
-oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog.yaml
+oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-platform-operator-catalog openshift-marketplace
 
 echo "create cpd operator"
