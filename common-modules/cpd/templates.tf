@@ -158,7 +158,7 @@ spec:
   channel: ${var.cpd_platform.channel}
   installPlanApproval: Automatic
   name: cpd-platform-operator
-  source: ibm-cpd-platform-operator-catalog
+  source: cpd-platform
   sourceNamespace: openshift-marketplace
 EOF
 }
