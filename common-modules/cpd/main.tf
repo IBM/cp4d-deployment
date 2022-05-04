@@ -149,7 +149,7 @@ bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
 echo "create cpd catalog"
 oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
-bash cpd/scripts/pod-status-check.sh ibm-cpd-platform-operator-catalog openshift-marketplace
+bash cpd/scripts/pod-status-check.sh cpd-platform openshift-marketplace
 
 echo "create cpd operator"
 oc create -f  ${self.triggers.cpd_workspace}/cpd_operator.yaml
