@@ -331,7 +331,7 @@ EOF
 # Catalog source
 data "template_file" "ws_catalog" {
   template = <<EOF
-  apiVersion: operators.coreos.com/v1alpha1
+apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   namespace: openshift-marketplace
