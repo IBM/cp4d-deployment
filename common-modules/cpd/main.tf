@@ -149,9 +149,10 @@ resource "null_resource" "cpd_foundational_services" {
 
 echo "create db2u operator catalog"
 oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-db2uoperator-catalog openshift-marketplace
 
-echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
-bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
+# echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
+# bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
 echo "create cpd catalog"
 oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
