@@ -133,7 +133,7 @@ spec:
 EOF
 }
 
-def "template_file" "opencloud_catalog" {
+data "template_file" "opencloud_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -145,6 +145,7 @@ spec:
   displayName: IBMCS Operators
   publisher: IBM
   sourceType: grpc
+EOF
 }
 
 data "template_file" "cpd_operator" {
