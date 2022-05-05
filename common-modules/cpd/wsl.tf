@@ -26,6 +26,12 @@ echo 'Create ws catalog'
 oc create -f ${self.triggers.cpd_workspace}/ws_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-ws-operator-catalog openshift-marketplace
+
+echo 'Create ws runtime catalog'
+oc create -f ${self.triggers.cpd_workspace}/ws_runtime_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ws-runtimes-operator-catalog openshift-marketplace
+
 echo 'Create ws sub'
 oc create -f ${self.triggers.cpd_workspace}/ws_sub.yaml
 sleep 3
@@ -39,6 +45,7 @@ bash cpd/scripts/check-cr-status.sh ws ws-cr ${var.cpd_namespace} wsStatus
 EOF
   }
   depends_on = [
+    local_file.ws_catalog_yaml,
     local_file.ws_cr_yaml,
     local_file.ws_sub_yaml,
     module.machineconfig,

@@ -82,6 +82,11 @@ resource "local_file" "cpd_catalog_source_yaml" {
   filename = "${local.cpd_workspace}/cpd_operator_catalog_source.yaml"
 }
 
+resource "local_file" "opencloud_catalog_source_yaml" {
+  content  = data.template_file.opencloud_catalog.rendered
+  filename = "${local.cpd_workspace}/opencloud_catalog.yaml"
+}
+
 resource "local_file" "cpd_operator_yaml" {
   content  = data.template_file.cpd_operator.rendered
   filename = "${local.cpd_workspace}/cpd_operator.yaml"
@@ -138,8 +143,9 @@ resource "null_resource" "cpd_foundational_services" {
   provisioner "local-exec" {
     command = <<-EOF
 
-echo "Create Operator Catalog Source"
-oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
+# Removed for the fixed Catalog source change
+# echo "Create Operator Catalog Source"
+# oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
 
 echo "create db2u operator catalog"
 oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
@@ -150,6 +156,10 @@ bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 echo "create cpd catalog"
 oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
 bash cpd/scripts/pod-status-check.sh cpd-platform openshift-marketplace
+
+echo "create opencloud catalog"
+oc create -f  ${self.triggers.cpd_workspace}/opencloud_catalog.yaml
+bash cpd/scripts/pod-status-check.sh opencloud-operators openshift-marketplace
 
 echo "create cpd operator"
 oc create -f  ${self.triggers.cpd_workspace}/cpd_operator.yaml

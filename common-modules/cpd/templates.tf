@@ -133,6 +133,20 @@ spec:
 EOF
 }
 
+def "template_file" "opencloud_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: opencloud-operators
+spec:
+  image: icr.io/cpopen/ibm-common-service-catalog@sha256:9ab2741ebcad19a6416a952bf1103900bd9fc1c5525be782744a2c9115982e5b
+  displayName: IBMCS Operators
+  publisher: IBM
+  sourceType: grpc
+}
+
 data "template_file" "cpd_operator" {
   template = <<EOF
 apiVersion: v1
@@ -189,6 +203,24 @@ spec:
   storageClass: ${local.storage_class}
   zenCoreMetadbStorageClass: ${local.rwo_storage_class}
   version: ${var.cpd_platform.version}
+EOF
+}
+
+data "template_file" "ccs_operator_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ccs-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ccs-operator-catalog@sha256:4a81b9133c9d797ef1d40673d57cf3b1d5463dea710a3d0587628650a7eef817
+  displayName: CPD Common Core Services
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
 EOF
 }
 
@@ -346,6 +378,24 @@ spec:
       interval: 45m
 EOF
 }
+
+data "template_file" "ws_runtime_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ws-runtimes-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ws-runtimes-operator-catalog@sha256:14352ea4f71c1917cdeb860b64645fd56a3812ff69255b26dfb0c7199005e1a0
+  displayName: CPD Watson Studio Runtimes
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}  
 
 # Subscription
 data "template_file" "ws_sub" {
