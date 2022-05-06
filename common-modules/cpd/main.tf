@@ -107,6 +107,16 @@ resource "local_file" "db2u_catalog_yaml" {
   filename = "${local.cpd_workspace}/db2u_catalog.yaml"
 }
 
+resource "local_file" "ccs_catalog_yaml" {
+  content  = data.template_file.ccs_catalog.rendered
+  filename = "${local.cpd_workspace}/ccs_catalog.yaml"
+}
+
+resource "local_file" "ccs_sub_yaml" {
+  content  = data.template_file.ccs_sub.rendered
+  filename = "${local.cpd_workspace}/ccs_sub.yaml"
+}
+
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -129,6 +139,8 @@ EOF
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
+    local_file.ccs_catalog_yaml,
+    local_file.ccs_sub_yaml,
     local_file.db2u_catalog_yaml,
   ]
 }
