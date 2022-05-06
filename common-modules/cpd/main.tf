@@ -129,7 +129,6 @@ EOF
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
-    local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
   ]
 }
@@ -213,7 +212,6 @@ EOF
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
-    local_file.ibm_operator_catalog_source_yaml,
     local_file.db2u_catalog_yaml,
     null_resource.node_check,
   ]

@@ -1,6 +1,6 @@
 
 resource "local_file" "db2oltp_catalog_yaml" {
-  content = data.template_file.catalog.rendered
+  content = data.template_file.db2oltp_catalog.rendered
   filename = "${local.cpd_workspace}/db2oltp_catalog.yaml"
 }
 resource "local_file" "db2oltp_cr_yaml" {

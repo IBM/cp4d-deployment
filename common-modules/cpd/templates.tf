@@ -241,7 +241,7 @@ spec:
   updateStrategy:
     registryPoll:
       interval: 45m
- 
+EOF
 }
 
 data "template_file" "db2aaservice_sub" {
@@ -277,7 +277,7 @@ EOF
 }
 
 # SPARK (AnalyticsEngine)
-data "template_fiel" "analyticsengine_catalog" {
+data "template_file" "analyticsengine_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -1231,7 +1231,7 @@ EOF
 }
 
 #PA
-data "template_fiel" "pa_catalog" {
+data "template_file" "pa_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
