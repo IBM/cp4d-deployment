@@ -526,6 +526,7 @@ spec:
 EOF
 
 }
+
 data "template_file" "wml_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -572,7 +573,7 @@ EOF
 }
 
 #WOS
-data "template_file" "wos_catlog" {
+data "template_file" "wos_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
