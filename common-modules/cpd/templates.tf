@@ -255,7 +255,7 @@ spec:
   channel: ${var.db2_aaservice.channel}
   name: ibm-db2aaservice-cp4d-operator
   installPlanApproval: Automatic
-  source: ibm-dmc-operator-catalog
+  source: ibm-db2aaservice-cp4d-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
