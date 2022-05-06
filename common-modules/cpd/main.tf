@@ -72,10 +72,10 @@ EOF
   ]
 }
 
-resource "local_file" "ibm_operator_catalog_source_yaml" {
-  content  = data.template_file.ibm_operator_catalog_source.rendered
-  filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
-}
+# resource "local_file" "ibm_operator_catalog_source_yaml" {
+#   content  = data.template_file.ibm_operator_catalog_source.rendered
+#   filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
+# }
 
 resource "local_file" "cpd_catalog_source_yaml" {
   content  = data.template_file.cpd_operator_catalog.rendered

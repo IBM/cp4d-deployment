@@ -1,4 +1,8 @@
 
+resource "local_file" "spss_catalog_yaml" {
+  content  = data.template_file.spss_catalog.rendered
+  filename = "${local.cpd_workspace}/spss_catalog.yaml"
+}
 resource "local_file" "spss_cr_yaml" {
   content  = data.template_file.spss_cr.rendered
   filename = "${local.cpd_workspace}/spss_cr.yaml"
@@ -18,6 +22,11 @@ resource "null_resource" "install_spss" {
   provisioner "local-exec" {
     command = <<-EOF
 echo 'Create spss sub'
+oc apply -f ${self.triggers.cpd_workspace}/spss_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-spss-operator-catalog openshift-marketplace
+
+echo 'Create spss sub'
 oc apply -f ${self.triggers.cpd_workspace}/spss_sub.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-spss-operator ${local.operator_namespace}
@@ -30,6 +39,7 @@ bash cpd/scripts/check-cr-status.sh Spss spss-cr ${var.cpd_namespace} spssmodele
 EOF
   }
   depends_on = [
+    local_file.spss_catalog_yaml,
     local_file.spss_cr_yaml,
     local_file.spss_sub_yaml,
     module.machineconfig,

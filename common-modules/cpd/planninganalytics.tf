@@ -3,6 +3,11 @@ resource "local_file" "pa_cr_yaml" {
   filename = "${local.cpd_workspace}/pa_cr.yaml"
 }
 
+resource "local_file" "pa_catalog_yaml" {
+  content  = data.template_file.pa_catalog.rendered
+  filename = "${local.cpd_workspace}/pa_catalog.yaml"
+}
+
 resource "local_file" "pa_sub_yaml" {
   content  = data.template_file.pa_sub.rendered
   filename = "${local.cpd_workspace}/pa_sub.yaml"
@@ -17,6 +22,12 @@ resource "null_resource" "install_pa" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo "Install Planning Analytics Catalog"
+oc create -f ${self.triggers.cpd_workspace}/pa_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-planning-analytics-operator-catalog openshift-marketplace
+
 echo "Install Planning Analytics Operator"
 oc create -f ${self.triggers.cpd_workspace}/pa_sub.yaml
 sleep 3
@@ -29,6 +40,7 @@ bash cpd/scripts/check-cr-status.sh PAService ibm-planning-analytics-service ${v
 EOF
   }
   depends_on = [
+    local_file.pa_catalog_yaml,
     local_file.pa_cr_yaml,
     local_file.pa_sub_yaml,
     module.machineconfig,

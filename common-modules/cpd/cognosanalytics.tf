@@ -1,3 +1,8 @@
+resource "local_file" "ca_catalog_yaml" {
+  content  = data.template_file.ca_catalog.rendered
+  filename = "${local.cpd_workspace}/ca_catalog.yaml"
+}
+
 resource "local_file" "ca_cr_yaml" {
   content  = data.template_file.ca_cr.rendered
   filename = "${local.cpd_workspace}/ca_cr.yaml"
@@ -16,6 +21,12 @@ resource "null_resource" "install_ca" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo 'Create CA catalog'
+oc create -f ${self.triggers.cpd_workspace}/ca_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-ca-operator-catalog openshift-marketplace
+
 echo 'Create CA sub'
 oc create -f ${self.triggers.cpd_workspace}/ca_sub.yaml
 sleep 3
@@ -28,6 +39,7 @@ bash cpd/scripts/check-cr-status.sh CAService ca-cr ${var.cpd_namespace} caAddon
 EOF
   }
   depends_on = [
+    local_file.ca_catalog_yaml,
     local_file.ca_cr_yaml,
     local_file.ca_sub_yaml,
     null_resource.install_analyticsengine,

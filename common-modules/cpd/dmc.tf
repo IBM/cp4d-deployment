@@ -1,7 +1,14 @@
+
+resource "local_file" "dmc_catalog_yaml" {
+  content  = data.template_file.dmc_catalog.rendered
+  filename = "${local.cpd_workspace}/dmc_catalog.yaml"
+}
+
 resource "local_file" "dmc_cr_yaml" {
   content  = data.template_file.dmc_cr.rendered
   filename = "${local.cpd_workspace}/dmc_cr.yaml"
 }
+
 
 resource "local_file" "dmc_sub_yaml" {
   content  = data.template_file.dmc_sub.rendered
@@ -17,6 +24,11 @@ resource "null_resource" "install_dmc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Install DMC Catalog"
+oc create -f ${self.triggers.cpd_workspace}/dmc_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-dmc-operator-catalog openshift-marketplace
+
 echo "Install DMC Operator"
 oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
 sleep 3
@@ -29,6 +41,7 @@ bash cpd/scripts/check-cr-status.sh Dmcaddon data-management-console-addon ${var
 EOF
   }
   depends_on = [
+    local_file.dmc_catalog_yaml,
     local_file.dmc_cr_yaml,
     local_file.dmc_sub_yaml,
     null_resource.install_dv,

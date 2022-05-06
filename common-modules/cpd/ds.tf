@@ -1,3 +1,8 @@
+resource "local_file" "ds_catalog_yaml" {
+  content  = data.template_file.ds_catalog.rendered
+  filename = "${local.cpd_workspace}/ds_catalog.yaml"
+}
+
 resource "local_file" "ds_cr_yaml" {
   content  = data.template_file.ds_cr.rendered
   filename = "${local.cpd_workspace}/ds_cr.yaml"
@@ -17,6 +22,11 @@ resource "null_resource" "install_ds" {
   provisioner "local-exec" {
     command = <<-EOF
 
+echo 'Create Datastage catalog'
+oc apply -f ${self.triggers.cpd_workspace}/ds_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-datagate-operator-catalog openshift-marketplace
+
 echo 'Create Datastage sub'
 oc apply -f ${self.triggers.cpd_workspace}/ds_sub.yaml
 sleep 3
@@ -30,6 +40,7 @@ bash cpd/scripts/check-cr-status.sh datastage datastage-cr ${var.cpd_namespace} 
 EOF
   }
   depends_on = [
+    local_file.ds_catalog_yaml,
     local_file.ds_cr_yaml,
     local_file.ds_sub_yaml,
     null_resource.install_aiopenscale,

@@ -1,4 +1,8 @@
 
+resource "local_file" "analyticsengine_catalog_yaml" {
+  content  = data.template_file.analyticsengine_catalog.rendered
+  filename = "${local.cpd_workspace}/analyticsengine_catalog.yaml"
+}
 resource "local_file" "analyticsengine_cr_yaml" {
   content  = data.template_file.analyticsengine_cr.rendered
   filename = "${local.cpd_workspace}/analyticsengine_cr.yaml"
@@ -17,6 +21,12 @@ resource "null_resource" "install_analyticsengine" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo 'Create analyticsengine catalog'
+oc create -f ${self.triggers.cpd_workspace}/analyticsengine_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ae-operator-catalog openshift-marketplace
+
 echo 'Create analyticsengine sub'
 oc create -f ${self.triggers.cpd_workspace}/analyticsengine_sub.yaml
 sleep 3
@@ -30,6 +40,7 @@ bash cpd/scripts/check-cr-status.sh AnalyticsEngine analyticsengine-cr ${var.cpd
 EOF
   }
   depends_on = [
+    local_file.analyticsengine_catalog_yaml,
     local_file.spss_cr_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,

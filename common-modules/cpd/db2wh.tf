@@ -1,4 +1,7 @@
-
+resource "local_file" "db2wh_catalog_yaml" {
+  content = data.template_file.db2wh_catalog.rendered
+  filename = "${local.cpd_workspace}/db2wh_catalog.yaml"
+}
 resource "local_file" "db2wh_cr_yaml" {
   content  = data.template_file.db2wh_cr.rendered
   filename = "${local.cpd_workspace}/db2wh_cr.yaml"
@@ -17,6 +20,11 @@ resource "null_resource" "install_db2wh" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo 'Create db2wh catalog'
+oc create -f "${self.triggers.cpd_workspace}/db2wh_catalog.yaml"
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-db2wh-cp4d-operator-catalog openshift-marketplace
+
 echo 'Create db2wh sub'
 oc create -f ${self.triggers.cpd_workspace}/db2wh_sub.yaml
 sleep 3
@@ -30,6 +38,7 @@ bash cpd/scripts/check-cr-status.sh Db2whService db2wh-cr ${var.cpd_namespace} d
 EOF
   }
   depends_on = [
+    local_file.db2wh_catalog_yaml,
     local_file.db2wh_cr_yaml,
     local_file.db2wh_sub_yaml,
     module.machineconfig,
