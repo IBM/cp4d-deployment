@@ -1,5 +1,5 @@
 resource "local_file" "wml_catalog_yaml" {
-  content = data.template_file.wml_catalog_yaml.rendered
+  content = data.template_file.wml_catalog.rendered
   filename = "${local.cpd_workspace}/wml_catalog.yaml"
 }
 

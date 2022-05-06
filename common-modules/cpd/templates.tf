@@ -524,7 +524,6 @@ spec:
     registryPoll:
       interval: 45m
 EOF
-
 }
 
 data "template_file" "wml_sub" {
