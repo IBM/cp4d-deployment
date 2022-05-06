@@ -225,21 +225,21 @@ spec:
 EOF
 }
 
-data "template_file" "ccs_sub" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: ibm-cpd-ccs-operator
-  namespace: ibm-common-services
-spec:
-  channel: v1.0
-  installPlanApproval: Automatic
-  name: ibm-cpd-ccs
-  source: ibm-cpd-ccs-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF
-}
+# data "template_file" "ccs_sub" {
+#   template = <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: Subscription
+# metadata:
+#   name: ibm-cpd-ccs-operator
+#   namespace: ibm-common-services
+# spec:
+#   channel: v1.0
+#   installPlanApproval: Automatic
+#   name: ibm-cpd-ccs
+#   source: ibm-cpd-ccs-operator-catalog
+#   sourceNamespace: openshift-marketplace
+# EOF
+# }
 
 #Db2aaservice
 data "template_file" "db2aaservice_catalog" {
