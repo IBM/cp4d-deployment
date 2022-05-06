@@ -1,3 +1,4 @@
+
 resource "local_file" "dv_catalog_yaml" {
   content  = data.template_file.dv_catalog.rendered
   filename = "${local.cpd_workspace}/dv_catalog.yaml"
@@ -39,7 +40,7 @@ bash cpd/scripts/check-cr-status.sh DvService dv-service-cr ${var.cpd_namespace}
 EOF
   }
   depends_on = [
-    local_file_dv_catalog_yaml,
+    local_file.dv_catalog_yaml,
     local_file.dv_cr_yaml,
     local_file.dv_sub_yaml,
     null_resource.install_aiopenscale,

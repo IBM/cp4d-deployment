@@ -38,9 +38,9 @@ bash cpd/scripts/check-cr-status.sh DODS dods-cr ${var.cpd_namespace} dodsStatus
 EOF
   }
   depends_on = [
-    local_file_dods_catalog_yaml,
     local_file.dods_cr_yaml,
     local_file.dods_sub_yaml,
+    local_file.dods_catalog_yaml,
     null_resource.install_wml,
     null_resource.install_ws,
     module.machineconfig,

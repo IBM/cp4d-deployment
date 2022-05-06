@@ -905,6 +905,7 @@ spec:
       interval: 45m
 EOF
 }
+
 data "template_file" "dv_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
