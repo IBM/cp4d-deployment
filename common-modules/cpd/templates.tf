@@ -520,23 +520,42 @@ EOF
 }
 
 #Data Refinery
-data "template_file" "data_refinery_sub" {
+
+data "template_file" "data_refinery_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
+kind: CatalogSource
 metadata:
-  name: ibm-cpd-datarefinery-operator
-  namespace: ibm-common-services
-spec
-  channel: v1.0
-  config:
-    resources: {}
-  installPlanApproval: Automatic
-  name: ibm-cpd-datarefinery
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
+  namespace: openshift-marketplace
+  name: ibm-cpd-datarefinery-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-datarefinery-operator-catalog@sha256:47d5e286326f81056f9a473e885922bfd2943b49e74c1f44d8531fd02e5da82f
+  displayName: Cloud Pak for Data IBM DataRefinery
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
 EOF
 }
+
+# data "template_file" "data_refinery_sub" {
+#   template = <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: Subscription
+# metadata:
+#   name: ibm-cpd-datarefinery-operator
+#   namespace: ibm-common-services
+# spec
+#   channel: v1.0
+#   config:
+#     resources: {}
+#   installPlanApproval: Automatic
+#   name: ibm-cpd-datarefinery
+#   source: ibm-cpd-datarefinery-operator-catalog
+#   sourceNamespace: openshift-marketplace
+# EOF
+# }
 
 #SPSS
 data "template_file" "spss_sub" {

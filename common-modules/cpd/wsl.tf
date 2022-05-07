@@ -27,6 +27,12 @@ resource "null_resource" "install_ws" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo 'Create DataRefinery catalog'
+oc create -f ${self.triggers.cpd_workspace}/data_refinery_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-datarefinery-operator-catalog openshift-marketplace
+
 echo 'Create ws catalog'
 oc create -f ${self.triggers.cpd_workspace}/ws_catalog.yaml
 sleep 3
