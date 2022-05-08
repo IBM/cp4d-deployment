@@ -19,6 +19,11 @@ resource "local_file" "ws_runtime_catalog_yaml" {
   filename = "${local.cpd_workspace}/ws_runtime_catalog.yaml"
 }
 
+resource "local_file" "data_refinery_catalog.yaml" {
+  content  = data.template_file.data_refinery_catalog.rendered
+  filename = "${local.cpd_workspace}/data_refinery_catalog.yaml"
+}
+
 resource "null_resource" "install_ws" {
   count = var.watson_studio.enable == "yes" ? 1 : 0
   triggers = {
