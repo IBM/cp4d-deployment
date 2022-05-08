@@ -19,7 +19,7 @@ resource "local_file" "ws_runtime_catalog_yaml" {
   filename = "${local.cpd_workspace}/ws_runtime_catalog.yaml"
 }
 
-resource "local_file" "data_refinery_catalog.yaml" {
+resource "local_file" "data_refinery_catalog_yaml" {
   content  = data.template_file.data_refinery_catalog.rendered
   filename = "${local.cpd_workspace}/data_refinery_catalog.yaml"
 }
@@ -65,6 +65,7 @@ EOF
     local_file.ws_runtime_catalog_yaml,
     local_file.ws_cr_yaml,
     local_file.ws_sub_yaml,
+    local_file.data_refinery_catalog_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
