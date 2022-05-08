@@ -26,7 +26,7 @@ resource "null_resource" "install_aiopenscale" {
 echo 'Create wos catalog'
 oc apply -f ${self.triggers.cpd_workspace}/wos_catalog.yaml
 sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-openscale-operator-catalog openshift-markerplace
+bash cpd/scripts/pod-status-check.sh ibm-openscale-operator-catalog openshift-marketplace
 
 echo 'Create wos sub'
 oc apply -f ${self.triggers.cpd_workspace}/wos_sub.yaml
