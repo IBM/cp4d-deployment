@@ -112,9 +112,24 @@ resource "local_file" "ccs_catalog_yaml" {
   filename = "${local.cpd_workspace}/ccs_catalog.yaml"
 }
 
+resource "local_file" "db2aaservice_catalog_yaml" {
+  content  = data.template_file.db2aaservice_catalog.rendered
+  filename = "${local.cpd_workspace}/db2aaservice_catalog.yaml"
+}
+
 resource "local_file" "dmc_catalog_yaml" {
   content  = data.template_file.dmc_catalog.rendered
   filename = "${local.cpd_workspace}/dmc_catalog.yaml"
+}
+
+resource "local_file" "iis_catalog_yaml" {
+  content = data.template_file.iis_catalog.rendered
+  filename = "${local.cpd_workspace}/iis_catalog.yaml"
+}
+
+resource "local_file" "wkc_catalog_yaml" {
+  content = data.template_file.wkc_catalog.rendered
+  filename = "${local.cpd_workspace}/wkc_catalog.yaml"
 }
 
 resource "local_file" "ws_catalog_yaml" {
@@ -122,11 +137,30 @@ resource "local_file" "ws_catalog_yaml" {
   filename = "${local.cpd_workspace}/ws_catalog.yaml"
 }
 
+resource "local_file" "ws_runtime_catalog_yaml" {
+  content  = data.template_file.ws_runtime_catalog.rendered
+  filename = "${local.cpd_workspace}/ws_runtime_catalog.yaml"
+}
+
 resource "local_file" "redis_catalog_yaml" {
   content  = data.template_file.redis_catalog.rendered
   filename = "${local.cpd_workspace}/redis_catalog.yaml"
 }
 
+resource "local_file" "data_refinery_catalog_yaml" {
+  content  = data.template_file.data_refinery_catalog.rendered
+  filename = "${local.cpd_workspace}/data_refinery_catalog.yaml"
+}
+
+resource "local_file" "wml_catalog_yaml" {
+  content = data.template_file.wml_catalog.rendered
+  filename = "${local.cpd_workspace}/wml_catalog.yaml"
+}
+
+resource "local_file" "mongodb_catalog_yaml" {
+  content = data.template_file.mongodb_catalog.rendered
+  filename = "${local.cpd_workspace}/mongodb_catalog.yaml"
+}
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -152,8 +186,15 @@ EOF
     local_file.ccs_catalog_yaml,
     local_file.db2u_catalog_yaml,
     local_file.dmc_catalog_yaml,
+    local_file.data_refinery_catalog_yaml,
+    local_file.iis_catalog_yaml,
+    local_file.wkc_catalog_yaml,
     local_file.ws_catalog_yaml,
+    local_file.ws_runtime_catalog_yaml,
+    local_file.db2aaservice_catalog_yaml,
+    local_file.wml_catalog_yaml,
     local_file.redis_catalog_yaml,
+    local_file.mongodb_catalog_yaml,
   ]
 }
 
@@ -214,34 +255,78 @@ sleep 240
 echo "Check the CPD Platform CR status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus; if [ $? -ne 0 ] ; then echo \"CPD control plane failed to install\" ; exit 1 ; fi
 
-echo "Create CCS catalog"
 oc project openshift-marketplace
+
+echo "Create CCS catalog"
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ccs_catalog.yaml
 sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ccs-operator-catalog openshift-marketplace
+
+echo "Db2aaService"
+oc create -f ${self.triggers.cpd_workspace}/db2aaservice_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-db2aaservice-cp4d-operator-catalog openshift-marketplace
+
+
+echo 'Create DataRefinery catalog'
+oc create -f ${self.triggers.cpd_workspace}/data_refinery_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-datarefinery-operator-catalog openshift-marketplace
+
+echo "Create IIS catalog"
+oc project openshift-marketplace
+sleep 1
+oc create -f ${self.triggers.cpd_workspace}/iis_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator-catalog openshift-marketplace
+
+echo "Create WKC catalog"
+oc project openshift-marketplace
+sleep 1
+oc create -f ${self.triggers.cpd_workspace}/wkc_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator-catalog openshift-marketplace
 
 echo "Create WS catalog"
-oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ws_catalog.yaml
 sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ws-operator-catalog openshift-marketplace
+
+echo 'Create ws runtime catalog'
+oc create -f ${self.triggers.cpd_workspace}/ws_runtime_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-ws-runtimes-operator-catalog openshift-marketplace
 
 echo "Create DMC catalog"
-oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/dmc_catalog.yaml
 sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-dmc-operator-catalog openshift-marketplace
 
 echo "Create Redis catalog"
 oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/redis_catalog.yaml
 sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cloud-databases-redis-operator-catalog openshift-marketplace
+
 
 # echo "Create CCS sub"
 # oc project ibm-common-services
 # oc create -f ${self.triggers.cpd_workspace}/ccs_catalog.yaml
 # sleep 3
+
+echo 'create WML catalog'
+oc apply -f ${self.triggers.cpd_workspace}/wml_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-wml-operator-catalog openshift-marketplace
+
+echo 'create Mongodb catalog'
+oc apply -f ${self.triggers.cpd_workspace}/mongodb_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cpd-mongodb-catalog openshift-marketplace
 
 echo "Enable CSV injector"
 oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
@@ -255,8 +340,15 @@ EOF
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
     local_file.dmc_catalog_yaml,
+    local_file.data_refinery_catalog_yaml,
+    local_file.ws_catalog_yaml,
     local_file.redis_catalog_yaml,
+    local_file.iis_catalog_yaml,
+    local_file.wkc_catalog_yaml,
+    local_file.wml_catalog_yaml,
     local_file.db2u_catalog_yaml,
+    local_file.db2aaservice_catalog_yaml,
+    local_file.mongodb_catalog_yaml,
     null_resource.node_check,
   ]
 }

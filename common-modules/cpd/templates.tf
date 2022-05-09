@@ -115,6 +115,21 @@ spec:
 EOF
 }
 
+data "template_file" "iis_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-iis-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:90d087b5721e979f030f47c8fa379f73a953d64256f14fd7006ab2b2b283a0c8
+  displayName: CPD IBM Information Server
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
+
 data "template_file" "cpd_operator_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -1785,5 +1800,23 @@ spec:
   license:
     accept: true
     license: Enterprise     # Specify the license that you purchased
+EOF
+}
+
+data "template_file" "mongodb_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-mongodb-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-mongodb-operator-catalog@sha256:7ca2c57547bfb759eebf64fcf129f93a33eea5bb9920299ff4dcfdc06b8ff9fa
+  displayName: IBM CPD Mongodb Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
 EOF
 }
