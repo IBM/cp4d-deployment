@@ -9,10 +9,10 @@ resource "local_file" "ws_sub_yaml" {
   filename = "${local.cpd_workspace}/ws_sub.yaml"
 }
 
-resource "local_file" "ws_catalog_yaml" {
-  content  = data.template_file.ws_catalog.rendered
-  filename = "${local.cpd_workspace}/ws_catalog.yaml"
-}
+# resource "local_file" "ws_catalog_yaml" {
+#   content  = data.template_file.ws_catalog.rendered
+#   filename = "${local.cpd_workspace}/ws_catalog.yaml"
+# }
 
 resource "local_file" "ws_runtime_catalog_yaml" {
   content  = data.template_file.ws_runtime_catalog.rendered

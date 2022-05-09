@@ -112,6 +112,21 @@ resource "local_file" "ccs_catalog_yaml" {
   filename = "${local.cpd_workspace}/ccs_catalog.yaml"
 }
 
+resource "local_file" "dmc_catalog_yaml" {
+  content  = data.template_file.dmc_catalog.rendered
+  filename = "${local.cpd_workspace}/dmc_catalog.yaml"
+}
+
+resource "local_file" "ws_catalog_yaml" {
+  content  = data.template_file.ws_catalog.rendered
+  filename = "${local.cpd_workspace}/ws_catalog.yaml"
+}
+
+resource "local_file" "redis_catalog_yaml" {
+  content  = data.template_file.redis_catalog.rendered
+  filename = "${local.cpd_workspace}/redis_catalog.yaml"
+}
+
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -136,6 +151,9 @@ EOF
     local_file.cpd_operator_yaml,
     local_file.ccs_catalog_yaml,
     local_file.db2u_catalog_yaml,
+    local_file.dmc_catalog_yaml,
+    local_file.ws_catalog_yaml,
+    local_file.redis_catalog_yaml,
   ]
 }
 
@@ -202,6 +220,24 @@ sleep 1
 oc create -f ${self.triggers.cpd_workspace}/ccs_catalog.yaml
 sleep 3
 
+echo "Create WS catalog"
+oc project openshift-marketplace
+sleep 1
+oc create -f ${self.triggers.cpd_workspace}/ws_catalog.yaml
+sleep 3
+
+echo "Create DMC catalog"
+oc project openshift-marketplace
+sleep 1
+oc create -f ${self.triggers.cpd_workspace}/dmc_catalog.yaml
+sleep 3
+
+echo "Create Redis catalog"
+oc project openshift-marketplace
+sleep 1
+oc create -f ${self.triggers.cpd_workspace}/redis_catalog.yaml
+sleep 3
+
 # echo "Create CCS sub"
 # oc project ibm-common-services
 # oc create -f ${self.triggers.cpd_workspace}/ccs_catalog.yaml
@@ -218,6 +254,8 @@ EOF
     local_file.ibmcpd_cr_yaml,
     local_file.operand_requests_yaml,
     local_file.cpd_operator_yaml,
+    local_file.dmc_catalog_yaml,
+    local_file.redis_catalog_yaml,
     local_file.db2u_catalog_yaml,
     null_resource.node_check,
   ]

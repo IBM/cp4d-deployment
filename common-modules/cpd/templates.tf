@@ -225,21 +225,23 @@ spec:
 EOF
 }
 
-# data "template_file" "ccs_sub" {
-#   template = <<EOF
-# apiVersion: operators.coreos.com/v1alpha1
-# kind: Subscription
-# metadata:
-#   name: ibm-cpd-ccs-operator
-#   namespace: ibm-common-services
-# spec:
-#   channel: v1.0
-#   installPlanApproval: Automatic
-#   name: ibm-cpd-ccs
-#   source: ibm-cpd-ccs-operator-catalog
-#   sourceNamespace: openshift-marketplace
-# EOF
-# }
+data "template_file" "ccs_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-ccs-operator
+  namespace: ibm-common-services
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-cpd-ccs
+  source: ibm-cpd-ccs-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+
 
 #Db2aaservice
 data "template_file" "db2aaservice_catalog" {
@@ -1115,6 +1117,41 @@ spec:
   license:
     accept: true
     license: Enterprise
+EOF
+}
+
+#REDIS
+data "template_file" "redis_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cloud-databases-redis-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cloud-databases-redis-catalog@sha256:d1652894fbeae92a3b904ab6b54f748291e12901510a874e8dec8248e867a960
+  displayName: ibm-cloud-databases-redis-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "redis_sub"{
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cloud-databases-redis-operator-v1.4-ibm-cloud-databases-redis-operator-catalog-openshift-marketplace
+  namespace: ibm-common-services
+spec:
+  channel: v1.4
+  installPlanApproval: Automatic
+  name: ibm-cloud-databases-redis-operator
+  source: ibm-cloud-databases-redis-operator-catalog
+  sourceNamespace: openshift-marketplace
 EOF
 }
 
