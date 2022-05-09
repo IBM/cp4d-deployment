@@ -25,7 +25,7 @@ resource "null_resource" "install_ds" {
 echo 'Create Datastage catalog'
 oc apply -f ${self.triggers.cpd_workspace}/ds_catalog.yaml
 sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-cpd-datastage-operator-subscription openshift-marketplace
+bash cpd/scripts/pod-status-check.sh ibm-cpd-datastage-operator-catalog openshift-marketplace
 
 echo 'Create Datastage sub'
 oc apply -f ${self.triggers.cpd_workspace}/ds_sub.yaml
