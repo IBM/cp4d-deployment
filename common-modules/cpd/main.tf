@@ -255,6 +255,9 @@ sleep 240
 echo "Check the CPD Platform CR status"
 bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus; if [ $? -ne 0 ] ; then echo \"CPD control plane failed to install\" ; exit 1 ; fi
 
+echo "Enable CSV injector"
+oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
+
 oc project openshift-marketplace
 
 echo "Create CCS catalog"
@@ -275,14 +278,12 @@ sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-datarefinery-operator-catalog openshift-marketplace
 
 echo "Create IIS catalog"
-oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/iis_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-iis-operator-catalog openshift-marketplace
 
 echo "Create WKC catalog"
-oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/wkc_catalog.yaml
 sleep 3
@@ -306,7 +307,6 @@ sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-dmc-operator-catalog openshift-marketplace
 
 echo "Create Redis catalog"
-oc project openshift-marketplace
 sleep 1
 oc create -f ${self.triggers.cpd_workspace}/redis_catalog.yaml
 sleep 3
@@ -328,8 +328,6 @@ oc apply -f ${self.triggers.cpd_workspace}/mongodb_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-mongodb-catalog openshift-marketplace
 
-echo "Enable CSV injector"
-oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
 EOF
   }
   depends_on = [

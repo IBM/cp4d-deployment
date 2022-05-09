@@ -820,18 +820,18 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   namespace: openshift-marketplace
-  name: ibm-datagate-operator-catalog
+  name: ibm-cpd-datastage-operator-catalog
 spec:
-  image: icr.io/cpopen/ibm-datagate-operator-catalog@sha256:a13753736151424f4add748e22469e513203b934d669eceb0ced8dbc58596835
-  displayName: IBM Datagate Operator Catalog
+  image: icr.io/cpopen/ds-ent-operator-catalog@sha256:7f3be6cb51c3bbd1caa044845e415ae1663b02e805f82a96c965d452b0edefaa
+  displayName: IBM CPD DataStage
   publisher: IBM
   sourceType: grpc
   updateStrategy:
     registryPoll:
-      interval: 45m
+      interval: 60m
 EOF
-
 }
+
 data "template_file" "ds_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -843,7 +843,7 @@ spec:
   channel: ${var.datastage.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-datastage-operator
-  source: ibm-datagate-operator-catalog
+  source: ibm-cpd-datastage-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
