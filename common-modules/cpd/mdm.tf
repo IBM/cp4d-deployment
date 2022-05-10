@@ -32,12 +32,12 @@ resource "null_resource" "install_mdm" {
 echo "Install MDM catalog"
 oc create -f ${self.triggers.cpd_workspace}/mdm_catalog.yaml
 sleep 3
-bash cpd/scripts/pod-status-check.sh iibm-mdm-operator-catalog openshift-marketplace
+bash cpd/scripts/pod-status-check.sh ibm-mdm-operator-catalog openshift-marketplace
 
 echo "Install MDM Operator"
 oc create -f ${self.triggers.cpd_workspace}/mdm_sub.yaml
 sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-mdm-operator ${local.operator_namespace}
+bash cpd/scripts/pod-status-check.sh ibm-mdm ${local.operator_namespace}
 
 echo "MDM CR"
 
