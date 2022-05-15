@@ -26,6 +26,7 @@ oc create -f ${self.triggers.cpd_workspace}/wa_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-watson-assistant-operator ${local.operator_namespace}
 
 echo 'Apply the following temporary fix to allow certificates to be enabled for the Certificate management service'
+oc project ${self.triggers.namespace}
 export INSTANCE=${local.wa_instance}
 oc create -f ${self.triggers.cpd_workspace}/wa_temp_patch.yaml
 sleep 3m
