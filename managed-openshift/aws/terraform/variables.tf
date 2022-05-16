@@ -172,7 +172,7 @@ variable "availability_zone3" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable            = false
+    enable            = true
     ocs_instance_type = "m5.4xlarge"
   }
 }
@@ -416,5 +416,23 @@ variable "bigsql" {
     enable   = "no"
     version  = "7.2.5"
     channel  = "v7.2"
+  }
+}
+
+variable "watson_discovery" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.5"
+    channel  = "v4.0"
+  }
+}
+
+variable "openpages" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "8.204.2"
+    channel  = "v1.0"
   }
 }

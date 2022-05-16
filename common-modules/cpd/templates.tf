@@ -1838,8 +1838,8 @@ spec:
       interval: 45m
 EOF
 }
-# rabbitmg
-data "template_file" "rabbitmq-catalog" {
+# rabbitmq
+data "template_file" "rabbitmq_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
