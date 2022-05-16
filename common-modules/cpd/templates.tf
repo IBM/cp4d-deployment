@@ -1820,3 +1820,118 @@ spec:
       interval: 45m
 EOF
 }
+# Watson_gateway
+data "template_file" "watson_gateway_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-watson-gateway-operator-catalog
+spec:
+  image: icr.io/cpopen/watson-gateway-operator-catalog@sha256:d0e5c84cb93e10bc08c20d1e7d9465ffbdd4dd756549351653c4ad297d2230a7
+  displayName: IBM Watson Gateway Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+# rabbitmg
+data "template_file" "rabbitmq-catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-rabbitmq-operator-catalog
+spec:
+  image: icr.io/cpopen/opencontent-rabbitmq-operator-catalog@sha256:7eff2d8ddaa95cc965ff2c41c961bef54b3d2fb16d04a48fc11c1bfb582bf54d
+  displayName: IBM RabbitMQ operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-model-train-operator-catalog 
+data "template_file" "model_train_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-model-train-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-model-train-operator-catalog@sha256:0b4b14e1e7fa6fb2d805c56e18f37b28a706351b1ff99db4f222ad928ba42b89
+  displayName: ibm-model-train-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-minio-operator-catalog 
+data "template_file" "minio_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-minio-operator-catalog
+spec:
+  image: icr.io/cpopen/opencontent-minio-operator-catalog@sha256:56e0f265d58a8a9251fadd87d06690d83de2619f8c2838872ae72e657b8cc7ea
+  displayName: IBM Minio Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-etcd-operator-catalog 
+data "template_file" "etcd_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-etcd-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-etcd-operator-catalog@sha256:cfa5abdf2231475d7771254ee7115194624a4c84f2883768e1983b4441047b24
+  displayName: IBM etcd operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source cloud-native-postgresql-catalog 
+data "template_file" "cloud_native_postgres_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: cloud-native-postgresql-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-cloud-native-postgresql-operator-catalog@sha256:37814b7c96b58451f4a060d8fe987d569c3ef1e6da1ea6b4354fd04a521ff9ca
+  displayName: Cloud Native Postgresql Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+
+ 

@@ -161,6 +161,37 @@ resource "local_file" "mongodb_catalog_yaml" {
   content = data.template_file.mongodb_catalog.rendered
   filename = "${local.cpd_workspace}/mongodb_catalog.yaml"
 }
+
+resource "local_file" "watson_gateway_catalog_yaml" {
+  content = data.template_file.watson_gateway_catalog.rendered
+  filename = "${local.cpd_workspace}/watson_gateway_catalog.yaml"
+}
+
+resource "local_file" "rabbitmq_catalog_yaml" {
+  content = data.template_file.rabbitmq_catalog.rendered
+  filename = "${local.cpd_workspace}/rabbitmq_catalog.yaml"
+}
+
+resource "local_file" "model_train_catalog_yaml" {
+  content = data.template_file.model_train_catalog.rendered
+  filename = "${local.cpd_workspace}/model_train_catalog.yaml"
+}
+
+resource "local_file" "minio_catalog_yaml" {
+  content = data.template_file.minio_catalog.rendered
+  filename = "${local.cpd_workspace}/minio_catalog.yaml"
+}
+
+resource "local_file" "etcd_catalog_yaml" {
+  content = data.template_file.etcd_catalog.rendered
+  filename = "${local.cpd_workspace}/etcd_catalog.yaml"
+}
+
+resource "local_file" "cloud_native_postgres_catalog_yaml" {
+  content = data.template_file.cloud_native_postgres_catalog.rendered
+  filename = "${local.cpd_workspace}/cloud_native_postgres_catalog.yaml"
+}
+
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -195,6 +226,7 @@ EOF
     local_file.wml_catalog_yaml,
     local_file.redis_catalog_yaml,
     local_file.mongodb_catalog_yaml,
+    local_file.watson_gateway_catalog_yaml,
   ]
 }
 
@@ -312,12 +344,6 @@ oc create -f ${self.triggers.cpd_workspace}/redis_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cloud-databases-redis-operator-catalog openshift-marketplace
 
-
-# echo "Create CCS sub"
-# oc project ibm-common-services
-# oc create -f ${self.triggers.cpd_workspace}/ccs_catalog.yaml
-# sleep 3
-
 echo 'create WML catalog'
 oc apply -f ${self.triggers.cpd_workspace}/wml_catalog.yaml
 sleep 3
@@ -327,6 +353,37 @@ echo 'create Mongodb catalog'
 oc apply -f ${self.triggers.cpd_workspace}/mongodb_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-cpd-mongodb-catalog openshift-marketplace
+
+echo 'create watson_gateway catalog'
+oc create -f ${self.triggers.cpd_workspace}/watson_gateway_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-watson-gateway-operator-catalog openshift-marketplace
+
+echo 'create model-train catalog'
+oc create -f ${self.triggers.cpd_workspace}/model_train_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-model-train-operator-catalog openshift-marketplace
+
+echo 'create rabbitmq-catalog'
+oc create -f ${self.triggers.cpd_workspace}/rabbitmq_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-rabbitmq-operator-catalog openshift-marketplace
+
+echo 'create minio-catalog'
+oc create -f ${self.triggers.cpd_workspace}/minio_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-minio-operator-catalog openshift-marketplace
+
+echo 'create etcd-catalog'
+oc create -f ${self.triggers.cpd_workspace}/etcd_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-etcd-operator-catalog openshift-marketplace
+
+echo 'create cloud_native_postgres_catalog'
+oc create -f ${self.triggers.cpd_workspace}/cloud_native_postgres_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh cloud-native-postgresql-catalog openshift-marketplace
+
 
 EOF
   }
