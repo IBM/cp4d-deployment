@@ -172,7 +172,7 @@ variable "availability_zone3" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable            = true
+    enable            = false
     ocs_instance_type = "m5.4xlarge"
   }
 }
