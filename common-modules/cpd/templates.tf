@@ -1374,6 +1374,36 @@ EOF
 }
 
 #WA
+data "template_file" "common_services_edb_operandrequest" {
+  template = <<EOF
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
+metadata:
+  name: common-service-edb
+  namespace: ibm-common-services
+spec:
+  requests:
+    - operands:
+        - name: cloud-native-postgresql
+      registry: common-service
+EOF
+}
+data "template_file" "wa_redis_operandrequest" {
+  template = <<EOF
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
+metadata:
+  name: watson-assistant-redis
+  namespace: ibm-common-services
+spec:
+  requests:
+    - operands:
+        - name: ibm-cloud-databases-redis-operator
+      registry: common-service
+      registryNamespace: ibm-common-services
+EOF
+}
+
 data "template_file" "wa_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1

@@ -4,6 +4,15 @@ resource "local_file" "wa_catalog_yaml" {
   filename = "${local.cpd_workspace}/wa_catalog.yaml"
 }
 
+resource "local_file" "wa_redis_operandrequest_yaml" {
+  content  = data.template_file.wa_redis_operandrequest.rendered
+  filename = "${local.cpd_workspace}/wa_redis_operandrequest.yaml"
+}
+resource "local_file" "common_services_edb_operandrequest_yaml" {
+  content  = data.template_file.common_services_edb_operandrequest.rendered
+  filename = "${local.cpd_workspace}/common_services_edb_operandrequest.yaml"
+}
+
 resource "local_file" "wa_cr_yaml" {
   content  = data.template_file.wa_cr.rendered
   filename = "${local.cpd_workspace}/wa_cr.yaml"
@@ -28,9 +37,16 @@ resource "null_resource" "install_wa" {
   provisioner "local-exec" {
     command = <<-EOF
 
+
 echo "Creating Watson Assistant catalog"
 oc create -f ${self.triggers.cpd_workspace}/wa_catalog.yaml
 bash cpd/scripts/pod-status-check.sh ibm-watson-assistant-operator-catalog openshift-marketplace
+
+echo "Creating Watson Assistant redis operandrequest"
+oc create -f ${self.triggers.cpd_workspace}/wa_redis_operandrequest.yaml
+
+echo "Creating common_services_edb operandrequest"
+oc create -f ${self.triggers.cpd_workspace}/common_services_edb_operandrequest.yaml
 
 echo "Creating Watson Assistant Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/wa_sub.yaml
@@ -52,6 +68,8 @@ EOF
   depends_on = [
     null_resource.install_ebd,
     local_file.wa_catalog_yaml,
+    local_file.wa_redis_operandrequest_yaml,
+    local_file.common_services_edb_operandrequest_yaml,
     local_file.wa_cr_yaml,
     local_file.wa_sub_yaml,
     local_file.wa_temp_patch_yaml,
