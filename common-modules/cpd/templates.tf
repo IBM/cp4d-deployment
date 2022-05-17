@@ -1953,5 +1953,42 @@ spec:
 EOF
 }
 
+# Catalog Source ibm-data-governor-operator-catalog
+data "template_file" "data_governor_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-data-governor-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-data-governor-operator-catalog@sha256:e56a42b12366248ef173af502f77175a9041fe5798756c557f2f107d083942e6
+  displayName: IBM Data Governor operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+ 
+# Catalog Source ibm-auditwebhook-operator-catalog
+data "template_file" "auditwebhook_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-auditwebhook-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-auditwebhook-operator-catalog@sha256:b1606c9363a87c6fa5dd6043cd0bc8de63b1592ec2567c5a25ff47c353953d31
+  displayName: IBM Audit Webhook Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 
  

@@ -197,6 +197,16 @@ resource "local_file" "elasticsearch_catalog_yaml" {
   filename = "${local.cpd_workspace}/elasticsearch_catalog.yaml"
 }
 
+resource "local_file" "data_governor_catalog_yaml" {
+  content = data.template_file.data_governor_catalog.rendered
+  filename = "${local.cpd_workspace}/data_governor_catalog.yaml"
+}
+
+resource "local_file" "auditwebhook_catalog_yaml" {
+  content = data.template_file.auditwebhook_catalog.rendered
+  filename = "${local.cpd_workspace}/auditwebhook_catalog.yaml"
+}
+
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -233,6 +243,8 @@ EOF
     local_file.mongodb_catalog_yaml,
     local_file.watson_gateway_catalog_yaml,
     local_file.elasticsearch_catalog_yaml,
+    local_file.data_governor_catalog_yaml,
+    local_file.auditwebhook_catalog_yaml,
   ]
 }
 
@@ -394,6 +406,17 @@ echo 'create elasticsearch-catalog'
 oc create -f ${self.triggers.cpd_workspace}/elasticsearch_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-elasticsearch-catalog openshift-marketplace
+
+echo 'create ibm-data-governor-operator-catalog'
+oc create -f ${self.triggers.cpd_workspace}/data_governor_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-data-governor-operator-catalog openshift-marketplace
+
+echo 'create ibm-auditwebhook-operator-catalog'
+oc create -f ${self.triggers.cpd_workspace}/auditwebhook_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-auditwebhook-operator-catalog openshift-marketplace
+
 
 EOF
   }
