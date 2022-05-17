@@ -167,6 +167,9 @@ module "cpd" {
   decision_optimization     = var.decision_optimization
   planning_analytics        = var.planning_analytics
   bigsql                    = var.bigsql
+  watson_assistant          = var.watson_assistant
+  openpages		    = var.openpages
+  watson_discovery 	    = var.watson_discovery  
   cluster_type              = local.cluster_type
   login_string              = "${local.login_cmd} --insecure-skip-tls-verify=true"
   
