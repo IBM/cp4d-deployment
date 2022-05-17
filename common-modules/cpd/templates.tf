@@ -1170,6 +1170,26 @@ spec:
 EOF
 }
 
+#Catalog Source elasticsearch
+data "template_file" "elasticsearch_catalog"{
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-elasticsearch-catalog
+spec:
+  image: icr.io/cpopen/opencontent-elasticsearch-operator-catalog@sha256:41921fb0f258e37cc069c52148a32e9c420340142ce5150d0f9f2ceef483a103
+  displayName: IBM elasticsearch Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+
 #MDM
 data "template_file" "mdm_catalog" {
   template = <<EOF
