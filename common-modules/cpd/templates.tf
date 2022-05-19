@@ -1525,7 +1525,7 @@ spec:
   - en
   license:
     accept: true     # Change to true if you accept the WA license terms
-  size: medium     # Options are small, medium, and large
+  size: small     # Options are small, medium, and large
   version: ${var.watson_assistant.version}
 EOF
 }
