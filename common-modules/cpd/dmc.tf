@@ -1,3 +1,9 @@
+
+# resource "local_file" "dmc_catalog_yaml" {
+#   content  = data.template_file.dmc_catalog.rendered
+#   filename = "${local.cpd_workspace}/dmc_catalog.yaml"
+# }
+
 resource "local_file" "dmc_cr_yaml" {
   content  = data.template_file.dmc_cr.rendered
   filename = "${local.cpd_workspace}/dmc_cr.yaml"

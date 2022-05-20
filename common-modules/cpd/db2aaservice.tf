@@ -1,3 +1,9 @@
+
+# resource "local_file" "db2aaservice_catalog_yaml" {
+#   content  = data.template_file.db2aaservice_catalog.rendered
+#   filename = "${local.cpd_workspace}/db2aaservice_catalog.yaml"
+# }
+
 resource "local_file" "db2aaservice_cr_yaml" {
   content  = data.template_file.db2aaservice_cr.rendered
   filename = "${local.cpd_workspace}/db2aaservice_cr.yaml"
@@ -16,6 +22,11 @@ resource "null_resource" "install_db2aaservice" {
   }
   provisioner "local-exec" {
     command = <<EOF
+
+# echo "Db2uaaService"
+# oc create -f ${self.triggers.cpd_workspace}/db2aaservice_catalog.yaml
+# sleep 3
+# bash cpd/scripts/pod-status-check.sh ibm-db2aaservice-cp4d-operator-catalog openshift-marketplace
 
 echo "Db2uaaService"
 oc create -f ${self.triggers.cpd_workspace}/db2aaservice_sub.yaml

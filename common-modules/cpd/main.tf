@@ -72,6 +72,11 @@ EOF
   ]
 }
 
+# resource "local_file" "ibm_operator_catalog_source_yaml" {
+#   content  = data.template_file.ibm_operator_catalog_source.rendered
+#   filename = "${local.cpd_workspace}/ibm_operator_catalog_source.yaml"
+# }
+
 resource "local_file" "cpd_catalog_source_yaml" {
   content  = data.template_file.cpd_operator_catalog.rendered
   filename = "${local.cpd_workspace}/cpd_operator_catalog_source.yaml"
@@ -252,9 +257,16 @@ resource "null_resource" "cpd_foundational_services" {
   provisioner "local-exec" {
     command = <<-EOF
 
+# Removed for the fixed Catalog source change
+# echo "Create Operator Catalog Source"
+# oc create -f ${self.triggers.cpd_workspace}/ibm_operator_catalog_source.yaml
+
 echo "create db2u operator catalog"
 oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
 bash cpd/scripts/pod-status-check.sh ibm-db2uoperator-catalog openshift-marketplace
+
+# echo "Waiting and checking till the ibm-operator-catalog is ready in the openshift-marketplace namespace"
+# bash cpd/scripts/pod-status-check.sh ibm-operator-catalog openshift-marketplace
 
 echo "create cpd catalog"
 oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
@@ -404,6 +416,7 @@ echo 'create ibm-auditwebhook-operator-catalog'
 oc create -f ${self.triggers.cpd_workspace}/auditwebhook_catalog.yaml
 sleep 3
 bash cpd/scripts/pod-status-check.sh ibm-auditwebhook-operator-catalog openshift-marketplace
+
 
 EOF
   }

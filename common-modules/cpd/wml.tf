@@ -22,6 +22,11 @@ resource "null_resource" "install_wml" {
   provisioner "local-exec" {
     command = <<-EOF
 
+# echo 'create WML catalog'
+# oc apply -f ${self.triggers.cpd_workspace}/wml_catalog.yaml
+# sleep 3
+# bash cpd/scripts/pod-status-check.sh ibm-cpd-wml-operator-catalog openshift-marketplace
+
 echo 'Create WML sub'
 oc apply -f ${self.triggers.cpd_workspace}/wml_sub.yaml
 sleep 3
