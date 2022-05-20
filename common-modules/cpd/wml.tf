@@ -1,4 +1,3 @@
-
 resource "local_file" "wml_cr_yaml" {
   content  = data.template_file.wml_cr.rendered
   filename = "${local.cpd_workspace}/wml_cr.yaml"
@@ -17,6 +16,7 @@ resource "null_resource" "install_wml" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
 echo 'Create WML sub'
 oc apply -f ${self.triggers.cpd_workspace}/wml_sub.yaml
 sleep 3

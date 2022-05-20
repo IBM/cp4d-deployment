@@ -1,3 +1,8 @@
+resource "local_file" "bigsql_catalog_yaml" {
+  content  = data.template_file.bigsql_catalog.rendered
+  filename = "${local.cpd_workspace}/bigsql_catalog.yaml"
+}
+
 resource "local_file" "bigsql_cr_yaml" {
   content  = data.template_file.bigsql_cr.rendered
   filename = "${local.cpd_workspace}/bigsql_cr.yaml"
@@ -16,6 +21,11 @@ resource "null_resource" "install_bigsql" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo "Creating BIGSQL catalog"
+oc create -f ${self.triggers.cpd_workspace}/bigsql_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-bigsql-operator-catalog openshift-marketplace
+
 echo "Creating BIGSQL Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/bigsql_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-bigsql-operator-controller-manager ${local.operator_namespace}
@@ -28,6 +38,7 @@ bash cpd/scripts/check-cr-status.sh BigsqlService bigsql-service-cr ${var.cpd_na
 EOF
   }
   depends_on = [
+    local_file.bigsql_catalog_yaml,
     local_file.bigsql_cr_yaml,
     local_file.bigsql_sub_yaml,
     null_resource.install_aiopenscale,

@@ -297,7 +297,7 @@ variable "decision_optimization" {
 }
 
 variable "db2u_catalog_source" {
-  default = "docker.io/ibmcom/ibm-db2uoperator-catalog:latest"
+  default = "icr.io/cpopen/ibm-db2uoperator-catalog@sha256:f97ab9689bbe6544c7a10099dab21ac447e0b1b516be7a232e99c5b772dc13fe"
 }
 
 variable "planning_analytics" {

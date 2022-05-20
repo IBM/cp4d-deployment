@@ -17,6 +17,7 @@ resource "null_resource" "install_ws" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
 echo 'Create ws sub'
 oc create -f ${self.triggers.cpd_workspace}/ws_sub.yaml
 sleep 3

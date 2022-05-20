@@ -3,6 +3,7 @@ resource "local_file" "dmc_cr_yaml" {
   filename = "${local.cpd_workspace}/dmc_cr.yaml"
 }
 
+
 resource "local_file" "dmc_sub_yaml" {
   content  = data.template_file.dmc_sub.rendered
   filename = "${local.cpd_workspace}/dmc_sub.yaml"
@@ -17,6 +18,7 @@ resource "null_resource" "install_dmc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
 echo "Install DMC Operator"
 oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
 sleep 3
