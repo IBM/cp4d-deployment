@@ -1,9 +1,3 @@
-
-# resource "local_file" "dmc_catalog_yaml" {
-#   content  = data.template_file.dmc_catalog.rendered
-#   filename = "${local.cpd_workspace}/dmc_catalog.yaml"
-# }
-
 resource "local_file" "dmc_cr_yaml" {
   content  = data.template_file.dmc_cr.rendered
   filename = "${local.cpd_workspace}/dmc_cr.yaml"
@@ -24,10 +18,6 @@ resource "null_resource" "install_dmc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Install DMC Catalog"
-oc create -f ${self.triggers.cpd_workspace}/dmc_catalog.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-dmc-operator-catalog openshift-marketplace
 
 echo "Install DMC Operator"
 oc create -f ${self.triggers.cpd_workspace}/dmc_sub.yaml
