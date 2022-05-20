@@ -31,7 +31,6 @@ bash cpd/scripts/check-cr-status.sh Dmcaddon data-management-console-addon ${var
 EOF
   }
   depends_on = [
-    local_file.dmc_catalog_yaml,
     local_file.dmc_cr_yaml,
     local_file.dmc_sub_yaml,
     null_resource.install_dv,
