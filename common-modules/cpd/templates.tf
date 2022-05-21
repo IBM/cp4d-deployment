@@ -77,25 +77,6 @@ users:
 EOF
 }
 
-data "template_file" "ibm_operator_catalog_source" {
-  template = <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: "IBM Operator Catalog"
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  imagePullPolicy: IfNotPresent
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF
-}
-
 data "template_file" "db2u_catalog" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -112,6 +93,54 @@ spec:
   updateStrategy:
     registryPoll:
       interval: 45m
+EOF
+}
+
+data "template_file" "iis_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-iis-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:90d087b5721e979f030f47c8fa379f73a953d64256f14fd7006ab2b2b283a0c8
+  displayName: CPD IBM Information Server
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
+
+data "template_file" "cpd_operator_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: cpd-platform
+spec:
+  image: icr.io/cpopen/ibm-cpd-platform-operator-catalog@sha256:5550dbf568c0efa04e60efda893acf55be6ad06ebe1b128dce41f0eca5a59832
+  displayName: Cloud Pak for Data
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "opencloud_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: opencloud-operators
+spec:
+  image: icr.io/cpopen/ibm-common-service-catalog@sha256:9ab2741ebcad19a6416a952bf1103900bd9fc1c5525be782744a2c9115982e5b
+  displayName: IBMCS Operators
+  publisher: IBM
+  sourceType: grpc
 EOF
 }
 
@@ -140,7 +169,7 @@ spec:
   channel: ${var.cpd_platform.channel}
   installPlanApproval: Automatic
   name: cpd-platform-operator
-  source: ibm-operator-catalog
+  source: cpd-platform
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -174,7 +203,61 @@ spec:
 EOF
 }
 
+data "template_file" "ccs_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ccs-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ccs-operator-catalog@sha256:4a81b9133c9d797ef1d40673d57cf3b1d5463dea710a3d0587628650a7eef817
+  displayName: CPD Common Core Services
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "ccs_sub" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cpd-ccs-operator
+  namespace: ibm-common-services
+spec:
+  channel: v1.0
+  installPlanApproval: Automatic
+  name: ibm-cpd-ccs
+  source: ibm-cpd-ccs-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+
+
 #Db2aaservice
+data "template_file" "db2aaservice_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-db2aaservice-cp4d-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-db2aaservice-cp4d-operator-catalog@sha256:a27cad8bd77eff44ef07952e0cd413505bafacc1567513f6e1f314cf7b5bb4ef
+  displayName: IBM Db2aaservice CP4D Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "db2aaservice_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -186,7 +269,7 @@ spec:
   channel: ${var.db2_aaservice.channel}
   name: ibm-db2aaservice-cp4d-operator
   installPlanApproval: Automatic
-  source: ibm-operator-catalog
+  source: ibm-db2aaservice-cp4d-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -208,6 +291,24 @@ EOF
 }
 
 # SPARK (AnalyticsEngine)
+data "template_file" "analyticsengine_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ae-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-analyticsengine-operator-catalog@sha256:00fb0cd9bf834ee1af99675602be5feae2c1c9d27c97aa2732e665f7d5333c01
+  displayName: Cloud Pak for Data IBM Analytics Engine powered by Apache Spark
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "analyticsengine_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -223,7 +324,7 @@ spec:
     channel: ${var.analytics_engine.channel}
     installPlanApproval: Automatic
     name: analyticsengine-operator
-    source: ibm-operator-catalog
+    source: ibm-cpd-ae-operator-catalog
     sourceNamespace: openshift-marketplace
 EOF
 }
@@ -245,6 +346,24 @@ EOF
 }
 
 #DB2WH
+
+data "template_file" "db2wh_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-db2wh-cp4d-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-db2wh-cp4d-operator-catalog@sha256:e88dbec35584ac8bf6ca97d1016f1a640f665ce4bd9d6b7d5f9f18761c78ebf5
+  displayName: IBM Db2wh CP4D Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 data "template_file" "db2wh_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -256,7 +375,7 @@ spec:
   channel: ${var.db2_warehouse.channel}
   installPlanApproval: Automatic
   name: ibm-db2wh-cp4d-operator
-  source: ibm-operator-catalog
+  source: ibm-db2wh-cp4d-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -277,6 +396,25 @@ EOF
 }
 
 #DB2OLTP
+
+data "template_file" "db2oltp_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-db2oltp-cp4d-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-db2oltp-cp4d-operator-catalog@sha256:df4af62d05c5e346741a88684300aec70468a481a799cfc42564d4090fa86030
+  displayName: IBM Db2oltp CP4D Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "db2oltp_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -288,7 +426,7 @@ spec:
   channel: ${var.db2_oltp.channel}
   installPlanApproval: Automatic
   name: ibm-db2oltp-cp4d-operator
-  source: ibm-operator-catalog
+  source: ibm-db2oltp-cp4d-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -309,6 +447,45 @@ EOF
 }
 
 #WSL
+
+# Catalog source
+data "template_file" "ws_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ws-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ws-operator-catalog@sha256:6b4c184c9de257441cb15e4e05141ec7bfb6e45177625b31387a860b3c4c875f
+  displayName: CPD IBM Watson Studio
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "ws_runtime_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-ws-runtimes-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-ws-runtimes-operator-catalog@sha256:14352ea4f71c1917cdeb860b64645fd56a3812ff69255b26dfb0c7199005e1a0
+  displayName: CPD Watson Studio Runtimes
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}  
+
+# Subscription
 data "template_file" "ws_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -321,7 +498,7 @@ spec:
   channel: ${var.watson_studio.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wsl
-  source: ibm-operator-catalog
+  source: ibm-cpd-ws-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -345,6 +522,24 @@ EOF
 }
 
 #WML
+data "template_file" "wml_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-wml-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-wml-operator-catalog@sha256:59e9a917d3007c5932d3991409a93bc1f7a7fd6e3412eb4e5be17abe2456a02c
+  displayName: Cloud Pak for Data Watson Machine Learning
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "wml_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -360,7 +555,7 @@ spec:
     channel: ${var.watson_machine_learning.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-wml-operator
-    source: ibm-operator-catalog
+    source: ibm-cpd-wml-operator-catalog
     sourceNamespace: openshift-marketplace
 EOF
 }
@@ -391,6 +586,21 @@ EOF
 }
 
 #WOS
+data "template_file" "wos_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-openscale-operator-catalog
+  namespace: openshift-marketplace
+  generation: 1
+spec:
+  displayName: IBM Watson OpenScale
+  image: icr.io/cpopen/ibm-watson-openscale-operator-catalog@sha256:d8b96670d577bfb00ea072b3855aae997972865f23a6d0c9dc29deff8972f47b
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
 data "template_file" "wos_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -406,7 +616,7 @@ spec:
   channel: ${var.watson_ai_openscale.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wos
-  source: ibm-operator-catalog
+  source: ibm-openscale-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -430,6 +640,24 @@ EOF
 }
 
 #Data Refinery
+data "template_file" "data_refinery_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-datarefinery-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-datarefinery-operator-catalog@sha256:47d5e286326f81056f9a473e885922bfd2943b49e74c1f44d8531fd02e5da82f
+  displayName: Cloud Pak for Data IBM DataRefinery
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "data_refinery_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -443,12 +671,27 @@ spec
     resources: {}
   installPlanApproval: Automatic
   name: ibm-cpd-datarefinery
-  source: ibm-operator-catalog
+  source: ibm-cpd-datarefinery-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
 
 #SPSS
+data "template_file" "spss_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-spss-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-spss-operator-catalog@sha256:1750f9fdb0e65ec0f7b808730575bfc3bb8295b2e17f2b38c13b18a7fe543d3c
+  displayName: CPD Spss Modeler Services
+  publisher: IBM
+  sourceType: grpc
+EOF
+
+}
 data "template_file" "spss_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -464,7 +707,7 @@ spec:
     channel: ${var.spss_modeler.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-spss
-    source: ibm-operator-catalog
+    source: ibm-cpd-spss-operator-catalog
     sourceNamespace: openshift-marketplace
 EOF
 }
@@ -495,6 +738,21 @@ EOF
 }
 
 #WKC
+data "template_file" "wkc_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-wkc-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-wkc-operator-catalog@sha256:4c7278c0591b123a08ada59aacdd96c83b04ff77ce80ce0c1f0be710954dc1be
+  displayName: CPD WKC
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
+
 data "template_file" "wkc_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -510,7 +768,7 @@ spec:
   channel: ${var.watson_knowledge_catalog.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-wkc
-  source: ibm-operator-catalog
+  source: ibm-cpd-wkc-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -537,6 +795,24 @@ EOF
 }
 
 #Datastage
+data "template_file" "ds_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-datastage-operator-catalog
+spec:
+  image: icr.io/cpopen/ds-ent-operator-catalog@sha256:7f3be6cb51c3bbd1caa044845e415ae1663b02e805f82a96c965d452b0edefaa
+  displayName: IBM CPD DataStage
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 60m
+EOF
+}
+
 data "template_file" "ds_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -548,7 +824,7 @@ spec:
   channel: ${var.datastage.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-datastage-operator
-  source: ibm-operator-catalog
+  source: ibm-cpd-datastage-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -571,6 +847,23 @@ EOF
 
 #CA
 
+data "template_file" "ca_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-ca-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-ca-operator-catalog@sha256:b6c6d86c748169823247a3290dcd65d26dd1683c0a36feee5b01b87b4d9ae98b
+  displayName: ibm-ca-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 data "template_file" "ca_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -586,7 +879,7 @@ spec:
   channel: ${var.cognos_analytics.channel}
   name: ibm-ca-operator
   installPlanApproval: Automatic
-  source: ibm-operator-catalog
+  source: ibm-ca-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -609,6 +902,23 @@ EOF
 }
 
 #DV
+data "template_file" "dv_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-dv-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-dv-operator-catalog@sha256:45753b4b15bd3902c497a12d4b2b8db2cf8746d13836c4dbc7fd3d4afedb5523
+  displayName: IBM Data Virtualization
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 
 data "template_file" "dv_sub" {
   template = <<EOF
@@ -621,7 +931,7 @@ spec:
   channel: ${var.data_virtualization.channel}
   installPlanApproval: Automatic
   name: ibm-dv-operator
-  source: ibm-operator-catalog
+  source: ibm-dv-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -644,6 +954,24 @@ EOF
 }
 
 #BIGSQL
+data "template_file" "bigsql_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-bigsql-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-bigsql-operator-catalog@sha256:a8e5b3b0112080a2907ed1a89ed594dfad51271702a9cdc84cf6d07c9b6ab3a3
+  displayName: IBM Db2 Big SQL
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "bigsql_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -655,7 +983,7 @@ spec:
   channel: ${var.bigsql.channel}
   installPlanApproval: Automatic
   name: ibm-bigsql-operator
-  source: ibm-operator-catalog
+  source: ibm-bigsql-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -682,6 +1010,24 @@ EOF
 }
 
 #DMC
+data "template_file" "dmc_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-dmc-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-dmc-operator-catalog@sha256:29c5044364843cbdd50abc7a6bfc6ee457cc474eaacac911bfd2a3a31cbe7c1a
+  displayName: ibm-dmc-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
 data "template_file" "dmc_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -693,7 +1039,7 @@ spec:
   channel: ${var.data_management_console.channel}
   installPlanApproval: Automatic
   name: ibm-dmc-operator
-  source: ibm-operator-catalog
+  source: ibm-dmc-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -717,6 +1063,21 @@ EOF
 }
 
 #CDE
+data "template_file" "cde_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cde-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-cde-operator-catalog@sha256:11b503b9e4d871f43f878e3ca3e25b7d60546a61a383bc6e8058e3a45340e3a0
+  displayName: Cloud Pak for Data Cognos Dashboard Embedded
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
+
 data "template_file" "cde_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -732,7 +1093,7 @@ spec:
   channel: ${var.cognos_dashboard_embedded.channel}
   installPlanApproval: Automatic
   name: ibm-cde-operator
-  source: ibm-operator-catalog
+  source: ibm-cde-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -755,7 +1116,76 @@ spec:
 EOF
 }
 
+#REDIS
+data "template_file" "redis_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cloud-databases-redis-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cloud-databases-redis-catalog@sha256:d1652894fbeae92a3b904ab6b54f748291e12901510a874e8dec8248e867a960
+  displayName: ibm-cloud-databases-redis-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+data "template_file" "redis_sub"{
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-cloud-databases-redis-operator-v1.4-ibm-cloud-databases-redis-operator-catalog-openshift-marketplace
+  namespace: ibm-common-services
+spec:
+  channel: v1.4
+  installPlanApproval: Automatic
+  name: ibm-cloud-databases-redis-operator
+  source: ibm-cloud-databases-redis-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF
+}
+
+#Catalog Source elasticsearch
+data "template_file" "elasticsearch_catalog"{
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-elasticsearch-catalog
+spec:
+  image: icr.io/cpopen/opencontent-elasticsearch-operator-catalog@sha256:41921fb0f258e37cc069c52148a32e9c420340142ce5150d0f9f2ceef483a103
+  displayName: IBM elasticsearch Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+
 #MDM
+data "template_file" "mdm_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-mdm-operator-catalog
+spec:
+  image: icr.io/cpopen/mdm-operator-catalog@sha256:ac885ccfdd1b55dca55bcc48fb32522e11b676c7ee9724024f7016c8a5d5555a
+  displayName: IBM Match 360
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
 data "template_file" "mdm_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -771,7 +1201,7 @@ spec:
   channel: ${var.master_data_management.channel}
   installPlanApproval: Automatic
   name: ibm-mdm
-  source: ibm-operator-catalog
+  source: ibm-mdm-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -816,7 +1246,25 @@ spec:
 EOF
 }
 
-#DOD
+#DODS
+data "template_file" "dods_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-dods-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-dods-operator-catalog@sha256:de9184ac29304628cab6214378f00620dbdc945f10405f354648268359e98c6b
+  displayName: IBM Decision Optimization Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 5m
+EOF
+}
+
 data "template_file" "dods_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -832,7 +1280,7 @@ spec:
     channel: ${var.decision_optimization.channel}
     installPlanApproval: Automatic
     name: ibm-cpd-dods
-    source: ibm-operator-catalog
+    source: ibm-cpd-dods-operator-catalog
     sourceNamespace: openshift-marketplace
 EOF
 }
@@ -853,6 +1301,23 @@ EOF
 }
 
 #PA
+data "template_file" "pa_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-planning-analytics-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-planning-analytics-operator-catalog@sha256:91fd561044adfdf537fa3648f9350b9b1ecbe155e3393284b278af6afd2d96d7
+  displayName: IBM Planning Analytics Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 data "template_file" "pa_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -864,7 +1329,7 @@ spec:
   channel: ${var.planning_analytics.channel}
   installPlanApproval: Automatic
   name: ibm-planning-analytics-operator
-  source: ibm-operator-catalog
+  source: ibm-planning-analytics-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -890,6 +1355,54 @@ EOF
 }
 
 #WA
+data "template_file" "common_services_edb_operandrequest" {
+  template = <<EOF
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
+metadata:
+  name: common-service-edb
+  namespace: ibm-common-services
+spec:
+  requests:
+    - operands:
+        - name: cloud-native-postgresql
+      registry: common-service
+EOF
+}
+data "template_file" "wa_redis_operandrequest" {
+  template = <<EOF
+apiVersion: operator.ibm.com/v1alpha1
+kind: OperandRequest
+metadata:
+  name: watson-assistant-redis
+  namespace: ibm-common-services
+spec:
+  requests:
+    - operands:
+        - name: ibm-cloud-databases-redis-operator
+      registry: common-service
+      registryNamespace: ibm-common-services
+EOF
+}
+
+data "template_file" "wa_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-watson-assistant-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-watson-assistant-operator-catalog@sha256:b239455035a0bbe8d31c7c62810d7926b642952e091a814f9a8040206e458902
+  displayName: IBM Watson Assistant Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 15m
+EOF
+}
+
 data "template_file" "wa_sub" {
   template = <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -900,7 +1413,7 @@ metadata:
 spec:
   channel: ${var.watson_assistant.channel}
   name: ibm-watson-assistant-operator
-  source: ibm-operator-catalog
+  source: ibm-watson-assistant-operator-catalog
   sourceNamespace: openshift-marketplace
   installPlanApproval: Automatic
 EOF
@@ -993,7 +1506,7 @@ spec:
   - en
   license:
     accept: true     # Change to true if you accept the WA license terms
-  size: medium     # Options are small, medium, and large
+  size: small     # Options are small, medium, and large
   version: ${var.watson_assistant.version}
 EOF
 }
@@ -1212,6 +1725,21 @@ spec:
             value: ["127.0.0.1"]
 EOF
 }
+#WD
+data "template_file" "wd_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-watson-discovery-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-watson-discovery-operator-catalog@sha256:02006f98ca4276615b6a7e109d961625276ac1ff4c9f103f1cd0e70cc44f6af0
+  displayName: Watson Discovery
+  publisher: IBM
+  sourceType: grpc
+EOF
+}
 
 data "template_file" "wd_sub" {
   template = <<EOF
@@ -1227,7 +1755,7 @@ metadata:
 spec:
   channel: ${var.watson_discovery.channel}
   name: ibm-watson-discovery-operator
-  source: ibm-operator-catalog
+  source: ibm-watson-discovery-operator-catalog
   sourceNamespace: openshift-marketplace
   installPlanApproval: Automatic
 EOF
@@ -1252,6 +1780,23 @@ spec:
     version: main
 EOF
 }
+data "template_file" "op_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-cpd-openpages-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM OpenPages Catalog
+  publisher: IBM
+  sourceType: grpc
+  image: "icr.io/cpopen/ibm-cpd-openpages-operator-catalog@sha256:322308f51dd35e4702543859f51a9902c1691051ed9f58ee52dc8999010a1d6e"
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
 
 data "template_file" "op_sub" {
   template = <<EOF
@@ -1264,7 +1809,7 @@ spec:
   channel: ${var.openpages.channel}
   installPlanApproval: Automatic
   name: ibm-cpd-openpages-operator
-  source: ibm-operator-catalog
+  source: ibm-cpd-openpages-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF
 }
@@ -1288,3 +1833,173 @@ spec:
     license: Enterprise     # Specify the license that you purchased
 EOF
 }
+
+data "template_file" "mongodb_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-mongodb-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-mongodb-operator-catalog@sha256:7ca2c57547bfb759eebf64fcf129f93a33eea5bb9920299ff4dcfdc06b8ff9fa
+  displayName: IBM CPD Mongodb Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+# Watson_gateway
+data "template_file" "watson_gateway_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-watson-gateway-operator-catalog
+spec:
+  image: icr.io/cpopen/watson-gateway-operator-catalog@sha256:d0e5c84cb93e10bc08c20d1e7d9465ffbdd4dd756549351653c4ad297d2230a7
+  displayName: IBM Watson Gateway Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+# rabbitmq
+data "template_file" "rabbitmq_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-rabbitmq-operator-catalog
+spec:
+  image: icr.io/cpopen/opencontent-rabbitmq-operator-catalog@sha256:7eff2d8ddaa95cc965ff2c41c961bef54b3d2fb16d04a48fc11c1bfb582bf54d
+  displayName: IBM RabbitMQ operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-model-train-operator-catalog 
+data "template_file" "model_train_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-model-train-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-model-train-operator-catalog@sha256:0b4b14e1e7fa6fb2d805c56e18f37b28a706351b1ff99db4f222ad928ba42b89
+  displayName: ibm-model-train-operator-catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-minio-operator-catalog 
+data "template_file" "minio_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-minio-operator-catalog
+spec:
+  image: icr.io/cpopen/opencontent-minio-operator-catalog@sha256:56e0f265d58a8a9251fadd87d06690d83de2619f8c2838872ae72e657b8cc7ea
+  displayName: IBM Minio Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-etcd-operator-catalog 
+data "template_file" "etcd_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-etcd-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-etcd-operator-catalog@sha256:cfa5abdf2231475d7771254ee7115194624a4c84f2883768e1983b4441047b24
+  displayName: IBM etcd operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source cloud-native-postgresql-catalog 
+data "template_file" "cloud_native_postgres_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: cloud-native-postgresql-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-cloud-native-postgresql-operator-catalog@sha256:37814b7c96b58451f4a060d8fe987d569c3ef1e6da1ea6b4354fd04a521ff9ca
+  displayName: Cloud Native Postgresql Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+# Catalog Source ibm-data-governor-operator-catalog
+data "template_file" "data_governor_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-data-governor-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-data-governor-operator-catalog@sha256:e56a42b12366248ef173af502f77175a9041fe5798756c557f2f107d083942e6
+  displayName: IBM Data Governor operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+ 
+# Catalog Source ibm-auditwebhook-operator-catalog
+data "template_file" "auditwebhook_catalog" {
+  template = <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-auditwebhook-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-auditwebhook-operator-catalog@sha256:b1606c9363a87c6fa5dd6043cd0bc8de63b1592ec2567c5a25ff47c353953d31
+  displayName: IBM Audit Webhook Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+}
+
+ 

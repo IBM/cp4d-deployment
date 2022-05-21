@@ -1,3 +1,8 @@
+resource "local_file" "cde_catalog_yaml" {
+  content  = data.template_file.cde_catalog.rendered
+  filename = "${local.cpd_workspace}/cde_catalog.yaml"
+}
+
 resource "local_file" "cde_cr_yaml" {
   content  = data.template_file.cde_cr.rendered
   filename = "${local.cpd_workspace}/cde_cr.yaml"
@@ -16,6 +21,13 @@ resource "null_resource" "install_cde" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+
+echo "Creating CDE Catalog"
+oc create -f ${self.triggers.cpd_workspace}/cde_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-cde-operator-catalog openshift-marketplace
+
 echo "Creating CDE through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/cde_sub.yaml
 sleep 3
@@ -29,6 +41,7 @@ bash cpd/scripts/check-cr-status.sh CdeProxyService cdeproxyservice-cr ${var.cpd
 EOF
   }
   depends_on = [
+    local_file.cde_catalog_yaml,
     local_file.cde_cr_yaml,
     local_file.cde_sub_yaml,
     null_resource.install_aiopenscale,

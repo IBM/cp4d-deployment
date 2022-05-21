@@ -1,3 +1,8 @@
+resource "local_file" "dods_catalog_yaml" {
+  content  = data.template_file.dods_catalog.rendered
+  filename = "${local.cpd_workspace}/dods_catalog.yaml"
+}
+
 resource "local_file" "dods_cr_yaml" {
   content  = data.template_file.dods_cr.rendered
   filename = "${local.cpd_workspace}/dods_cr.yaml"
@@ -16,6 +21,11 @@ resource "null_resource" "install_dods" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo "Creating DO Catalog"
+oc create -f ${self.triggers.cpd_workspace}/dods_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-cpd-dods-operator-catalog openshift-marketplace
+
 echo "Creating DO Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/dods_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-dods-operator ${local.operator_namespace}
@@ -30,6 +40,7 @@ EOF
   depends_on = [
     local_file.dods_cr_yaml,
     local_file.dods_sub_yaml,
+    local_file.dods_catalog_yaml,
     null_resource.install_wml,
     null_resource.install_ws,
     module.machineconfig,

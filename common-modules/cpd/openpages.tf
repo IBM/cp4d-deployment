@@ -1,3 +1,8 @@
+resource "local_file" "op_catalog_yaml" {
+  content  = data.template_file.op_catalog.rendered
+  filename = "${local.cpd_workspace}/op_catalog.yaml"
+}
+
 resource "local_file" "op_cr_yaml" {
   content  = data.template_file.op_cr.rendered
   filename = "${local.cpd_workspace}/op_cr.yaml"
@@ -16,6 +21,10 @@ resource "null_resource" "install_op" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Creating OpenPages catalog"
+oc create -f ${self.triggers.cpd_workspace}/op_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-cpd-openpages-operator-catalog openshift-marketplace
+
 echo "Creating OpenPages Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/op_sub.yaml
 bash cpd/scripts/pod-status-check.sh ibm-cpd-openpages-operator ${local.operator_namespace}
@@ -30,6 +39,7 @@ EOF
   depends_on = [
     null_resource.install_wa,
     null_resource.install_wd,
+    local_file.op_catalog_yaml,
     local_file.op_cr_yaml,
     local_file.op_sub_yaml,
     module.machineconfig,

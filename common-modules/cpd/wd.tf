@@ -1,3 +1,8 @@
+resource "local_file" "wd_catalog_yaml" {
+  content  = data.template_file.wd_catalog.rendered
+  filename = "${local.cpd_workspace}/wd_catalog.yaml"
+}
+
 resource "local_file" "wd_cr_yaml" {
   content  = data.template_file.wd_cr.rendered
   filename = "${local.cpd_workspace}/wd_cr.yaml"
@@ -16,6 +21,10 @@ resource "null_resource" "install_wd" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Creating Watson Discovery catalog"
+oc create -f ${self.triggers.cpd_workspace}/wd_catalog.yaml
+bash cpd/scripts/pod-status-check.sh ibm-watson-discovery-operator-catalog openshift-marketplace
+
 echo "Creating Watson Discovery Operator through Subscription"
 oc create -f ${self.triggers.cpd_workspace}/wd_sub.yaml
 bash cpd/scripts/pod-status-check.sh wd-discovery-operator ${local.operator_namespace}
@@ -30,6 +39,7 @@ EOF
   depends_on = [
     null_resource.install_ebd,
     null_resource.install_wa,
+    local_file.wd_catalog_yaml,
     local_file.wd_cr_yaml,
     local_file.wd_sub_yaml,
     module.machineconfig,

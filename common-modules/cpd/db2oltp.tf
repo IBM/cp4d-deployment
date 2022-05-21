@@ -1,4 +1,8 @@
 
+resource "local_file" "db2oltp_catalog_yaml" {
+  content = data.template_file.db2oltp_catalog.rendered
+  filename = "${local.cpd_workspace}/db2oltp_catalog.yaml"
+}
 resource "local_file" "db2oltp_cr_yaml" {
   content  = data.template_file.db2oltp_cr.rendered
   filename = "${local.cpd_workspace}/db2oltp_cr.yaml"
@@ -17,6 +21,12 @@ resource "null_resource" "install_db2oltp" {
   }
   provisioner "local-exec" {
     command = <<-EOF
+
+echo 'Create db2oltp catalog'
+oc create -f ${self.triggers.cpd_workspace}/db2oltp_catalog.yaml
+sleep 3
+bash cpd/scripts/pod-status-check.sh ibm-db2oltp-cp4d-operator-catalog openshift-marketplace
+
 echo 'Create db2oltp sub'
 oc create -f ${self.triggers.cpd_workspace}/db2oltp_sub.yaml
 sleep 3
@@ -30,6 +40,7 @@ bash cpd/scripts/check-cr-status.sh Db2oltpService db2oltp-cr ${var.cpd_namespac
 EOF
   }
   depends_on = [
+    local_file.db2oltp_catalog_yaml,
     local_file.db2oltp_cr_yaml,
     local_file.db2oltp_sub_yaml,
     module.machineconfig,
