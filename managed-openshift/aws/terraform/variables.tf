@@ -411,4 +411,29 @@ variable "github_ibm_pat" {
   description = "Github IBM Repository personal Access Token"
 }
 
+variable "openpages" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "8.204.2"
+    channel  = "v1.0"
+  }
+}
 
+variable "watson_assistant" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.5"
+    channel  = "v4.0"
+  }
+}
+
+variable "watson_discovery" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.5"
+    channel  = "v4.0"
+  }
+}
