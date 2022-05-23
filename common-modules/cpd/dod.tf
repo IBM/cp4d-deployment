@@ -1,5 +1,5 @@
 resource "null_resource" "install_dods" {
-  count = var.decision_optimization.enable == "yes" ? 1 : 0
+  count = var.decision_optimization == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

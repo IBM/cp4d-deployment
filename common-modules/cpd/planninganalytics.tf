@@ -1,5 +1,5 @@
 resource "null_resource" "install_pa" {
-  count = var.planning_analytics.enable == "yes" ? 1 : 0
+  count = var.planning_analytics == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

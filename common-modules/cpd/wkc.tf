@@ -9,7 +9,7 @@ resource "local_file" "sysctl_worker_yaml" {
 }
 
 resource "null_resource" "install_wkc" {
-  count = var.watson_knowledge_catalog.enable == "yes" ? 1 : 0
+  count = var.watson_knowledge_catalog == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

@@ -1,5 +1,5 @@
 resource "null_resource" "install_ds" {
-  count = var.datastage.enable == "yes" ? 1 : 0
+  count = var.datastage == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

@@ -1,5 +1,5 @@
 resource "null_resource" "install_dv" {
-  count = var.data_virtualization.enable == "yes" ? 1 : 0
+  count = var.data_virtualization == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

@@ -1,6 +1,6 @@
 
 resource "null_resource" "install_db2aaservice" {
-  count = local.db2aaservice == "yes" ? 1 : 0
+  count = var.db2_aaservice == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
