@@ -7,31 +7,9 @@
 data "aws_vpc" "cpd_vpc" {
   id = var.vpc_id
 }
-
-#AWS EFS Setup
-
-
-
-# resource "null_resource" "cpd_efs" { 
-#     triggers = { 
-#         login_cmd           =  var.login_cmd
-#         openshift_username      = regex("username (.*) --password", "${var.login_cmd}")[0]
-#         openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
-#         openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
-#         cluster_type        = "managed"
-
-#    }
-#     provisioner "local-exec" {
-#         command = <<EOF
-#               bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
-#     EOF
-#    }
-# }
-# ${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
-
+# maxIO or generalPurpose
 resource "aws_efs_file_system" "cpd_efs" {
-   creation_token = "${var.cluster_name}_cpd_efs"
+   creation_token = "cpd_efs"
    performance_mode = "generalPurpose"
    throughput_mode = "provisioned"
    provisioned_throughput_in_mibps = "250"
@@ -44,23 +22,13 @@ resource "aws_efs_file_system" "cpd_efs" {
    }
  }
 
-data "aws_security_group" "aws_worker_sg" {
-   tags = {
-    Name   = "${var.cluster_name}-*-worker-sg"
-  }
-}
-
 resource "aws_efs_mount_target" "cpd-efs-mt" {
    count = var.az == "multi_zone" ? 3 : 1
    file_system_id  = aws_efs_file_system.cpd_efs.id
    subnet_id = var.subnet_ids[count.index]
-   security_groups = [data.aws_security_group.aws_worker_sg.id]
-   
-   depends_on = [
-    aws_efs_file_system.cpd_efs,
-  ]
+   security_groups = [aws_security_group.efs_sg.id]
  }
-/*
+
 resource "aws_security_group" "efs_sg" {
    name = "efs_sg"
    description= "Allos inbound efs traffic from ec2"
@@ -77,9 +45,9 @@ resource "aws_security_group" "efs_sg" {
      Name = var.cluster_name
    }
  }
-*/
+
 resource "aws_iam_policy" "efs_policy" {
-  name        = "${var.cluster_name}_aws_efs_policy"
+  name        = "aws_efs_policy"
   description = "EFS policy"
 
   policy = <<EOF
@@ -134,24 +102,65 @@ resource "aws_iam_role_policy_attachment" "efs-policy-attach" {
   policy_arn = aws_iam_policy.efs_policy.arn
 }
 
-resource "null_resource" "nfs_subdir_provisioner_setup" {
-  triggers = { 
-         login_cmd           =  var.login_cmd
-         openshift_username      = regex("username (.*) --password", "${var.login_cmd}")[0]
-         openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
-         openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
-         cluster_type        = "managed"
-         file_system_id  = aws_efs_file_system.cpd_efs.id
+resource "null_resource" "login_cluster" {
+  triggers = {
+    openshift_api       = var.openshift_api
+    openshift_username  = var.openshift_username
+    openshift_password  = var.openshift_password
+    openshift_token     = var.openshift_token
+    login_string        = var.login_cmd
   }
   provisioner "local-exec" {
     command = <<EOF
-    bash efs/setup-nfs.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}' '${self.triggers.file_system_id}' '${var.vpc_id}' '${var.vpc_cidr}' '${var.region}'
+${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 EOF
   }
   depends_on = [
-    resource.aws_efs_mount_target.cpd-efs-mt,
-    aws_iam_policy.efs_policy,
-    aws_iam_role_policy_attachment.efs-policy-attach,
+    resource.aws_efs_mount_target.cpd-efs-mt
+  ]
+}
+
+resource "null_resource" "configure_efs" {
+  triggers = {
+    installer_workspace = local.installer_workspace
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+echo "Creating SC"
+oc create -f ${self.triggers.installer_workspace}/efs_sc.yaml
+oc create -f ${self.triggers.installer_workspace}/efs_sc_wkc.yaml
+echo "Creating test pvc"
+oc create -f ${self.triggers.installer_workspace}/efs_test_pvc.yaml
+sleep 60
+
+EOF
+  }
+  depends_on = [
+    null_resource.login_cluster
+  ]
+}
+
+resource "local_file" "efs_test_pvc_yaml" {
+  content  = data.template_file.efs_test_pvc.rendered
+  filename = "${local.installer_workspace}/efs_test_pvc.yaml"
+  depends_on = [
+    resource.aws_efs_mount_target.cpd-efs-mt
+  ]
+}
+
+resource "local_file" "efs_sc_yaml" {
+  content  = data.template_file.efs_sc.rendered
+  filename = "${local.installer_workspace}/efs_sc.yaml"
+  depends_on = [
+    resource.aws_efs_mount_target.cpd-efs-mt
+  ]
+}
+
+resource "local_file" "efs_sc_wkc_yaml" {
+  content  = data.template_file.efs_sc_wkc.rendered
+  filename = "${local.installer_workspace}/efs_sc_wkc.yaml"
+  depends_on = [
+    resource.aws_efs_mount_target.cpd-efs-mt
   ]
 }
 
