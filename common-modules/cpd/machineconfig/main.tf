@@ -118,7 +118,7 @@ oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
 
 echo 'Sleeping for 5mins while MachineConfigs apply and the nodes restarts' 
-sleep 300
+sleep 60
 EOF
   }
   depends_on = [

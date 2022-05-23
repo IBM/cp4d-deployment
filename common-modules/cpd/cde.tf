@@ -1,13 +1,3 @@
-resource "local_file" "cde_cr_yaml" {
-  content  = data.template_file.cde_cr.rendered
-  filename = "${local.cpd_workspace}/cde_cr.yaml"
-}
-
-resource "local_file" "cde_sub_yaml" {
-  content  = data.template_file.cde_sub.rendered
-  filename = "${local.cpd_workspace}/cde_sub.yaml"
-}
-
 resource "null_resource" "install_cde" {
   count = var.cognos_dashboard_embedded.enable == "yes" ? 1 : 0
   triggers = {
@@ -16,21 +6,16 @@ resource "null_resource" "install_cde" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Creating CDE through Subscription"
-oc create -f ${self.triggers.cpd_workspace}/cde_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-cde-operator ${local.operator_namespace}
 
-echo 'Create CDE CR'
-oc create -f ${self.triggers.cpd_workspace}/cde_cr.yaml
-sleep 3
-echo 'Check the CDE cr status'
-bash cpd/scripts/check-cr-status.sh CdeProxyService cdeproxyservice-cr ${var.cpd_namespace} cdeStatus
+echo "Deploying catalogsources and operator subscriptions for Cognos Dashboards"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde
+
+echo "Create Cognos Dashboards cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
-    local_file.cde_cr_yaml,
-    local_file.cde_sub_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,

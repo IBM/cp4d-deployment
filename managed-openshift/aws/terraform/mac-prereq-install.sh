@@ -32,3 +32,7 @@ oc version
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
 terraform -help
+
+## Install podman
+brew install podman
+

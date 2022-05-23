@@ -1,14 +1,3 @@
-resource "local_file" "pa_cr_yaml" {
-  content  = data.template_file.pa_cr.rendered
-  filename = "${local.cpd_workspace}/pa_cr.yaml"
-}
-
-resource "local_file" "pa_sub_yaml" {
-  content  = data.template_file.pa_sub.rendered
-  filename = "${local.cpd_workspace}/pa_sub.yaml"
-}
-
-
 resource "null_resource" "install_pa" {
   count = var.planning_analytics.enable == "yes" ? 1 : 0
   triggers = {
@@ -17,20 +6,16 @@ resource "null_resource" "install_pa" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Install Planning Analytics Operator"
-oc create -f ${self.triggers.cpd_workspace}/pa_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-planning-analytics-operator ${local.operator_namespace}
 
-echo "PA CR"
-oc create -f ${self.triggers.cpd_workspace}/pa_cr.yaml
-echo 'check the PA cr status'
-bash cpd/scripts/check-cr-status.sh PAService ibm-planning-analytics-service ${var.cpd_namespace} paAddonStatus
+echo "Deploying catalogsources and operator subscriptions for Planning Analytics"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} planning_analytics
+
+echo "Create Planning Analytics cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} planning_analytics ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
-    local_file.pa_cr_yaml,
-    local_file.pa_sub_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,

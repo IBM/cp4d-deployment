@@ -1,13 +1,3 @@
-resource "local_file" "ca_cr_yaml" {
-  content  = data.template_file.ca_cr.rendered
-  filename = "${local.cpd_workspace}/ca_cr.yaml"
-}
-
-resource "local_file" "ca_sub_yaml" {
-  content  = data.template_file.ca_sub.rendered
-  filename = "${local.cpd_workspace}/ca_sub.yaml"
-}
-
 resource "null_resource" "install_ca" {
   count = var.cognos_analytics.enable == "yes" ? 1 : 0
   triggers = {
@@ -16,20 +6,18 @@ resource "null_resource" "install_ca" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo 'Create CA sub'
-oc create -f ${self.triggers.cpd_workspace}/ca_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-ca-operator ${local.operator_namespace}
 
-echo "CA CR"
-oc create -f ${self.triggers.cpd_workspace}/ca_cr.yaml
-echo 'check the CA cr status'
-bash cpd/scripts/check-cr-status.sh CAService ca-cr ${var.cpd_namespace} caAddonStatus
+
+echo "Deploying catalogsources and operator subscriptions for Cognos Analytics"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cognos_analytics
+
+
+echo "Create Cognos Analytics cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cognos_analytics ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
-    local_file.ca_cr_yaml,
-    local_file.ca_sub_yaml,
     null_resource.install_analyticsengine,
     null_resource.install_aiopenscale,
     null_resource.install_wml,

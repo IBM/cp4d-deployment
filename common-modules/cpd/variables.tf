@@ -28,10 +28,11 @@ variable "cluster_type" {
   type = string
 }
 
+
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
-  default     = true
+  default     = false
 }
 
 variable "configure_openshift_nodes" {
@@ -79,7 +80,7 @@ variable "cpd_storageclass" {
   default = {
     "portworx" = "portworx-shared-gp3"
     "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
+    "nfs"      = "nfs-client"
     "efs"      = "aws-efs-csi"
   }
 }
@@ -90,7 +91,7 @@ variable "rwo_cpd_storageclass" {
   default = {
     "portworx" = "portworx-metastoredb-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
-    "nfs"      = "nfs"
+    "nfs"      = "nfs-client"
     "efs"      = "aws-efs-csi"
   }
 }
@@ -127,6 +128,8 @@ variable "wa_storageclass" {
     "efs"      = "aws-efs-csi"
   }
 }
+
+
 
 variable "cpd_version" {
   type    = string
@@ -365,4 +368,44 @@ variable "openpages" {
     version  = "8.204.2"
     channel  = "v1.0"
   }
+}
+
+
+#Only required for dev
+variable "cpd_staging_registry" {
+  description = "URL to staging  registry for CPD install"
+  default     = "cp.stg.icr.io"
+}
+
+variable "cpd_staging_username" {
+  description = "staging registry  username for CPD install"
+  default     = "cp"
+}
+
+variable "cpd_staging_api_key" {
+  description = "Staging repository APIKey or registry password"
+}
+
+
+variable "hyc_cloud_private_registry" {
+  description = "URL to hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com registry for CPD install"
+  default     = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
+}
+
+variable "hyc_cloud_private_username" {
+  description = "hyc_cloud_private username for CPD install"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "hyc_cloud_private_api_key" {
+  description = "hyc_cloud_private Repository APIKey or Registry password"
+}
+
+variable "github_ibm_username" {
+  description = "username for github.ibm.com"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "github_ibm_pat" {
+  description = "Github IBM Repository personal Access Token"
 }

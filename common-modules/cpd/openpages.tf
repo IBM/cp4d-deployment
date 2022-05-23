@@ -1,13 +1,3 @@
-resource "local_file" "op_cr_yaml" {
-  content  = data.template_file.op_cr.rendered
-  filename = "${local.cpd_workspace}/op_cr.yaml"
-}
-
-resource "local_file" "op_sub_yaml" {
-  content  = data.template_file.op_sub.rendered
-  filename = "${local.cpd_workspace}/op_sub.yaml"
-}
-
 resource "null_resource" "install_op" {
   count = var.openpages.enable == "yes" ? 1 : 0
   triggers = {
@@ -16,22 +6,18 @@ resource "null_resource" "install_op" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Creating OpenPages Operator through Subscription"
-oc create -f ${self.triggers.cpd_workspace}/op_sub.yaml
-bash cpd/scripts/pod-status-check.sh ibm-cpd-openpages-operator ${local.operator_namespace}
 
-echo 'Create OpenPages CR'
-oc create -f ${self.triggers.cpd_workspace}/op_cr.yaml
-sleep 30
-echo 'check the OpenPages cr status'
-bash cpd/scripts/check-wa-cr-status.sh OpenPagesService openpages ${var.cpd_namespace} openpagesStatus
+echo "Deploying catalogsources and operator subscriptions for OpenPages"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} openpages
+
+echo "Create OpenPages cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} openpages ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
     null_resource.install_wa,
     null_resource.install_wd,
-    local_file.op_cr_yaml,
-    local_file.op_sub_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,

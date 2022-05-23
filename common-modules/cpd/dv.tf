@@ -1,13 +1,3 @@
-resource "local_file" "dv_cr_yaml" {
-  content  = data.template_file.dv_cr.rendered
-  filename = "${local.cpd_workspace}/dv_cr.yaml"
-}
-
-resource "local_file" "dv_sub_yaml" {
-  content  = data.template_file.dv_sub.rendered
-  filename = "${local.cpd_workspace}/dv_sub.yaml"
-}
-
 resource "null_resource" "install_dv" {
   count = var.data_virtualization.enable == "yes" ? 1 : 0
   triggers = {
@@ -16,20 +6,16 @@ resource "null_resource" "install_dv" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Creating DV Operator through Subscription"
-oc create -f ${self.triggers.cpd_workspace}/dv_sub.yaml
-bash cpd/scripts/pod-status-check.sh ibm-dv-operator ${local.operator_namespace}
 
-echo 'Create DV CR'
-oc create -f ${self.triggers.cpd_workspace}/dv_cr.yaml
+echo "Deploying catalogsources and operator subscriptions for data virtualization"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} dv
 
-echo 'check the DV cr status'
-bash cpd/scripts/check-cr-status.sh DvService dv-service-cr ${var.cpd_namespace} reconcileStatus
+echo "Create dv cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} dv ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
-    local_file.dv_cr_yaml,
-    local_file.dv_sub_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,
     null_resource.install_ws,
