@@ -1,7 +1,7 @@
 ##### AWS Configuration #####
 variable "region" {
   description = "The region to deploy the cluster in, e.g: us-west-2."
-  default     = "eu-west-2"
+  default     = "ap-southeast-1"
 }
 
 variable "tenancy" {
