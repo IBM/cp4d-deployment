@@ -1,16 +1,3 @@
-resource "local_file" "db2wh_catalog_yaml" {
-  content = data.template_file.db2wh_catalog.rendered
-  filename = "${local.cpd_workspace}/db2wh_catalog.yaml"
-}
-resource "local_file" "db2wh_cr_yaml" {
-  content  = data.template_file.db2wh_cr.rendered
-  filename = "${local.cpd_workspace}/db2wh_cr.yaml"
-}
-
-resource "local_file" "db2wh_sub_yaml" {
-  content  = data.template_file.db2wh_sub.rendered
-  filename = "${local.cpd_workspace}/db2wh_sub.yaml"
-}
 
 resource "null_resource" "install_db2wh" {
   count = var.db2_warehouse.enable == "yes" ? 1 : 0
@@ -20,27 +7,16 @@ resource "null_resource" "install_db2wh" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo 'Create db2wh catalog'
-oc create -f "${self.triggers.cpd_workspace}/db2wh_catalog.yaml"
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-db2wh-cp4d-operator-catalog openshift-marketplace
 
-echo 'Create db2wh sub'
-oc create -f ${self.triggers.cpd_workspace}/db2wh_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-db2wh-cp4d-operator ${local.operator_namespace}
+echo "Deploying catalogsources and operator subscriptions for Db2 Warehouse"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} db2wh
 
-echo 'Create db2wh CR'
-oc create -f ${self.triggers.cpd_workspace}/db2wh_cr.yaml
-sleep 3
-echo 'check the db2wh cr status'
-bash cpd/scripts/check-cr-status.sh Db2whService db2wh-cr ${var.cpd_namespace} db2whStatus
+echo "Create Db2 Warehouse cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} db2wh ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+
 EOF
   }
   depends_on = [
-    local_file.db2wh_catalog_yaml,
-    local_file.db2wh_cr_yaml,
-    local_file.db2wh_sub_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,

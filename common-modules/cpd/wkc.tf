@@ -1,13 +1,3 @@
-resource "local_file" "wkc_sub_yaml" {
-  content  = data.template_file.wkc_sub.rendered
-  filename = "${local.cpd_workspace}/wkc_sub.yaml"
-}
-
-resource "local_file" "wkc_cr_yaml" {
-  content  = data.template_file.wkc_cr.rendered
-  filename = "${local.cpd_workspace}/wkc_cr.yaml"
-}
-
 resource "local_file" "wkc_iis_scc_yaml" {
   content  = data.template_file.wkc_iis_scc.rendered
   filename = "${local.cpd_workspace}/wkc_iis_scc.yaml"
@@ -33,19 +23,15 @@ oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
 #oc create clusterrole system:openshift:scc:wkc-iis-scc --verb=use --resource=scc --resource-name=wkc-iis-scc
 #oc create rolebinding wkc-iis-scc-rb --namespace ${var.cpd_namespace} --clusterrole=system:openshift:scc:wkc-iis-scc --serviceaccount=${var.cpd_namespace}:wkc-iis-sa
 
-echo "Creating WKC Operator"
-oc create -f ${self.triggers.cpd_workspace}/wkc_sub.yaml
-bash cpd/scripts/pod-status-check.sh ibm-cpd-wkc-operator ${local.operator_namespace}
+echo "Deploying catalogsources and operator subscriptions for watson knowledge catalog"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc
 
-echo 'Create WKC Core CR'
-oc create -f ${self.triggers.cpd_workspace}/wkc_cr.yaml
+echo "Create wkc cr"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
-echo 'check the WKC Core cr status'
-bash cpd/scripts/check-cr-status.sh wkc wkc-cr ${var.cpd_namespace} wkcStatus
 EOF
   }
   depends_on = [
-    local_file.wkc_cr_yaml,
     local_file.wkc_iis_scc_yaml,
     null_resource.install_aiopenscale,
     null_resource.install_wml,

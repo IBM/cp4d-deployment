@@ -39,7 +39,7 @@ variable "installer_workspace" {
 
 variable "accept_cpd_license" {
   description = "Read and accept license at https://ibm.biz/Bdq6KP, (accept / reject)"
-  default     = "reject"
+  default     = "accept"
 }
 
 variable "cpd_external_registry" {
@@ -272,3 +272,44 @@ variable "db2u_catalog_source" {
 variable "accept-cpd-license" {
   default = "reject"
 }
+
+#Only required for dev
+
+variable "cpd_staging_registry" {
+  description = "URL to staging  registry for CPD install"
+  default     = "cp.stg.icr.io"
+}
+
+variable "cpd_staging_username" {
+  description = "staging registry  username for CPD install"
+  default     = "cp"
+}
+
+variable "cpd_staging_api_key" {
+  description = "Staging repository APIKey or registry password"
+}
+
+
+variable "hyc_cloud_private_registry" {
+  description = "URL to hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com registry for CPD install"
+  default     = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
+}
+
+variable "hyc_cloud_private_username" {
+  description = "hyc_cloud_private username for CPD install"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "hyc_cloud_private_api_key" {
+  description = "hyc_cloud_private Repository APIKey or Registry password"
+}
+
+variable "github_ibm_username" {
+  description = "username for github.ibm.com"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "github_ibm_pat" {
+  description = "Github IBM Repository personal Access Token"
+}
+

@@ -20,6 +20,9 @@ locals {
   single_zone_subnets = var.private_cluster ? [local.private_subnet1_id] : [local.public_subnet1_id, local.private_subnet1_id]
   multi_zone_subnets  = var.private_cluster ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
   login_cmd           = module.ocp.login_cmd
+  openshift_username      = regex("username (.*) --password", "${local.login_cmd}")[0]
+  openshift_api        =  regex("login (.*) --username","${local.login_cmd}")[0]
+  openshift_password      = regex("--password (.*)","${local.login_cmd}")[0]
   cluster_type        = "managed"
 }
 
@@ -172,7 +175,19 @@ module "cpd" {
   watson_discovery 	    = var.watson_discovery  
   cluster_type              = local.cluster_type
   login_string              = "${local.login_cmd} --insecure-skip-tls-verify=true"
-  
+  configure_global_pull_secret = var.configure_global_pull_secret  
+  cpd_version                = var.cpd_version
+  openshift_api                = "${local.openshift_api}"
+  openshift_username           = "${local.openshift_username}"
+  openshift_password           = "${local.openshift_password}" 
+  cpd_staging_registry         = var.cpd_staging_registry
+  cpd_staging_username         = var.cpd_staging_username
+  cpd_staging_api_key          = var.cpd_staging_api_key
+  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
+  hyc_cloud_private_username   = var.hyc_cloud_private_username
+  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
+  github_ibm_username          = var.github_ibm_username
+  github_ibm_pat               = var.github_ibm_pat
   depends_on = [
     null_resource.create_workspace,
     module.portworx,

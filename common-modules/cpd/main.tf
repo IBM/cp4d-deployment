@@ -4,6 +4,8 @@ locals {
   operator_namespace = "ibm-common-services"
   cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
   db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" || var.openpages.enable == "yes" ? "yes" : "no")
+  storage_class      = lookup(var.cpd_storageclass, var.storage_option)
+  rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
 }
 
 module "machineconfig" {
@@ -20,6 +22,39 @@ module "machineconfig" {
   configure_openshift_nodes    = var.configure_openshift_nodes
 }
 
+resource "null_resource" "download_cpd_cli" {
+  triggers = {
+    cpd_workspace = local.cpd_workspace
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+  echo "Download cpd-cli installer."
+case $(uname -s) in
+  Darwin)
+    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/latest/cpd-cli-darwin-EE-11.0.0-14.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0-14.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-14.tgz -C ${self.triggers.cpd_workspace}
+    rm -rf ${self.triggers.cpd_workspace}/plugins
+    rm -rf ${self.triggers.cpd_workspace}/LICENSES
+    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-14/*  ${self.triggers.cpd_workspace}
+    ;;
+  Linux)
+    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/latest/cpd-cli-linux-EE-11.0.0-14.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0-14.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-14.tgz -C ${self.triggers.cpd_workspace}
+    rm -rf ${self.triggers.cpd_workspace}/plugins
+    rm -rf ${self.triggers.cpd_workspace}/LICENSES
+    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-14/* ${self.triggers.cpd_workspace}
+    ;;
+  *)
+    echo 'Supports only Linux and Mac OS at this time'
+    exit 1;;
+esac
+EOF
+  }
+  depends_on = [
+    module.machineconfig,
+  ]
+}
+
 resource "null_resource" "login_cluster" {
   triggers = {
     openshift_api       = var.openshift_api
@@ -27,79 +62,36 @@ resource "null_resource" "login_cluster" {
     openshift_password  = var.openshift_password
     openshift_token     = var.openshift_token
     login_string        = var.login_string
+    cpd_workspace       = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
+
+echo 'set OLM_UTILS_IMAGE env variable to staging repo required only in dev'
+export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:latest-validated
+
+echo 'Remove any existing olm-utils-play container' 
+podman rm --force olm-utils-play
+
+echo 'podman login to stg.icr.io repo required only in dev'
+podman login -u '${var.cpd_staging_username}' -p '${var.cpd_staging_api_key}' '${var.cpd_staging_registry}'
+
+echo 'Run login-to-ocp command'
+
+${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' || ${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} --token='${self.triggers.openshift_token}'
+
 ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+ 
+sleep 60
+
+${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}'  || ${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} --token='${self.triggers.openshift_token}'
+
 EOF
   }
   depends_on = [
     module.machineconfig,
+    null_resource.download_cpd_cli,
   ]
-}
-
-resource "null_resource" "download_cloudctl" {
-  triggers = {
-    cpd_workspace = local.cpd_workspace
-  }
-  provisioner "local-exec" {
-    command = <<-EOF
-  echo "Download cloudctl."
-case $(uname -s) in
-  Darwin)
-    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz'
-    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-darwin-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-darwin-amd64.tar.gz.sig'
-    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64.tar.gz -C ${self.triggers.cpd_workspace}
-    mv ${self.triggers.cpd_workspace}/cloudctl-darwin-amd64 ${self.triggers.cpd_workspace}/cloudctl
-    ;;
-  Linux)
-    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz'
-    wget https://github.com/IBM/cloud-pak-cli/releases/download/${var.cloudctl_version}/cloudctl-linux-amd64.tar.gz.sig -P ${self.triggers.cpd_workspace} -A 'cloudctl-linux-amd64.tar.gz.sig'
-    tar -xvf ${self.triggers.cpd_workspace}/cloudctl-linux-amd64.tar.gz -C ${self.triggers.cpd_workspace}
-    mv ${self.triggers.cpd_workspace}/cloudctl-linux-amd64 ${self.triggers.cpd_workspace}/cloudctl
-    ;;
-  *)
-    echo 'Supports only Linux and Mac OS at this time'
-    exit 1;;
-esac
-chmod u+x ${self.triggers.cpd_workspace}/cloudctl
-cp ${self.triggers.cpd_workspace}/cloudctl /usr/local/bin
-EOF
-  }
-  depends_on = [
-    null_resource.login_cluster,
-    module.machineconfig,
-  ]
-}
-
-resource "local_file" "cpd_catalog_source_yaml" {
-  content  = data.template_file.cpd_operator_catalog.rendered
-  filename = "${local.cpd_workspace}/cpd_operator_catalog_source.yaml"
-}
-
-resource "local_file" "opencloud_catalog_source_yaml" {
-  content  = data.template_file.opencloud_catalog.rendered
-  filename = "${local.cpd_workspace}/opencloud_catalog.yaml"
-}
-
-resource "local_file" "cpd_operator_yaml" {
-  content  = data.template_file.cpd_operator.rendered
-  filename = "${local.cpd_workspace}/cpd_operator.yaml"
-}
-
-resource "local_file" "operand_requests_yaml" {
-  content  = data.template_file.operand_requests.rendered
-  filename = "${local.cpd_workspace}/operand_requests.yaml"
-}
-
-resource "local_file" "ibmcpd_cr_yaml" {
-  content  = data.template_file.ibmcpd_cr.rendered
-  filename = "${local.cpd_workspace}/ibmcpd_cr.yaml"
-}
-
-resource "local_file" "db2u_catalog_yaml" {
-  content  = data.template_file.db2u_catalog.rendered
-  filename = "${local.cpd_workspace}/db2u_catalog.yaml"
 }
 
 resource "local_file" "ccs_catalog_yaml" {
@@ -220,26 +212,7 @@ EOF
   depends_on = [
     module.machineconfig,
     null_resource.login_cluster,
-    null_resource.download_cloudctl,
-    local_file.ibmcpd_cr_yaml,
-    local_file.operand_requests_yaml,
-    local_file.cpd_operator_yaml,
-    local_file.ccs_catalog_yaml,
-    local_file.db2u_catalog_yaml,
-    local_file.dmc_catalog_yaml,
-    local_file.data_refinery_catalog_yaml,
-    local_file.iis_catalog_yaml,
-    local_file.wkc_catalog_yaml,
-    local_file.ws_catalog_yaml,
-    local_file.ws_runtime_catalog_yaml,
-    local_file.db2aaservice_catalog_yaml,
-    local_file.wml_catalog_yaml,
-    local_file.redis_catalog_yaml,
-    local_file.mongodb_catalog_yaml,
-    local_file.watson_gateway_catalog_yaml,
-    local_file.elasticsearch_catalog_yaml,
-    local_file.data_governor_catalog_yaml,
-    local_file.auditwebhook_catalog_yaml,
+    null_resource.download_cpd_cli,
   ]
 }
 
@@ -251,47 +224,12 @@ resource "null_resource" "cpd_foundational_services" {
 
   provisioner "local-exec" {
     command = <<-EOF
+    
+echo "Deploy all catalogsources and operator subscriptions for cpfs,cpd_platform"
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform
 
-echo "create db2u operator catalog"
-oc apply -f ${self.triggers.cpd_workspace}/db2u_catalog.yaml
-bash cpd/scripts/pod-status-check.sh ibm-db2uoperator-catalog openshift-marketplace
-
-echo "create cpd catalog"
-oc create -f ${self.triggers.cpd_workspace}/cpd_operator_catalog_source.yaml
-bash cpd/scripts/pod-status-check.sh cpd-platform openshift-marketplace
-
-echo "create opencloud catalog"
-oc create -f  ${self.triggers.cpd_workspace}/opencloud_catalog.yaml
-bash cpd/scripts/pod-status-check.sh opencloud-operators openshift-marketplace
-
-echo "create cpd operator"
-oc create -f  ${self.triggers.cpd_workspace}/cpd_operator.yaml
-
-echo "Creating the ${self.triggers.namespace} namespace:"
-oc new-project ${self.triggers.namespace}
-
-echo "checking status of operand-deployment-lifecycle-manager"
-bash cpd/scripts/bedrock-pod-status-check.sh operand-deployment-lifecycle-manager ${local.operator_namespace}
-
-echo "Creating OperandRequests"
-oc create -f  ${self.triggers.cpd_workspace}/operand_requests.yaml
-
-echo "checking status of ibm-namespace-scope-operator"
-bash cpd/scripts/bedrock-pod-status-check.sh ibm-namespace-scope-operator ${local.operator_namespace}
-
-echo "checking status of ibm-common-service-operator"
-bash cpd/scripts/bedrock-pod-status-check.sh ibm-common-service-operator ${local.operator_namespace}
-
-echo "Create CPD Platform CR"
-oc project ${self.triggers.namespace}
-sleep 1
-oc create -f ${self.triggers.cpd_workspace}/ibmcpd_cr.yaml
-
-echo "Wait for Platform CR reconcile to start"
-sleep 240
-
-echo "Check the CPD Platform CR status"
-bash cpd/scripts/check-cr-status.sh Ibmcpd ibmcpd-cr ${var.cpd_namespace} controlPlaneStatus; if [ $? -ne 0 ] ; then echo \"CPD control plane failed to install\" ; exit 1 ; fi
+echo "Applying CR for cpfs,cpd_platform"
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
 
 echo "Enable CSV injector"
 oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
@@ -411,21 +349,9 @@ EOF
   depends_on = [
     module.machineconfig,
     null_resource.login_cluster,
-    null_resource.download_cloudctl,
-    local_file.ibmcpd_cr_yaml,
-    local_file.operand_requests_yaml,
-    local_file.cpd_operator_yaml,
-    local_file.dmc_catalog_yaml,
-    local_file.data_refinery_catalog_yaml,
-    local_file.ws_catalog_yaml,
-    local_file.redis_catalog_yaml,
-    local_file.iis_catalog_yaml,
-    local_file.wkc_catalog_yaml,
-    local_file.wml_catalog_yaml,
-    local_file.db2u_catalog_yaml,
-    local_file.db2aaservice_catalog_yaml,
-    local_file.mongodb_catalog_yaml,
+    null_resource.download_cpd_cli,
     null_resource.node_check,
+    null_resource.configure_dev_cluster,
   ]
 }
 

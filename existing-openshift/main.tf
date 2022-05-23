@@ -13,6 +13,7 @@ module "cpd" {
   cpd_namespace                = var.cpd_namespace
   cloudctl_version             = var.cloudctl_version
   storage_option               = var.storage_option
+  cpd_version                  = var.cpd_version
   cpd_platform                 = var.cpd_platform
   data_virtualization          = var.data_virtualization
   analytics_engine             = var.analytics_engine
@@ -34,7 +35,14 @@ module "cpd" {
   cluster_type                 = var.cluster_type
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
-
+  cpd_staging_registry         = var.cpd_staging_registry
+  cpd_staging_username         = var.cpd_staging_username
+  cpd_staging_api_key          = var.cpd_staging_api_key
+  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
+  hyc_cloud_private_username   = var.hyc_cloud_private_username
+  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
+  github_ibm_username          = var.github_ibm_username
+  github_ibm_pat               = var.github_ibm_pat
   depends_on = [
     null_resource.create-dir
   ]
