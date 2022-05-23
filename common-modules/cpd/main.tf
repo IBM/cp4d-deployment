@@ -3,7 +3,6 @@ locals {
   cpd_workspace      = "${var.installer_workspace}/cpd"
   operator_namespace = "ibm-common-services"
   cpd_case_url       = "https://raw.githubusercontent.com/IBM/cloud-pak/master/repo/case"
-  db2aaservice       = (var.datastage == "yes" || var.db2_aaservice == "yes" || var.watson_knowledge_catalog == "yes" || var.openpages.enable == "yes" ? "yes" : "no")
   storage_class      = lookup(var.cpd_storageclass, var.storage_option)
   rwo_storage_class  = lookup(var.rwo_cpd_storageclass, var.storage_option)
 }

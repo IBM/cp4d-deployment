@@ -149,7 +149,6 @@ module "cpd" {
   accept_cpd_license        = var.accept_cpd_license
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
-  cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization

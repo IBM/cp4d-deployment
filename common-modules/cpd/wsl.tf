@@ -1,5 +1,5 @@
 resource "null_resource" "install_ws" {
-  count = var.watson_studio.enable == "yes" ? 1 : 0
+  count = var.watson_studio == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

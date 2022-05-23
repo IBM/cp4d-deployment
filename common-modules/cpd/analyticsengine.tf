@@ -1,6 +1,6 @@
 
 resource "null_resource" "install_analyticsengine" {
-  count = var.analytics_engine.enable == "yes" ? 1 : 0
+  count = var.analytics_engine == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace

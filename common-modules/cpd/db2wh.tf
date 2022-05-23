@@ -1,6 +1,6 @@
 
 resource "null_resource" "install_db2wh" {
-  count = var.db2_warehouse.enable == "yes" ? 1 : 0
+  count = var.db2_warehouse == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
