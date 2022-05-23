@@ -4,19 +4,18 @@
 #  secret_key = var.aws_secret_access_key
 #}
 
-data "aws_vpc" "cpd_vpc1" {
+data "aws_vpc" "cpd_vpc" {
   id = var.vpc_id
 }
-# maxIO or generalPurpose
 
 #AWS EFS Setup
 
 resource "null_resource" "cpd_efs" { 
     triggers = { 
-        login_cmd           = module.ocp.login_cmd
-        openshift_username      = regex("username (.*) --password", "${local.login_cmd}")[0]
-        openshift_api        =  regex("login (.*) --username","${local.login_cmd}")[0]
-        openshift_password      = regex("--password (.*)","${local.login_cmd}")[0]
+        login_cmd           =  var.login_cmd
+        openshift_username      = regex("username (.*) --password", "${var.login_cmd}")[0]
+        openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
+        openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
         cluster_type        = "managed"
    }
     provisioner "local-exec" {
