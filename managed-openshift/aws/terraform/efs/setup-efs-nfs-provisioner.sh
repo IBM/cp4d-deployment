@@ -90,11 +90,19 @@ sleep 5
     FILESYSTEM_IPADRESS=`echo $IPADDRESS | tr -d '",'`
     echo "FILESYSTEM_IPADRESS:"$FILESYSTEM_IPADRESS
 
-# echo "Setting up NFS-Subdir-Provisioner"
 echo "Setting up NFS-Subdir-Provisioner"
 
 oc login $CLUSTER_URL --insecure-skip-tls-verify -u $CLUSTER_ADMIN_USERNAME -p $CLUSTER_ADMIN_PASSWORD
+WORKER_NODE=`oc get nodes | grep worker | tail -1 | awk '/compute.internal/ {print $1}'` 
+echo  "WORKER_NODE:"$WORKER_NODE
+AWS_REGION=`echo "$WORKER_NODE" | cut -d'.' -f2`
+echo "AWS_REGION:" $AWS_REGION
+echo "waiting for the creation of  Mount-target "
+sleep 60
 
+FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazonaws.com 
+# echo "Setting up NFS-Subdir-Provisioner"
+echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
 NAMESPACE=`oc project -q`
 oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:$NAMESPACE:nfs-client-provisioner
 
@@ -167,7 +175,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
-sleep 5
+sleep 120
 
 # Create deployment
 
@@ -203,13 +211,13 @@ spec:
             - name: PROVISIONER_NAME
               value: k8s-sigs.io/nfs-subdir-external-provisioner
             - name: NFS_SERVER
-              value: $FILESYSTEM_IPADRESS
+              value: $FILESYSTEM_DNS_NAME
             - name: NFS_PATH
               value: /
       volumes:
         - name: nfs-client-root
           nfs:
-            server: $FILESYSTEM_IPADRESS
+            server: $FILESYSTEM_DNS_NAME
             path: /
 EOF
 sleep 10
@@ -223,4 +231,3 @@ provisioner: k8s-sigs.io/nfs-subdir-external-provisioner # or choose another nam
 parameters:
   archiveOnDelete: "false"
 EOF
-
