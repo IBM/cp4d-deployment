@@ -175,7 +175,8 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
-sleep 120
+sleep 60
+
 
 # Create deployment
 
@@ -231,3 +232,6 @@ provisioner: k8s-sigs.io/nfs-subdir-external-provisioner # or choose another nam
 parameters:
   archiveOnDelete: "false"
 EOF
+
+# To restart the deployment
+# oc rollout restart deployment/nfs-client-provisioner
