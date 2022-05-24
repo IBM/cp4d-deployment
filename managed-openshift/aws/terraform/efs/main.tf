@@ -10,6 +10,7 @@ data "aws_vpc" "cpd_vpc" {
 
 #AWS EFS Setup
 
+<<<<<<< HEAD
 # resource "null_resource" "cpd_efs" { 
 #     triggers = { 
 #         login_cmd           =  var.login_cmd
@@ -17,6 +18,35 @@ data "aws_vpc" "cpd_vpc" {
 #         openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
 #         openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
 #         cluster_type        = "managed"
+=======
+resource "null_resource" "cpd_efs" { 
+    triggers = { 
+        login_cmd           =  var.login_cmd
+        openshift_username      = regex("username (.*) --password", "${var.login_cmd}")[0]
+        openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
+        openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
+        cluster_type        = "managed"
+   }
+    provisioner "local-exec" {
+        command = <<EOF
+                bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
+    EOF
+   }
+}
+# ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
+# resource "aws_efs_file_system" "cpd_efs" {
+#    creation_token = "cpd_efs"
+#    performance_mode = "generalPurpose"
+#    throughput_mode = "provisioned"
+#    provisioned_throughput_in_mibps = "250"
+#    encrypted = "true"
+#    #lifecycle_policy {
+#    #   transition_to_ia = "AFTER_30_DAYS"
+#    #}
+#    tags = {
+#      Name = var.cluster_name
+>>>>>>> 2b699edc (updated path in the main.tf)
 #    }
 #     provisioner "local-exec" {
 #         command = <<EOF
