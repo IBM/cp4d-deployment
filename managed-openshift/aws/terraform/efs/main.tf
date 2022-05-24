@@ -20,7 +20,7 @@ resource "null_resource" "cpd_efs" {
    }
     provisioner "local-exec" {
         command = <<EOF
-                bash cp4d-deployment/managed-openshift/aws/terraform/efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
+                bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
     EOF
    }
 }
