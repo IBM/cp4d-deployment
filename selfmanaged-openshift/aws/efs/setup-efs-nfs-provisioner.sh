@@ -100,7 +100,7 @@ echo "AWS_REGION:" $AWS_REGION
 echo "waiting for the creation of  Mount-target "
 sleep 30
 
-FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazonaws.com 
+FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.cpdonawsonline.com 
 # echo "Setting up NFS-Subdir-Provisioner"
 echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
 NAMESPACE=`oc project -q`

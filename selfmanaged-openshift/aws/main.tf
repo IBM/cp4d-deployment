@@ -18,6 +18,9 @@ locals {
   worker_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].worker_subnet1_id : var.worker_subnet1_id
   worker_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet2_id[0] : var.worker_subnet2_id
   worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
+  worker_subnet_cidr1 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr1[0] : var.worker_subnet_cidr1
+  worker_subnet_cidr2 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr2[0] : var.worker_subnet_cidr2
+  worker_subnet_cidr3 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr3[0] : var.worker_subnet_cidr3
   single_zone_subnets = [local.worker_subnet1_id]
   multi_zone_subnets  = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
   openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
@@ -188,6 +191,28 @@ module "ocs" {
   ]
 }
 
+module "efs" {
+  count                 = var.efs.enable ? 1 : 0
+  source                = "./efs"
+  installer_workspace   = local.installer_workspace
+  cluster_name          = var.cluster_name
+  openshift_api         = local.openshift_api
+  openshift_username    = local.openshift_username
+  openshift_password    = local.openshift_password
+  openshift_token       = var.existing_openshift_token
+  region                = var.region
+  az                    = var.az
+  vpc_id                = local.vpc_id
+  aws_access_key_id     = var.access_key_id
+  aws_secret_access_key = var.secret_access_key
+  subnet_ids            = var.az == "multi_zone" ? [local.worker_subnet_cidr1, local.worker_subnet_cidr2, local.worker_subnet_cidr3] : [local.worker_subnet_cidr1]
+  depends_on = [
+    module.ocp,
+    module.network,
+    null_resource.aws_configuration,
+  ]
+}
+
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
@@ -201,7 +226,6 @@ module "cpd" {
   cpd_external_username     = var.cpd_external_username
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
-  cloudctl_version          = var.cloudctl_version
   storage_option            = var.ocs.enable ? "ocs" : "portworx"
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
@@ -227,12 +251,21 @@ module "cpd" {
   openpages                 = var.openpages
   cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
+  cpd_staging_registry         = var.cpd_staging_registry
+  cpd_staging_username         = var.cpd_staging_username
+  cpd_staging_api_key          = var.cpd_staging_api_key
+  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
+  hyc_cloud_private_username   = var.hyc_cloud_private_username
+  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
+  github_ibm_username          = var.github_ibm_username
+  github_ibm_pat               = var.github_ibm_pat
   
   depends_on = [
     module.ocp,
     module.network,
     module.portworx,
     module.ocs,
+    module.efs,
     null_resource.aws_configuration,
   ]
 }
