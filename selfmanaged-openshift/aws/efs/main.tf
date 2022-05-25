@@ -13,19 +13,18 @@ data "aws_vpc" "cpd_vpc" {
 resource "null_resource" "cpd_efs" { 
     triggers = { 
         login_cmd           =  var.login_cmd
-        openshift_username      = regex("username (.*) --password", "${var.login_cmd}")[0]
-        openshift_api        =  regex("login (.*) --username","${var.login_cmd}")[0]
-        openshift_password      = regex("--password (.*)","${var.login_cmd}")[0]
-        cluster_type        = "managed"
+        openshift_username      = var.openshift_username
+        openshift_api        =  var.openshift_api
+        openshift_password      = var.openshift_password
+        cluster_type        = "selfmanaged"
    }
     provisioner "local-exec" {
         command = <<EOF
-              bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
+          bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
     EOF
    }
 }
-# ${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
+# ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 
 # resource "aws_efs_file_system" "cpd_efs" {
 #    creation_token = "cpd_efs"
