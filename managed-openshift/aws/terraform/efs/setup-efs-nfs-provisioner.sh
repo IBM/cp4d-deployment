@@ -98,7 +98,7 @@ echo  "WORKER_NODE:"$WORKER_NODE
 AWS_REGION=`echo "$WORKER_NODE" | cut -d'.' -f2`
 echo "AWS_REGION:" $AWS_REGION
 echo "waiting for the creation of  Mount-target "
-sleep 60
+sleep 30
 
 FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazonaws.com 
 # echo "Setting up NFS-Subdir-Provisioner"
@@ -175,6 +175,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
+echo "==========Creating Deployment=========="
 sleep 60
 
 
