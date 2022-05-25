@@ -205,6 +205,7 @@ module "cpd" {
     null_resource.create_workspace,
     module.portworx,
     module.ocp,
-    module.ocs
+    module.ocs,
+    module.efs,
   ]
 }
