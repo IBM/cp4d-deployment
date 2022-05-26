@@ -10,11 +10,7 @@ echo "Setting up efs storage"
 
 CLUSTER_NAME=$(echo "$CLUSTER_URL" | sed -e 's|https://api\.\([^\.]*\).*|\1|')
 echo "CLUSTER_NAME=$CLUSTER_NAME"
-<<<<<<< HEAD
 CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") or (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
-=======
-CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
->>>>>>> cc129ae4 (updated the efs setup in self-managed)
 echo "CLUSTER_VPCID=$CLUSTER_VPCID"
 if [ -z "$CLUSTER_VPCID" ]
 then 
@@ -105,10 +101,14 @@ echo "waiting for the creation of  Mount-target "
 sleep 30
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazononaws.com 
 =======
 FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.cpdonawsonline.com 
 >>>>>>> cc129ae4 (updated the efs setup in self-managed)
+=======
+FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazononaws.com 
+>>>>>>> dad80088 (updated efs module for selfmanaged cluster)
 # echo "Setting up NFS-Subdir-Provisioner"
 echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
 NAMESPACE=`oc project -q`
