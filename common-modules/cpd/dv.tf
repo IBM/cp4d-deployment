@@ -20,8 +20,12 @@ EOF
     null_resource.install_wml,
     null_resource.install_ws,
     null_resource.install_spss,
+    null_resource.install_dods,
+    null_resource.install_dmc,
+    null_resource.install_bigsql,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
+    
   ]
 }

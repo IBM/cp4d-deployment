@@ -16,9 +16,13 @@ bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} d
 EOF
   }
   depends_on = [
-    null_resource.install_dv,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
+    null_resource.install_wml,
+    null_resource.install_ws,
+    null_resource.install_spss,
+    null_resource.install_dods,
+    null_resource.install_aiopenscale,
   ]
 }

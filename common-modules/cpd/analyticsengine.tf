@@ -27,6 +27,7 @@ EOF
     null_resource.install_dv,
     null_resource.install_cde,
     null_resource.install_wkc,
+    null_resource.install_ds,
     null_resource.install_db2aaservice,
   ]
 }

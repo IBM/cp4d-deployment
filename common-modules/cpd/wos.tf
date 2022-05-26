@@ -21,6 +21,7 @@ EOF
     null_resource.login_cluster,
     null_resource.install_wml,
     null_resource.install_ws,
+    null_resource.install_dods,
   ]
 }
 
