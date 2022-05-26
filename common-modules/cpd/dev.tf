@@ -40,7 +40,7 @@ export CASECTL_RESOLVERS_AUTH_LOCATION=/tmp/work/resolvers_auth.yaml
 export CASE_TOLERATION='-t 1'
 export GITHUB_TOKEN='${var.github_ibm_pat}'
 export CLOUDCTL_TRACE=true
-export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-340/promoted/case-repo-promoted"
+export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220525.161725.81-345/promoted/case-repo-promoted"
 EOF
 }
 
@@ -82,7 +82,7 @@ resolvers:
       repositories:
         PromotedGitHub:
           repositoryInfo:
-            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-340/promoted/case-repo-promoted"
+            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220525.161725.81-345/promoted/case-repo-promoted"
     	  cloudPakCertRepo:
           repositoryInfo:
             url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0/dev/case-repo-dev"
