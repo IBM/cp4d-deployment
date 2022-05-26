@@ -102,7 +102,7 @@ variable "private_subnet3_id" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.8.11"
+  default = "4.10.13"
 }
 
 variable "cluster_name" {
@@ -244,8 +244,6 @@ variable "cpd_namespace" {
   default     = "zen"
 }
 
-
-
 variable "cpd_version" {
   type    = string
   default = "4.5.0"
@@ -347,15 +345,28 @@ variable "bigsql" {
   default = "no"
 }
 
+variable "watson_discovery" {
+  type    = string
+  default = "no"
+}
 
+variable "openpages" {
+  type    = string
+  default = "no"
+}
+
+variable "watson_assistant" {
+  type    = string
+  default = "no"
+}
+
+#Only required for dev
 
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
   default     = true
 }
-
-#Only required for dev
 
 variable "cpd_staging_registry" {
   description = "URL to staging  registry for CPD install"

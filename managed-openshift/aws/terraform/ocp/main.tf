@@ -2,7 +2,7 @@ locals {
   classic_lb_timeout = 600
   
   installer_workspace = "${path.root}/installer-files"
-  rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.1.8"
+  rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.2.2"
   subnet_ids          = join(",", var.subnet_ids)
   private_link        = var.private_cluster ? "--private-link" : ""
 }

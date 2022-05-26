@@ -39,6 +39,7 @@ EOF
     null_resource.install_spss,
     null_resource.install_dv,
     null_resource.install_cde,
+    null_resource.install_mdm,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,

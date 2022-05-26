@@ -23,6 +23,7 @@ EOF
     null_resource.install_aiopenscale,
     null_resource.install_ws,
     null_resource.install_wml,
+    null_resource.install_dods,
   ]
 }
 

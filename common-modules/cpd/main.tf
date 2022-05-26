@@ -30,18 +30,18 @@ resource "null_resource" "download_cpd_cli" {
   echo "Download cpd-cli installer."
 case $(uname -s) in
   Darwin)
-    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/latest/cpd-cli-darwin-EE-11.0.0-14.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0-14.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-14.tgz -C ${self.triggers.cpd_workspace}
+    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/18/cpd-cli-darwin-EE-11.0.0-18.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0-18.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-18.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-14/*  ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-18/*  ${self.triggers.cpd_workspace}
     ;;
   Linux)
-    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/latest/cpd-cli-linux-EE-11.0.0-14.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0-14.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-14.tgz -C ${self.triggers.cpd_workspace}
+    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/18/cpd-cli-linux-EE-11.0.0-18.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0-18.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-18.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-14/* ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-18/* ${self.triggers.cpd_workspace}
     ;;
   *)
     echo 'Supports only Linux and Mac OS at this time'
