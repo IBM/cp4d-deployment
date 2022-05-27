@@ -13,7 +13,7 @@ cpd_external_username = "cp"
 cpd_api_key           = ""
 cpd_namespace         = "zen"
 
-storage_option = "nfs" # ocs or portworx. if nfs set  variable cpd_storageclass
+storage_option = "nfs" # ocs ,portworx,nfs,efs
 
 
 ## CPD services
