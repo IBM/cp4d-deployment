@@ -23,6 +23,10 @@ secret_access_key     = "<required>"
 
 #Configure global pull secret is false for dev 
 configure_global_pull_secret = false
+
+#Storage 
+storage_option = "nfs" # ocs ,portworx,nfs,efs
+
 #############
 # CPD Variables
 ###############
