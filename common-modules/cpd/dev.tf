@@ -147,7 +147,7 @@ resource "null_resource" "configure_dev_cluster" {
     command = <<EOF
 
 echo "Configure Dev repos creds in global pull secret"
-export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:latest-validated
+export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220525.161725.81
 
 
 ${self.triggers.cpd_workspace}/cpd-cli manage add-cred-to-global-pull-secret  '${var.cpd_staging_registry}'  '${var.cpd_staging_username}'  '${var.cpd_staging_api_key}'

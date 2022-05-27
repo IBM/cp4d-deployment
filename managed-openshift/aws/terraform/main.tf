@@ -149,7 +149,7 @@ module "cpd" {
   accept_cpd_license        = var.accept_cpd_license
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
-  storage_option            = var.storage
+  storage_option            = var.storage_option
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
