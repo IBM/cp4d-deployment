@@ -30,6 +30,9 @@ spec:
   - mirrors:
     - cp.stg.icr.io/cp/cpd
     source: icr.io/cpopen/cpfs
+  - mirrors:
+    - cp.stg.icr.io/db2u
+    source: icr.io/db2u
 EOF
 }
 
@@ -41,6 +44,7 @@ export CASE_TOLERATION='-t 1'
 export GITHUB_TOKEN='${var.github_ibm_pat}'
 export CLOUDCTL_TRACE=true
 export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220525.161725.81-345/promoted/case-repo-promoted"
+export OPENCONTENT_CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
 EOF
 }
 
@@ -85,7 +89,7 @@ resolvers:
             url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220525.161725.81-345/promoted/case-repo-promoted"
     	  cloudPakCertRepo:
           repositoryInfo:
-            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0/dev/case-repo-dev"
+            url: "https://raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
       caseRepositoryMap:
       - cases:
         - case: "ibm-ccs"
