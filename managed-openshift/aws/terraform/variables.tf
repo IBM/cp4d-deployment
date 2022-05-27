@@ -169,6 +169,11 @@ variable "availability_zone3" {
 ###################################
 # Enable only one Storage option
 ###################################
+
+variable "storage_option" {
+  type = string
+}
+
 variable "ocs" {
   type = map(string)
   default = {
