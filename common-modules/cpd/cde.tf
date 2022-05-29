@@ -7,10 +7,9 @@ resource "null_resource" "install_cde" {
   provisioner "local-exec" {
     command = <<-EOF
 
-echo "Deploying catalogsources and operator subscriptions for Cognos Dashboards"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde
-
-echo "Create Cognos Dashboards cr"
+echo "Deploying catalogsources and operator subscriptions for Cognos Dashboards" && 
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde &&
+echo "Create Cognos Dashboards cr" &&
 bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
@@ -20,6 +19,9 @@ EOF
     null_resource.install_wml,
     null_resource.install_ws,
     null_resource.install_spss,
+    null_resource.install_dods,
+    null_resource.install_dmc,
+    null_resource.install_bigsql,
     null_resource.install_dv,
     null_resource.install_mdm,
     module.machineconfig,
