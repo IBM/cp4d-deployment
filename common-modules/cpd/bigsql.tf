@@ -8,11 +8,9 @@ resource "null_resource" "install_bigsql" {
     command = <<-EOF
 
 
-echo "Deploying catalogsources and operator subscriptions for Db2 Big SQL"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} bigsql
-
-
-echo "Create Db2 Big SQL cr"
+echo "Deploying catalogsources and operator subscriptions for Db2 Big SQL" &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} bigsql &&
+echo "Create Db2 Big SQL cr" &&
 bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} bigsql ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
 EOF
   }

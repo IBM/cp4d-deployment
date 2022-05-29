@@ -16,17 +16,14 @@ resource "null_resource" "install_wkc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-echo "Create SCC for WKC-IIS"
-oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml
-
+echo "Create SCC for WKC-IIS"  &&
+oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml  &&
 #echo "Create RBAC for WKC-IIS"
 #oc create clusterrole system:openshift:scc:wkc-iis-scc --verb=use --resource=scc --resource-name=wkc-iis-scc
 #oc create rolebinding wkc-iis-scc-rb --namespace ${var.cpd_namespace} --clusterrole=system:openshift:scc:wkc-iis-scc --serviceaccount=${var.cpd_namespace}:wkc-iis-sa
-
-echo "Deploying catalogsources and operator subscriptions for watson knowledge catalog"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc
-
-echo "Create wkc cr"
+echo "Deploying catalogsources and operator subscriptions for watson knowledge catalog" &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc &&
+echo "Create wkc cr" &&
 bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
@@ -37,12 +34,14 @@ EOF
     null_resource.install_wml,
     null_resource.install_ws,
     null_resource.install_spss,
+    null_resource.install_dods,
+    null_resource.install_dmc,
+    null_resource.install_bigsql,
     null_resource.install_dv,
-    null_resource.install_cde,
     null_resource.install_mdm,
+    null_resource.install_cde,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
-    null_resource.install_db2aaservice,
   ]
 }

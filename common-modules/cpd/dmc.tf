@@ -6,11 +6,9 @@ resource "null_resource" "install_dmc" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-
-echo "Deploying catalogsources and operator subscriptions for Data Management Console"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} dmc
-
-echo "Create Data Management Console cr"
+echo "Deploying catalogsources and operator subscriptions for Data Management Console" &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} dmc &&
+echo "Create Data Management Console cr" &&
 bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} dmc ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF

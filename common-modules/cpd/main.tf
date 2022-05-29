@@ -62,6 +62,7 @@ resource "null_resource" "login_cluster" {
     openshift_token     = var.openshift_token
     login_string        = var.login_string
     cpd_workspace       = local.cpd_workspace
+    build_number        = "${timestamp()}"
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -223,14 +224,11 @@ resource "null_resource" "cpd_foundational_services" {
 
   provisioner "local-exec" {
     command = <<-EOF
-    
-echo "Deploy all catalogsources and operator subscriptions for cpfs,cpd_platform"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform
-
-echo "Applying CR for cpfs,cpd_platform"
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
-
-echo "Enable CSV injector"
+echo "Deploy all catalogsources and operator subscriptions for cpfs,cpd_platform"  &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform  &&
+echo "Applying CR for cpfs,cpd_platform" &&
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cpfs,cpd_platform ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}  &&
+echo "Enable CSV injector" &&
 oc patch namespacescope common-service --type='json' -p='[{"op":"replace", "path": "/spec/csvInjector/enable", "value":true}]' -n ${local.operator_namespace}
 
 oc project openshift-marketplace

@@ -7,11 +7,9 @@ resource "null_resource" "install_wml" {
   }
   provisioner "local-exec" {
     command = <<-EOF
-
-echo "Deploying catalogsources and operator subscriptions for wml"
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wml
-
-echo "Create wmlbase cr"
+echo "Deploying catalogsources and operator subscriptions for wml"  &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wml  &&
+echo "Create wmlbase cr"  &&
 bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wml ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
