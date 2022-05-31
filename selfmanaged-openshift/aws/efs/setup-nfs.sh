@@ -5,6 +5,7 @@ CLUSTER_ADMIN_USERNAME=$2
 CLUSTER_ADMIN_PASSWORD=$3
 FILESYSTEM_ID=$4
 
+<<<<<<< HEAD
 CLUSTER_NAME=$(echo "$CLUSTER_URL" | sed -e 's|https://api\.\([^\.]*\).*|\1|')
 echo "CLUSTER_NAME=$CLUSTER_NAME"
 CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
@@ -42,6 +43,8 @@ else
     echo $OUTPUT
 fi
 
+=======
+>>>>>>> 64099289 (modified efs module)
 echo "Setting up NFS-Subdir-Provisioner"
 
 oc login $CLUSTER_URL --insecure-skip-tls-verify -u $CLUSTER_ADMIN_USERNAME -p $CLUSTER_ADMIN_PASSWORD
@@ -52,9 +55,13 @@ echo "AWS_REGION:" $AWS_REGION
 echo "waiting for the creation of  Mount-target "
 sleep 30
 
+<<<<<<< HEAD
 FILESYSTEM_DNS_NAME=$FILESYSTEM_ID.efs.$AWS_REGION.amazonaws.com 
 echo $FILESYSTEM_DNS_NAME
 
+=======
+FILESYSTEM_DNS_NAME=$CLUSTER_FILESYSTEMID.efs.$AWS_REGION.amazononaws.com 
+>>>>>>> 64099289 (modified efs module)
 # echo "Setting up NFS-Subdir-Provisioner"
 echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
 NAMESPACE=`oc project -q`
