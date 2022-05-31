@@ -38,6 +38,7 @@ db2_aaservice             =  "no"
 watson_assistant          =  "no"
 watson_discovery          =  "no"
 openpages                 =  "no"
+data_management_console   =  "no"
 
 accept-cpd-license = "accept"
 
