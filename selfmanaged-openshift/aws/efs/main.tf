@@ -121,7 +121,7 @@ resource "aws_iam_role_policy_attachment" "efs-policy-attach" {
   policy_arn = aws_iam_policy.efs_policy.arn
 }
 
-resource "null_resource" "login_cluster" {
+resource "null_resource" "nfs_subdir_provisioner_setup" {
   triggers = { 
         login_cmd           =  var.login_cmd
          openshift_username      = var.openshift_username

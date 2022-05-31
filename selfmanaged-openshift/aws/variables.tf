@@ -262,7 +262,7 @@ variable "enable_autoscaler" {
 variable "ocs" {
   type = map(string)
   default = {
-    enable                       = true
+    enable                       = false
     ami_id                       = ""
     dedicated_node_instance_type = "m5.4xlarge"
   }
