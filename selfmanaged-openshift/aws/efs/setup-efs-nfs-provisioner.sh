@@ -10,7 +10,7 @@ echo "Setting up efs storage"
 
 CLUSTER_NAME=$(echo "$CLUSTER_URL" | sed -e 's|https://api\.\([^\.]*\).*|\1|')
 echo "CLUSTER_NAME=$CLUSTER_NAME"
-CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
+CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") or (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
 echo "CLUSTER_VPCID=$CLUSTER_VPCID"
 if [ -z "$CLUSTER_VPCID" ]
 then 
