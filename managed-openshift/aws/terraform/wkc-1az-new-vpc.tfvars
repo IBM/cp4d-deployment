@@ -36,7 +36,7 @@ accept_cpd_license       = "accept"
 cpd_version               = "4.5.0"
  
 ## CPD services
-watson_knowledge_catalog  =  "yes"
+watson_knowledge_catalog  =  "no"
 data_virtualization       =  "no"
 analytics_engine          =  "no"
 watson_studio             =  "no"
@@ -51,7 +51,11 @@ cognos_analytics          =  "no"
 master_data_management    =  "no"
 decision_optimization     =  "no"
 bigsql                    =  "no"
-
+planning_analytics        =  "no"
+db2_aaservice             =  "no"
+watson_assistant          =  "no"
+watson_discovery          =  "no"
+openpages                 =  "no"
 ###############
 # Dev Variables
 ###############
