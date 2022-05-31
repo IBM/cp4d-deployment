@@ -193,6 +193,21 @@ variable "bigsql" {
   default = "no"
 }
 
+variable "watson_assistant" {
+  type    = string
+  default = "no"
+}
+
+variable "watson_discovery" {
+  type    = string
+  default = "no"
+}
+
+variable "openpages" {
+  type    = string
+  default = "no"
+}
+
 variable "accept-cpd-license" {
   default = "reject"
 }

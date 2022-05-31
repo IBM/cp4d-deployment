@@ -31,6 +31,10 @@ module "cpd" {
   db2_aaservice                = var.db2_aaservice
   decision_optimization        = var.decision_optimization
   bigsql                       = var.bigsql
+  planning_analytics           = var.planning_analytics
+  watson_assistant             = var.watson_assistant
+  watson_discovery             = var.watson_discovery
+  openpages                    = var.openpages
   cluster_type                 = var.cluster_type
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes

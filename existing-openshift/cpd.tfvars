@@ -33,6 +33,11 @@ cognos_analytics          =  "no"
 master_data_management    =  "no"
 decision_optimization     =  "no"
 bigsql                    =  "no"
+planning_analytics        =  "no"
+db2_aaservice             =  "no"
+watson_assistant          =  "no"
+watson_discovery          =  "no"
+openpages                 =  "no"
 
 accept-cpd-license = "accept"
 
