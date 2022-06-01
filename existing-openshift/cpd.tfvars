@@ -3,14 +3,14 @@ openshift_username = "<required>"
 openshift_password = "<required>"
 openshift_token    = "<optional>"
 
-#For dev configure_global_pull_secret to icr is false
-configure_global_pull_secret = false          # false if pull secret is already created
-configure_openshift_nodes    = true          # false if yesdes are already configured
+
+configure_global_pull_secret = true          # false if pull secret is already created
+configure_openshift_nodes    = true          # false if nodes are already configured
 cluster_type                 = "selfmanaged" # managed or selfmanaged
 
 cpd_external_registry = "cp.icr.io"
 cpd_external_username = "cp"
-cpd_api_key           = ""
+cpd_api_key           = "<required>"
 cpd_namespace         = "zen"
 
 storage_option = "nfs" # ocs ,portworx,nfs,efs
