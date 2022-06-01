@@ -21,8 +21,8 @@ secret_access_key     = "<required>"
  ocs                   = { "enable" : "true", "ocs_instance_type" : "m5.4xlarge" }  
 #efs                   = { "enable" : "false" } 
 
-#Configure global pull secret is false for dev 
-configure_global_pull_secret = false
+# 
+configure_global_pull_secret = true # false if pull secret is already created
 
 #Storage 
 storage_option = "nfs" # ocs ,portworx,nfs,efs
