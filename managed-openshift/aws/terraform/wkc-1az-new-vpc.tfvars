@@ -25,7 +25,8 @@ secret_access_key     = "<required>"
 configure_global_pull_secret = true # false if pull secret is already created
 
 #Storage 
-storage_option = "nfs" # ocs ,portworx,nfs,efs
+storage_option = "ocs" # ocs ,portworx,nfs,efs
+
 
 #############
 # CPD Variables

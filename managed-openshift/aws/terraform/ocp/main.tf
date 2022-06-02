@@ -79,8 +79,8 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
-echo "Sleeping for 4mins"
-sleep 240
+echo "Sleeping for 5mins"
+sleep 300
 EOF
   }
   depends_on = [
