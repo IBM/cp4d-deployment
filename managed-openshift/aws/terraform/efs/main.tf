@@ -46,6 +46,11 @@ resource "aws_efs_mount_target" "cpd-efs-mt" {
    file_system_id  = aws_efs_file_system.cpd_efs.id
    subnet_id = var.subnet_ids[count.index]
    security_groups = [aws_security_group.efs_sg.id]
+   
+   depends_on = [
+    aws_efs_file_system.cpd_efs,
+    aws_security_group.efs_sg,
+  ]
  }
 
 resource "aws_security_group" "efs_sg" {
@@ -136,7 +141,10 @@ resource "null_resource" "nfs_subdir_provisioner_setup" {
 EOF
   }
   depends_on = [
-    resource.aws_efs_mount_target.cpd-efs-mt
+    resource.aws_efs_mount_target.cpd-efs-mt,
+    aws_iam_policy.efs_policy,
+    aws_iam_role_policy_attachment.efs-policy-attach,
+
   ]
 }
 
@@ -186,6 +194,6 @@ EOF
 #   ]
 # }
 
-# locals {
-#   installer_workspace = var.installer_workspace
-# }
+locals {
+  installer_workspace = var.installer_workspace
+}
