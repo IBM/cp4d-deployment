@@ -1,5 +1,5 @@
 #The export of OLM_UTILS_IMAGE is required only in Dev
-export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220525.161725.81
+export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220606.093728.134
 INSTALLER_PATH=$1
 CPD_RELEASE=$2
 COMPONENTS=$3

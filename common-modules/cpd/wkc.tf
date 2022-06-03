@@ -17,7 +17,7 @@ resource "null_resource" "install_wkc" {
   provisioner "local-exec" {
     command = <<-EOF
 echo "Create SCC for WKC-IIS"  &&
-oc create -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml  &&
+oc apply -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml  &&
 #echo "Create RBAC for WKC-IIS"
 #oc create clusterrole system:openshift:scc:wkc-iis-scc --verb=use --resource=scc --resource-name=wkc-iis-scc
 #oc create rolebinding wkc-iis-scc-rb --namespace ${var.cpd_namespace} --clusterrole=system:openshift:scc:wkc-iis-scc --serviceaccount=${var.cpd_namespace}:wkc-iis-sa
