@@ -64,7 +64,7 @@ if you are using the `wkc-1az-ocs-new-vpc.tfvars` file
 
 ```bash
 terraform init
-terraform apply -var-file=wkc-1az-ocs-new-vpc.tfvars | tee terraform.log
+terraform apply -var-file=wkc-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 ### Destroying the cluster:
