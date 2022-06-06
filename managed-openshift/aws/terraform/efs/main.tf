@@ -41,18 +41,23 @@ resource "aws_efs_file_system" "cpd_efs" {
    }
  }
 
+data "aws_security_group" "aws_worker_sg" {
+   tags = {
+    Name   = "${var.cluster_name}-*-worker-sg"
+  }
+}
+
 resource "aws_efs_mount_target" "cpd-efs-mt" {
    count = var.az == "multi_zone" ? 3 : 1
    file_system_id  = aws_efs_file_system.cpd_efs.id
    subnet_id = var.subnet_ids[count.index]
-   security_groups = [aws_security_group.efs_sg.id]
+   security_groups = [aws_security_group.aws_worker_sg.id]
    
    depends_on = [
     aws_efs_file_system.cpd_efs,
-    aws_security_group.efs_sg,
   ]
  }
-
+/*
 resource "aws_security_group" "efs_sg" {
    name = "efs_sg"
    description= "Allos inbound efs traffic from ec2"
@@ -69,7 +74,7 @@ resource "aws_security_group" "efs_sg" {
      Name = var.cluster_name
    }
  }
-
+*/
 resource "aws_iam_policy" "efs_policy" {
   name        = "aws_efs_policy"
   description = "EFS policy"
@@ -147,52 +152,6 @@ EOF
 
   ]
 }
-
-# ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
-
-# resource "null_resource" "configure_efs" {
-#   triggers = {
-#     installer_workspace = local.installer_workspace
-#   }
-#   provisioner "local-exec" {
-#     command = <<EOF
-# # echo "Creating SC"
-# # oc create -f ${self.triggers.installer_workspace}/efs_sc.yaml
-# # oc create -f ${self.triggers.installer_workspace}/efs_sc_wkc.yaml
-# # echo "Creating test pvc"
-# # oc create -f ${self.triggers.installer_workspace}/efs_test_pvc.yaml
-# # sleep 60
-
-# EOF
-#   }
-#   depends_on = [
-#     null_resource.login_cluster
-#   ]
-# }
-
-# resource "local_file" "efs_test_pvc_yaml" {
-#   content  = data.template_file.efs_test_pvc.rendered
-#   filename = "${local.installer_workspace}/efs_test_pvc.yaml"
-#   depends_on = [
-#     resource.aws_efs_mount_target.cpd-efs-mt
-#   ]
-# }
-
-# resource "local_file" "efs_sc_yaml" {
-#   content  = data.template_file.efs_sc.rendered
-#   filename = "${local.installer_workspace}/efs_sc.yaml"
-#   depends_on = [
-#     resource.aws_efs_mount_target.cpd-efs-mt
-#   ]
-# }
-
-# resource "local_file" "efs_sc_wkc_yaml" {
-#   content  = data.template_file.efs_sc_wkc.rendered
-#   filename = "${local.installer_workspace}/efs_sc_wkc.yaml"
-#   depends_on = [
-#     resource.aws_efs_mount_target.cpd-efs-mt
-#   ]
-# }
 
 locals {
   installer_workspace = var.installer_workspace
