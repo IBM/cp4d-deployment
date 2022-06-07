@@ -411,4 +411,3 @@ variable "github_ibm_pat" {
   description = "Github IBM Repository personal Access Token"
 }
 
-
