@@ -102,7 +102,7 @@ variable "private_subnet3_id" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.10.15"
+  default = "4.8.11"
 }
 
 variable "cluster_name" {
@@ -419,6 +419,7 @@ variable "openpages" {
     channel  = "v1.0"
   }
 }
+<<<<<<< HEAD
 
 variable "watson_assistant" {
   type        = map(string)
@@ -429,6 +430,18 @@ variable "watson_assistant" {
   }
 }
 
+=======
+
+variable "watson_assistant" {
+  type        = map(string)
+  default = {
+    enable   = "no"
+    version  = "4.0.5"
+    channel  = "v4.0"
+  }
+}
+
+>>>>>>> e229d1d1cc4dc98487f6fdc306869b7258502973
 variable "watson_discovery" {
   type        = map(string)
   default = {
