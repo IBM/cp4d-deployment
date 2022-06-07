@@ -29,11 +29,12 @@ resource "null_resource" "cpd_efs" {
    }
     provisioner "local-exec" {
         command = <<EOF
-                bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
+              bash efs/setup-efs-nfs-provisioner.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}'  
     EOF
    }
 }
-# ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+# ${self.triggers.login_cmd} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
+
 
 # resource "aws_efs_file_system" "cpd_efs" {
 #    creation_token = "cpd_efs"
