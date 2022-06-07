@@ -45,6 +45,7 @@ export GITHUB_TOKEN='${var.github_ibm_pat}'
 export CLOUDCTL_TRACE=true
 export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220525.161725.81-345/promoted/case-repo-promoted"
 export OPENCONTENT_CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
+export CPFS_CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
 EOF
 }
 
