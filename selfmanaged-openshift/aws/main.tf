@@ -18,6 +18,9 @@ locals {
   worker_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].worker_subnet1_id : var.worker_subnet1_id
   worker_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet2_id[0] : var.worker_subnet2_id
   worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
+  worker_subnet_cidr1 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr1[0] : var.worker_subnet_cidr1
+  worker_subnet_cidr2 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr2[0] : var.worker_subnet_cidr2
+  worker_subnet_cidr3 = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_sunet_cidr3[0] : var.worker_subnet_cidr3
   single_zone_subnets = [local.worker_subnet1_id]
   multi_zone_subnets  = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
   openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
