@@ -87,7 +87,7 @@ resolvers:
       repositories:
         DevGitHub:
           repositoryInfo:
-            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/<RELEASE_BRANCH>/dev/case-repo-dev"
+            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220606.093728.134-365/dev/case-repo-dev"
         cloudPakCertRepo:
           repositoryInfo:
             url: "https://raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
