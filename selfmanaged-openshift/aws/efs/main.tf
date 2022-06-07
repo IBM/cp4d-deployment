@@ -147,6 +147,7 @@ EOF
     aws_iam_role_policy_attachment.efs-policy-attach,
   ]
 }
+# ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 
 locals {
   installer_workspace = var.installer_workspace
