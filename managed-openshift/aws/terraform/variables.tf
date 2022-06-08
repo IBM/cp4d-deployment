@@ -186,7 +186,7 @@ variable "ocs" {
 variable "efs" {
   type = map(string)
   default = {
-    enable            = false
+    enable            = true
   }
 }
 
