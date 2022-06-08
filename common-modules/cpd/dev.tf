@@ -31,7 +31,7 @@ spec:
     - cp.stg.icr.io/cp/cpd
     source: icr.io/cpopen/cpfs
   - mirrors:
-    - cp.stg.icr.io/db2u
+    - cp.stg.icr.io/cp
     source: icr.io/db2u
 EOF
 }
