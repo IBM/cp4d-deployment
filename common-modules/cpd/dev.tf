@@ -85,13 +85,44 @@ resolvers:
   resources:
     cases:
       repositories:
-        DevGitHub:
-          repositoryInfo:
-            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220606.093728.134-365/promoted/case-repo-promoted"
-    	  cloudPakCertRepo:
+#        DevGitHub:
+#          repositoryInfo:
+#            url: "https://raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/<release-version>/dev/case-repo-dev"
+        cloudPakCertRepo:
           repositoryInfo:
             url: "https://raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
       caseRepositoryMap:
+#      - cases:
+#        - case: "ibm-db2uoperator"
+#          version: "*"
+        # wsl specific entries
+#        - case: "ibm-ccs"
+#          version: "*"
+#        - case: "ibm-datarefinery"
+#          version: "*"
+#        - case: "ibm-wsl-runtimes"
+#          version: "*"
+#        - case: "ibm-ws-pipelines"
+#          version: "*"
+        # wkc specific entries
+#        - case: "ibm-iis"
+#          version: "*"
+#        - case: "ibm-db2aaservice"
+#          version: "*"
+#        - case: "ibm-analyticsengine"
+#          version: "*"
+#        - case: "ibm-datastage"
+#          version: "*"
+#        - case: "ibm-foundationdb"
+#          version: "*"
+#        - case: "ibm-dmc"
+#          version: "*"
+#        - case: "ibm-wsl"
+#          version: "*"
+#        - case: "ibm-wml-cpd"
+#          version: "*"
+#        repositories:
+#        - DevGitHub
       - cases:
         - case: "*"
           version: "*"
