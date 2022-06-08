@@ -186,7 +186,7 @@ variable "ocs" {
 variable "efs" {
   type = map(string)
   default = {
-    enable            = false
+    enable            = true
   }
 }
 
@@ -411,11 +411,3 @@ variable "github_ibm_pat" {
   description = "Github IBM Repository personal Access Token"
 }
 
-variable "openpages" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "8.204.2"
-    channel  = "v1.0"
-  }
-}
