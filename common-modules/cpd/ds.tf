@@ -7,9 +7,9 @@ resource "null_resource" "install_ds" {
   provisioner "local-exec" {
     command = <<-EOF
 echo "Deploying catalogsources and operator subscriptions for datastage" &&
-bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} datastage_ent &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} datastage_ent_plus &&
 echo "Create datastage_ent cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} datastage_ent ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} datastage_ent_plus ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
   }
