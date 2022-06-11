@@ -24,7 +24,6 @@ module "cpd" {
   cpd_external_username     = var.cpd-external-username
   cpd_api_key               = var.apikey
   cpd_namespace             = var.cpd-namespace
-  cloudctl_version          = var.cloudctl_version
   storage_option            = var.storage
   cpd_version               = var.cpd_version
   cpd_platform              = var.cpd_platform
