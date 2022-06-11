@@ -10,7 +10,7 @@ resource "null_resource" "install_cde" {
 echo "Deploying catalogsources and operator subscriptions for Cognos Dashboards" && 
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde &&
 echo "Create Cognos Dashboards cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} cde ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
   }
