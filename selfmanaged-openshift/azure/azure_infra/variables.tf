@@ -175,7 +175,6 @@ variable "ocp_version" {
   default = "4.8.11"
 }
 
-
 variable "openshift_installer_url_prefix" {
   type    = string
   default = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
@@ -191,6 +190,50 @@ variable "apikey" {
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default     = "reject"
+}
+
+variable "cpd_version" {
+  type    = string
+  default = "4.5.0"
+}
+
+#Only required for dev
+variable "cpd_staging_registry" {
+  description = "URL to staging  registry for CPD install"
+  default     = "cp.stg.icr.io"
+}
+
+variable "cpd_staging_username" {
+  description = "staging registry  username for CPD install"
+  default     = "cp"
+}
+
+variable "cpd_staging_api_key" {
+  description = "Staging repository APIKey or registry password"
+}
+
+
+variable "hyc_cloud_private_registry" {
+  description = "URL to hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com registry for CPD install"
+  default     = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
+}
+
+variable "hyc_cloud_private_username" {
+  description = "hyc_cloud_private username for CPD install"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "hyc_cloud_private_api_key" {
+  description = "hyc_cloud_private Repository APIKey or Registry password"
+}
+
+variable "github_ibm_username" {
+  description = "username for github.ibm.com"
+  default     = "shankar.pentyala@ibm.com"
+}
+
+variable "github_ibm_pat" {
+  description = "Github IBM Repository personal Access Token"
 }
 
 ##############################
@@ -228,165 +271,93 @@ variable "rwo_cpd_storageclass" {
 # CPD 4.0 service variables 
 ###########################################
 variable "cpd_platform" {
-  type = map(string)
-  default = {
-    enable  = "yes"
-    version = "4.0.5"
-    channel = "v2.0"
-  }
+  type = string
+  default = "yes"
 }
 
 variable "data_virtualization" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "1.7.5"
-    channel = "v1.7"
-  }
+  type = string
+  default = "no"
 }
 
 variable "analytics_engine" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "stable-v1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_knowledge_catalog" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_studio" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v2.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_machine_learning" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_ai_openscale" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "spss_modeler" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "cognos_dashboard_embedded" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "datastage" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_warehouse" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.7"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_oltp" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.7"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "cognos_analytics" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "data_management_console" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.3"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "master_data_management" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "1.1.175"
-    channel = "v1.1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_aaservice" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "decision_optimization" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "bigsql" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "7.2.5"
-    channel  = "v7.2"
-  }
+  type = string
+  default = "no"
 }
 
 variable "openpages" {
