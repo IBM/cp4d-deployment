@@ -24,7 +24,7 @@ oc apply -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml  &&
 echo "Deploying catalogsources and operator subscriptions for watson knowledge catalog" &&
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc &&
 echo "Create wkc cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
   }

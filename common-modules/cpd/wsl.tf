@@ -9,7 +9,7 @@ resource "null_resource" "install_ws" {
 echo "Deploying catalogsources and operator subscriptions for  watson studio" &&
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} ws &&
 echo "Create ws cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} ws ${var.cpd_namespace} ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} ws ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 EOF
   }
   depends_on = [

@@ -10,7 +10,7 @@ resource "null_resource" "install_db2aaservice" {
 echo "Deploying catalogsources and operator subscriptions for  CPD db2 aas component" &&
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} db2aaservice &&
 echo "Create CPD db2 aas component cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} db2aaservice ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} db2aaservice ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 EOF
   }
   depends_on = [

@@ -11,7 +11,7 @@ resource "null_resource" "install_analyticsengine" {
 echo "Deploying catalogsources and operator subscriptions for  analytics engine" && 
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} analyticsengine &&
 echo "Create analyics engine cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} analyticsengine ${var.cpd_namespace}  ${local.storage_class} ${local.rwo_storage_class}
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} analyticsengine ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 
 EOF
   }
