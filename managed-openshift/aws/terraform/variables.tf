@@ -102,7 +102,7 @@ variable "private_subnet3_id" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.8.11"
+  default = "4.10.15"
 }
 
 variable "cluster_name" {

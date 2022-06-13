@@ -369,19 +369,20 @@ variable "cpd_namespace" {
   default     = "zen"
 }
 
-variable "cloudctl_version" {
-  default = "v3.7.1"
-}
-
 variable "openshift_version" {
   description = "Version >= 4.6.27"
-  default     = "4.8.11"
+  default     = "4.10.15"
 }
 
 variable "cpd_platform" {
   type    = string
   default = "yes"
  
+}
+
+variable "cpd_version" {
+  type    = string
+  default = "4.5.0"
 }
 
 variable "data_virtualization" {
