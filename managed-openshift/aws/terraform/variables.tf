@@ -1,7 +1,7 @@
 ##### AWS Configuration #####
 variable "region" {
   description = "The region to deploy the cluster in, e.g: us-west-2."
-  default     = "eu-west-2"
+  default     = "ap-southeast-1"
 }
 
 variable "tenancy" {
@@ -186,7 +186,7 @@ variable "ocs" {
 variable "efs" {
   type = map(string)
   default = {
-    enable            = false
+    enable            = true
   }
 }
 
@@ -410,5 +410,4 @@ variable "github_ibm_username" {
 variable "github_ibm_pat" {
   description = "Github IBM Repository personal Access Token"
 }
-
 
