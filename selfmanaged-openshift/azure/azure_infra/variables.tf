@@ -172,7 +172,7 @@ variable "cpd-external-username" {
   default     = "cp"
 }
 variable "ocp_version" {
-  default = "4.8.11"
+  default = "4.10.15"
 }
 
 variable "openshift_installer_url_prefix" {

@@ -36,8 +36,8 @@ The template sets up the following:
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz
-tar -xvf openshift-client-linux-4.8.11.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.15/openshift-client-linux-4.10.15.tar.gz
+tar -xvf openshift-client-linux-4.10.15.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin

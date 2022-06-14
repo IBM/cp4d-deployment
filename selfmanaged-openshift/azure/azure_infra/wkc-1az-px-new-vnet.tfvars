@@ -97,7 +97,7 @@ github_ibm_pat = "<required>"
 #cpd-external-username = "cp" 
 #openshift_installer_url_prefix = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp" 
 #cloudctl_version = "v3.8.0" 
-#ocp_version      = "4.6.31"
+#ocp_version      = "4.10.15"
 
 ##############################
 ### CPD4.0 variables
