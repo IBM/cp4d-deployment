@@ -259,6 +259,11 @@ variable "enable_autoscaler" {
 ######################################
 # Storage Options: Enable only one   #
 ######################################
+
+variable "storage_option" {
+  type = string
+}
+
 variable "ocs" {
   type = map(string)
   default = {

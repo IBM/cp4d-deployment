@@ -50,7 +50,6 @@ echo  "WORKER_NODE:"$WORKER_NODE
 AWS_REGION=`echo "$WORKER_NODE" | cut -d'.' -f2`
 echo "AWS_REGION:" $AWS_REGION
 echo "waiting for the creation of  Mount-target "
-sleep 30
 
 FILESYSTEM_DNS_NAME=$FILESYSTEM_ID.efs.$AWS_REGION.amazonaws.com 
 echo $FILESYSTEM_DNS_NAME
@@ -130,7 +129,6 @@ roleRef:
 EOF
 
 echo "==========Creating Deployment=========="
-sleep 60
 
 
 # Create deployment
@@ -176,7 +174,24 @@ spec:
             server: $FILESYSTEM_DNS_NAME
             path: /
 EOF
-sleep 10
+
+# Checking the Status of Deployment pod
+status="unknown"
+while [ "$status" != "Running" ]
+do
+  POD_NAME=$(oc get pods -n $NAMESPACE | grep nfs-client | awk '{print $1}' )
+  ready_status=$(oc get pods -n $NAMESPACE $POD_NAME  --no-headers | awk '{print $2}')
+  pod_status=$(oc get pods -n $NAMESPACE $POD_NAME --no-headers | awk '{print $3}')
+  echo $POD_NAME State - $ready_status, podstatus - $pod_status
+  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+  then
+  status="Running"
+  else
+  status="starting"
+  sleep 10
+  fi
+  echo "$POD_NAME is $status"
+done
 
 cat <<EOF | oc apply -f -
 apiVersion: storage.k8s.io/v1
