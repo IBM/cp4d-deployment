@@ -43,7 +43,7 @@ export CASECTL_RESOLVERS_AUTH_LOCATION=/tmp/work/resolvers_auth.yaml
 export CASE_TOLERATION='-t 1'
 export GITHUB_TOKEN='${var.github_ibm_pat}'
 export CLOUDCTL_TRACE=true
-export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220606.093728.134-365/promoted/case-repo-promoted"
+export CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/PrivateCloud-analytics/cpd-case-repo/4.5.0-Snapshot-20220609.180023.153-388/promoted/case-repo-promoted"
 export OPENCONTENT_CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
 export CPFS_CASE_REPO_PATH="https://${var.github_ibm_pat}@raw.github.ibm.com/IBMPrivateCloud/cloud-pak/master/repo/case"
 EOF
@@ -160,7 +160,7 @@ resource "null_resource" "configure_dev_cluster" {
     command = <<EOF
 
 echo "Configure Dev repos creds in global pull secret"
-export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220606.093728.134
+export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220609.180023.153
 
 
 ${self.triggers.cpd_workspace}/cpd-cli manage add-cred-to-global-pull-secret  '${var.cpd_staging_registry}'  '${var.cpd_staging_username}'  '${var.cpd_staging_api_key}'

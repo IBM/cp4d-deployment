@@ -68,7 +68,7 @@ resource "null_resource" "login_cluster" {
     command = <<EOF
 
 echo 'set OLM_UTILS_IMAGE env variable to staging repo required only in dev'
-export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220606.093728.134
+export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220609.180023.153
 
 echo 'Remove any existing olm-utils-play container' 
 podman rm --force olm-utils-play
