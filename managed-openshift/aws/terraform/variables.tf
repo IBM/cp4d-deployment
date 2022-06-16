@@ -365,14 +365,13 @@ variable "watson_assistant" {
   default = "no"
 }
 
-#Only required for dev
-
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
   default     = true
 }
 
+#Only required for dev
 variable "cpd_staging_registry" {
   description = "URL to staging  registry for CPD install"
   default     = "cp.stg.icr.io"

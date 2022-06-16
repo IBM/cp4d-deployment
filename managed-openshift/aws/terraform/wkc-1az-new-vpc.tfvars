@@ -18,14 +18,14 @@ secret_access_key     = "<required>"
  worker_machine_type   = "m5.4xlarge"
  worker_machine_count  = 3     # set count depending on number of CPD services
  private_cluster       = false
- ocs                   = { "enable" : "true", "ocs_instance_type" : "m5.4xlarge" }  
-#efs                   = { "enable" : "false" } 
+ ocs                   = { "enable" : "false", "ocs_instance_type" : "m5.4xlarge" }  
+ efs                   = { "enable" : "true" } 
 
 # 
 configure_global_pull_secret = true # false if pull secret is already created
 
 #Storage 
-storage_option = "ocs" # ocs ,portworx,nfs,efs
+storage_option = "efs" # ocs ,portworx,nfs,efs
 
 
 #############
