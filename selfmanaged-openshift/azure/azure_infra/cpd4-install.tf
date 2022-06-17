@@ -14,7 +14,7 @@ locals {
 module "cpd" {
   count                     = var.accept-cpd-license == "accept" ? 1 : 0
   source                    = "./cpd"
-  openshift_api             = var.openshift_api
+  openshift_api             = "https://api.${var.cluster-name}.${var.dnszone}:6443"
   openshift_username        = var.openshift-username
   openshift_password        = var.openshift-password
   openshift_token           = ""
