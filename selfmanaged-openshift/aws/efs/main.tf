@@ -28,7 +28,7 @@ data "aws_vpc" "cpd_vpc" {
 # ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
 
 resource "aws_efs_file_system" "cpd_efs" {
-   creation_token = "cpd_efs"
+   creation_token = "${var.cluster_name}_cpd_efs"
    performance_mode = "generalPurpose"
    throughput_mode = "provisioned"
    provisioned_throughput_in_mibps = "250"
@@ -76,7 +76,7 @@ resource "aws_efs_mount_target" "cpd-efs-mt" {
 #  }
 
 resource "aws_iam_policy" "efs_policy" {
-  name        = "aws_efs_policy"
+  name        = "${var.cluster_name}_aws_efs_policy"
   description = "EFS policy"
 
   policy = <<EOF
