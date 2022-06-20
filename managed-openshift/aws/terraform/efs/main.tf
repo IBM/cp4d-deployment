@@ -31,7 +31,7 @@ data "aws_vpc" "cpd_vpc" {
 
 
 resource "aws_efs_file_system" "cpd_efs" {
-   creation_token = "cpd_efs"
+   creation_token = "${var.cluster_name}_cpd_efs"
    performance_mode = "generalPurpose"
    throughput_mode = "provisioned"
    provisioned_throughput_in_mibps = "250"
@@ -79,7 +79,7 @@ resource "aws_security_group" "efs_sg" {
  }
 */
 resource "aws_iam_policy" "efs_policy" {
-  name        = "aws_efs_policy"
+  name        = "${var.cluster_name}_aws_efs_policy"
   description = "EFS policy"
 
   policy = <<EOF
