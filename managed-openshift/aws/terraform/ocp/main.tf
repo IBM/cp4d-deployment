@@ -100,7 +100,9 @@ locals {
 resource "null_resource" "configure_image_registry" {
   provisioner "local-exec" {
     command =<<EOF
-${local.login_cmd} --insecure-skip-tls-verify
+#${local.login_cmd} --insecure-skip-tls-verify
+#To check cluster-admin login succeeds
+bash ocp/scripts/oc_login.sh "${local.login_cmd}"
 bash ocp/scripts/nodes_running.sh
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
