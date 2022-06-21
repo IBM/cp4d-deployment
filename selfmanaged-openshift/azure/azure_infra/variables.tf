@@ -361,28 +361,16 @@ variable "bigsql" {
 }
 
 variable "openpages" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "8.204.2"
-    channel  = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_discovery" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "4.0.5"
-    channel  = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "planning_analytics" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "4.0.5"
-    channel  = "v4.0"
-  }
+  type = string
+  default = "no"
 }

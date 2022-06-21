@@ -42,6 +42,9 @@ cognos_analytics          = "no"
 master_data_management    = "no"
 decision_optimization     = "no"
 bigsql                    = "no"
+openpages                 = "no"
+watson_discovery          = "no"
+planning_analytics        = "no"
 ​
 accept-cpd-license = "accept"
 
