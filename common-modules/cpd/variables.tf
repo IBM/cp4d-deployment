@@ -28,11 +28,10 @@ variable "cluster_type" {
   type = string
 }
 
-
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
-  default     = false
+  default     = true
 }
 
 variable "configure_openshift_nodes" {
