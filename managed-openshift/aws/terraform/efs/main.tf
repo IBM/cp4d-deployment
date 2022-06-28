@@ -145,7 +145,7 @@ resource "null_resource" "nfs_subdir_provisioner_setup" {
   }
   provisioner "local-exec" {
     command = <<EOF
-    bash efs/setup-nfs.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}' '${self.triggers.file_system_id}'
+    bash efs/setup-nfs.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}' '${self.triggers.file_system_id}' '${var.vpc_id}' '${var.vpc_cidr}' '${var.region}'
 EOF
   }
   depends_on = [
