@@ -7,7 +7,7 @@
 			"metadata": {
 				"description": "The base URL where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
 			},
-			"defaultValue": "https://raw.githubusercontent.com/IBM/cp4d-deployment/master/managed-openshift/azure/arm/aro/azuredeploy.json"
+			"defaultValue": "[deployment().properties.templateLink.uri]"
 		},
 		"_artifactsLocationSasToken": {
 			"type": "securestring",
@@ -199,6 +199,13 @@
 				"none"
 			]
 		},
+		"nfsVMSize": {
+            "type": "string",
+			"defaultValue": "Standard_D8s_v3",
+			"metadata": {
+				"description": "NFS VM size. Use VMs with Premium Storage support only."
+			}
+		},
 		"dataDiskSize": {
 			"type": "int",
 			"defaultValue": 1024,
@@ -332,6 +339,13 @@
 			"metadata": {
 				"description": "Accept License Agreement: https://ibm.biz/BdffBz"
 			}
+		},
+		"principalId": {
+			"type": "string",
+			"defaultValue": "464114b9-46ee-4c7c-a068-35ab76d50606",
+			"metadata": {
+				"description": "principalId for the roleAssignments"
+			}
 		}
 	},
 	"variables": {
@@ -353,7 +367,7 @@
 		"bastionPublicIpDnsLabel": "[concat('bastiondns', uniqueString(resourceGroup().id))]",
 		"sshKeyPath": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
 		"clusterNodeDeploymentTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('nested/clusternode.json', parameters('_artifactsLocationSasToken')))]",
- 		"contribRole": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+ 		"contribRole": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
 		"cloudPakDeploymentTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('nested/cloudpakdeploy.json', parameters('_artifactsLocationSasToken')))]",
 		"installOCSDeploymentScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-ocs.sh', parameters('_artifactsLocationSasToken')))]",
 		"installOCSDeploymentTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('nested/ocs.json', parameters('_artifactsLocationSasToken')))]",
@@ -393,17 +407,17 @@
 		"domain": "[parameters('clusterName')]",
 		"vTrue": true,
 		"customDomain": false,
-		"suburl": "[if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))]",
 		"nfsHostname": "nfsNode",
-		"nfsVmSize": "Standard_D8s_v3",
 		"nfsInstallScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/setup-nfs.sh', parameters('_artifactsLocationSasToken')))]",
 		"nfsInstallScriptFileName": "setup-nfs.sh",
-		"nfsSecurityGroupName": "nfs-nsg"
+		"nfsSecurityGroupName": "nfs-nsg",
+		"openshiftConsoleURL": "[uri(concat('https://console-openshift-console.apps.', [if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))]),'/')]",
+		"cloudPakForDataURL": "[uri(concat('https://cpd-', parameters('projectName'), '.apps.', [if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))]),'/')]"
 	},
 	"resources": [
 		{
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "pid-06f07fff-296b-5beb-9092-deab0c6bb8ea",
 			"properties": {
 				"mode": "Incremental",
@@ -418,7 +432,7 @@
 		{
 			"condition": "[equals(parameters('newOrExistingNetwork'), 'new')]",
 			"type": "Microsoft.Network/virtualNetworks",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[parameters('virtualNetworkName')]",
 			"location": "[parameters('location')]",
 			"tags": {
@@ -473,7 +487,7 @@
 		{
 			"condition": "[equals(parameters('publicBootnodeIP'), variables('vTrue'))]",
 			"type": "Microsoft.Network/publicIPAddresses",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[variables('bastionPublicIpDnsLabel')]",
 			"location": "[parameters('location')]",
 			"sku": {
@@ -494,7 +508,7 @@
 		},
 		{
 			"type": "Microsoft.Network/networkInterfaces",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[concat(variables('bastionHostname'), '-nic')]",
 			"location": "[parameters('location')]",
 			"dependsOn": [
@@ -528,7 +542,7 @@
 		},
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[variables('bastionSecurityGroupName')]",
 			"location": "[parameters('location')]",
 			"tags": {
@@ -559,7 +573,7 @@
 		},
 		{
 			"type": "Microsoft.Storage/storageAccounts",
-			"apiVersion": "2019-06-01",
+			"apiVersion": "2021-08-01",
 			"name": "[variables('diagStorageAccountName')]",
 			"location": "[parameters('location')]",
 			"kind": "Storage",
@@ -576,7 +590,7 @@
 		},
 		{
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "BastionVmDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
@@ -630,7 +644,7 @@
 		},
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[variables('nfsSecurityGroupName')]",
 			"location": "[parameters('location')]",
 			"tags": {
@@ -676,7 +690,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Network/networkInterfaces",
-			"apiVersion": "2019-09-01",
+			"apiVersion": "2021-08-01",
 			"name": "[concat(variables('nfsHostname'), '-nic')]",
 			"location": "[parameters('location')]",
 			"dependsOn": [
@@ -709,7 +723,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "nfsVmDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
@@ -738,7 +752,7 @@
 						"value": "[parameters('adminUsername')]"
 					},
 					"vmSize": {
-						"value": "[variables('nfsVmSize')]"
+						"value": "[parameters('nfsVMSize')]"
 					},
 					"hostname": {
 						"value": "[variables('nfsHostname')]"
@@ -764,7 +778,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"apiVersion": "2019-07-01",
+			"apiVersion": "2021-11-01",
 			"name": "[concat(variables('nfsHostname'), '/installNfsServer')]",
 			"location": "[parameters('location')]",
 			"dependsOn": [
@@ -792,12 +806,12 @@
 			}
 		},
 		{
-            "type": "Microsoft.Network/virtualNetworks/providers/roleAssignments",
-            "apiVersion": "2018-09-01-preview",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-01-01-preview",
             "name": "[concat(parameters('virtualNetworkName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name, variables('rpObjectId')))]",
             "properties": {
                 "roleDefinitionId": "[variables('contribRole')]",
-                "principalId": "[variables('rpObjectId')]"
+                "principalId": "[parameters('principalId')]"
             },
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
@@ -805,7 +819,7 @@
         },
         {   
             "type": "Microsoft.RedHatOpenShift/OpenShiftClusters",
-            "apiVersion": "2020-04-30",
+            "apiVersion": "2022-04-01",
             "name": "[parameters('clusterName')]",
             "location": "[parameters('location')]",
             "tags": "[variables('redHatTags')]",
@@ -854,7 +868,7 @@
         },
 		{
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"apiVersion": "2019-07-01",
+			"apiVersion": "2021-11-01",
 			"name": "[concat(variables('bastionHostname'), '/deployOpenshift')]",
 			"location": "[parameters('location')]",
 			"dependsOn": [
@@ -878,14 +892,14 @@
 					]
 				},
 				"protectedSettings": {
-					"commandToExecute": "[concat('bash ', variables('openshiftConfigScriptFileName'), ' \"', parameters('location'), '\"', ' \"', variables('domain'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('workerInstanceCount'), '\"', ' \"', parameters('projectName'), '\"', ' \"', parameters('storageOption'), '\"', ' \"', parameters('apiKey'), '\"', ' \"' , listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername, '\"',' \"', listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword, '\"', ' \"', variables('customDomain'), '\"', ' \"', parameters('clusterName'), '\"')]"
+					"commandToExecute": "[concat('bash ', variables('openshiftConfigScriptFileName'), ' \"', parameters('location'), '\"', ' \"', variables('domain'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('workerInstanceCount'), '\"', ' \"', parameters('projectName'), '\"', ' \"', parameters('storageOption'), '\"', ' \"', parameters('apiKey'), '\"', ' \"' , listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername, '\"',' \"', listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword, '\"', ' \"', variables('customDomain'), '\"', ' \"', parameters('clusterName'), '\"')]"
 				}
 			}
 		},
 		{
 			"condition": "[equals(parameters('storageOption'), 'ocs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "OCSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -917,10 +931,10 @@
 						"value": "[parameters('location')]"
 					},
 					"openshiftUsername": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"openshiftPassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"clusterName": {
 						"value": "[parameters('clusterName')]"
@@ -949,7 +963,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "NFSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -981,10 +995,10 @@
 						"value": "[parameters('location')]"
 					},
 					"openshiftUsername": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"openshiftPassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"clusterName": {
 						"value": "[parameters('clusterName')]"
@@ -1013,7 +1027,7 @@
 		{
 			"condition": "[equals(parameters('cloudPakLicenseAgreement'), 'accept')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakLiteDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1065,10 +1079,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1085,7 +1099,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installWatsonStudioLocal'), 'yes'),equals(parameters('installWatsonKnowledgeCatalog'), 'yes'),equals(parameters('installWatsonMachineLearning'), 'yes'),equals(parameters('installDataVirtualization'), 'yes'),equals(parameters('installCognosDashboard'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakCCSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1137,10 +1151,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1157,7 +1171,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'),equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakDataRefineryDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1209,10 +1223,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1229,7 +1243,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonStudioLocal'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakWSLDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1281,10 +1295,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1301,7 +1315,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonMachineLearning'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakWMLDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1353,10 +1367,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1373,7 +1387,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonOpenscale'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakWOSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",	
@@ -1425,10 +1439,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1445,7 +1459,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installCognosDashboard'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakCDEDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1498,10 +1512,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1518,7 +1532,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installCognosDashboard'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakDVDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1570,10 +1584,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1590,7 +1604,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installApacheSpark'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakSparkDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1642,10 +1656,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1662,7 +1676,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-05-01",
+			"apiVersion": "2021-04-01",
 			"name": "CloudPakWKCDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1714,10 +1728,10 @@
 						"value": "[parameters('apiKey')]"
 					},
 					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminUsername]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
 					},
 					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2020-04-30').kubeadminPassword]"
+						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1735,11 +1749,11 @@
 	"outputs": {
 		"Cloud Pak for Data URL": {
 			"type": "string",
-			"value": "[concat('https://', parameters('projectName'), '-cpd-', parameters('projectName'), '.apps.', variables('suburl'))]"
+			"value": "[variables('cloudPakForDataURL')]"
 		},
 		"Openshift Console": {
 			"type": "string",
-			"value": "[concat('https://console-openshift-console.apps.', variables('suburl'))]"
+			"value": "[variables('openshiftConsoleURL')]"
 		}
 	}
 }
