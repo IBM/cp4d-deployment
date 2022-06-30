@@ -80,7 +80,8 @@ variable "cpd_storageclass" {
     "portworx" = "portworx-shared-gp3"
     "ocs"      = "ocs-storagecluster-cephfs"
     "nfs"      = "nfs-client"
-    "efs"      = "nfs-client"
+    "efs"      = "efs-nfs-client"
+    "efs-ebs"  = "efs-nfs-client"
   }
 }
 
@@ -91,7 +92,8 @@ variable "rwo_cpd_storageclass" {
     "portworx" = "portworx-metastoredb-sc"
     "ocs"      = "ocs-storagecluster-ceph-rbd"
     "nfs"      = "nfs-client"
-    "efs"      = "gp3-csi"
+    "efs"      = "efs-nfs-client"
+    "efs-ebs"  = "gp3-csi"
   }
 }
 variable "cpd_version" {
