@@ -224,7 +224,7 @@ module "cpd" {
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
 #  storage_option            = var.ocs.enable ? "ocs" : "portworx"
-  storage_option	    = var.storage_option
+  storage_option	          = var.storage_option
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
@@ -249,14 +249,6 @@ module "cpd" {
   openpages                 = var.openpages
   cluster_type              = local.cluster_type
   login_string              = "oc login ${local.openshift_api} -u ${local.openshift_username} -p ${local.openshift_password} --insecure-skip-tls-verify=true"
-  cpd_staging_registry         = var.cpd_staging_registry
-  cpd_staging_username         = var.cpd_staging_username
-  cpd_staging_api_key          = var.cpd_staging_api_key
-  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
-  hyc_cloud_private_username   = var.hyc_cloud_private_username
-  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
-  github_ibm_username          = var.github_ibm_username
-  github_ibm_pat               = var.github_ibm_pat
   
   depends_on = [
     module.ocp,
