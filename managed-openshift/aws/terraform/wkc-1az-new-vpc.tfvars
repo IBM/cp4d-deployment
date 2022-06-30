@@ -21,9 +21,6 @@ secret_access_key     = "<required>"
  ocs                   = { "enable" : "false", "ocs_instance_type" : "m5.4xlarge" }  
  efs                   = { "enable" : "true" } 
 
-# 
-configure_global_pull_secret = true # false if pull secret is already created
-
 #Storage 
 storage_option = "efs" # ocs ,portworx,nfs,efs
 
@@ -58,17 +55,4 @@ watson_assistant          =  "no"
 watson_discovery          =  "no"
 openpages                 =  "no"
 data_management_console   =  "no"
-###############
-# Dev Variables
-###############
-## Dev vars
-cpd_staging_registry = "cp.stg.icr.io"
-cpd_staging_username = "cp"
-cpd_staging_api_key  = "<required>" 
-hyc_cloud_private_registry = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
-hyc_cloud_private_username = "<required>"
-hyc_cloud_private_api_key = "<required>" 
-github_ibm_username = "<required>"
-github_ibm_pat = "<required>"
-
  

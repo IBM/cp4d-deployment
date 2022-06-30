@@ -42,13 +42,4 @@ data_management_console   =  "no"
 
 accept-cpd-license = "accept"
 
-## Dev vars
-cpd_staging_registry = "cp.stg.icr.io"
-cpd_staging_username = "cp"
-cpd_staging_api_key  = "<required>"
-hyc_cloud_private_registry = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
-hyc_cloud_private_username = "<required>"
-hyc_cloud_private_api_key = "<required>"
-github_ibm_username = "<required>"
-github_ibm_pat = "<required>"
 

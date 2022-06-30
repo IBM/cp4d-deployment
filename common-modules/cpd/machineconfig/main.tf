@@ -117,7 +117,7 @@ oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
 oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
 
-echo 'Sleeping for 5mins while MachineConfigs apply and the nodes restarts' 
+echo 'Sleeping for 1 min while MachineConfigs apply and the nodes restarts' 
 sleep 60
 EOF
   }

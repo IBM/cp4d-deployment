@@ -38,14 +38,7 @@ module "cpd" {
   cluster_type                 = var.cluster_type
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
-  cpd_staging_registry         = var.cpd_staging_registry
-  cpd_staging_username         = var.cpd_staging_username
-  cpd_staging_api_key          = var.cpd_staging_api_key
-  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
-  hyc_cloud_private_username   = var.hyc_cloud_private_username
-  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
-  github_ibm_username          = var.github_ibm_username
-  github_ibm_pat               = var.github_ibm_pat
+
   depends_on = [
     null_resource.create-dir
   ]

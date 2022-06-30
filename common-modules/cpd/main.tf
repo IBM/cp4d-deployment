@@ -30,18 +30,18 @@ resource "null_resource" "download_cpd_cli" {
   echo "Download cpd-cli installer."
 case $(uname -s) in
   Darwin)
-    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/19/cpd-cli-darwin-EE-11.0.0-19.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0-19.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-19.tgz -C ${self.triggers.cpd_workspace}
+    wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-darwin-EE-11.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-19/*  ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-20/*  ${self.triggers.cpd_workspace}
     ;;
   Linux)
-    wget http://icpfs1.svl.ibm.com/zen/cp4d-builds/${var.cpd_version}/dev/cpd-cli/19/cpd-cli-linux-EE-11.0.0-19.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0-19.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-19.tgz -C ${self.triggers.cpd_workspace}
+    wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-19/* ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-20/* ${self.triggers.cpd_workspace}
     ;;
   *)
     echo 'Supports only Linux and Mac OS at this time'
@@ -67,14 +67,8 @@ resource "null_resource" "login_cluster" {
   provisioner "local-exec" {
     command = <<EOF
 
-echo 'set OLM_UTILS_IMAGE env variable to staging repo required only in dev'
-export OLM_UTILS_IMAGE=cp.stg.icr.io/cp/cpd/olm-utils:20220609.180023.153
-
 echo 'Remove any existing olm-utils-play container' 
 podman rm --force olm-utils-play
-
-echo 'podman login to stg.icr.io repo required only in dev'
-podman login -u '${var.cpd_staging_username}' -p '${var.cpd_staging_api_key}' '${var.cpd_staging_registry}'
 
 echo 'Run login-to-ocp command'
 
@@ -83,8 +77,6 @@ ${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.trigg
 ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}' --insecure-skip-tls-verify=true || oc login --server='${self.triggers.openshift_api}' --token='${self.triggers.openshift_token}'
  
 sleep 60
-
-${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} -u '${self.triggers.openshift_username}' -p '${self.triggers.openshift_password}'  || ${self.triggers.cpd_workspace}/cpd-cli manage login-to-ocp --server ${self.triggers.openshift_api} --token='${self.triggers.openshift_token}'
 
 EOF
   }
@@ -137,7 +129,6 @@ EOF
     null_resource.login_cluster,
     null_resource.download_cpd_cli,
     null_resource.node_check,
-    null_resource.configure_dev_cluster,
   ]
 }
 
