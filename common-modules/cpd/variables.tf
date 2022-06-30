@@ -32,7 +32,7 @@ variable "cluster_type" {
 variable "configure_global_pull_secret" {
   type        = bool
   description = "Configuring global pull secret"
-  default     = false
+  default     = true
 }
 
 variable "configure_openshift_nodes" {
@@ -95,52 +95,9 @@ variable "rwo_cpd_storageclass" {
     "efs"      = "gp3-csi"
   }
 }
-
-variable "wkc_storageclass" {
-  type = map(any)
-
-  default = {
-    "portworx" = "portworx-shared-gp3"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-    "efs"      = "aws-efs-csi-wkc"
-  }
-}
-
-variable "wd_storageclass" {
-  type = map(any)
-
-  default = {
-    "portworx" = "portworx-db-gp2-sc"
-    "ocs"      = "ocs-storagecluster-ceph-rbd"
-    "nfs"      = "nfs"
-    "efs"      = "aws-efs-csi"
-  }
-}
-
-variable "wa_storageclass" {
-  type = map(any)
-
-  default = {
-    "portworx" = "portworx-watson-assistant-sc"
-    "ocs"      = "ocs-storagecluster-cephfs"
-    "nfs"      = "nfs"
-    "efs"      = "aws-efs-csi"
-  }
-}
-
-
-
 variable "cpd_version" {
   type    = string
   default = "4.5.0"
-}
-
-###########
-
-
-variable "datacore_version" {
-  default = "1.3.3"
 }
 
 variable "cpd_platform" {
@@ -244,28 +201,6 @@ variable "watson_assistant" {
   default = "no"
 }
 
-variable "wa_kafka_storage_class" {
-  type        = map(any)
-
-  default = {
-    "portworx" = ""
-    "ocs"      = "ocs-storagecluster-ceph-rbd"
-    "nfs"      = "nfs"
-    "efs"      = "aws-efs-csi"
-  }
-}
-
-variable "wa_storage_size" {
-  type        = map(any)
-
-  default = {
-    "portworx" = ""
-    "ocs"      = "55Gi"
-    "nfs"      = ""
-    "efs"      = ""
-  }
-}
-
 variable "watson_discovery" {
   type    = string
   default = "no"
@@ -276,42 +211,3 @@ variable "openpages" {
   default = "no"
 }
 
-
-#Only required for dev
-variable "cpd_staging_registry" {
-  description = "URL to staging  registry for CPD install"
-  default     = "cp.stg.icr.io"
-}
-
-variable "cpd_staging_username" {
-  description = "staging registry  username for CPD install"
-  default     = "cp"
-}
-
-variable "cpd_staging_api_key" {
-  description = "Staging repository APIKey or registry password"
-}
-
-
-variable "hyc_cloud_private_registry" {
-  description = "URL to hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com registry for CPD install"
-  default     = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
-}
-
-variable "hyc_cloud_private_username" {
-  description = "hyc_cloud_private username for CPD install"
-  default     = "shankar.pentyala@ibm.com"
-}
-
-variable "hyc_cloud_private_api_key" {
-  description = "hyc_cloud_private Repository APIKey or Registry password"
-}
-
-variable "github_ibm_username" {
-  description = "username for github.ibm.com"
-  default     = "shankar.pentyala@ibm.com"
-}
-
-variable "github_ibm_pat" {
-  description = "Github IBM Repository personal Access Token"
-}
