@@ -1,7 +1,7 @@
 ##### AWS Configuration #####
 variable "region" {
   description = "The region to deploy the cluster in, e.g: us-west-2."
-  default     = "eu-west-1"
+  default     = "us-west-2"
 }
 
 variable "key_name" {
@@ -310,45 +310,6 @@ variable "portworx_ibm" {
   }
 }
 
-##################################################
-
-variable "cpd_staging_registry" {
-  description = "URL to staging  registry for CPD install"
-  default     = "cp.stg.icr.io"
-}
-
-variable "cpd_staging_username" {
-  description = "staging registry  username for CPD install"
-  default     = "cp"
-}
-
-variable "cpd_staging_api_key" {
-  description = "Staging repository APIKey or registry password"
-}
-
-
-variable "hyc_cloud_private_registry" {
-  description = "URL to hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com registry for CPD install"
-  default     = "hyc-cloud-private-daily-docker-local.artifactory.swg-devops.com"
-}
-
-variable "hyc_cloud_private_username" {
-  description = "hyc_cloud_private username for CPD install"
-  default     = "shankar.pentyala@ibm.com"
-}
-
-variable "hyc_cloud_private_api_key" {
-  description = "hyc_cloud_private Repository APIKey or Registry password"
-}
-
-variable "github_ibm_username" {
-  description = "username for github.ibm.com"
-  default     = "shankar.pentyala@ibm.com"
-}
-
-variable "github_ibm_pat" {
-  description = "Github IBM Repository personal Access Token"
-}
 ##########################################################
 variable "accept_cpd_license" {
   description = "Read and accept license at https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW, (accept / reject)"
@@ -483,28 +444,6 @@ variable "bigsql" {
 variable "watson_assistant" {
   type    = string
   default = "no"
-}
-
-variable "wa_kafka_storage_class" {
-  type        = map(any)
-
-  default = {
-    "portworx" = ""
-    "ocs"      = "ocs-storagecluster-ceph-rbd"
-    "nfs"      = "nfs"
-    "efs"      = "aws-efs-csi"
-  }
-}
-
-variable "wa_storage_size" {
-  type        = map(any)
-
-  default = {
-    "portworx" = ""
-    "ocs"      = "55Gi"
-    "nfs"      = ""
-    "efs"      = ""
-  }
 }
 
 variable "watson_discovery" {
