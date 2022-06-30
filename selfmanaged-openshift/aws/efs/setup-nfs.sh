@@ -4,24 +4,13 @@ CLUSTER_URL=$1
 CLUSTER_ADMIN_USERNAME=$2
 CLUSTER_ADMIN_PASSWORD=$3
 FILESYSTEM_ID=$4
+CLUSTER_VPCID=$5
+CLUSTER_VPC_CIDR=$6
+AWS_REGION=$7
 
 CLUSTER_NAME=$(echo "$CLUSTER_URL" | sed -e 's|https://api\.\([^\.]*\).*|\1|')
 echo "CLUSTER_NAME=$CLUSTER_NAME"
-CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .VpcId')
-echo "CLUSTER_VPCID=$CLUSTER_VPCID"
-if [ -z "$CLUSTER_VPCID" ]
-then 
-CLUSTER_VPCID=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'.*-vpc"))))) | .VpcId')
-echo "CLUSTER_VPCID=$CLUSTER_VPCID"
-fi
 
-CLUSTER_VPC_CIDR=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-vpc"))))) | .CidrBlock')
-echo "CLUSTER_VPC_CIDR=$CLUSTER_VPC_CIDR"
-if [ -z "$CLUSTER_VPC_CIDR" ]
-then
-CLUSTER_VPC_CIDR=$(aws ec2 describe-vpcs | jq -r '.Vpcs[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'.*-vpc"))))) | .CidrBlock')
-echo "CLUSTER_VPC_CIDR=$CLUSTER_VPC_CIDR"
-fi
 CLUSTER_WORKER_SECURITY_GROUPID=$(aws ec2 describe-security-groups | jq -r '.SecurityGroups[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-.*-worker-sg"))))) | .GroupId')
 echo "CLUSTER_WORKER_SECURITY_GROUPID=$CLUSTER_WORKER_SECURITY_GROUPID"
 
@@ -47,7 +36,6 @@ echo "Setting up NFS-Subdir-Provisioner"
 oc login $CLUSTER_URL --insecure-skip-tls-verify -u $CLUSTER_ADMIN_USERNAME -p $CLUSTER_ADMIN_PASSWORD
 WORKER_NODE=`oc get nodes | grep worker | tail -1 | awk '/compute.internal/ {print $1}'` 
 echo  "WORKER_NODE:"$WORKER_NODE
-AWS_REGION=`echo "$WORKER_NODE" | cut -d'.' -f2`
 echo "AWS_REGION:" $AWS_REGION
 echo "waiting for the creation of  Mount-target "
 
