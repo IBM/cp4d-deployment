@@ -22,7 +22,7 @@ secret_access_key     = "<required>"
  efs                   = { "enable" : "true" } 
 
 #Storage 
-storage_option = "efs" # ocs ,portworx,nfs,efs
+storage_option = "efs" # ocs ,portworx,nfs,efs,efs-ebs
 
 
 #############
