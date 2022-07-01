@@ -50,16 +50,6 @@ module "cpd" {
   cluster_type              = "selfmanaged"
   login_string              = "oc login ${var.openshift_api} -u ${var.openshift-username} -p ${var.openshift-password} --insecure-skip-tls-verify=true"
 
-  ### Dev Var ###
-  cpd_staging_registry         = var.cpd_staging_registry
-  cpd_staging_username         = var.cpd_staging_username
-  cpd_staging_api_key          = var.cpd_staging_api_key
-  hyc_cloud_private_registry   = var.hyc_cloud_private_registry
-  hyc_cloud_private_username   = var.hyc_cloud_private_username
-  hyc_cloud_private_api_key    = var.hyc_cloud_private_api_key
-  github_ibm_username          = var.github_ibm_username
-  github_ibm_pat               = var.github_ibm_pat
-
   depends_on = [
     null_resource.openshift_post_install,
     module.portworx,
