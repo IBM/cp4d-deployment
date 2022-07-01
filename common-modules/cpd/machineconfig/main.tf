@@ -66,7 +66,11 @@ resource "null_resource" "patch_config_managed" {
 echo "Patch configuration self"
 oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
 oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
-oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl --overwrite
+#Rosa issue - so commenting for temp fix -Error from server (Prevented from accessing Red Hat managed resources. 
+#This is in an effort to prevent harmful actions that may cause unintended consequences or affect the stability of the cluster.
+#admission webhook "regular-user-validation.managed.openshift.io" denied the request: Prevented from accessing Red Hat managed resources. 
+#This is in an effort to prevent harmful actions that may cause unintended consequences or affect the stability of the cluster
+#oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl --overwrite
 EOF
   }
   depends_on = [
