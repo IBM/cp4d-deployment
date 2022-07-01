@@ -1,5 +1,5 @@
 terraform {
-  required_version = "v0.13.0"
+  required_version = ">=v0.13.0"
   required_providers {
     ibm = {
          source = "IBM-Cloud/ibm"
@@ -26,11 +26,11 @@ data "ibm_resource_group" "this" {
 
 module "vpc" {
   source = "./vpc"
-  
+
   # when this is not null, the module doesn't create any resources
   existing_vpc_id           = var.existing_vpc_id
   existing_vpc_subnets      = var.existing_vpc_subnets
-  
+
   acl_rules                 = var.acl_rules
   enable_public_gateway     = var.enable_public_gateway
   multizone                 = var.multizone
@@ -44,7 +44,7 @@ module "vpc" {
 
 module "roks" {
   source = "./roks"
-  
+
   cos_instance_crn                = var.cos_instance_crn
   existing_roks_cluster           = var.existing_roks_cluster
   disable_public_service_endpoint = var.disable_public_service_endpoint
@@ -62,7 +62,7 @@ module "roks" {
 
 module "portworx" {
   source = "./portworx"
-  
+
   cluster_id           = module.roks.cluster_id
   create_external_etcd = var.create_external_etcd
   ibmcloud_api_key     = var.ibmcloud_api_key
@@ -78,7 +78,7 @@ module "portworx" {
 
 module "cpd_prereq" {
   source = "./prereq"
-  
+
   accept_cpd_license    = var.accept_cpd_license
   portworx_is_ready     = module.portworx.portworx_is_ready
   worker_node_flavor    = var.worker_node_flavor
@@ -102,7 +102,6 @@ module "cpd" {
   accept_cpd_license        = var.accept_cpd_license
   cpd_api_key               = var.cpd_registry_password
   cpd_namespace             = var.cpd-namespace
-  cloudctl_version          = var.cloudctl_version
   storage_option            = var.cpd_storageclass
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
