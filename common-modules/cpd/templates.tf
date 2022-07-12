@@ -1,21 +1,6 @@
-data "template_file" "sysctl_worker" {
-  template = <<EOF
-apiVersion: machineconfiguration.openshift.io/v1
-kind: KubeletConfig
-metadata:
-  name: db2u-kubelet
-spec:
-  machineConfigPoolSelector:
-    matchLabels:
-      db2u-kubelet: sysctl
-  kubeletConfig:
-    allowedUnsafeSysctls:
-      - "kernel.msg*"
-      - "kernel.shm*"
-      - "kernel.sem"
-EOF
+locals {
+  storage_type_key   = var.storage_option == "portworx" ? "storageVendor: portworx" : "fileStorageClass: ${local.storage_class}\n  blockStorageClass: ${local.rwo_storage_class}"
 }
-
 data "template_file" "wkc_iis_scc" {
   template = <<EOF
 allowHostDirVolumePlugin: false
@@ -58,6 +43,24 @@ volumes:
 - secret
 users:
 - system:serviceaccount:${var.cpd_namespace}:wkc-iis-sa
+EOF
+}
+
+data "template_file" "wkc_cr" {
+  template = <<EOF
+apiVersion: wkc.cpd.ibm.com/v1beta1
+kind:  WKC
+metadata:
+  name: wkc-cr
+  namespace: ${var.cpd_namespace}
+spec:
+  license:
+    accept: true
+    license: Enterprise
+  ${local.storage_type_key}
+  wkc_db2u_set_kernel_params: True
+  iis_db2u_set_kernel_params: True
+  version: ${var.cpd_version}
 EOF
 }
 

@@ -3,9 +3,9 @@ resource "local_file" "wkc_iis_scc_yaml" {
   filename = "${local.cpd_workspace}/wkc_iis_scc.yaml"
 }
 
-resource "local_file" "sysctl_worker_yaml" {
-  content  = data.template_file.sysctl_worker.rendered
-  filename = "${local.cpd_workspace}/sysctl_worker.yaml"
+resource "local_file" "wkc_cr_yaml" {
+  content  = data.template_file.wkc_cr.rendered
+  filename = "${local.cpd_workspace}/wkc_cr.yaml"
 }
 
 resource "null_resource" "install_wkc" {
@@ -24,8 +24,9 @@ oc apply -f ${self.triggers.cpd_workspace}/wkc_iis_scc.yaml  &&
 echo "Deploying catalogsources and operator subscriptions for watson knowledge catalog" &&
 bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc &&
 echo "Create wkc cr" &&
-bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} wkc ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
-
+oc create -f ${self.triggers.cpd_workspace}/wkc_cr.yaml &&
+echo 'check the WKC Core cr status' &&
+bash cpd/scripts/check-cr-status.sh wkc wkc-cr ${var.cpd_namespace} wkcStatus
 EOF
   }
   depends_on = [
