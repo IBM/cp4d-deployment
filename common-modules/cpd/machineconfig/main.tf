@@ -2,23 +2,9 @@ locals {
   cpd_workspace      = "${var.installer_workspace}/cpd"
 }
 
-resource "local_file" "sysctl_worker_yaml" {
-  content  = data.template_file.sysctl_worker.rendered
-  filename = "${local.cpd_workspace}/sysctl_worker.yaml"
-}
-resource "local_file" "sysctl_machineconfig_yaml" {
-  content  = data.template_file.sysctl_machineconfig.rendered
-  filename = "${var.installer_workspace}/sysctl_machineconfig.yaml"
-}
-
-resource "local_file" "limits_machineconfig_yaml" {
-  content  = data.template_file.limits_machineconfig.rendered
-  filename = "${var.installer_workspace}/limits_machineconfig.yaml"
-}
-
-resource "local_file" "crio_machineconfig_yaml" {
-  content  = data.template_file.crio_machineconfig.rendered
-  filename = "${var.installer_workspace}/crio_machineconfig.yaml"
+resource "local_file" "crio_ctrcfg_yaml" {
+  content  = data.template_file.crio_ctrcfg.rendered
+  filename = "${var.installer_workspace}/crio_ctrcfg.yaml"
 }
 
 resource "null_resource" "login_cluster" {
@@ -35,10 +21,7 @@ ${self.triggers.login_string} || oc login ${self.triggers.openshift_api} -u '${s
 EOF
   }
   depends_on = [
-    local_file.sysctl_worker_yaml,
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
+    local_file.crio_ctrcfg_yaml,
   ]
 }
 
@@ -46,15 +29,12 @@ resource "null_resource" "patch_config_self" {
   count = var.cluster_type == "selfmanaged" && var.configure_openshift_nodes ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
-echo "Patch configuration self"
-oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
+#echo "Patch configuration self"
+#oc patch machineconfigpool.machineconfiguration.openshift.io/worker --type merge -p '{"metadata":{"labels":{"db2u-kubelet": "sysctl"}}}'
 EOF
   }
   depends_on = [
-    local_file.sysctl_worker_yaml,
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
+    local_file.crio_ctrcfg_yaml,
     null_resource.login_cluster,
   ]
 }
@@ -64,16 +44,13 @@ resource "null_resource" "patch_config_managed" {
   provisioner "local-exec" {
     command = <<EOF
 echo "Patch configuration self"
-oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
-oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
-oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl --overwrite
+#oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+#oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+#oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl --overwrite
 EOF
   }
   depends_on = [
-    local_file.sysctl_worker_yaml,
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
+    local_file.crio_ctrcfg_yaml,
     null_resource.login_cluster,
   ]
 }
@@ -91,10 +68,7 @@ sleep 300
 EOF
   }
   depends_on = [
-    local_file.sysctl_worker_yaml,
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
+    local_file.crio_ctrcfg_yaml,
     null_resource.login_cluster,
     null_resource.patch_config_self,
     null_resource.patch_config_managed,
@@ -109,23 +83,15 @@ resource "null_resource" "configure_cluster" {
   }
   provisioner "local-exec" {
     command = <<EOF
-echo "Sysctl changes"
-oc apply -f ${self.triggers.cpd_workspace}/sysctl_worker.yaml
-
-echo "Creating MachineConfig files"
-oc create -f ${self.triggers.installer_workspace}/sysctl_machineconfig.yaml
-oc create -f ${self.triggers.installer_workspace}/limits_machineconfig.yaml
-oc create -f ${self.triggers.installer_workspace}/crio_machineconfig.yaml
+echo "Apply crio pid_limit value 12288"
+oc create -f ${self.triggers.installer_workspace}/crio_ctrcfg.yaml
 
 echo 'Sleeping for 1 min while MachineConfigs apply and the nodes restarts' 
 sleep 60
 EOF
   }
   depends_on = [
-    local_file.sysctl_worker_yaml,
-    local_file.sysctl_machineconfig_yaml,
-    local_file.limits_machineconfig_yaml,
-    local_file.crio_machineconfig_yaml,
+    local_file.crio_ctrcfg_yaml,
     null_resource.login_cluster,
     null_resource.patch_config_self,
     null_resource.patch_config_managed,
