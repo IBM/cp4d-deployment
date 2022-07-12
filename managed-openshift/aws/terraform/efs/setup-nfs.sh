@@ -45,7 +45,7 @@ echo $FILESYSTEM_DNS_NAME
 
 # echo "Setting up NFS-Subdir-Provisioner"
 echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
-NAMESPACE=`oc project -q`
+NAMESPACE=default
 oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:$NAMESPACE:nfs-client-provisioner
 
 # Create RBAC
