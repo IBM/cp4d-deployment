@@ -44,7 +44,7 @@ efs                   = { "enable" : "true" }  #Install efs storage
 #portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
 #portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package
 
-storage_option = "efs" # ocs ,portworx,nfs,efs,efs-ebs
+storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs
 ##################################################################### DEFAULTS ##################################################################
 
 #key_name                      = "openshift-key"
