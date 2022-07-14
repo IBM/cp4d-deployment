@@ -346,13 +346,24 @@
 			"metadata": {
 				"description": "principalId for the roleAssignments"
 			}
+		},
+		"enableFips": {
+			"type": "string",
+			"defaultValue": "Disabled",
+			"allowedValues": [
+				"Disabled",
+				"Enabled"
+			],
+			"metadata": {
+				"description" : "enableFips is Disabled by default."
+			}
 		}
 	},
 	"variables": {
 		"networkResourceGroup": "[parameters('existingVnetResourceGroupName')]",
 		"redHatTags": {
 			"app": "OpenshiftContainerPlatform",
-			"version": "4.8.x",
+			"version": "4.10.x",
 			"platform": "AzurePublic"
 		},
 		"imageReference": {
@@ -411,8 +422,8 @@
 		"nfsInstallScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/setup-nfs.sh', parameters('_artifactsLocationSasToken')))]",
 		"nfsInstallScriptFileName": "setup-nfs.sh",
 		"nfsSecurityGroupName": "nfs-nsg",
-		"openshiftConsoleURL": "[uri(concat('https://console-openshift-console.apps.', [if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))]),'/')]",
-		"cloudPakForDataURL": "[uri(concat('https://cpd-', parameters('projectName'), '.apps.', [if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))]),'/')]"
+		"openshiftConsoleURL": "[uri(concat('https://console-openshift-console.apps.', if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))),'/')]",
+		"cloudPakForDataURL": "[uri(concat('https://cpd-', parameters('projectName'), '.apps.', if(variables('customDomain'), concat(parameters('clusterName'), '.', variables('domain')), concat(variables('domain'), '.', parameters('location'), '.aroapp.io'))),'/')]"
 	},
 	"resources": [
 		{
@@ -808,7 +819,7 @@
 		{
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2022-01-01-preview",
-            "name": "[concat(parameters('virtualNetworkName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name, variables('rpObjectId')))]",
+            "name": "[guid(resourceGroup().id)]",
             "properties": {
                 "roleDefinitionId": "[variables('contribRole')]",
                 "principalId": "[parameters('principalId')]"
@@ -826,11 +837,12 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
 				"[resourceId('Microsoft.Resources/deployments', 'BastionVmDeployment')]",
-				"[resourceId('Microsoft.Network/virtualNetworks/providers/roleAssignments', parameters('virtualNetworkName'), 'Microsoft.Authorization', guid(resourceGroup().id, deployment().name, variables('rpObjectId')))]"
+				"[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id))]"
 			],
             "properties": {
                 "clusterProfile": {
                     "domain": "[variables('domain')]",
+					"fipsValidatedModules": "[parameters('enableFips')]",
                     "resourceGroupId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/aro-', variables('domain'))]",
                     "pullSecret": "[parameters('pullSecret')]"
                 },
@@ -844,7 +856,8 @@
                 },
                 "masterProfile": {
                     "vmSize": "[parameters('masterVmSize')]",
-                    "subnetId": "[resourceId(parameters('existingVnetResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('masterSubnetName'))]"
+                    "subnetId": "[resourceId(parameters('existingVnetResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('masterSubnetName'))]",
+					"encryptionAtHost": "[parameters('enableFips')]"
                 },
                 "workerProfiles": [
                     {
@@ -852,7 +865,8 @@
                         "vmSize": "[parameters('workerVmSize')]",
                         "diskSizeGB": "[parameters('workerVmDiskSize')]",
                         "subnetId": "[resourceId(parameters('existingVnetResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('workerSubnetName'))]",
-                        "count": "[add(parameters('workerInstanceCount'), 3)]"
+                        "count": "[add(parameters('workerInstanceCount'), 3)]",
+						"encryptionAtHost": "[parameters('enableFips')]"
                     }
                 ],
                 "apiserverProfile": {
@@ -1078,12 +1092,6 @@
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
 					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
-					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
 					},
@@ -1091,7 +1099,7 @@
 						"value": "v2.0"
 					},
 					"version": {
-						"value": "4.0.5"
+						"value": "4.5.0"
 					}
 				}
 			}
@@ -1149,12 +1157,6 @@
 					},
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
-					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1222,12 +1224,6 @@
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
 					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
-					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
 					},
@@ -1293,12 +1289,6 @@
 					},
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
-					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1366,12 +1356,6 @@
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
 					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
-					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
 					},
@@ -1437,12 +1421,6 @@
 					},
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
-					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1511,12 +1489,6 @@
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
 					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
-					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
 					},
@@ -1582,12 +1554,6 @@
 					},
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
-					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
@@ -1655,12 +1621,6 @@
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
 					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
-					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"
 					},
@@ -1726,12 +1686,6 @@
 					},
 					"apiKey": {
 						"value": "[parameters('apiKey')]"
-					},
-					"ocuser": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminUsername]"
-					},
-					"ocpassword": {
-						"value": "[listCredentials(resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName')), '2022-04-01').kubeadminPassword]"
 					},
 					"customDomain": {
 						"value": "[variables('customDomain')]"

@@ -33,6 +33,13 @@ runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
 # runuser -l $SUDOUSER -c "chmod +x /usr/bin/cloudctl-linux-amd64"
 # runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
+## Download & Install CPD CLI
+
+runuser -l $SUDOUSER -c "wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
+runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
+# Move cpd-cli, plugins and license in the CPDTEMPLATES folder
+runuser -l $SUDOUSER -c "mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
+
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
 
@@ -60,6 +67,9 @@ var=$?
 echo "exit code: $var"
 done
 
+# CPD CLI OCP Login
+runuser -l $SUDOUSER -c "$CPDTEMPLATES/cpd-cli manage login-to-ocp --server \"https://api.${SUBURL}:6443\" -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD"
+
 # Update global pull secret 
 
 export ENTITLEMENT_USER=cp
@@ -83,151 +93,6 @@ while true; do
         sleep 60
     done
 
-# CPD Bedrock and Platform operator install: 
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-operator-catalogsource.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: \"IBM Operator Catalog\" 
-  publisher: IBM
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-operator-catalog:latest
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF"
-
-# DB2u subscription and operator creation 
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2u-cs.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-db2uoperator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: IBM Db2U Catalog
-  image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
-  imagePullPolicy: Always
-  publisher: IBM
-  sourceType: grpc
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF"
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-operator-og.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha2
-kind: OperatorGroup
-metadata:
-  name: operatorgroup
-  namespace: ibm-common-services
-spec:
-  targetNamespaces:
-  - ibm-common-services
-EOF"
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/cpd-platform-operator-sub.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: cpd-operator
-  namespace: ibm-common-services    # The project that contains the Cloud Pak for Data operator
-spec:
-  channel: $CHANNEL
-  installPlanApproval: Automatic
-  name: cpd-platform-operator
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF"
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/cpd-platform-operator-operandrequest.yaml <<EOF
-apiVersion: operator.ibm.com/v1alpha1
-kind: OperandRequest
-metadata:
-  name: empty-request
-  namespace: $CPDNAMESPACE        # Replace with the project where you will install Cloud Pak for Data
-spec:
-  requests: []
-EOF"
-
-
-# Run catalog source 
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-catalogsource.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
-runuser -l $SUDOUSER -c "sleep 1m"
-
-# Check ibm-operator-catalog pod status
-
-podname="ibm-operator-catalog"
-name_space="openshift-marketplace"
-status="unknown"
-while [ "$status" != "Running" ]
-do
-  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
-  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
-  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
-  echo $pod_name State - $ready_status, podstatus - $pod_status
-  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
-  then 
-  status="Running"
-  else
-  status="starting"
-  sleep 10 
-  fi
-  echo "$pod_name is $status"
-done
-
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-og.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
-runuser -l $SUDOUSER -c "sleep 1m"
-
-## Creating db2u CS 
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-cs.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
-runuser -l $SUDOUSER -c "sleep 1m"
-
-
-# Creating CPD Platform operator subscription: 
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/cpd-platform-operator-sub.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
-runuser -l $SUDOUSER -c "sleep 2m"
-
-# Check cpd-platform-operator-manager pod status
-
-podname="cpd-platform-operator-manager"
-name_space=$OPERATORNAMESPACE
-status="unknown"
-while [ "$status" != "Running" ]
-do
-  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}')
-  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
-  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
-  echo $pod_name State - $ready_status, podstatus - $pod_status
-  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
-  then 
-  status="Running"
-  else
-  status="starting"
-  sleep 10 
-  fi
-  echo "$pod_name is $status"
-done
-
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/cpd-platform-operator-operandrequest.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
-runuser -l $SUDOUSER -c "sleep 2m"
-
-# Install Lite-cr 
-
 # Setup the storage class value
 
 if [[ $STORAGEOPTION == "nfs" ]];then 
@@ -238,68 +103,232 @@ elif [[ $STORAGEOPTION == "ocs" ]];then
     export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
 fi
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibmcpd-cr.yaml <<EOF
-apiVersion: cpd.ibm.com/v1
-kind: Ibmcpd
-metadata:
-  name: ibmcpd-cr                                         # This is the recommended name, but you can change it
-  namespace: $CPDNAMESPACE                            # Replace with the project where you will install Cloud Pak for Data
-spec:
-  license:
-    accept: true
-    license: Enterprise                                   # Specify the Cloud Pak for Data license you purchased
-  storageClass: \"$STORAGECLASS_VALUE\"                    # Replace with the name of a RWX storage class
-  zenCoreMetadbStorageClass: \"$STORAGECLASS_RWO_VALUE\"       # (Recommended) Replace with the name of a RWO storage class
-  version: \"$VERSION\"
-EOF"
+echo "Deploy all catalog sources and operator subscriptions for cpfs,cpd_platform"
+runuser -l $SUDOUSER -c "bash scripts/apply-olm.sh ${CPDTEMPLATES} ${VERSION} cpfs,cpd_platform"
 
-runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibmcpd-cr.yaml"
-sleep 240 
+echo "Applying CR for cpfs,cpd_platform"
+runuser -l $SUDOUSER -c "bash cpd/scripts/apply-cr.sh ${CPDTEMPLATES} ${VERSION} cpfs,cpd_platform ${CPDNAMESPACE} ${STORAGEOPTION} ${STORAGECLASS_VALUE} ${STORAGECLASS_RWO_VALUE}"
 
-# Check operand-deployment-lifecycle-manager pod status
+echo "Enable CSV injector"
+runuser -l $SUDOUSER -c "oc patch namespacescope common-service --type='json' -p='[{\"op\":\"replace\", \"path\": \"/spec/csvInjector/enable\", \"value\":true}]' -n ${OPERATORNAMESPACE}"
 
-podname="operand-deployment-lifecycle-manager"
-name_space=$OPERATORNAMESPACE
-status="unknown"
-while [ "$status" != "Running" ]
-do
-  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
-  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
-  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
-  echo $pod_name State - $ready_status, podstatus - $pod_status
-  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
-  then 
-  status="Running"
-  else
-  status="starting"
-  sleep 10 
-  fi
-  echo "$pod_name is $status"
-done
+# CPD Bedrock and Platform operator install: 
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-operator-catalogsource.yaml <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: CatalogSource
+# metadata:
+#   name: ibm-operator-catalog
+#   namespace: openshift-marketplace
+# spec:
+#   displayName: \"IBM Operator Catalog\" 
+#   publisher: IBM
+#   sourceType: grpc
+#   image: icr.io/cpopen/ibm-operator-catalog:latest
+#   updateStrategy:
+#     registryPoll:
+#       interval: 45m
+# EOF"
+
+# DB2u subscription and operator creation 
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2u-cs.yaml <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: CatalogSource
+# metadata:
+#   name: ibm-db2uoperator-catalog
+#   namespace: openshift-marketplace
+# spec:
+#   displayName: IBM Db2U Catalog
+#   image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
+#   imagePullPolicy: Always
+#   publisher: IBM
+#   sourceType: grpc
+#   updateStrategy:
+#     registryPoll:
+#       interval: 45m
+# EOF"
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-operator-og.yaml <<EOF
+# apiVersion: operators.coreos.com/v1alpha2
+# kind: OperatorGroup
+# metadata:
+#   name: operatorgroup
+#   namespace: ibm-common-services
+# spec:
+#   targetNamespaces:
+#   - ibm-common-services
+# EOF"
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/cpd-platform-operator-sub.yaml <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: Subscription
+# metadata:
+#   name: cpd-operator
+#   namespace: ibm-common-services    # The project that contains the Cloud Pak for Data operator
+# spec:
+#   channel: $CHANNEL
+#   installPlanApproval: Automatic
+#   name: cpd-platform-operator
+#   source: ibm-operator-catalog
+#   sourceNamespace: openshift-marketplace
+# EOF"
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/cpd-platform-operator-operandrequest.yaml <<EOF
+# apiVersion: operator.ibm.com/v1alpha1
+# kind: OperandRequest
+# metadata:
+#   name: empty-request
+#   namespace: $CPDNAMESPACE        # Replace with the project where you will install Cloud Pak for Data
+# spec:
+#   requests: []
+# EOF"
 
 
-# Check CR Status
+# # Run catalog source 
 
-SERVICE="ibmcpd"
-CRNAME="ibmcpd-cr"
-SERVICE_STATUS="controlPlaneStatus"
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-catalogsource.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+# runuser -l $SUDOUSER -c "sleep 1m"
 
-STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
+# # Check ibm-operator-catalog pod status
 
-while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
-    echo "$CRNAME is Installing!!!!"
-    sleep 120 
-    STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
-    if [ "$STATUS" == "Failed" ]
-    then
-        echo "**********************************"
-        echo "$CRNAME Installation Failed!!!!"
-        echo "**********************************"
-        exit 1
-    fi
-done 
-echo "*************************************"
-echo "$CRNAME Installation Finished!!!!"
-echo "*************************************"
+# podname="ibm-operator-catalog"
+# name_space="openshift-marketplace"
+# status="unknown"
+# while [ "$status" != "Running" ]
+# do
+#   pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
+#   ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
+#   pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
+#   echo $pod_name State - $ready_status, podstatus - $pod_status
+#   if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+#   then 
+#   status="Running"
+#   else
+#   status="starting"
+#   sleep 10 
+#   fi
+#   echo "$pod_name is $status"
+# done
 
-echo "$(date) - ############### Script Complete #############"
+
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-operator-og.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+# runuser -l $SUDOUSER -c "sleep 1m"
+
+# ## Creating db2u CS 
+
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-cs.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+# runuser -l $SUDOUSER -c "sleep 1m"
+
+
+# # Creating CPD Platform operator subscription: 
+
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/cpd-platform-operator-sub.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+# runuser -l $SUDOUSER -c "sleep 2m"
+
+# # Check cpd-platform-operator-manager pod status
+
+# podname="cpd-platform-operator-manager"
+# name_space=$OPERATORNAMESPACE
+# status="unknown"
+# while [ "$status" != "Running" ]
+# do
+#   pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}')
+#   ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
+#   pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
+#   echo $pod_name State - $ready_status, podstatus - $pod_status
+#   if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+#   then 
+#   status="Running"
+#   else
+#   status="starting"
+#   sleep 10 
+#   fi
+#   echo "$pod_name is $status"
+# done
+
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/cpd-platform-operator-operandrequest.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+# runuser -l $SUDOUSER -c "sleep 2m"
+
+# Install Lite-cr 
+
+# Setup the storage class value
+
+# if [[ $STORAGEOPTION == "nfs" ]];then 
+#     export STORAGECLASS_VALUE="nfs"
+#     export STORAGECLASS_RWO_VALUE="nfs"
+# elif [[ $STORAGEOPTION == "ocs" ]];then 
+#     export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+#     export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
+# fi
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibmcpd-cr.yaml <<EOF
+# apiVersion: cpd.ibm.com/v1
+# kind: Ibmcpd
+# metadata:
+#   name: ibmcpd-cr                                         # This is the recommended name, but you can change it
+#   namespace: $CPDNAMESPACE                            # Replace with the project where you will install Cloud Pak for Data
+# spec:
+#   license:
+#     accept: true
+#     license: Enterprise                                   # Specify the Cloud Pak for Data license you purchased
+#   storageClass: \"$STORAGECLASS_VALUE\"                    # Replace with the name of a RWX storage class
+#   zenCoreMetadbStorageClass: \"$STORAGECLASS_RWO_VALUE\"       # (Recommended) Replace with the name of a RWO storage class
+#   version: \"$VERSION\"
+# EOF"
+
+# runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibmcpd-cr.yaml"
+# sleep 240 
+
+# # Check operand-deployment-lifecycle-manager pod status
+
+# podname="operand-deployment-lifecycle-manager"
+# name_space=$OPERATORNAMESPACE
+# status="unknown"
+# while [ "$status" != "Running" ]
+# do
+#   pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
+#   ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
+#   pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
+#   echo $pod_name State - $ready_status, podstatus - $pod_status
+#   if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+#   then 
+#   status="Running"
+#   else
+#   status="starting"
+#   sleep 10 
+#   fi
+#   echo "$pod_name is $status"
+# done
+
+
+# # Check CR Status
+
+# SERVICE="ibmcpd"
+# CRNAME="ibmcpd-cr"
+# SERVICE_STATUS="controlPlaneStatus"
+
+# STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
+
+# while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
+#     echo "$CRNAME is Installing!!!!"
+#     sleep 120 
+#     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
+#     if [ "$STATUS" == "Failed" ]
+#     then
+#         echo "**********************************"
+#         echo "$CRNAME Installation Failed!!!!"
+#         echo "**********************************"
+#         exit 1
+#     fi
+# done 
+# echo "*************************************"
+# echo "$CRNAME Installation Finished!!!!"
+# echo "*************************************"
+
+# echo "$(date) - ############### Script Complete #############"

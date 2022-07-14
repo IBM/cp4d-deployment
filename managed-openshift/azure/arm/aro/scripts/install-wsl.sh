@@ -34,6 +34,9 @@ var=$?
 echo "exit code: $var"
 done
 
+echo "Deploying catalogsources and operator subscriptions for  watson studio"
+
+
 # WOS subscription and CR creation 
 
 runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wsl-sub.yaml <<EOF

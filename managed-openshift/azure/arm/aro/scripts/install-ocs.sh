@@ -41,40 +41,44 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-ceph-tools
-        image: rook/ceph:master
+        image: rook/ceph:v1.1.9
         command: [\"/tini\"]
         args: [\"-g\", \"--\", \"/usr/local/bin/toolbox.sh\"]
         imagePullPolicy: IfNotPresent
         env:
-          - name: ROOK_CEPH_USERNAME
+          - name: ROOK_ADMIN_SECRET
             valueFrom:
               secretKeyRef:
                 name: rook-ceph-mon
-                key: ceph-username
-          - name: ROOK_CEPH_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: rook-ceph-mon
-                key: ceph-secret
+                key: admin-secret
+        securityContext:
+          privileged: true
         volumeMounts:
-          - mountPath: /etc/ceph
-            name: ceph-config
+          - mountPath: /dev
+            name: dev
+          - mountPath: /sys/bus
+            name: sysbus
+          - mountPath: /lib/modules
+            name: libmodules
           - name: mon-endpoint-volume
             mountPath: /etc/rook
+      hostNetwork: true
       volumes:
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: sysbus
+          hostPath:
+            path: /sys/bus
+        - name: libmodules
+          hostPath:
+            path: /lib/modules
         - name: mon-endpoint-volume
           configMap:
             name: rook-ceph-mon-endpoints
             items:
             - key: data
               path: mon-endpoints
-        - name: ceph-config
-          emptyDir: {}
-      tolerations:
-        - key: \"node.kubernetes.io/unreachable\"
-          operator: \"Exists\"
-          effect: \"NoExecute\"
-          tolerationSeconds: 5
 EOF"
 
 runuser -l $SUDOUSER -c "cat > $OCSTEMPLATES/ocs-olm.yaml <<EOF
@@ -104,7 +108,7 @@ metadata:
   labels:
     operators.coreos.com/ocs-operator.openshift-storage: ''
 spec:
-  channel: stable-4.8
+  channel: stable-4.10
   installPlanApproval: Automatic
   name: ocs-operator
   source: redhat-operators
@@ -115,9 +119,6 @@ runuser -l $SUDOUSER -c "cat > $OCSTEMPLATES/ocs-storagecluster.yaml <<EOF
 apiVersion: ocs.openshift.io/v1
 kind: StorageCluster
 metadata:
-  annotations:
-    uninstall.ocs.openshift.io/cleanup-policy: delete
-    uninstall.ocs.openshift.io/mode: graceful
   name: ocs-storagecluster
   namespace: openshift-storage
   finalizers:
@@ -151,7 +152,7 @@ spec:
       portable: true
       replica: 3
       resources: {}
-  version: 4.8.0
+  version: 4.10.0
 EOF"
 
 runuser -l $SUDOUSER -c "cat > $OCSTEMPLATES/ocs-machineset-multizone.yaml <<EOF
