@@ -38,13 +38,21 @@ data_management_console   =  "no"
 ######################################
 # Storage Options: Enable only one   #
 ######################################
+<<<<<<< HEAD
 efs                   = { "enable" : "true" }  #Install efs storage 
+=======
+efs                   = { "enable" : "true" }  #Install efs storage
+>>>>>>> 82a88f2494f80b84bd3998ebe55cfaa7fa0449ba
 #ocs                 = { enable: true, ami_id: "", dedicated_node_instance_type: "m5.4xlarge"} #Install ocs storage
 #portworx_enterprise = { enable: false, cluster_id: "", enable_encryption: true }
 #portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
 #portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package
 
+<<<<<<< HEAD
 storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs ,This storage option is for cpd services to use
+=======
+storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs
+>>>>>>> 82a88f2494f80b84bd3998ebe55cfaa7fa0449ba
 ##################################################################### DEFAULTS ##################################################################
 
 #key_name                      = "openshift-key"
