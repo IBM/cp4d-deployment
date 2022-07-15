@@ -15,22 +15,6 @@ echo "CLUSTER_NAME=$CLUSTER_NAME"
 #CLUSTER_WORKER_SECURITY_GROUPID=$(aws ec2 describe-security-groups | jq -r '.SecurityGroups[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-.*-worker-sg"))))) | .GroupId')
 echo "CLUSTER_WORKER_SECURITY_GROUPID=$CLUSTER_WORKER_SECURITY_GROUPID"
 
-# echo "Add NFS inbound rule to Workers security group"
-
-# OUTPUT=$(\
-# aws ec2 authorize-security-group-ingress \
-# --group-id $CLUSTER_WORKER_SECURITY_GROUPID \
-# --protocol tcp \
-# --port 2049   \
-# --cidr $CLUSTER_VPC_CIDR \
-# 2>&1 || true
-# )
-# if [[ "$OUTPUT" == *"already exists"* ]]; then
-#     echo "rule already exists"
-# else
-#     echo "Security group ingress rule created successfully"
-#     echo $OUTPUT
-# fi
 
 echo "Setting up NFS-Subdir-Provisioner"
 
