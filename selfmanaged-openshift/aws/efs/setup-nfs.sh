@@ -7,11 +7,12 @@ FILESYSTEM_ID=$4
 CLUSTER_VPCID=$5
 CLUSTER_VPC_CIDR=$6
 AWS_REGION=$7
+CLUSTER_WORKER_SECURITY_GROUPID=$8
 
 CLUSTER_NAME=$(echo "$CLUSTER_URL" | sed -e 's|https://api\.\([^\.]*\).*|\1|')
 echo "CLUSTER_NAME=$CLUSTER_NAME"
 
-CLUSTER_WORKER_SECURITY_GROUPID=$(aws ec2 describe-security-groups | jq -r '.SecurityGroups[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-.*-worker-sg"))))) | .GroupId')
+#CLUSTER_WORKER_SECURITY_GROUPID=$(aws ec2 describe-security-groups | jq -r '.SecurityGroups[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-.*-worker-sg"))))) | .GroupId')
 echo "CLUSTER_WORKER_SECURITY_GROUPID=$CLUSTER_WORKER_SECURITY_GROUPID"
 
 echo "Add NFS inbound rule to Workers security group"
