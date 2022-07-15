@@ -60,6 +60,16 @@ resource "aws_efs_mount_target" "cpd-efs-mt" {
     aws_efs_file_system.cpd_efs,
   ]
  }
+ 
+ resource "aws_security_group_rule" "efs_sg-rule" {
+  type              = "ingress"
+  from_port         = 2049
+  to_port           = 2049
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr]
+  # ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
+  security_group_id = data.aws_security_group.aws_worker_sg.id
+}
 /*
 resource "aws_security_group" "efs_sg" {
    name = "efs_sg"
@@ -145,7 +155,7 @@ resource "null_resource" "nfs_subdir_provisioner_setup" {
   }
   provisioner "local-exec" {
     command = <<EOF
-    bash efs/setup-nfs.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}' '${self.triggers.file_system_id}' '${var.vpc_id}' '${var.vpc_cidr}' '${var.region}'
+    bash efs/setup-nfs.sh ${self.triggers.openshift_api} '${self.triggers.openshift_username}' '${self.triggers.openshift_password}' '${self.triggers.file_system_id}' '${var.vpc_id}' '${var.vpc_cidr}' '${var.region}' '${data.aws_security_group.aws_worker_sg.id}'
 EOF
   }
   depends_on = [
