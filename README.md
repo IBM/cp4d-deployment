@@ -26,3 +26,16 @@ This repository contains automated scripts/deployment steps to get you started o
 	- [AWS](./ibmcloud-satellite/aws)
 
 	- [On-Premises](./ibmcloud-satellite/on-premises)
+
+## Note regarding usage of the scripts
+
+1.  Installation
+
+The automated scripts provided here are intended to get you started quickly in case of a fresh installation of the latest version of Cloud Pak for Data in an Express manner.  If you need to perform a customized installation please follow the steps at [Installing IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=installing).
+
+2.  Upgrade
+
+These scripts do not support upgrade of Cloud Pak for Data installations. Please see  [Updating OpenShift Container Platform](https://docs.openshift.com/container-platform/4.10/updating/index.html) for upgrading RedHat Openshift Container Platform and [Upgrading Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=upgrading) for upgrading IBM Cloud Pak for Data installation.
+
+
+

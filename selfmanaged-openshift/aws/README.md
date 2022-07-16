@@ -1,5 +1,5 @@
 
-# Cloud Pak for Data 4.0 on AWS
+# Cloud Pak for Data 4.5 on AWS
 
 ## Deployment Topology:
 
@@ -29,7 +29,8 @@ The deployment sets up the following as shown in the diagram.
   * python3
   * AWS CLI
   * jq
-  * Openshift CLI with version 4.8.11
+  * Openshift CLI
+  * podman
  
 * Alternatively run the below scripts to install all prerequisites:
   * For RHEL:
@@ -74,11 +75,11 @@ terraform apply | tee terraform.log
 
 OR 
 
-if you are using the `wkc-1az-ocs-new-vpc.tfvars` file
+if you are using the `cpd-1az-new-vpc.tfvars` file
 
 ```bash
 terraform init
-terraform apply -var-file=wkc-1az-ocs-new-vpc.tfvars | tee terraform.log
+terraform apply -var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 #### cp4d installation logs:
@@ -106,7 +107,4 @@ After openshift cluster installation is finished and cloud pak for data installa
 
 
 ### Changelog
-* Install CPD 4.0.4
-* Added service parameters
-* Removed the bastion node
-* Dropped support for EFS.
+* Updating the installation to CPD 4.5 and adding support for EFS and EBS storage.
