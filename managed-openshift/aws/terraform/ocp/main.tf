@@ -2,7 +2,7 @@ locals {
   classic_lb_timeout = 600
   
   installer_workspace = "${path.root}/installer-files"
-  rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.1.8"
+  rosa_installer_url  = "https://github.com/openshift/rosa/releases/download/v1.2.2"
   subnet_ids          = join(",", var.subnet_ids)
   private_link        = var.private_cluster ? "--private-link" : ""
 }
@@ -79,8 +79,8 @@ resource "null_resource" "create_rosa_user" {
     when    = create
     command = <<EOF
 ${self.triggers.installer_workspace}/rosa create admin --cluster='${var.cluster_name}' > ${self.triggers.installer_workspace}/.creds
-echo "Sleeping for 4mins"
-sleep 240
+echo "Sleeping for 5mins"
+sleep 300
 EOF
   }
   depends_on = [
@@ -100,7 +100,9 @@ locals {
 resource "null_resource" "configure_image_registry" {
   provisioner "local-exec" {
     command =<<EOF
-${local.login_cmd} --insecure-skip-tls-verify
+#${local.login_cmd} --insecure-skip-tls-verify
+#To check cluster-admin login succeeds
+bash ocp/scripts/oc_login.sh "${local.login_cmd}"
 bash ocp/scripts/nodes_running.sh
 oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{"spec":{"defaultRoute":true,"replicas":3}}' -n openshift-image-registry
 oc patch svc/image-registry -p '{"spec":{"sessionAffinity": "ClientIP"}}' -n openshift-image-registry
@@ -122,9 +124,9 @@ resource "null_resource" "configure_cluster_rosa" {
   provisioner "local-exec" {
     command =<<EOF
 echo "Patch configuration managed"
-oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
-oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
-oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
+#oc patch kubeletconfig custom-kubelet --type='json' -p='[{"op": "remove", "path": "/spec/machineConfigPoolSelector/matchLabels"}]'
+#oc patch kubeletconfig custom-kubelet --type merge -p '{"spec":{"machineConfigPoolSelector":{"matchLabels":{"pools.operator.machineconfiguration.openshift.io/master":""}}}}'
+#oc label machineconfigpool.machineconfiguration.openshift.io worker db2u-kubelet=sysctl
 bash ocp/scripts/nodes_running.sh
 EOF
   }

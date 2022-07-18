@@ -4,7 +4,7 @@ variable "rosa_token" {
 
 variable "openshift_version" {
   type = string
-  default = "4.7.12"
+  default = "4.10.15"
 }
 
 variable "worker_machine_type" {

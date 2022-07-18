@@ -15,7 +15,8 @@
   * python3
   * AWS CLI
   * jq
-  * Openshift CLI with version 4.8.11
+  * podman
+  * Openshift CLI
  
 * Alternatively run the below scripts to install all prerequisites:
   * For RHEL:
@@ -60,11 +61,11 @@ terraform apply | tee terraform.log
 
 OR 
 
-if you are using the `wkc-1az-ocs-new-vpc.tfvars` file
+if you are using the `cpd-1az-new-vpc.tfvars` file
 
 ```bash
 terraform init
-terraform apply -var-file=wkc-1az-ocs-new-vpc.tfvars | tee terraform.log
+terraform apply -var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 ### Destroying the cluster:
@@ -87,9 +88,9 @@ terraform apply -var-file=wkc-1az-ocs-new-vpc.tfvars | tee terraform.log
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
 * Click Settings → Developer settings → OAuth Apps → Register a new OAuth application.
 * Enter an application name.
-* Enter Homepage URL e.g `https://oauth-openshift.apps.femi-rosa.z2ri.p1.openshiftapps.com`
+* Enter Homepage URL e.g `https://oauth-openshift.apps.cpd-rosa.z2ri.p1.openshiftapps.com`
 * Optional: Enter an application description.
-* Enter the authorization callback URL, where the end of the URL contains the identity provider name e.g `https://oauth-openshift.apps.femi-rosa.z2ri.p1.openshiftapps.com/oauth2callback/github/`
+* Enter the authorization callback URL, where the end of the URL contains the identity provider name e.g `https://oauth-openshift.apps.cpd-rosa.z2ri.p1.openshiftapps.com/oauth2callback/github/`
 * Click Register application. GitHub provides a Client ID and a Client Secret. You need these values to complete the identity provider configuration.
 * In your terminal, run `rosa describe cluster --cluster <cluster_name> | grep Details` to view the admin page of the cluster. Follow the link to the cluster and create OAuth using these generated information.
   * For the Hostname field enter the Enterprise hostname, e.g. github.ibm.com
@@ -116,8 +117,11 @@ $ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autos
 ```
 
 ### Pricing Information for ROSA
+
+The following is a sample pricing for ROSA. Please check [here](https://aws.amazon.com/rosa/pricing/) for updated ROSA pricing information. 
+
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
-1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
+2. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
     * This can be reduced by committing to a year in advance, $0.114 per 4vCPU/hour for a 1-year commit (~$998/node/year)
 
 Note: Pricing for ROSA is in addition to the costs of Amazon EC2 & AWS services used.
@@ -126,7 +130,7 @@ E.g. If you have 10 m5.xlarge worker node cluster running on-demand for a year,
 Cost would be,
 
   1. $0.03/cluster/hour X 1 cluster X 24 hours/day X 365 days/year = $263
-  1. $0.171/node/hour X 10 worker nodes X 24 hours/day X 365 days/year = $14,990
+  2. $0.171/node/hour X 10 worker nodes X 24 hours/day X 365 days/year = $14,990
   Total is approximately $15,253
 
 Note: Above pricing does not include infrastructure expenses. For more information [here](https://aws.amazon.com/rosa/pricing/)

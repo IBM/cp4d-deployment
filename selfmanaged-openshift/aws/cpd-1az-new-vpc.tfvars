@@ -5,7 +5,7 @@ access_key_id                   = "<required>"
 secret_access_key               = "<required>"
 base_domain                     = "<required>"
 
-cluster_name                    = "wkc-1az-ocs-new-vpc"
+cluster_name                    = "cpd-1az-new-vpc"
 worker_replica_count            = 3  # set worker_replica_count depending on the cpd services being installed
 openshift_pull_secret_file_path = "<required>"
 public_ssh_key                  = "<required>"
@@ -14,25 +14,37 @@ openshift_password              = "<required>"
 accept_cpd_license              = "accept"
 cpd_api_key                     = "<required>"
 
-watson_knowledge_catalog  = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
-data_virtualization       = { "enable" : "no", "version" : "1.7.5", "channel" : "v1.7" }
-analytics_engine          = { "enable" : "no", "version" : "4.0.5", "channel" : "stable-v1" }
-watson_studio             = { "enable" : "no", "version" : "4.0.5", "channel" : "v2.0" }
-watson_machine_learning   = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.1" }
-watson_ai_openscale       = { "enable" : "no", "version" : "4.0.5", "channel" : "v1" }
-spss_modeler              = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
-cognos_dashboard_embedded = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
-datastage                 = { "enable" : "no", "version" : "4.0.5", "channel" : "v1.0" }
-db2_warehouse             = { "enable" : "no", "version" : "4.0.7", "channel" : "v1.0" }
-db2_oltp                  = { "enable" : "no", "version" : "4.0.7", "channel" : "v1.0" }
-cognos_analytics          = { "enable" : "no", "version" : "4.0.5", "channel" : "v4.0" }
-master_data_management    = { "enable" : "no", "version" : "1.1.175", "channel" : "v1.1" }
-decision_optimization     = { "enable" : "no", "version" : "4.0.5", "channel" : "v4.0" }
-planning_analytics        = { "enable" : "no", "version" : "4.0.5", "channel" : "v4.0" }
-bigsql                    = { "enable" : "no", "version" : "7.2.5", "channel" : "v7.2" }
+watson_knowledge_catalog  =  "no"
+data_virtualization       =  "no"
+analytics_engine          =  "no"
+watson_studio             =  "no"
+watson_machine_learning   =  "no"
+watson_ai_openscale       =  "no"
+spss_modeler              =  "no"
+cognos_dashboard_embedded =  "no"
+datastage                 =  "no"
+db2_warehouse             =  "no"
+db2_oltp                  =  "no"
+cognos_analytics          =  "no"
+master_data_management    =  "no"
+decision_optimization     =  "no"
+bigsql                    =  "no"
+planning_analytics        =  "no"
+watson_assistant          =  "no"
+watson_discovery          =  "no"
+openpages                 =  "no"
+data_management_console   =  "no"
 
+######################################
+# Storage Options: Enable only one   #
+######################################
+efs                  = { "enable" : "true" }  #Install efs storage
+#ocs                 = { enable: true, ami_id: "", dedicated_node_instance_type: "m5.4xlarge"} #Install ocs storage
+#portworx_enterprise = { enable: false, cluster_id: "", enable_encryption: true }
+#portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
+#portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package
 
-
+storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs ,This storage option is for cpd services to use
 ##################################################################### DEFAULTS ##################################################################
 
 #key_name                      = "openshift-key"
@@ -93,17 +105,7 @@ bigsql                    = { "enable" : "no", "version" : "7.2.5", "channel" : 
 #enable_fips                   = true
 #enable_autoscaler             = false
 
-######################################
-# Storage Options: Enable only one   #
-######################################
-#ocs                 = { enable: true, ami_id: "", dedicated_node_instance_type: "m5.4xlarge"}
-#portworx_enterprise = { enable: false, cluster_id: "", enable_encryption: true }
-#portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
-#portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package 
-
-#cpd_platform           = {"enable":"yes",  "version":"4.0.4", "channel":"v2.0"}
 #cpd_external_registry   = "cp.icr.io"
 #cpd_external_username   = "cp"
 #cpd_namespace           = "zen"
-#openshift_version       = "4.8.11"
-#cloudctl_version        = "v3.7.1"
+#openshift_version       = "4.10.15"

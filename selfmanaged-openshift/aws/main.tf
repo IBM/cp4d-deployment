@@ -188,6 +188,28 @@ module "ocs" {
   ]
 }
 
+module "efs" {
+  count                 = var.efs.enable ? 1 : 0
+  source                = "./efs"
+  installer_workspace   = local.installer_workspace
+  cluster_name          = var.cluster_name
+  openshift_api         = local.openshift_api
+  openshift_username    = local.openshift_username
+  openshift_password    = local.openshift_password
+  openshift_token       = var.existing_openshift_token
+  region                = var.region
+  az                    = var.az
+  vpc_id                = local.vpc_id
+  aws_access_key_id     = var.access_key_id
+  aws_secret_access_key = var.secret_access_key
+  subnet_ids            = var.az == "multi_zone" ? [local.worker_subnet1_id , local.worker_subnet2_id , local.worker_subnet3_id ] : [local.worker_subnet1_id]
+  depends_on = [
+    module.ocp,
+    module.network,
+    null_resource.aws_configuration,
+  ]
+}
+
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
@@ -201,8 +223,8 @@ module "cpd" {
   cpd_external_username     = var.cpd_external_username
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
-  cloudctl_version          = var.cloudctl_version
-  storage_option            = var.ocs.enable ? "ocs" : "portworx"
+#  storage_option            = var.ocs.enable ? "ocs" : "portworx"
+  storage_option	          = var.storage_option
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
@@ -233,6 +255,7 @@ module "cpd" {
     module.network,
     module.portworx,
     module.ocs,
+    module.efs,
     null_resource.aws_configuration,
   ]
 }
