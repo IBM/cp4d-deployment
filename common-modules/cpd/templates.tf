@@ -283,7 +283,6 @@ metadata:
   namespace: ${var.cpd_namespace}
 spec:
   storageClass: ${local.storage_class}
-  version: ${var.db2_aaservice.version}
   license:
     accept: true
     license: "Enterprise"
