@@ -546,144 +546,77 @@ Once the secret is created, you can use a daemonset to update your worker nodes.
 NOTE: Below is an example of a daemonset yaml that can accomplish updating the global pull secret on each of your worker nodes.
 
 ```
-
+cat <<EOF |oc apply -f -
 apiVersion: apps/v1
-
 kind: DaemonSet
-
 metadata:
-
-name: update-docker-config
-
-labels:
-
-app: update-docker-config
-
+   name: update-docker-config
+   labels:
+     app: update-docker-config
 spec:
-
-selector:
-
-matchLabels:
-
-name: update-docker-config
-
-template:
-
-metadata:
-
-labels:
-
-name: update-docker-config
-
-spec:
-
-initContainers:
-
-- command: ["/bin/sh", "-c"]
-
-args:
-
-- >
-
-echo "Backing up or restoring config.json";
-
-[[ -s /docker-config/config.json ]] && cp /docker-config/config.json /docker-config/config.json.bak || cp /docker-config/config.json.bak /docker-config/config.json;
-
-echo "Merging secret with config.json";
-
-/host/usr/bin/jq -s '.[0] * .[1]' /docker-config/config.json /auth/.dockerconfigjson > /docker-config/config.tmp;
-
-mv /docker-config/config.tmp /docker-config/config.json;
-
-echo "Sending signal to reload crio config";
-
-pidof crio;
-
-kill -1 $(pidof crio)
-
-image: icr.io/ibm/alpine:latest
-
-imagePullPolicy: IfNotPresent
-
-name: updater
-
-resources: {}
-
-securityContext:
-
-privileged: true
-
-volumeMounts:
-
-- name: docker-auth-secret
-
-mountPath: /auth
-
-- name: docker
-
-mountPath: /docker-config
-
-- name: bin
-
-mountPath: /host/usr/bin
-
-- name: lib64
-
-mountPath: /lib64
-
-containers:
-
-- resources:
-
-requests:
-
-cpu: 0.01
-
-image: icr.io/ibm/alpine:latest
-
-name: sleepforever
-
-command: ["/bin/sh", "-c"]
-
-args:
-
-- >
-
-while true; do
-
-sleep 100000;
-
-done
-
-hostPID: true
-
-volumes:
-
-- name: docker-auth-secret
-
-secret:
-
-secretName: docker-auth-secret
-
-- name: docker
-
-hostPath:
-
-path: /.docker
-
-- name: bin
-
-hostPath:
-
-path: /usr/bin
-
-- name: lib64
-
-hostPath:
-
-path: /lib64
-
-hostPathType: Directory
+   selector:
+     matchLabels:
+       name: update-docker-config
+   template:
+     metadata:
+       labels:
+         name: update-docker-config
+     spec:
+       initContainers:
+         - command: ["/bin/sh", "-c"]
+           args:
+             - >
+               echo "Backing up or restoring config.json";
+               [[ -s /docker-config/config.json ]] && cp /docker-config/config.json /docker-config/config.json.bak || cp /docker-config/config.json.bak /docker-config/config.json;
+               echo "Merging secret with config.json";
+               /host/usr/bin/jq -s '.[0] * .[1]' /docker-config/config.json /auth/.dockerconfigjson > /docker-config/config.tmp;
+               mv /docker-config/config.tmp /docker-config/config.json;
+               echo "Sending signal to reload  crio config";
+               pidof crio;
+               kill -1 $(pidof crio)
+           image: icr.io/ibm/alpine:latest
+           imagePullPolicy: IfNotPresent
+           name: updater
+           resources: {}
+           securityContext:
+             privileged: true
+           volumeMounts:
+             - name: docker-auth-secret
+               mountPath: /auth
+             - name: docker
+               mountPath: /docker-config
+             - name: bin
+               mountPath: /host/usr/bin
+             - name: lib64
+               mountPath: /lib64
+       containers:
+         - resources:
+             requests:
+               cpu: 0.01
+           image: icr.io/ibm/alpine:latest
+           name: sleepforever
+           command: ["/bin/sh", "-c"]
+           args:
+             - >
+               while true; do
+                 sleep 100000;
+               done
+       hostPID: true
+       volumes:
+         - name: docker-auth-secret
+           secret:
+             secretName: docker-auth-secret
+         - name: docker
+           hostPath:
+             path: /.docker
+         - name: bin
+           hostPath:
+             path: /usr/bin
+         - name: lib64
+           hostPath:
+             path: /lib64
+             hostPathType: Directory
+EOF
 
 ```
 
@@ -700,21 +633,12 @@ NOTE: At the step where you have to install IBM Cloud Pak foundational services,
 Here’s an example:
 
 ```
-
 apiVersion: operators.coreos.com/v1
-
 kind: OperatorGroup
-
 metadata:
-
-name: operatorgroup
-
-namespace: ibm-common-services
-
+  name: operatorgroup
+  namespace: ibm-common-services
 spec:
-
-targetNamespaces:
-
-- ibm-common-services
-
+  targetNamespaces:
+    - ibm-common-services
 ```
