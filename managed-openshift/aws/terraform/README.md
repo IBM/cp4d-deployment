@@ -45,12 +45,19 @@ git clone <repo_url>
 cd cp4d-deployment/managed-openshift/aws/terraform/
 ```
 * Read the license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW) and accept it by setting variable `accept_cpd_license` to `accept`.
-* Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* If you want to hide sensitive data such as access_key_id or secret_access_key, create a `aws.tfvars` file and write all the sensitive variables.
-* You can use the `wkc-1az-ocs-new-vpc.tfvars` file in this folder with preset values for a cluster with WKC enabled on OCS storage on a new VPC cluster. Note that the `<required>` parameters need to be set.
-* You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
+* You can use the `cpd-1az-new-vpc.tfvars` file in this folder with preset values for a cluster with CPD plaform on EFS as File storage and EBS as Block storage on a new VPC cluster. Note that the `<required>` parameters need to be set. You can also choose to install additional services on the CPD platform as per your requirements, by flipping the respective variable to yes. For example for installing Watson Knowledge Catalog service, change 
+```
+watson_knowledge_catalog  =  "no"  -->   watson_knowledge_catalog  =  "yes"
+```
 
-* Deploy scripts by executing the one of following commands
+If you are using the `cpd-1az-new-vpc.tfvars` file
+
+```bash
+terraform init
+terraform apply --var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
+```
+
+* Optionally, You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 
 If using the variables.tf file
 
@@ -59,30 +66,15 @@ terraform init
 terraform apply | tee terraform.log
 ```
 
-OR 
-
-if you are using the `cpd-1az-new-vpc.tfvars` file
-
-```bash
-terraform init
-terraform apply -var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
-```
-
 ### Destroying the cluster:
-* When cluster created successfully, execute following commands to delete the cluster:
+* When cluster created successfully, execute following commands to delete the cluster.Please note that this will destroy the entire infrastructure that has been created using the terraform.
   ```bash
-  terraform destroy
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 * If cluster creation fails, execute following commands to delete the created resources:
   ```bash
   cd installer-files && ./openshift-install destroy cluster
-  terraform destroy -var-file="<Path To terraform.tfvars file>"
-  ```
-
-* If cluster creation fails, execute following commands to delete the created resources:
-  ```bash
-  cd installer-files && ./openshift-install destroy cluster
-  terraform destroy 
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
