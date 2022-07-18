@@ -48,7 +48,6 @@
 | `cpd-external-username` | Optional | Username for external registry. This is only applicable to install CPD from external registry containing preloaded CPD images. |
 | `apikey` | - | API Key. Follow steps [here](https://github.com/IBM/cp4d-deployment/tree/master/selfmanaged-openshift/azure#steps-to-deploy) |
 | `ocp_version` | 4.10.15 | Openshift Container Platform version to install. Currently, 4.10.15 |
-| `cloudctl_version` | v3.8.0 | cloudctl version to use |
 | `accept-cpd-license` | reject | Read and accept CloudPak license at https://ibm.biz/BdffBz |
 | `cpd-namespace` | zen | Openshift namespace or project to deploy CPD into |
 | `operator-namespace` | ibm-common-services | CPD service operator namespace or project where the service operators will be installed. |

@@ -180,10 +180,6 @@ variable "openshift_installer_url_prefix" {
   default = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
 }
 
-# variable "cloudctl_version" {
-#   default = "v3.8.0"
-# }
-
 variable "apikey" {
 }
 

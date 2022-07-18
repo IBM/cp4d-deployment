@@ -44,10 +44,10 @@ When you select [Portworx](https://portworx.com/products/features/) as the persi
 
 Cloud Pak for Data supports an [entitled Portworx instance](https://www.ibm.com/support/knowledgecenter/SSQNUZ_current/cpd/install/portworx-install.html) which you can install manually once your cluster is provisioned.
 
-####	OpenShift Container Storage (OCS) Subscription
+####	OpenShift Data Foundation (ODF) Subscription
 
-The Red Hat [OCS](https://www.openshift.com/products/container-storage/) license is linked as a separate entitlement to your RedHat subscription. If you do not have a separate subscription for OCS, a 60-day trial version is installed. Note that OCS v4.x is only available for AWS.
-
+The [Red Hat OpenShift Data Foundation](https://www.redhat.com/en/technologies/cloud-computing/openshift-data-foundation) license is linked as a separate entitlement to your RedHat subscription. If you do not have a separate subscription for ODF, a 60-day trial version is installed.
+Note: OpenShift Container Storage(OCS) is now OpenShift Data Foundation starting from version 4.9. 
 
 ## Deployment topology
 

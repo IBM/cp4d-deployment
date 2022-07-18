@@ -31,11 +31,15 @@ This repository contains automated scripts/deployment steps to get you started o
 
 1.  Installation
 
-The automated scripts provided here are intended to get you started quickly in case of a fresh installation of the latest version of Cloud Pak for Data in an Express manner.  If you need to perform a customized installation please follow the steps at [Installing IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=installing).
+The automated scripts provided here are intended to get you started quickly in case of a fresh installation of the latest version of Cloud Pak for Data in an Express manner. The scripts perform end-to-end installation, starting from infrastructure provisioning, Openshift installation, Storage Setup and Cloud Pak for Data platform and services installation.
 
-2.  Upgrade
+If you need to perform a customized installation please follow the steps at [Installing IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=installing).
+
+2.  Upgrade and Post-Installation activities
 
 These scripts do not support upgrade of Cloud Pak for Data installations. Please see  [Updating OpenShift Container Platform](https://docs.openshift.com/container-platform/4.10/updating/index.html) for upgrading RedHat Openshift Container Platform and [Upgrading Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=upgrading) for upgrading IBM Cloud Pak for Data installation.
+
+For Post-Installation activities on the cluster, please refer to the instructions at  [Administering Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=administering)
 
 
 
