@@ -54,7 +54,7 @@ If you are using the `cpd-1az-new-vpc.tfvars` file
 
 ```bash
 terraform init
-terraform apply -var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
+terraform apply --var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 * Optionally, You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
@@ -74,7 +74,7 @@ terraform apply | tee terraform.log
 * If cluster creation fails, execute following commands to delete the created resources:
   ```bash
   cd installer-files && ./openshift-install destroy cluster
-  terraform destroy -var-file="<Path To terraform.tfvars file>"
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
