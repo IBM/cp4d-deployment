@@ -72,7 +72,7 @@ If you are using the `cpd-1az-new-vpc.tfvars` file, use the following commands t
 
 ```bash
 terraform init
-terraform apply -var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
+terraform apply --var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 * Optionally you can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.  Deploy scripts by executing the following commands
@@ -92,12 +92,12 @@ After openshift cluster installation is finished and cloud pak for data installa
 You can use Terraform to destroy the cluster as well.  Please note that this will destroy the entire infrastructure that has been created using the terraform. 
 * When cluster created successfully, execute following commands to delete the cluster:
   ```bash
-  terraform destroy -var-file="<Path To terraform.tfvars file>"
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 * If cluster creation fails, execute following commands to delete the created resources:
   ```bash
   cd installer-files && ./openshift-install destroy cluster
-  terraform destroy -var-file="<Path To terraform.tfvars file>"
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 ### Note:
 * For a Private Cluster deployment, you need to deploy from a machine that will be able to connect to the cluster network. This means either from the same network or from a peered network.
