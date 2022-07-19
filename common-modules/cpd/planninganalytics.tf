@@ -1,50 +1,35 @@
-resource "local_file" "pa_cr_yaml" {
-  content  = data.template_file.pa_cr.rendered
-  filename = "${local.cpd_workspace}/pa_cr.yaml"
-}
-
-resource "local_file" "pa_catalog_yaml" {
-  content  = data.template_file.pa_catalog.rendered
-  filename = "${local.cpd_workspace}/pa_catalog.yaml"
-}
-
-resource "local_file" "pa_sub_yaml" {
-  content  = data.template_file.pa_sub.rendered
-  filename = "${local.cpd_workspace}/pa_sub.yaml"
-}
-
-
 resource "null_resource" "install_pa" {
-  count = var.planning_analytics.enable == "yes" ? 1 : 0
+  count = var.planning_analytics == "yes" ? 1 : 0
   triggers = {
     namespace     = var.cpd_namespace
     cpd_workspace = local.cpd_workspace
   }
   provisioner "local-exec" {
     command = <<-EOF
+echo "Deploying catalogsources and operator subscriptions for Planning Analytics" &&
+bash cpd/scripts/apply-olm.sh ${self.triggers.cpd_workspace} ${var.cpd_version} planning_analytics  &&
+echo "Create Planning Analytics cr" &&
+bash cpd/scripts/apply-cr.sh ${self.triggers.cpd_workspace} ${var.cpd_version} planning_analytics ${var.cpd_namespace} ${var.storage_option} ${local.storage_class} ${local.rwo_storage_class}
 
-echo "Install Planning Analytics Catalog"
-oc create -f ${self.triggers.cpd_workspace}/pa_catalog.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-planning-analytics-operator-catalog openshift-marketplace
-
-echo "Install Planning Analytics Operator"
-oc create -f ${self.triggers.cpd_workspace}/pa_sub.yaml
-sleep 3
-bash cpd/scripts/pod-status-check.sh ibm-planning-analytics-operator ${local.operator_namespace}
-
-echo "PA CR"
-oc create -f ${self.triggers.cpd_workspace}/pa_cr.yaml
-echo 'check the PA cr status'
-bash cpd/scripts/check-cr-status.sh PAService ibm-planning-analytics-service ${var.cpd_namespace} paAddonStatus
 EOF
   }
   depends_on = [
-    local_file.pa_catalog_yaml,
-    local_file.pa_cr_yaml,
-    local_file.pa_sub_yaml,
     module.machineconfig,
     null_resource.cpd_foundational_services,
     null_resource.login_cluster,
+    null_resource.install_aiopenscale,
+    null_resource.install_wml,
+    null_resource.install_ws,
+    null_resource.install_spss,
+    null_resource.install_dods,
+    null_resource.install_dmc,
+    null_resource.install_bigsql,
+    null_resource.install_dv,
+    null_resource.install_mdm,
+    null_resource.install_cde,
+    null_resource.install_wkc,
+    null_resource.install_ds,
+    null_resource.install_analyticsengine,
+    null_resource.install_ca,
   ]
 }

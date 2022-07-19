@@ -14,7 +14,7 @@ locals {
 module "cpd" {
   count                     = var.accept-cpd-license == "accept" ? 1 : 0
   source                    = "./cpd"
-  openshift_api             = var.openshift_api
+  openshift_api             = "https://api.${var.cluster-name}.${var.dnszone}:6443"
   openshift_username        = var.openshift-username
   openshift_password        = var.openshift-password
   openshift_token           = ""
@@ -24,8 +24,8 @@ module "cpd" {
   cpd_external_username     = var.cpd-external-username
   cpd_api_key               = var.apikey
   cpd_namespace             = var.cpd-namespace
-  cloudctl_version          = var.cloudctl_version
   storage_option            = var.storage
+  cpd_version               = var.cpd_version
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
@@ -49,7 +49,6 @@ module "cpd" {
   planning_analytics        = var.planning_analytics
   cluster_type              = "selfmanaged"
   login_string              = "oc login ${var.openshift_api} -u ${var.openshift-username} -p ${var.openshift-password} --insecure-skip-tls-verify=true"
-
 
   depends_on = [
     null_resource.openshift_post_install,

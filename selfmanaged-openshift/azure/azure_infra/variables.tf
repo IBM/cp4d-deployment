@@ -172,17 +172,12 @@ variable "cpd-external-username" {
   default     = "cp"
 }
 variable "ocp_version" {
-  default = "4.8.11"
+  default = "4.10.15"
 }
-
 
 variable "openshift_installer_url_prefix" {
   type    = string
   default = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
-}
-
-variable "cloudctl_version" {
-  default = "v3.8.0"
 }
 
 variable "apikey" {
@@ -191,6 +186,11 @@ variable "apikey" {
 variable "accept-cpd-license" {
   description = "Read and accept license at https://ibm.biz/BdqSw4"
   default     = "reject"
+}
+
+variable "cpd_version" {
+  type    = string
+  default = "4.5.0"
 }
 
 ##############################
@@ -228,190 +228,106 @@ variable "rwo_cpd_storageclass" {
 # CPD 4.0 service variables 
 ###########################################
 variable "cpd_platform" {
-  type = map(string)
-  default = {
-    enable  = "yes"
-    version = "4.0.5"
-    channel = "v2.0"
-  }
+  type = string
+  default = "yes"
 }
 
 variable "data_virtualization" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "1.7.5"
-    channel = "v1.7"
-  }
+  type = string
+  default = "no"
 }
 
 variable "analytics_engine" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "stable-v1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_knowledge_catalog" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_studio" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v2.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_machine_learning" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_ai_openscale" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "spss_modeler" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "cognos_dashboard_embedded" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "datastage" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_warehouse" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.7"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_oltp" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.7"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "cognos_analytics" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "data_management_console" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.3"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "master_data_management" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "1.1.175"
-    channel = "v1.1"
-  }
+  type = string
+  default = "no"
 }
 
 variable "db2_aaservice" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "decision_optimization" {
-  type = map(string)
-  default = {
-    enable  = "no"
-    version = "4.0.5"
-    channel = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "bigsql" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "7.2.5"
-    channel  = "v7.2"
-  }
+  type = string
+  default = "no"
 }
 
 variable "openpages" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "8.204.2"
-    channel  = "v1.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "watson_discovery" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "4.0.5"
-    channel  = "v4.0"
-  }
+  type = string
+  default = "no"
 }
 
 variable "planning_analytics" {
-  type        = map(string)
-  default = {
-    enable   = "no"
-    version  = "4.0.5"
-    channel  = "v4.0"
-  }
+  type = string
+  default = "no"
 }

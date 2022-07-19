@@ -14,8 +14,9 @@
 |`openshift_api`                  | `null`                                                   | must not be set!
 |`openshift_token`                  | `null`                                                   | must not be set!
 |`cpd_storageclass`                  | `portworx`                                                   | storageclass for the cluster. Currently only portworx is supported.
+|`cpd_version`                  | `4.5.0`                                                   | the version of cpd platform to install
 |`cpd_platform`                  | `yes`                                                   | to install the cpd platform
-|`watson_knowledge_catalog`                  | `{ "enable" : "no", "version" : "4.0.2", "channel" : "v1.0" }`                                                   | to install the Watson Knowledge Catalog service. Similar for all the services mentioned in vars.tf
+|`data_virtualization`                  | `no`                                         | to install the Data Virutualization service. Similar for all the services mentioned in vars.tf
 |`existing_vpc_id`                  | `null`                                                   | ID of the VPC, if you wish to install CP4D in an existing VPC
 |`existing_vpc_subnets`             | `null`                                                   | List of subnet IDs in an existing VPC in which the cluster will be installed. Required when `existing_vpc_id` has been provided.
 |`enable_public_gateway`            | `true`                                                   | Attach a public gateway to the worker node subnets? [true/false] Currently unsupported.

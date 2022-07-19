@@ -15,7 +15,8 @@
   * python3
   * AWS CLI
   * jq
-  * Openshift CLI with version 4.8.11
+  * podman
+  * Openshift CLI
  
 * Alternatively run the below scripts to install all prerequisites:
   * For RHEL:
@@ -44,52 +45,44 @@ git clone <repo_url>
 cd cp4d-deployment/managed-openshift/aws/terraform/
 ```
 * Read the license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW) and accept it by setting variable `accept_cpd_license` to `accept`.
-* Edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
-* If you want to hide sensitive data such as access_key_id or secret_access_key, create a `aws.tfvars` file and write all the sensitive variables.
-* You can use the `wkc-1az-ocs-new-vpc.tfvars` file in this folder with preset values for a cluster with WKC enabled on OCS storage on a new VPC cluster. Note that the `<required>` parameters need to be set.
-* You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
+* You can use the `cpd-1az-new-vpc.tfvars` file in this folder with preset values for a cluster with CPD plaform on EFS as File storage and EBS as Block storage on a new VPC cluster. Note that the `<required>` parameters need to be set. You can also choose to install additional services on the CPD platform as per your requirements, by flipping the respective variable to yes. For example for installing Watson Knowledge Catalog service, change 
+```
+watson_knowledge_catalog  =  "no"  -->   watson_knowledge_catalog  =  "yes"
+```
 
-* Deploy scripts by executing the one of following commands
+If you are using the `cpd-1az-new-vpc.tfvars` file
+
+```bash
+terraform init
+terraform apply --var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
+```
+
+* Optionally, You can also edit `variables.tf` and provide values for all the configuration variables. See the [Variables documentation](VARIABLES.md) for more details.
 
 If using the variables.tf file
 
 ```bash
 terraform init
-terraform apply | tee terraform.log
-```
-
-OR 
-
-if you are using the `wkc-1az-ocs-new-vpc.tfvars` file
-
-```bash
-terraform init
-terraform apply -var-file=wkc-1az-new-vpc.tfvars | tee terraform.log
+terraform apply --var-file=cpd-1az-new-vpc.tfvars | tee terraform.log
 ```
 
 ### Destroying the cluster:
-* When cluster created successfully, execute following commands to delete the cluster:
+* When cluster created successfully, execute following commands to delete the cluster.Please note that this will destroy the entire infrastructure that has been created using the terraform.
   ```bash
-  terraform destroy
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 * If cluster creation fails, execute following commands to delete the created resources:
   ```bash
   cd installer-files && ./openshift-install destroy cluster
-  terraform destroy -var-file="<Path To terraform.tfvars file>"
-  ```
-
-* If cluster creation fails, execute following commands to delete the created resources:
-  ```bash
-  cd installer-files && ./openshift-install destroy cluster
-  terraform destroy 
+  terraform destroy --var-file="<Path To terraform.tfvars file>"
   ```
 
 ### [OPTIONAL] Configuring your IDP (GitHub Enterprise)
 * Click Settings → Developer settings → OAuth Apps → Register a new OAuth application.
 * Enter an application name.
-* Enter Homepage URL e.g `https://oauth-openshift.apps.femi-rosa.z2ri.p1.openshiftapps.com`
+* Enter Homepage URL e.g `https://oauth-openshift.apps.cpd-rosa.z2ri.p1.openshiftapps.com`
 * Optional: Enter an application description.
-* Enter the authorization callback URL, where the end of the URL contains the identity provider name e.g `https://oauth-openshift.apps.femi-rosa.z2ri.p1.openshiftapps.com/oauth2callback/github/`
+* Enter the authorization callback URL, where the end of the URL contains the identity provider name e.g `https://oauth-openshift.apps.cpd-rosa.z2ri.p1.openshiftapps.com/oauth2callback/github/`
 * Click Register application. GitHub provides a Client ID and a Client Secret. You need these values to complete the identity provider configuration.
 * In your terminal, run `rosa describe cluster --cluster <cluster_name> | grep Details` to view the admin page of the cluster. Follow the link to the cluster and create OAuth using these generated information.
   * For the Hostname field enter the Enterprise hostname, e.g. github.ibm.com
@@ -116,8 +109,11 @@ $ rosa edit machinepool --cluster=<cluster_name> <machinepool_ID> --enable-autos
 ```
 
 ### Pricing Information for ROSA
+
+The following is a sample pricing for ROSA. Please check [here](https://aws.amazon.com/rosa/pricing/) for updated ROSA pricing information. 
+
 1. An hourly fee for the cluster would be $0.03/cluster/hour ($263/cluster/year)
-1. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
+2. Pricing per worker node would be $0.171 per 4vCPU/hour for on-demand consumption (~$1498/node/year)
     * This can be reduced by committing to a year in advance, $0.114 per 4vCPU/hour for a 1-year commit (~$998/node/year)
 
 Note: Pricing for ROSA is in addition to the costs of Amazon EC2 & AWS services used.
@@ -126,7 +122,7 @@ E.g. If you have 10 m5.xlarge worker node cluster running on-demand for a year,
 Cost would be,
 
   1. $0.03/cluster/hour X 1 cluster X 24 hours/day X 365 days/year = $263
-  1. $0.171/node/hour X 10 worker nodes X 24 hours/day X 365 days/year = $14,990
+  2. $0.171/node/hour X 10 worker nodes X 24 hours/day X 365 days/year = $14,990
   Total is approximately $15,253
 
 Note: Above pricing does not include infrastructure expenses. For more information [here](https://aws.amazon.com/rosa/pricing/)

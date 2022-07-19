@@ -20,6 +20,9 @@ locals {
   single_zone_subnets = var.private_cluster ? [local.private_subnet1_id] : [local.public_subnet1_id, local.private_subnet1_id]
   multi_zone_subnets  = var.private_cluster ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.public_subnet1_id, local.private_subnet1_id, local.public_subnet2_id, local.private_subnet2_id, local.public_subnet3_id, local.private_subnet3_id]
   login_cmd           = module.ocp.login_cmd
+  openshift_username      = regex("username (.*) --password", "${local.login_cmd}")[0]
+  openshift_api        =  regex("login (.*) --username","${local.login_cmd}")[0]
+  openshift_password      = regex("--password (.*)","${local.login_cmd}")[0]
   cluster_type        = "managed"
 }
 
@@ -139,6 +142,24 @@ module "ocs" {
   ]
 }
 
+module "efs" {
+  count                 = var.efs.enable ? 1 : 0
+  source                = "./efs"
+  installer_workspace   = local.installer_workspace
+  cluster_name          = var.cluster_name
+  login_cmd             = "${local.login_cmd}"
+  region                = var.region
+  az                    = var.az
+  vpc_id                = local.vpc_id
+  aws_access_key_id     = var.access_key_id
+  aws_secret_access_key = var.secret_access_key
+  subnet_ids            = var.az == "multi_zone" ? [local.private_subnet1_id, local.private_subnet2_id, local.private_subnet3_id] : [local.private_subnet1_id]
+  depends_on = [
+    null_resource.create_workspace,
+    module.ocp,
+  ]
+}
+
 module "cpd" {
   count                     = var.accept_cpd_license == "accept" ? 1 : 0
   source                    = "./cpd"
@@ -146,8 +167,7 @@ module "cpd" {
   accept_cpd_license        = var.accept_cpd_license
   cpd_api_key               = var.cpd_api_key
   cpd_namespace             = var.cpd_namespace
-  cloudctl_version          = var.cloudctl_version
-  storage_option            = var.ocs.enable ? "ocs" : "portworx"
+  storage_option            = var.storage_option
   cpd_platform              = var.cpd_platform
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
@@ -168,15 +188,19 @@ module "cpd" {
   planning_analytics        = var.planning_analytics
   bigsql                    = var.bigsql
   watson_assistant          = var.watson_assistant
-  openpages		    = var.openpages
-  watson_discovery 	    = var.watson_discovery  
+  openpages		              = var.openpages
+  watson_discovery 	        = var.watson_discovery 
   cluster_type              = local.cluster_type
   login_string              = "${local.login_cmd} --insecure-skip-tls-verify=true"
-  
+  cpd_version                 = var.cpd_version
+  openshift_api                = "${local.openshift_api}"
+  openshift_username           = "${local.openshift_username}"
+  openshift_password           = "${local.openshift_password}" 
   depends_on = [
     null_resource.create_workspace,
     module.portworx,
     module.ocp,
-    module.ocs
+    module.ocs,
+    module.efs,
   ]
 }

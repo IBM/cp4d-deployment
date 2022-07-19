@@ -11,8 +11,8 @@ module "cpd" {
   cpd_external_username        = var.cpd_external_username
   cpd_api_key                  = var.cpd_api_key
   cpd_namespace                = var.cpd_namespace
-  cloudctl_version             = var.cloudctl_version
   storage_option               = var.storage_option
+  cpd_version                  = var.cpd_version
   cpd_platform                 = var.cpd_platform
   data_virtualization          = var.data_virtualization
   analytics_engine             = var.analytics_engine
@@ -31,6 +31,10 @@ module "cpd" {
   db2_aaservice                = var.db2_aaservice
   decision_optimization        = var.decision_optimization
   bigsql                       = var.bigsql
+  planning_analytics           = var.planning_analytics
+  watson_assistant             = var.watson_assistant
+  watson_discovery             = var.watson_discovery
+  openpages                    = var.openpages
   cluster_type                 = var.cluster_type
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes

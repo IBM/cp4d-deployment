@@ -26,26 +26,25 @@ apikey                = "<required>"
 ​
 ## ** Note : set enable as "yes" for the services required. 
 ​
-watson_knowledge_catalog     = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-data_virtualization          = {"enable":"no", "version":"1.7.5", "channel":"v1.7"}
-analytics_engine             = {"enable":"no", "version":"4.0.5", "channel":"stable-v1"}
-watson_studio                = {"enable":"no", "version":"4.0.5", "channel":"v2.0"}
-watson_machine_learning      = {"enable":"no", "version":"4.0.5", "channel":"v1.1"}
-watson_ai_openscale          = {"enable":"no", "version":"4.0.5", "channel":"v1"}
-spss_modeler                 = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-cognos_dashboard_embedded    = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-datastage                    = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-db2_warehouse                = {"enable":"no", "version":"4.0.7", "channel":"v1.0"}
-db2_oltp                     = {"enable":"no", "version":"4.0.7", "channel":"v1.0"}
-cognos_analytics             = {"enable":"no","version":"4.0.5", "channel":"v4.0"}
-data_management_console      = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-master_data_management       = {"enable":"no", "version":"1.1.175","channel":"v1.1"}
-db2_aaservice                = {"enable":"no", "version":"4.0.5", "channel":"v1.0"}
-decision_optimization        = {"enable":"no", "version":"4.0.5", "channel":"v4.0"}
-bigsql                       = {"enable":"no", "version":"7.2.5", "channel":"v7.2"}
-openpages                    = {"enable":"yes","version":"8.204.2","channel":"v1.0" }
-watson_discovery             = {"enable":"yes","version":"4.0.5","channel":"v4.0" }
-planning_analytics           = {"enable":"yes","version":"4.0.5","channel":"v4.0" }
+cpd_version               = "4.5.0"
+watson_knowledge_catalog  = "no"
+data_virtualization       = "no"
+analytics_engine          = "no"
+watson_studio             = "no"
+watson_machine_learning   = "no"
+watson_ai_openscale       = "no"
+spss_modeler              = "no"
+cognos_dashboard_embedded = "no"
+datastage                 = "no"
+db2_warehouse             = "no"
+db2_oltp                  = "no"
+cognos_analytics          = "no"
+master_data_management    = "no"
+decision_optimization     = "no"
+bigsql                    = "no"
+openpages                 = "no"
+watson_discovery          = "no"
+planning_analytics        = "no"
 ​
 accept-cpd-license = "accept"
 ​

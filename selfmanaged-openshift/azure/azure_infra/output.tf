@@ -21,7 +21,7 @@ output "openshift_console_password" {
 
 output "cpd_url" {
   description = "URL for cpd web console"
-  value       = "https://${var.cpd-namespace}-cpd-${var.cpd-namespace}.apps.${var.cluster-name}.${var.dnszone}"
+  value       = "https://cpd-${var.cpd-namespace}.apps.${var.cluster-name}.${var.dnszone}"
 }
 
 output "cpd_url_username" {

@@ -21,7 +21,7 @@
 | `private_subnet2_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 2 |
 | `private_subnet3_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for private subnet in zone 3 |
 | ROSA |
-| `openshift_version` | 4.8.11 | Openshift Cluster version |
+| `openshift_version` | 4.10.15 | Openshift Cluster version |
 | `cluster_name` | ibmrosa | All resources created by the Openshift Installer will have this name as prefix. |
 | `rosa_token` | - | Token generated from the RedHat portal [here](https://cloud.redhat.com/openshift/token/rosa) |
 | `worker_machine_type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
@@ -35,6 +35,8 @@
 | `availability_zone2` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | `availability_zone3` | "" | Availability zone values, leave it as it is if you don't want to provide the value, in that case it will be automatically selected based on the region. For `single_zone` installation, provide only `availability_zone1` value. |
 | STORAGE |
+| `storage_option` |`efs-ebs` | Supported storage types are efs and ebs, efs only or ocs.|
+| `efs` |`enable = true` | Set to enable, if storage_option is efs-ebs or efs, otherwise set it to false |
 | `ocs` |`enable = false` | Set to enable, if OCS. The EC2 instance type for the OpenShift container storage (OCS) instances. Make sure your region supports the selected instance type. Supported ocs instance types [here](./INSTANCE-TYPES.md) |
 | `portworx_enterprise` | `enable = false` | See PORTWORX.md on how to get the Cluster ID. |
 | `portworx_essentials` | `enable = false`  | See PORTWORX-ESSENTIALS.md on how to get the Cluster ID, User ID and OSB Endpoint |
@@ -43,6 +45,8 @@
 | `accept_cpd_license` | reject | Read and accept license [here](https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW). Allowed values `accept / reject`. |
 | `cpd_api_key` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary). For external registries, enter password here |
 | `cpd_namespace` | zen | The OpenShift project that will be created for deploying Cloud Pak for Data. It can be any lowercase string. |
+| `cpd_version` | 4.5.0 | The Cloud Pak for Data version to install. |
+| `cpd_platform` | yes | Must be `yes` to install Cloud Pak for Data platform. |
 | `data_virtualization` | no | Enter `yes` to install the Data Virtualization Add-on service. If you installing this service, you need to install `data_management_console` service as well. |
 | `apache_spark` | no | Enter `yes` to install the Apache Spark Add-on service. |
 | `watson_knowledge_catalog` | no | Enter `yes` to install the Watson Knowledge Catalog Add-on service. |

@@ -11,6 +11,7 @@ Note: The script does not setup storage. It should be pre-configured. For IBM Cl
 - `Terraform`
 - `jq`
 - `oc`
+- `podman`
 
 
 ## Setup
