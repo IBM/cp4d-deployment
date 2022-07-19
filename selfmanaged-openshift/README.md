@@ -95,13 +95,20 @@ As part of the deployment, the following services can be enabled.
   - Watson Machine Learning
   - Data Virtualization
   - Watson OpenScale
-  - Apache Spark
+  - Analytics Engine Powered by Apache Spark
   - Cognos Dashboards
   - Db2 Warehouse
   - DataStage Enterprise Plus
   - Cognos Analytics
   - Db2 Advanced Edition
   - SPSS Modeler
+  - Planning Analytics
+  - Watson Discovery
+  - Openpages
+  - Decision Optimization
+  - BigSQL
+  - Match 360
+  - Watson Assitant (on AWS only)
  
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html).
