@@ -19,7 +19,7 @@ export VERSION=${13}
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
-export CPDTEMPLATES=/home/$SUDOUSER/.cpd/templates
+export CPDTEMPLATES=/mnt/.cpd/templates
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then

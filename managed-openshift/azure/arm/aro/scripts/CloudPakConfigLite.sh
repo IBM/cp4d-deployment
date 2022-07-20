@@ -19,11 +19,11 @@ export VERSION=${13}
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
-export CPDTEMPLATES=/home/$SUDOUSER/.cpd/templates
+export CPDTEMPLATES=/mnt/.cpd/templates
 
 runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
 runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
-runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 
 #CPD Config
 
@@ -33,12 +33,13 @@ runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
 # runuser -l $SUDOUSER -c "chmod +x /usr/bin/cloudctl-linux-amd64"
 # runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
+### Install Prereqs:  CPD CLI, JQ, and Podman
 ## Download & Install CPD CLI
-
-runuser -l $SUDOUSER -c "wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
+runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
 runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
 # Move cpd-cli, plugins and license in the CPDTEMPLATES folder
-runuser -l $SUDOUSER -c "mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0*"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
@@ -47,9 +48,12 @@ runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
 runuser -l $SUDOUSER -c "oc new-project $OPERATORNAMESPACE"
 
 ## Installing jq
-runuser -l $SUDOUSER -c "wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O  $CPDTEMPLATES/jq"
+runuser -l $SUDOUSER -c "sudo wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O $CPDTEMPLATES/jq"
 runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/jq /usr/bin"
 runuser -l $SUDOUSER -c "sudo chmod +x /usr/bin/jq"
+
+## Installing Podman
+runuser -l $SUDOUSER -c "sudo yum install podman -y"
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then
@@ -68,7 +72,7 @@ echo "exit code: $var"
 done
 
 # CPD CLI OCP Login
-runuser -l $SUDOUSER -c "$CPDTEMPLATES/cpd-cli manage login-to-ocp --server \"https://api.${SUBURL}:6443\" -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD"
+runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage login-to-ocp --server \"https://api.${SUBURL}:6443\" -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD"
 
 # Update global pull secret 
 
@@ -104,10 +108,29 @@ elif [[ $STORAGEOPTION == "ocs" ]];then
 fi
 
 echo "Deploy all catalog sources and operator subscriptions for cpfs,cpd_platform"
-runuser -l $SUDOUSER -c "bash scripts/apply-olm.sh ${CPDTEMPLATES} ${VERSION} cpfs,cpd_platform"
+runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-olm --release=${VERSION} --components=cpfs,cpd_platform"
+if [ $? -ne 0 ]
+then
+    echo "**********************************"
+    echo "Deploying catalog Sources & subscription failed for cpfs,cpd_platform"
+    echo "**********************************"
+    exit 1
+fi
 
 echo "Applying CR for cpfs,cpd_platform"
-runuser -l $SUDOUSER -c "bash cpd/scripts/apply-cr.sh ${CPDTEMPLATES} ${VERSION} cpfs,cpd_platform ${CPDNAMESPACE} ${STORAGEOPTION} ${STORAGECLASS_VALUE} ${STORAGECLASS_RWO_VALUE}"
+if [[ "$STORAGEOPTION" != "portworx" ]]
+then
+    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=cpfs,cpd_platform  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
+else
+    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=cpfs,cpd_platform  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
+fi
+if [ $? -ne 0 ]
+then
+    echo "**********************************"
+    echo "Applying CR for cpfs,cpd_platform failed"
+    echo "**********************************"
+    exit 1
+fi
 
 echo "Enable CSV injector"
 runuser -l $SUDOUSER -c "oc patch namespacescope common-service --type='json' -p='[{\"op\":\"replace\", \"path\": \"/spec/csvInjector/enable\", \"value\":true}]' -n ${OPERATORNAMESPACE}"

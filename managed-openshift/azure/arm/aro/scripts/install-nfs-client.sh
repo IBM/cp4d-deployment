@@ -30,6 +30,9 @@ objects:
       name: nfs-client-provisioner-runner
     rules:
       - apiGroups: [\"\"]
+        resources: [\"nodes\"]
+        verbs: [\"get\", \"list\", \"watch\"]
+      - apiGroups: [\"\"]
         resources: [\"persistentvolumes\"]
         verbs: [\"get\", \"list\", \"watch\", \"create\", \"delete\"]
       - apiGroups: [\"\"]
