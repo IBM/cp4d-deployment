@@ -312,7 +312,7 @@
 				"description": "Install Watson OpenScale and Watson Machine Learning"
 			}
 		},
-		"installApacheSpark": {
+		"installAnalyticsEngine": {
 			"type": "string",
 			"defaultValue": "no",
 			"allowedValues": [
@@ -1177,7 +1177,7 @@
 			"name": "CloudPakDataRefineryDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
-				"CloudPakSparkDeployment",
+				"CloudPakAnalyticsEngineDeployment",
 				"OCSDeployment",
 				"NFSDeployment"
 			],
@@ -1568,10 +1568,10 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installApacheSpark'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installAnalyticsEngine'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2021-04-01",
-			"name": "CloudPakSparkDeployment",
+			"name": "CloudPakAnalyticsEngineDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
 				"CloudPakDVDeployment",

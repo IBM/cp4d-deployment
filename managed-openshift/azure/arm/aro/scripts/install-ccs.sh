@@ -65,20 +65,20 @@ fi
 
 
 ## CCS CR
-echo "Applying CR for CCS"
-if [[ "$STORAGEOPTION" != "portworx" ]]
-then
-    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
-else
-    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
-fi
-if [ $? -ne 0 ]
-then
-    echo "**********************************"
-    echo "Applying CR for CCS failed"
-    echo "**********************************"
-    exit 1
-fi
+# echo "Applying CR for CCS"
+# if [[ "$STORAGEOPTION" != "portworx" ]]
+# then
+#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
+# else
+#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
+# fi
+# if [ $? -ne 0 ]
+# then
+#     echo "**********************************"
+#     echo "Applying CR for CCS failed"
+#     echo "**********************************"
+#     exit 1
+# fi
 
 # CCS subscription and CR creation 
 
@@ -99,20 +99,21 @@ fi
 #   sourceNamespace: openshift-marketplace
 # EOF"
 
-# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-ccs-cr.yaml <<EOF
-# apiVersion: ccs.cpd.ibm.com/v1beta1
-# kind: CCS
-# metadata:
-#   name: ccs-cr
-#   namespace: $CPDNAMESPACE
-# spec:
-#   size: \"small\"
-#   REPLACE_VENDOR_OR_CLASS: REPLACE_SC
-#   license:
-#     accept: true
-#     license: Enterprise
-#   docker_registry_prefix: \"cp.icr.io/cp/cpd\"
-# EOF"
+
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-ccs-cr.yaml <<EOF
+apiVersion: ccs.cpd.ibm.com/v1beta1
+kind: CCS
+metadata:
+  name: ccs-cr
+  namespace: $CPDNAMESPACE
+spec:
+  size: \"small\"
+  REPLACE_VENDOR_OR_CLASS: REPLACE_SC
+  license:
+    accept: true
+    license: Enterprise
+  docker_registry_prefix: \"cp.icr.io/cp/cpd\"
+EOF'"
 
 
 # ## Creating Subscription 
@@ -142,40 +143,40 @@ fi
 #   echo "$pod_name is $status"
 # done
 
-# ## Creating ibm-ccs cr
-# if [[ $STORAGEOPTION == "nfs" ]];then 
-# runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_VENDOR_OR_CLASS#storageClass#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
-# runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_SC#nfs#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
-# elif [[ $STORAGEOPTION == "ocs" ]];then 
-# runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_VENDOR_OR_CLASS#storageVendor#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
-# runuser -l $SUDOUSER -c "sed -i -e s#REPLACE_SC#ocs#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
-# fi
+## Creating ibm-ccs cr
+if [[ $STORAGEOPTION == "nfs" ]];then 
+runuser -l $SUDOUSER -c "sudo sed -i -e s#REPLACE_VENDOR_OR_CLASS#storageClass#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
+runuser -l $SUDOUSER -c "sudo sed -i -e s#REPLACE_SC#nfs#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
+elif [[ $STORAGEOPTION == "ocs" ]];then 
+runuser -l $SUDOUSER -c "sudo sed -i -e s#REPLACE_VENDOR_OR_CLASS#storageVendor#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
+runuser -l $SUDOUSER -c "sudo sed -i -e s#REPLACE_SC#ocs#g $CPDTEMPLATES/ibm-ccs-cr.yaml"
+fi
 
 
-# runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibm-ccs-cr.yaml"
+runuser -l $SUDOUSER -c "oc project $CPDNAMESPACE; oc create -f $CPDTEMPLATES/ibm-ccs-cr.yaml"
 
-# # Check CR Status
+# Check CR Status
 
-# SERVICE="CCS"
-# CRNAME="ccs-cr"
-# SERVICE_STATUS="ccsStatus"
+SERVICE="CCS"
+CRNAME="ccs-cr"
+SERVICE_STATUS="ccsStatus"
 
-# STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
+STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
 
-# while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
-#     echo "$CRNAME is Installing!!!!"
-#     sleep 120
-#     STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
-#     if [ "$STATUS" == "Failed" ]
-#     then
-#         echo "**********************************"
-#         echo "$CRNAME Installation Failed!!!!"
-#         echo "**********************************"
-#         exit 1
-#     fi
-# done 
-# echo "*************************************"
-# echo "$CRNAME Installation Finished!!!!"
-# echo "*************************************"
+while  [[ ! $STATUS =~ ^(Completed|Complete)$ ]]; do
+    echo "$CRNAME is Installing!!!!"
+    sleep 120
+    STATUS=$(oc get $SERVICE $CRNAME -n $CPDNAMESPACE -o json | jq .status.$SERVICE_STATUS | xargs) 
+    if [ "$STATUS" == "Failed" ]
+    then
+        echo "**********************************"
+        echo "$CRNAME Installation Failed!!!!"
+        echo "**********************************"
+        exit 1
+    fi
+done 
+echo "*************************************"
+echo "$CRNAME Installation Finished!!!!"
+echo "*************************************"
 
 echo "$(date) - ############### Script Complete #############"
