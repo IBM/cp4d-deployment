@@ -1502,7 +1502,7 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installCognosDashboard'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDataVirtualization'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2021-04-01",
 			"name": "CloudPakDVDeployment",
