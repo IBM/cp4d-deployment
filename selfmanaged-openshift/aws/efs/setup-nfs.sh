@@ -15,6 +15,7 @@ echo "CLUSTER_NAME=$CLUSTER_NAME"
 #CLUSTER_WORKER_SECURITY_GROUPID=$(aws ec2 describe-security-groups | jq -r '.SecurityGroups[] | select(has("Tags") and (.Tags[] | select((.Key=="Name") and (.Value | test("'$CLUSTER_NAME'-.*-worker-sg"))))) | .GroupId')
 echo "CLUSTER_WORKER_SECURITY_GROUPID=$CLUSTER_WORKER_SECURITY_GROUPID"
 
+echo "CLUSTER_VPC_CIDR---->"  $CLUSTER_VPC_CIDR
 
 echo "Setting up NFS-Subdir-Provisioner"
 
