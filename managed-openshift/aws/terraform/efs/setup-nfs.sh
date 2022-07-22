@@ -31,6 +31,7 @@ echo $FILESYSTEM_DNS_NAME
 
 # echo "Setting up NFS-Subdir-Provisioner"
 echo "FILESYSTEM_DNS_NAME:--->" $FILESYSTEM_DNS_NAME
+echo "CLUSTER_VPC_CIDR------->" $CLUSTER_VPC_CIDR
 NAMESPACE=default
 oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:$NAMESPACE:nfs-client-provisioner
 
