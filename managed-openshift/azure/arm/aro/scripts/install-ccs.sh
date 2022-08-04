@@ -64,21 +64,21 @@ then
 fi
 
 
-## CCS CR
-# echo "Applying CR for CCS"
-# if [[ "$STORAGEOPTION" != "portworx" ]]
-# then
-#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
-# else
-#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
-# fi
-# if [ $? -ne 0 ]
-# then
-#     echo "**********************************"
-#     echo "Applying CR for CCS failed"
-#     echo "**********************************"
-#     exit 1
-# fi
+# CCS CR
+echo "Applying CR for CCS"
+if [[ "$STORAGEOPTION" != "portworx" ]]
+then
+    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
+else
+    runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=ccs  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
+fi
+if [ $? -ne 0 ]
+then
+    echo "**********************************"
+    echo "Applying CR for CCS failed"
+    echo "**********************************"
+    exit 1
+fi
 
 # CCS subscription and CR creation 
 

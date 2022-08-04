@@ -39,7 +39,7 @@ done
 
 # UG CR creation 
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-ug-ocs-cr.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-ug-ocs-cr.yaml <<EOF
 apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: UG
 metadata:
@@ -53,9 +53,9 @@ spec:
     accept: true
     license: \"Enterprise\"
   docker_registry_prefix: cp.icr.io/cp/cpd
-EOF"
+EOF'"
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-ug-nfs-cr.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-ug-nfs-cr.yaml <<EOF
 apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: UG
 metadata:
@@ -69,7 +69,7 @@ spec:
     accept: true
     license: \"Enterprise\"
   docker_registry_prefix: cp.icr.io/cp/cpd
-EOF"
+EOF'"
 
 
 ## Creating ibm-ug cr

@@ -406,6 +406,10 @@
 		"installCdeScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-cde.sh', parameters('_artifactsLocationSasToken')))]",
 		"installWkcScriptFileName": "install-wkc.sh",
 		"installWkcScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc.sh', parameters('_artifactsLocationSasToken')))]",
+		"installISSScriptFileName": "install-wkc-iis.sh",
+		"installISSScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc-iis.sh', parameters('_artifactsLocationSasToken')))]",
+		"installWKCUGScriptFileName": "install-wkc-ug.sh",
+		"installWKCUGScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc-ug.sh', parameters('_artifactsLocationSasToken')))]",
 		"installDVScriptFileName": "install-dv.sh",
 		"installDVScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-dv.sh', parameters('_artifactsLocationSasToken')))]",
 		"deployOpenshiftExt": "[concat('Microsoft.Compute/virtualMachines/', variables('bastionHostname'), '/extensions/deployOpenshift')]",
@@ -1568,7 +1572,7 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installAnalyticsEngine'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installAnalyticsEngine'), 'yes'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2021-04-01",
 			"name": "CloudPakAnalyticsEngineDeployment",
@@ -1637,10 +1641,76 @@
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2021-04-01",
-			"name": "CloudPakWKCDeployment",
+			"name": "CloudPakIISDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
 				"CloudPakDataRefineryDeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installISSScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installISSScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2021-04-01",
+			"name": "CloudPakWKCDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakIISDeployment",
 				"OCSDeployment",
 				"NFSDeployment"
 			],
@@ -1656,6 +1726,72 @@
 					},
 					"cloudPakDeploymentScriptFileName": {
 						"value": "[variables('installWkcScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v1.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2021-04-01",
+			"name": "CloudPakWKCUGDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakWKCDeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installWKCUGScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installWKCUGScriptFileName')]"
 					},
 					"redHatTags": {
 						"value": "[variables('redHatTags')]"

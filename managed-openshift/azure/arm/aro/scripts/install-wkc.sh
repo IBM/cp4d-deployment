@@ -97,7 +97,7 @@ runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage login-to-ocp --server
 #   echo "$pod_name is $status"
 # done
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
@@ -138,7 +138,7 @@ volumes:
 - secret
 users:
 - system:serviceaccount:$CPDNAMESPACE:wkc-iis-sa
-EOF"
+EOF'"
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-scc.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
@@ -156,7 +156,7 @@ then
     exit 1
 fi
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wkc-ocs-cr.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-wkc-ocs-cr.yaml <<EOF
 apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: WKC
 metadata:
@@ -170,9 +170,10 @@ spec:
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
   useODLM: true
-EOF"
+  install_wkc_core_only: true
+EOF'"
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-wkc-nfs-cr.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-wkc-nfs-cr.yaml <<EOF
 apiVersion: wkc.cpd.ibm.com/v1beta1
 kind: WKC
 metadata:
@@ -186,7 +187,8 @@ spec:
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
   useODLM: true
-EOF"
+  install_wkc_core_only: true
+EOF'"
 
 ## Creating ibm-wkc cr
 
