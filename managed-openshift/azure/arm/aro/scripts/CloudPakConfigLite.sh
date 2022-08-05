@@ -21,9 +21,9 @@ export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
 export CPDTEMPLATES=/mnt/.cpd/templates
 
-runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
-runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
-runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
+# runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
+# runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
+# runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 
 #CPD Config
 
@@ -35,25 +35,25 @@ runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 
 ### Install Prereqs:  CPD CLI, JQ, and Podman
 ## Download & Install CPD CLI
-runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
-runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
-# Move cpd-cli, plugins and license in the CPDTEMPLATES folder
-runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
-runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0*"
+# runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
+# runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
+# # Move cpd-cli, plugins and license in the CPDTEMPLATES folder
+# runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
+# runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0*"
 
-# Service Account Token for CPD installation
-runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
+# # Service Account Token for CPD installation
+# runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
 
-# Service Account Token for CPD installation
-runuser -l $SUDOUSER -c "oc new-project $OPERATORNAMESPACE"
+# # Service Account Token for CPD installation
+# runuser -l $SUDOUSER -c "oc new-project $OPERATORNAMESPACE"
 
-## Installing jq
-runuser -l $SUDOUSER -c "sudo wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O $CPDTEMPLATES/jq"
-runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/jq /usr/bin"
-runuser -l $SUDOUSER -c "sudo chmod +x /usr/bin/jq"
+# ## Installing jq
+# runuser -l $SUDOUSER -c "sudo wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O $CPDTEMPLATES/jq"
+# runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/jq /usr/bin"
+# runuser -l $SUDOUSER -c "sudo chmod +x /usr/bin/jq"
 
-## Installing Podman
-runuser -l $SUDOUSER -c "sudo yum install podman -y"
+# ## Installing Podman
+# runuser -l $SUDOUSER -c "sudo yum install podman -y"
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then
@@ -76,26 +76,26 @@ runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage login-to-ocp --server
 
 # Update global pull secret 
 
-export ENTITLEMENT_USER=cp
-export ENTITLEMENT_KEY=$APIKEY
-pull_secret=$(echo -n "$ENTITLEMENT_USER:$ENTITLEMENT_KEY" | base64 -w0)
-oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > $OCPTEMPLATES/dockerconfig.json
-sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' $OCPTEMPLATES/dockerconfig.json
-oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=$OCPTEMPLATES/dockerconfig.json
+# export ENTITLEMENT_USER=cp
+# export ENTITLEMENT_KEY=$APIKEY
+# pull_secret=$(echo -n "$ENTITLEMENT_USER:$ENTITLEMENT_KEY" | base64 -w0)
+# oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > $OCPTEMPLATES/dockerconfig.json
+# sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' $OCPTEMPLATES/dockerconfig.json
+# oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=$OCPTEMPLATES/dockerconfig.json
 
-# Check nodestatus if they are ready.
+# # Check nodestatus if they are ready.
 
-while true; do
-    node_status=$(oc get nodes | grep -E "SchedulingDisabled|NotReady")
-    if [[ -z $node_status ]]; then
-        echo -e "\n******All nodes are running now.******"
-        break
-    fi
-        echo -e "\n******Waiting for nodes to get ready.******"
-        oc get nodes --no-headers | awk '{print $1 " " $2}'
-        echo -e "\n******sleeping for 60Secs******"
-        sleep 60
-    done
+# while true; do
+#     node_status=$(oc get nodes | grep -E "SchedulingDisabled|NotReady")
+#     if [[ -z $node_status ]]; then
+#         echo -e "\n******All nodes are running now.******"
+#         break
+#     fi
+#         echo -e "\n******Waiting for nodes to get ready.******"
+#         oc get nodes --no-headers | awk '{print $1 " " $2}'
+#         echo -e "\n******sleeping for 60Secs******"
+#         sleep 60
+#     done
 
 # Setup the storage class value
 

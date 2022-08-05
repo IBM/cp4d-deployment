@@ -112,7 +112,7 @@ spec:
   use_dynamic_provisioning: true
 EOF'"
 
-## Creating IIS SC yaml 
+## Creating IIS SCC yaml 
 
 runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
 allowHostDirVolumePlugin: false
@@ -206,20 +206,24 @@ runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-sub.yaml <<EO
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: ibm-cpd-iis-operator
-  namespace: $CPDNAMESPACE
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-iis-operator-catalog-subscription
+    app.kubernetes.io/managed-by: ibm-cpd-iis-operator
+    app.kubernetes.io/name: ibm-cpd-iis-operator-catalog-subscription
+  generation: 1 
+  name: ibm-cpd-iis-operator-catalog-subscription
+  namespace: $OPERATORNAMESPACE
 spec: 
-  channel: $VERSION
+  channel: $CHANNEL
   installPlanApproval: Automatic 
   name: ibm-cpd-iis
-  source: ibm-operator-catalog
+  source: ibm-cpd-iis-operator-catalog
   sourceNamespace: openshift-marketplace
 EOF'"
 
 # Check ibm-cpd-iis-operator pod status
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-sub.yaml"
-
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"
 
