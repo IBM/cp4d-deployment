@@ -312,6 +312,61 @@
 				"description": "Install Watson OpenScale and Watson Machine Learning"
 			}
 		},
+		"installCognosAnalytics": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Cognos Analytics"
+			}
+		},
+		"installPlanningAnalytics": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Planning Analytics "
+			}
+		},
+		"installDb2Warehouse": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Db2Wh"
+			}
+		},
+		"installDb2oltp": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install DB2OLTP"
+			}
+		},
+		"installSpssModeler": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install SPSS"
+			}
+		},
 		"installAnalyticsEngine": {
 			"type": "string",
 			"defaultValue": "no",
@@ -414,6 +469,16 @@
 		"installWKCUGScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wkc-ug.sh', parameters('_artifactsLocationSasToken')))]",
 		"installDVScriptFileName": "install-dv.sh",
 		"installDVScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-dv.sh', parameters('_artifactsLocationSasToken')))]",
+		"installCaScriptFileName": "install-ca.sh",
+		"installCaScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-ca.sh', parameters('_artifactsLocationSasToken')))]",
+		"installDb2WarehouseScriptFileName": "install-db2wh.sh",
+		"installDb2WarehouseScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-db2wh.sh', parameters('_artifactsLocationSasToken')))]",
+		"installDb2oltpScriptFileName": "install-db2oltp.sh",
+		"installDb2oltpScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-db2oltp.sh', parameters('_artifactsLocationSasToken')))]",
+		"installPlanningAnalyticsScriptFileName": "install-pa.sh",
+		"installPlanningAnalyticsScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-pa.sh', parameters('_artifactsLocationSasToken')))]",
+		"installSpssScriptFileName": "install-spss.sh",
+		"installSpssScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-spss.sh', parameters('_artifactsLocationSasToken')))]",
 		"deployOpenshiftExt": "[concat('Microsoft.Compute/virtualMachines/', variables('bastionHostname'), '/extensions/deployOpenshift')]",
 		"podCidr": "10.128.0.0/14",
 		"serviceCidr": "172.30.0.0/16",

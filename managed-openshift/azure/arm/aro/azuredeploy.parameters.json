@@ -57,6 +57,21 @@
         },
         "installApacheSpark": {
           "value": "no"
+        },
+        "installCognosAnalytics": {
+          "value": "no"
+        },
+        "installSpssModeler": {
+          "value": "no"
+        },
+        "installDb2Warehouse": {
+          "value": "no"
+        },
+        "installDb2oltp": {
+          "value": "no"
+        },
+        "installPlanningAnalytics": {
+          "value": "no"
         }
     }
   }
