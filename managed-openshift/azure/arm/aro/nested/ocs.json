@@ -45,7 +45,7 @@
 			}
 		},
 		"openshiftPassword": {
-			"type": "string",
+			"type": "securestring",
 			"metadata": {
 				"description": "Openshift Password"
 			}
@@ -101,7 +101,7 @@
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"name": "[concat(parameters('bastionHostname'), '/deployOpenshift')]",
 			"location": "[parameters('location')]",
-			"apiVersion": "2019-07-01",
+			"apiVersion": "2021-11-01",
 			"tags": {
 				"displayName": "InstallOCS",
 				"app": "[parameters('redHatTags').app]",

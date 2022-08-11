@@ -1,4 +1,4 @@
-# Cloud Pak for Data 4.0 on Azure Red Hat OpenShift (ARO)
+# Cloud Pak for Data 4.5 on Azure Red Hat OpenShift (ARO)
 
 Cloud Pak for Data is an end to end platform that helps organizations in their journey to AI. It enables data engineers, data stewards, data scientists, and business analysts to collaborate using an integrated multiple-cloud platform.
 Cloud Pak for Data uses IBM’s deep analytics portfolio to help organizations meet data and analytics challenges. The required building blocks (collect, organize, analyze, infuse) for information architecture are available using Cloud Pak for Data on Azure.
@@ -13,7 +13,7 @@ This reference deployment provides ARM templates to deploy Azure ARO Cluster wit
  - A highly available storage infrastructure with OpenShift Container Storage.
  - Scalable OpenShift compute nodes running Cloud Pak for Data services. See [Services](#cloud-pak-for-data-services) for the services that are enabled in this deployment.
  
- Note: ARO at this time provisions OpenShift Container Platform v4.8.x. This may be changed when new versions are released. See support lifecycle [here](https://docs.microsoft.com/en-us/azure/openshift/support-lifecycle)
+ Note: ARO at this time provisions OpenShift Container Platform v4.10.x. This may be changed when new versions are released. See support lifecycle [here](https://docs.microsoft.com/en-us/azure/openshift/support-lifecycle)
 
 ## Cost and licenses
 Cloud Pak for Data offers a try and buy experience.

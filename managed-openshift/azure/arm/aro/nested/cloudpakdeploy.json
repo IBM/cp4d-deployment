@@ -26,18 +26,6 @@
 				"description": "Admin Username"
 			}
 		},
-		"ocuser": {
-			"type": "string",
-			"metadata": {
-				"description": "OpenShift Username"
-			}
-		},
-		"ocpassword": {
-			"type": "securestring",
-			"metadata": {
-				"description": "OpenShift Password"
-			}
-		},
 		"storageOption": {
 			"type": "string",
 			"metadata": {
@@ -123,7 +111,7 @@
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"name": "[concat(parameters('bastionHostname'), '/deployOpenshift')]",
 			"location": "[parameters('location')]",
-			"apiVersion": "2019-07-01",
+			"apiVersion": "2021-11-01",
 			"tags": {
 				"displayName": "DeployCloudPak",
 				"app": "[parameters('redHatTags').app]",

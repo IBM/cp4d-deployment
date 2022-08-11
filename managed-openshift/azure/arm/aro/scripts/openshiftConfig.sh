@@ -15,18 +15,18 @@ export CLUSTERNAME=${11}
 
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
-export CPDTEMPLATES=/home//$SUDOUSER/.cpd/templates
+export CPDTEMPLATES=/mnt/.cpd/templates
 
 runuser -l $SUDOUSER -c "mkdir -p $INSTALLERHOME"
 runuser -l $SUDOUSER -c "mkdir -p $OCPTEMPLATES"
-runuser -l $SUDOUSER -c "mkdir -p $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 runuser -l $SUDOUSER -c "cat > $OCPTEMPLATES/kubecredentials <<EOF
 username: $OPENSHIFTUSER
 password: $OPENSHIFTPASSWORD
 EOF"
 
 #setup oc and kubectl binaries
-runuser -l $SUDOUSER -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz"
+runuser -l $SUDOUSER -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.15/openshift-client-linux-4.10.15.tar.gz"
 runuser -l $SUDOUSER -c "sudo tar -xvf openshift-client-linux-*.tar.gz -C /usr/bin"
 runuser -l $SUDOUSER -c "rm -f openshift-client-linux-*.tar.gz"
 chmod +x /usr/bin/kubectl
