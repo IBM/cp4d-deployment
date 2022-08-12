@@ -72,6 +72,21 @@
         },
         "installPlanningAnalytics": {
           "value": "no"
+        },
+        "installDataStage": {
+          "value": "no"
+        },
+        "installDecisionOptimization": {
+          "value": "no"
+        },
+        "installOpenPages": {
+          "value": "no"
+        },
+        "installWatsonDiscovery": {
+          "value": "no"
+        },
+        "installMasterDataManagement": {
+          "value": "no"
         }
     }
   }

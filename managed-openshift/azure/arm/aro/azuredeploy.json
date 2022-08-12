@@ -378,6 +378,61 @@
 				"description": "Install Analytics Engine"
 			}
 		},
+		"installDataStage": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install DataStage"
+			}
+		},
+		"installDecisionOptimization": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Decision Optimization"
+			}
+		},
+		"installOpenPages": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install OpenPages"
+			}
+		},
+		"installWatsonDiscovery": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Watson Discovery"
+			}
+		},
+		"installMasterDataManagement": {
+			"type": "string",
+			"defaultValue": "no",
+			"allowedValues": [
+				"yes",
+				"no"
+			],
+			"metadata": {
+				"description": "Install Match360 with Watson"
+			}
+		},
 		"apiKey": {
 			"type": "securestring",
 			"metadata": {
@@ -479,6 +534,16 @@
 		"installPlanningAnalyticsScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-pa.sh', parameters('_artifactsLocationSasToken')))]",
 		"installSpssScriptFileName": "install-spss.sh",
 		"installSpssScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-spss.sh', parameters('_artifactsLocationSasToken')))]",
+		"installDSScriptFileName": "install-ds.sh",
+		"installDSScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-ds.sh', parameters('_artifactsLocationSasToken')))]",
+		"installDODSScriptFileName": "install-dods.sh",
+		"installDODSScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-dods.sh', parameters('_artifactsLocationSasToken')))]",
+		"installOpenPagesScriptFileName": "install-openpages.sh",
+		"installOpenPagesScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-openpages.sh', parameters('_artifactsLocationSasToken')))]",
+		"installWDScriptFileName": "install-wd.sh",
+		"installWDScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wd.sh', parameters('_artifactsLocationSasToken')))]",
+		"installMDMScriptFileName": "install-mdm.sh",
+		"installMDMScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-mdm.sh', parameters('_artifactsLocationSasToken')))]",
 		"deployOpenshiftExt": "[concat('Microsoft.Compute/virtualMachines/', variables('bastionHostname'), '/extensions/deployOpenshift')]",
 		"podCidr": "10.128.0.0/14",
 		"serviceCidr": "172.30.0.0/16",
@@ -1375,7 +1440,7 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonStudioLocal'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installWatsonStudioLocal'), 'yes'), equals(parameters('installDecisionOptimization'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2022-05-01",
 			"name": "CloudPakWSLDeployment",
@@ -1441,7 +1506,7 @@
 			}
 		},
 		{
-			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonMachineLearning'), 'yes'))]",
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installWatsonMachineLearning'), 'yes'), equals(parameters('installDecisionOptimization'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2022-05-01",
 			"name": "CloudPakWMLDeployment",
@@ -2292,6 +2357,336 @@
 					},
 					"subscriptionChannel": {
 						"value": "v1"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDataStage'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "CloudPakDSDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakCADeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installDSScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installDSScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDecisionOptimization'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "CloudPakDODeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakDSDeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installDODSScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installDODSScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installOpenPages'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "CloudPakOpenPagesDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakDODeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installOpenPagesScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installOpenPagesScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonDiscovery'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "CloudPakWDDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakOpenPagesDeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installWDScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installWDScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installMasterDataManagement'), 'yes'))]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "CloudPakMatch360withWatsonDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"CloudPakWDDeployment",
+				"OCSDeployment",
+				"NFSDeployment"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('installMDMScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('installMDMScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
 					},
 					"version": {
 						"value": "4.5.0"
