@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterName": {
-          "value": "vcaro453"
+          "value": "specify unique cluster name here"
         },
         "adminUsername": {
           "value": "core"
