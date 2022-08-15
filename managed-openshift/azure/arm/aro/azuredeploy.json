@@ -1972,7 +1972,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installSpssModeler'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-08-20",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakSPSSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -2038,7 +2038,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installPlanningAnalytics'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-08-20",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakPADeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -2104,7 +2104,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDb2oltp'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-08-20",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakDb2oltpDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -2170,7 +2170,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDb2Warehouse'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-08-20",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakDb2WHDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
