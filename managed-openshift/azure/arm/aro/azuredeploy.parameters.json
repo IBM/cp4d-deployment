@@ -9,24 +9,24 @@
           "value": "core"
         },
         "apiKey": {
-            "value": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJJQk0gTWFya2V0cGxhY2UiLCJpYXQiOjE2MTgyMTUwNzIsImp0aSI6IjFhMjFiNzdiYzE2OTRiODM5YTg5NDQwMThjODM3NWYzIn0.s0sP0X_p7UL1Vbv4XGI-NZZit7mbcLIuaHPAC7sE9_4"
+            "value": "specify cpd registry apikey here"
         },
         "sshPublicKey": {
-            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDqgOxRLdQtVBpe3nzdedAHvoPMhlxcTnUw/SLdTGl4NhXb9TNPz+cW2er9LD9PDttu2FEENeGUIgdAY5bK9+0JDoyMbWQyy3KZo1fOmWkGrh4+jicGgMb65xq+N5iPjhu6VoRJZs5lcap1C3o9Epfd8O0Wi7c6jZ65TkmsKxr3T+LUVgfTHv4PJ/G5F7k7WEukB4GV2HIi8Hp+f6bE/YpZaCcAyPR7psg5pzX3uXfOus3cw75sqnWg+Qr8O+qJB5V773gN8pIgR1sXeAi8XAoyZYBjIzHncvZMHubhPb/+/URJyiKUejqAn+i54zgEIXSz0G1EDLj8I53rWOTihIvF root@suddenly1.fyre.ibm.com"
+            "value": "specify public ssh key here"
         },
         "pullSecret": {
             "reference": {
               "keyVault": {
-                  "id": "/subscriptions/6f046466-4b41-405b-b34c-c8992178e4fc/resourceGroups/mshah-ocp-rg/providers/Microsoft.KeyVault/vaults/mshah-ocp-vault"
+                  "id": "/subscriptions/<subscription id>/resourceGroups/<resource group name>/providers/Microsoft.KeyVault/vaults/<vault name>"
               },
               "secretName": "pullsecret"
           }
         },
         "aadClientId": {
-            "value": "230ed2b0-fd58-40aa-b521-1936a35bd8f9"
+            "value": "specify azure appId or client id here"
         },
         "aadClientSecret": {
-            "value": "3yyoC4jDPgTMPH6dGnrd-EozazM~.x59Ia"
+            "value": "specify azure client secret or password here"
         },
         "workerInstanceCount": {
           "value": 7
@@ -56,22 +56,22 @@
           "value": "no"
         },
         "installAnalyticsengine": {
-          "value": "yes"
+          "value": "no"
         },
         "installCognosAnalytics": {
-          "value": "yes"
+          "value": "no"
         },
         "installSpssModeler": {
-          "value": "yes"
+          "value": "no"
         },
         "installDb2Warehouse": {
-          "value": "yes"
+          "value": "no"
         },
         "installDb2oltp": {
-          "value": "yes"
+          "value": "no"
         },
         "installPlanningAnalytics": {
-          "value": "yes"
+          "value": "no"
         }
     }
   }
