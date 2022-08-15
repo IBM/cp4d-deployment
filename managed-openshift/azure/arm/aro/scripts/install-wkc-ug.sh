@@ -64,7 +64,7 @@ metadata:
 spec:
   version: \"$VERSION\"
   size: \"small\"
-  storageClass: \"nfs\"
+  storageClass: \"nfs-client\"
   license:
     accept: true
     license: \"Enterprise\"

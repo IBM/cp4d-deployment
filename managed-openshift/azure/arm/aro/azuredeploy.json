@@ -499,7 +499,7 @@
 	"resources": [
 		{
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "pid-06f07fff-296b-5beb-9092-deab0c6bb8ea",
 			"properties": {
 				"mode": "Incremental",
@@ -672,7 +672,7 @@
 		},
 		{
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "BastionVmDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
@@ -805,7 +805,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "nfsVmDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
@@ -984,7 +984,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'ocs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "OCSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1048,7 +1048,7 @@
 		{
 			"condition": "[equals(parameters('storageOption'), 'nfs')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "NFSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1112,7 +1112,7 @@
 		{
 			"condition": "[equals(parameters('cloudPakLicenseAgreement'), 'accept')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakConfigDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1178,7 +1178,7 @@
 		{
 			"condition": "[equals(parameters('cloudPakLicenseAgreement'), 'accept')]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakLiteDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1245,7 +1245,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installWatsonStudioLocal'), 'yes'),equals(parameters('installWatsonKnowledgeCatalog'), 'yes'),equals(parameters('installWatsonMachineLearning'), 'yes'),equals(parameters('installDataVirtualization'), 'yes'),equals(parameters('installCognosDashboard'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakCCSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1311,7 +1311,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'),equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakDataRefineryDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1377,7 +1377,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonStudioLocal'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakWSLDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1443,7 +1443,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonMachineLearning'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakWMLDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1509,7 +1509,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonOpenscale'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakWOSDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",	
@@ -1575,7 +1575,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installCognosDashboard'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakCDEDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1642,7 +1642,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installDataVirtualization'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakDVDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1708,7 +1708,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), or(equals(parameters('installAnalyticsEngine'), 'yes'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes')))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakAnalyticsEngineDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1774,7 +1774,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakIISDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1840,7 +1840,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakWKCDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -1906,7 +1906,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installWatsonKnowledgeCatalog'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2021-04-01",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakWKCUGDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
@@ -2236,7 +2236,7 @@
 		{
 			"condition": "[and(equals(parameters('cloudPakLicenseAgreement'), 'accept'), equals(parameters('installCognosAnalytics'), 'yes'))]",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2022-08-20",
+			"apiVersion": "2022-05-01",
 			"name": "CloudPakCADeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
