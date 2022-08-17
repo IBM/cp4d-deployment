@@ -28,8 +28,8 @@ fi
 # Setup the storage class value
 
 if [[ $STORAGEOPTION == "nfs" ]];then 
-    export STORAGECLASS_VALUE="nfs"
-    export STORAGECLASS_RWO_VALUE="nfs"
+    export STORAGECLASS_VALUE="nfs-client"
+    export STORAGECLASS_RWO_VALUE="nfs-client"
 elif [[ $STORAGEOPTION == "ocs" ]];then 
     export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
     export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
