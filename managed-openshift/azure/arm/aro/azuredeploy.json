@@ -634,7 +634,7 @@
 		{
 			"condition": "[equals(parameters('publicBootnodeIP'), variables('vTrue'))]",
 			"type": "Microsoft.Network/publicIPAddresses",
-			"apiVersion": "2021-08-01",
+			"apiVersion": "2021-03-01",
 			"name": "[variables('bastionPublicIpDnsLabel')]",
 			"location": "[parameters('location')]",
 			"sku": {
@@ -689,7 +689,7 @@
 		},
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2021-08-01",
+			"apiVersion": "2021-03-01",
 			"name": "[variables('bastionSecurityGroupName')]",
 			"location": "[parameters('location')]",
 			"tags": {
@@ -791,7 +791,7 @@
 		},
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2021-08-01",
+			"apiVersion": "2021-03-01",
 			"name": "[variables('nfsSecurityGroupName')]",
 			"location": "[parameters('location')]",
 			"tags": {
