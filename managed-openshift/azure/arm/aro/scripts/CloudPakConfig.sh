@@ -83,6 +83,9 @@ oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfig
 sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' $OCPTEMPLATES/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=$OCPTEMPLATES/dockerconfig.json
 
+# Sleep for 2 min then check the status of nodes
+sleep 120
+
 # Check nodestatus if they are ready.
 
 while true; do
