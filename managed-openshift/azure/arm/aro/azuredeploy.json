@@ -502,6 +502,8 @@
 		"cloudPakConfigScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/CloudPakConfig.sh', parameters('_artifactsLocationSasToken')))]",
 		"openshiftConfigScriptFileName": "openshiftConfig.sh",
 		"openshiftConfigScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/openshiftConfig.sh', parameters('_artifactsLocationSasToken')))]",
+		"openshiftUpgradeScriptFileName": "openshiftUpgrade.sh",
+		"openshiftUpgradeScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/openshiftUpgrade.sh', parameters('_artifactsLocationSasToken')))]",
 		"installWosScriptFileName": "install-wos.sh",
 		"installWosScriptUrl": "[uri(parameters('_artifactsLocation'), concat('scripts/install-wos.sh', parameters('_artifactsLocationSasToken')))]",
 		"installWslScriptFileName": "install-wsl.sh",
@@ -1050,10 +1052,75 @@
 			"condition": "[equals(parameters('storageOption'), 'ocs')]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2022-05-01",
-			"name": "OCSDeployment",
+			"name": "OpenshiftUpgradeDeployment",
 			"dependsOn": [
 				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
 				"[variables('deployOpenshiftExt')]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('cloudPakDeploymentTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"cloudPakDeploymentScriptUrl": {
+						"value": "[variables('openshiftUpgradeScriptUrl')]"
+					},
+					"cloudPakDeploymentScriptFileName": {
+						"value": "[variables('openshiftUpgradeScriptFileName')]"
+					},
+					"redHatTags": {
+						"value": "[variables('redHatTags')]"
+					},
+					"adminUsername":{
+						"value": "[parameters('adminUsername')]"
+					},
+					"storageOption": {
+						"value": "[parameters('storageOption')]"
+					},
+					"bastionHostname": {
+						"value": "[variables('bastionHostname')]"
+					},
+					"projectName": {
+						"value": "[parameters('projectName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"clusterName": {
+						"value": "[parameters('clusterName')]"
+					},
+					"domainName": {
+						"value": "[variables('domain')]"
+					},
+					"workerInstanceCount": {
+						"value": "[parameters('workerInstanceCount')]"
+					},
+					"apiKey": {
+						"value": "[parameters('apiKey')]"
+					},
+					"customDomain": {
+						"value": "[variables('customDomain')]"
+					},
+					"subscriptionChannel": {
+						"value": "v2.0"
+					},
+					"version": {
+						"value": "4.5.0"
+					}
+				}
+			}
+		},
+		{
+			"condition": "[equals(parameters('storageOption'), 'ocs')]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2022-05-01",
+			"name": "OCSDeployment",
+			"dependsOn": [
+				"[resourceId('Microsoft.RedHatOpenShift/OpenShiftClusters', parameters('clusterName'))]",
+				"[variables('deployOpenshiftExt')]",
+				"OpenshiftUpgradeDeployment"
 			],
 			"properties": {
 				"mode": "Incremental",
