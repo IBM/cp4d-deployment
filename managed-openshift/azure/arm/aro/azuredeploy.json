@@ -210,6 +210,7 @@
 			"type": "int",
 			"defaultValue": 1024,
 			"allowedValues": [
+				512,
 				1024,
 				2048
 			],
@@ -549,7 +550,6 @@
 		"deployOpenshiftExt": "[concat('Microsoft.Compute/virtualMachines/', variables('bastionHostname'), '/extensions/deployOpenshift')]",
 		"podCidr": "10.128.0.0/14",
 		"serviceCidr": "172.30.0.0/16",
-		"rpObjectId": "464114b9-46ee-4c7c-a068-35ab76d50606",
 		"publicIpId": {
 			"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpDnsLabel'))]"
 		},
@@ -956,7 +956,7 @@
 		},
 		{
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-01-01-preview",
+            "apiVersion": "2022-04-01",
             "name": "[guid(resourceGroup().id)]",
             "properties": {
                 "roleDefinitionId": "[variables('contribRole')]",
