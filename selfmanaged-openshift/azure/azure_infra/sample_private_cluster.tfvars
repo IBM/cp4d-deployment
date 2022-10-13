@@ -26,7 +26,7 @@ apikey                = "<required>"
 ​
 ## ** Note : set enable as "yes" for the services required. 
 ​
-cpd_version               = "4.5.0"
+cpd_version               = "4.5.3"
 watson_knowledge_catalog  = "no"
 data_virtualization       = "no"
 analytics_engine          = "no"
@@ -92,7 +92,7 @@ private-or-public-cluster = "private" ### Specify private for private cluster.
 #cpd-external-username = "cp" 
 #openshift_installer_url_prefix = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp" 
 #cloudctl_version = "v3.8.0" 
-#ocp_version      = "4.6.31"
+#ocp_version      = "4.10.34"
 ​
 ##############################
 ### CPD4.0 variables
