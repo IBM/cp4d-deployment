@@ -14,7 +14,7 @@ The template sets up the following:
     * OpenShift Container Platform master instances.
     * OpenShift compute nodes with machine auto scaling features.
 - An Azure Load Balancer spanning the public subnets for accessing Cloud Pak for Data from a web browser.
-- Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or OCS (OpenShift Container Storage) v4.8 or on an exclusive node for NFS.
+- Storage disks with Azure Managed Disk mounted on compute nodes for Portworx or OCS (OpenShift Container Storage) v4.10 or on an exclusive node for NFS.
 - An Azure domain as your public Domain Name System (DNS) zone for resolving domain names of the IBM Cloud Pak for Data management console and applications deployed on the cluster.
 
 ### Prerequisites
@@ -40,8 +40,8 @@ The template sets up the following:
   ```
 * Download Openshift CLI and move to `/usr/local/bin`:
 ```bash
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.15/openshift-client-linux-4.10.15.tar.gz
-tar -xvf openshift-client-linux-4.10.15.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.34/openshift-client-linux-4.10.34.tar.gz
+tar -xvf openshift-client-linux-4.10.34.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin
