@@ -18,7 +18,7 @@ storage_option = "nfs" # cloud pak for data storage class ocs ,portworx,nfs,efs,
 
 
 ## CPD services
-cpd_version               = "4.5.0"
+cpd_version               = "4.5.3"
 watson_knowledge_catalog  =  "yes"
 data_virtualization       =  "no"
 analytics_engine          =  "no"
