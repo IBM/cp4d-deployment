@@ -24,7 +24,7 @@ ssh-public-key        = "<required>"
 apikey                = "<required>"
 
 ## CPD services
-cpd_version               = "4.5.0"
+cpd_version               = "4.5.3"
 watson_knowledge_catalog  = "yes"
 data_virtualization       = "no"
 analytics_engine          = "no"
@@ -90,7 +90,7 @@ accept-cpd-license = "accept"
 #cpd-external-username = "cp" 
 #openshift_installer_url_prefix = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp" 
 #cloudctl_version = "v3.8.0" 
-#ocp_version      = "4.10.15"
+#ocp_version      = "4.10.34"
 
 ##############################
 ### CPD4.0 variables
