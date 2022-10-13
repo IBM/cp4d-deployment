@@ -6,7 +6,7 @@ metadata:
   name: new-large-pidlimit
 spec:
   containerRuntimeConfig:
-    pidsLimit: 12288
+    pidsLimit: 16384
   machineConfigPoolSelector:
     matchExpressions:
     - key: pools.operator.machineconfiguration.openshift.io/worker
