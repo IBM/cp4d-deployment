@@ -35,5 +35,4 @@ sudo yum -y install terraform
 terraform -help
 
 #Install podman
-sudo subscription-manager repos --enable=rhel-7-server-extras-rpms
 sudo yum -y install podman

@@ -6,9 +6,9 @@ secret_access_key               = "<required>"
 base_domain                     = "<required>"
 
 cluster_name                    = "cpd-1az-new-vpc"
-worker_replica_count            = 3  # set worker_replica_count depending on the cpd services being installed
+worker_replica_count            = 9  # set worker_replica_count depending on the cpd services being installed
 openshift_pull_secret_file_path = "<required>"
-public_ssh_key                  = "<required>"
+public_ssh_key                  = "<required>" 
 openshift_username              = "ocadmin"
 openshift_password              = "<required>"
 accept_cpd_license              = "accept"
@@ -45,7 +45,7 @@ efs                  = { "enable" : "true" }  #Install efs storage
 #portworx_essentials = {enable: false, cluster_id: "", user_id: "", osb_endpoint: ""}
 #portworx_ibm        = { enable: false, ibm_px_package_path: "" } # absolute file path to the folder containing the cpd*-portworx*.tgz package
 
-storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs ,This storage option is for cpd services to use
+storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs ,This storage selection is for cpd services storage classes
 ##################################################################### DEFAULTS ##################################################################
 
 #key_name                      = "openshift-key"
@@ -53,7 +53,7 @@ storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs ,This storage option 
 #new_or_existing_vpc_subnet    = "new"
 #availability_zone2            = ""
 #availability_zone3            = ""
-#enable_permission_quota_check = true
+enable_permission_quota_check = false
 
 ##############################
 # New Network
