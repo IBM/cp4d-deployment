@@ -30,18 +30,18 @@ resource "null_resource" "download_cpd_cli" {
   echo "Download cpd-cli installer."
 case $(uname -s) in
   Darwin)
-    wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-darwin-EE-11.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.0.0.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0.tgz -C ${self.triggers.cpd_workspace}
+    wget https://github.com/IBM/cpd-cli/releases/download/v11.3.0/cpd-cli-darwin-EE-11.3.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-darwin-EE-11.3.0.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.3.0.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.0.0-20/*  ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-darwin-EE-11.3.0-52/*  ${self.triggers.cpd_workspace}
     ;;
   Linux)
-    wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.0.0.tgz'
-    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0.tgz -C ${self.triggers.cpd_workspace}
+    wget https://github.com/IBM/cpd-cli/releases/download/v11.3.0/cpd-cli-linux-EE-11.3.0.tgz -P ${self.triggers.cpd_workspace} -A 'cpd-cli-linux-EE-11.3.0.tgz'
+    tar -xvf ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.3.0.tgz -C ${self.triggers.cpd_workspace}
     rm -rf ${self.triggers.cpd_workspace}/plugins
     rm -rf ${self.triggers.cpd_workspace}/LICENSES
-    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.0.0-20/* ${self.triggers.cpd_workspace}
+    mv ${self.triggers.cpd_workspace}/cpd-cli-linux-EE-11.3.0-52/* ${self.triggers.cpd_workspace}
     ;;
   *)
     echo 'Supports only Linux and Mac OS at this time'
@@ -86,6 +86,34 @@ EOF
   ]
 }
 
+resource "null_resource" "configure_global_pull_secret" {
+  triggers = {
+    cpd_workspace = local.cpd_workspace
+    cpd_external_registry = var.cpd_external_registry
+    cpd_external_username = var.cpd_external_username
+    cpd_api_key = var.cpd_api_key
+
+  }
+
+  count = var.configure_global_pull_secret ? 1 : 0
+  provisioner "local-exec" {
+    command = <<EOF
+echo "Configuring global pull secret"
+
+${self.triggers.cpd_workspace}/cpd-cli manage add-cred-to-global-pull-secret  '${self.triggers.cpd_external_registry}'  '${self.triggers.cpd_external_username}'  '${self.triggers.cpd_api_key}'
+
+echo 'Sleeping for 5mins while global pull secret apply and the nodes restarts' 
+sleep 300
+EOF
+  }
+   depends_on = [
+    module.machineconfig,
+    null_resource.login_cluster,
+    null_resource.download_cpd_cli,
+  ]
+}
+
+
 resource "null_resource" "node_check" {
   triggers = {
     namespace     = var.cpd_namespace
@@ -105,6 +133,7 @@ EOF
     module.machineconfig,
     null_resource.login_cluster,
     null_resource.download_cpd_cli,
+    null_resource.configure_global_pull_secret,
   ]
 }
 
@@ -129,6 +158,7 @@ EOF
     null_resource.login_cluster,
     null_resource.download_cpd_cli,
     null_resource.node_check,
+    null_resource.configure_global_pull_secret,
   ]
 }
 

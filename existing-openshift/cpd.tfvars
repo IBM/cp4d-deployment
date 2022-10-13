@@ -7,13 +7,14 @@ openshift_token    = "<optional>"
 configure_global_pull_secret = true          # false if pull secret is already created
 configure_openshift_nodes    = true          # false if nodes are already configured
 cluster_type                 = "selfmanaged" # managed or selfmanaged
+enable_fips = false
 
 cpd_external_registry = "cp.icr.io"
 cpd_external_username = "cp"
 cpd_api_key           = "<required>"
 cpd_namespace         = "zen"
 
-storage_option = "nfs" # ocs ,portworx,nfs,efs,efs-ebs
+storage_option = "nfs" # cloud pak for data storage class ocs ,portworx,nfs,efs,efs-ebs
 
 
 ## CPD services

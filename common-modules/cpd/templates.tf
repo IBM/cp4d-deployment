@@ -1,5 +1,6 @@
 locals {
   storage_type_key   = var.storage_option == "portworx" ? "storageVendor: portworx" : "fileStorageClass: ${local.storage_class}\n  blockStorageClass: ${local.rwo_storage_class}"
+  enable_manta       = var.enable_fips == false ? "True" : "False"
 }
 data "template_file" "wkc_iis_scc" {
   template = <<EOF
@@ -61,6 +62,10 @@ spec:
   wkc_db2u_set_kernel_params: True
   iis_db2u_set_kernel_params: True
   version: ${var.cpd_version}
+  enableKnowledgeGraph: True
+  enableDataQuality: True
+  enableFactSheet: True
+  enableMANTA: ${local.enable_manta}
 EOF
 }
 

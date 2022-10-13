@@ -13,6 +13,7 @@ openshift_username              = "ocadmin"
 openshift_password              = "<required>"
 accept_cpd_license              = "accept"
 cpd_api_key                     = "<required>"
+cpd_version                     = "4.5.3"
 
 watson_knowledge_catalog  =  "no"
 data_virtualization       =  "no"
