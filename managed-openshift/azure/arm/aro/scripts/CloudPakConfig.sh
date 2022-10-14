@@ -34,12 +34,12 @@ runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 # runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
 ### Install Prereqs:  CPD CLI, JQ, and Podman
-## Download & Install CPD CLI
-runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
-runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
+## Download & Install CPD CLI      
+runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.3.0/cpd-cli-linux-EE-11.3.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0.tgz"
+runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.3.0.tgz"
 # Move cpd-cli, plugins and license in the CPDTEMPLATES folder
-runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
-runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0*"
+runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0-52/* $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0*"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
