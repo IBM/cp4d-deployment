@@ -171,6 +171,10 @@ spec:
   docker_registry_prefix: cp.icr.io/cp/cpd
   useODLM: true
   install_wkc_core_only: true
+  enableKnowledgeGraph: True
+  enableDataQuality: True
+  enableFactSheet: True
+  enableMANTA: true
 EOF'"
 
 runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-wkc-nfs-cr.yaml <<EOF
@@ -188,6 +192,10 @@ spec:
   docker_registry_prefix: cp.icr.io/cp/cpd
   useODLM: true
   install_wkc_core_only: true
+  enableKnowledgeGraph: True
+  enableDataQuality: True
+  enableFactSheet: True
+  enableMANTA: true
 EOF'"
 
 ## Creating ibm-wkc cr
