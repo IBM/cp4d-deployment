@@ -20,8 +20,8 @@ mv jq /usr/local/bin
 
 ## Download Openshift CLI and move to /usr/local/bin
 
-wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.8.11/openshift-client-linux-4.8.11.tar.gz"
-tar -xvf openshift-client-linux-4.8.11.tar.gz
+wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.34/openshift-client-linux-4.10.34.tar.gz"
+tar -xvf openshift-client-linux-4.10.34.tar.gz
 chmod u+x oc kubectl
 sudo mv oc /usr/local/bin
 sudo mv kubectl /usr/local/bin
@@ -35,5 +35,4 @@ sudo yum -y install terraform
 terraform -help
 
 #Install podman
-sudo subscription-manager repos --enable=rhel-7-server-extras-rpms
 sudo yum -y install podman

@@ -19,13 +19,23 @@ export VERSION=${13}
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
-export CPDTEMPLATES=/home/$SUDOUSER/.cpd/templates
+export CPDTEMPLATES=/mnt/.cpd/templates
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then
 export SUBURL="${CLUSTERNAME}.${DOMAINNAME}"
 else
 export SUBURL="${DOMAINNAME}.${LOCATION}.aroapp.io"
+fi
+
+# Setup the storage class value
+
+if [[ $STORAGEOPTION == "nfs" ]];then 
+    export STORAGECLASS_VALUE="nfs"
+    export STORAGECLASS_RWO_VALUE="nfs"
+elif [[ $STORAGEOPTION == "ocs" ]];then 
+    export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+    export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
 fi
 
 #Login
@@ -37,10 +47,42 @@ var=$?
 echo "exit code: $var"
 done
 
-# IIS case package download  and CR creation 
+# CPD CLI OCP Login
+runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage login-to-ocp --server \"https://api.${SUBURL}:6443\" -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD"
 
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-ocs-cr.yaml <<EOF
+# ## IIS Catalog Source and Subscription
+# echo "Deploying catalogsources and operator subscriptions for IIS module"
+# runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-olm --release=${VERSION} --components=iis"
+
+# if [ $? -ne 0 ]
+# then
+#     echo "**********************************"
+#     echo "Deploying catalog Sources & subscription failed for IIS"
+#     echo "**********************************"
+#     exit 1
+# fi
+
+
+# ## IIS CR
+# echo "Applying CR for IIS"
+# if [[ "$STORAGEOPTION" != "portworx" ]]
+# then
+#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=iis  --license_acceptance=true --cpd_instance_ns=${CPDNAMESPACE} --file_storage_class=${STORAGECLASS_VALUE} --block_storage_class=${STORAGECLASS_RWO_VALUE}"
+# else
+#     runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-cr --release=${VERSION} --components=iis  --license_acceptance=true --cpd_instance_ns=$CPDNAMESPACE --storage_vendor=portworx"
+# fi
+# if [ $? -ne 0 ]
+# then
+#     echo "**********************************"
+#     echo "Applying CR for IIS failed"
+#     echo "**********************************"
+#     exit 1
+# fi
+
+# IIS CR 
+
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-ocs-cr.yaml <<EOF
 apiVersion: iis.cpd.ibm.com/v1alpha1
 kind: IIS
 metadata:
@@ -53,9 +95,9 @@ spec:
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
   use_dynamic_provisioning: true
-EOF"
+EOF'"
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-nfs-cr.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-nfs-cr.yaml <<EOF
 apiVersion: iis.cpd.ibm.com/v1alpha1
 kind: IIS
 metadata:
@@ -68,11 +110,11 @@ spec:
     license: Enterprise
   docker_registry_prefix: cp.icr.io/cp/cpd
   use_dynamic_provisioning: true
-EOF"
+EOF'"
 
-## Creating IIS SC yaml 
+## Creating IIS SCC yaml 
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-scc.yaml <<EOF
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
@@ -113,30 +155,75 @@ volumes:
 - secret
 users:
 - system:serviceaccount:$CPDNAMESPACE:wkc-iis-sa
-EOF"
-
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-iis-sub.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: ibm-cpd-iis-operator
-  namespace: $CPDNAMESPACE
-spec: 
-  channel: $VERSION
-  installPlanApproval: Automatic 
-  name: ibm-cpd-iis
-  source: ibm-operator-catalog
-  sourceNamespace: openshift-marketplace
-EOF"
+EOF'"
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-scc.yaml"
 runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
 runuser -l $SUDOUSER -c "sleep 1m"
 
+### IIS Catalog Source
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/iis-catalog.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  namespace: openshift-marketplace
+  name: ibm-cpd-iis-operator-catalog
+spec:
+  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:cc9d327a0bd8a7701ae10eee05809faacb89a66b88fc62dc5c4c056f7d8e8613
+  displayName: CPD IBM Information Server
+  publisher: IBM
+  sourceType: grpc
+EOF'"
+
+## Create Catalog Source
+runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/iis-catalog.yaml"
+runuser -l $SUDOUSER -c "echo 'Sleeping for 2m' "
+runuser -l $SUDOUSER -c "sleep 2m"
+
+## Wait until pod is in Running State
+podname="ibm-cpd-iis-operator-catalog"
+name_space="openshift-marketplace"
+status="unknown"
+while [ "$status" != "Running" ]
+do
+  pod_name=$(oc get pods -n $name_space | grep $podname | awk '{print $1}' )
+  ready_status=$(oc get pods -n $name_space $pod_name  --no-headers | awk '{print $2}')
+  pod_status=$(oc get pods -n $name_space $pod_name --no-headers | awk '{print $3}')
+  echo $pod_name State - $ready_status, podstatus - $pod_status
+  if [ "$ready_status" == "1/1" ] && [ "$pod_status" == "Running" ]
+  then 
+  status="Running"
+  else
+  status="starting"
+  sleep 10 
+  fi
+  echo "$pod_name is $status"
+done
+
+### IIS Subscription
+
+runuser -l $SUDOUSER -c "sudo bash -c 'cat > $CPDTEMPLATES/ibm-iis-sub.yaml <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/instance: ibm-cpd-iis-operator-catalog-subscription
+    app.kubernetes.io/managed-by: ibm-cpd-iis-operator
+    app.kubernetes.io/name: ibm-cpd-iis-operator-catalog-subscription
+  generation: 1 
+  name: ibm-cpd-iis-operator-catalog-subscription
+  namespace: $OPERATORNAMESPACE
+spec: 
+  channel: $CHANNEL
+  installPlanApproval: Automatic 
+  name: ibm-cpd-iis
+  source: ibm-cpd-iis-operator-catalog
+  sourceNamespace: openshift-marketplace
+EOF'"
+
 # Check ibm-cpd-iis-operator pod status
 
 runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-iis-sub.yaml"
-
 runuser -l $SUDOUSER -c "echo 'Sleeping 2m for operator to install'"
 runuser -l $SUDOUSER -c "sleep 2m"
 

@@ -17,7 +17,7 @@ export CLUSTERNAME=${11}
 export OPERATORNAMESPACE=ibm-common-services
 export INSTALLERHOME=/home/$SUDOUSER/.ibm
 export OCPTEMPLATES=/home/$SUDOUSER/.openshift/templates
-export CPDTEMPLATES=/home/$SUDOUSER/.cpd/templates
+export CPDTEMPLATES=/mnt/.cpd/templates
 
 # Set url
 if [[ $CUSTOMDOMAIN == "true" || $CUSTOMDOMAIN == "True" ]];then
@@ -35,30 +35,54 @@ var=$?
 echo "exit code: $var"
 done
 
-# DB2u subscription and operator creation 
+if [[ $STORAGEOPTION == "nfs" ]];then 
+    export STORAGECLASS_VALUE="nfs"
+    export STORAGECLASS_RWO_VALUE="nfs"
+elif [[ $STORAGEOPTION == "ocs" ]];then 
+    export STORAGECLASS_VALUE="ocs-storagecluster-cephfs"
+    export STORAGECLASS_RWO_VALUE="ocs-storagecluster-ceph-rbd"
+fi
 
-runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2u-cs.yaml <<EOF
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-db2uoperator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: IBM Db2U Catalog
-  image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
-  imagePullPolicy: Always
-  publisher: IBM
-  sourceType: grpc
-  updateStrategy:
-    registryPoll:
-      interval: 45m
-EOF"
+# CPD CLI OCP Login
+runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage login-to-ocp --server \"https://api.${SUBURL}:6443\" -u $OPENSHIFTUSER -p $OPENSHIFTPASSWORD"
 
-## Creating CS and sub
 
-runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-cs.yaml"
-runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
-runuser -l $SUDOUSER -c "sleep 1m"
+## Db2u Catalog Source and Subscription
+echo "Deploying catalogsources for Db2u"
+runuser -l $SUDOUSER -c "sudo $CPDTEMPLATES/cpd-cli manage apply-olm --release=${VERSION} --components=db2u"
+
+if [ $? -ne 0 ]
+then
+    echo "**********************************"
+    echo "Deploying catalog Sources failed for Db2u"
+    echo "**********************************"
+    exit 1
+fi
+
+# # DB2u subscription and operator creation 
+
+# runuser -l $SUDOUSER -c "cat > $CPDTEMPLATES/ibm-db2u-cs.yaml <<EOF
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: CatalogSource
+# metadata:
+#   name: ibm-db2uoperator-catalog
+#   namespace: openshift-marketplace
+# spec:
+#   displayName: IBM Db2U Catalog
+#   image: docker.io/ibmcom/ibm-db2uoperator-catalog:latest
+#   imagePullPolicy: Always
+#   publisher: IBM
+#   sourceType: grpc
+#   updateStrategy:
+#     registryPoll:
+#       interval: 45m
+# EOF"
+
+# ## Creating CS and sub
+
+# runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-cs.yaml"
+# runuser -l $SUDOUSER -c "echo 'Sleeping for 1m' "
+# runuser -l $SUDOUSER -c "sleep 1m"
 
 #runuser -l $SUDOUSER -c "oc create -f $CPDTEMPLATES/ibm-db2u-sub.yaml"
 #runuser -l $SUDOUSER -c "echo 'Sleeping for 3m' "

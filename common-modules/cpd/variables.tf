@@ -98,13 +98,18 @@ variable "rwo_cpd_storageclass" {
 }
 variable "cpd_version" {
   type    = string
-  default = "4.5.0"
+  default = "4.5.3"
 }
 
 variable "cpd_platform" {
   type    = string
   default = "yes"
  
+}
+
+variable "enable_fips" {
+  type    = bool
+  default = false
 }
 
 variable "data_virtualization" {
