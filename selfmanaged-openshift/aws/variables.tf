@@ -337,7 +337,7 @@ variable "cpd_namespace" {
 
 variable "openshift_version" {
   description = "Version >= 4.6.27"
-  default     = "4.10.15"
+  default     = "4.10.34"
 }
 
 variable "cpd_platform" {
@@ -348,7 +348,7 @@ variable "cpd_platform" {
 
 variable "cpd_version" {
   type    = string
-  default = "4.5.0"
+  default = "4.5.3"
 }
 
 variable "data_virtualization" {

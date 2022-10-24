@@ -5,7 +5,7 @@ variable "openshift_installer_url" {
 
 variable "openshift_version" {
   type = string
-  default = "4.6.31"
+  default = "4.10.34"
 }
 
 variable "cluster_name" {

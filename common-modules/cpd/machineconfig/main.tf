@@ -55,6 +55,7 @@ EOF
   ]
 }
 
+/*
 resource "null_resource" "configure_global_pull_secret" {
   count = var.configure_global_pull_secret ? 1 : 0
   provisioner "local-exec" {
@@ -74,6 +75,7 @@ EOF
     null_resource.patch_config_managed,
   ]
 }
+*/
 
 resource "null_resource" "configure_cluster" {
   count = var.configure_openshift_nodes ? 1 : 0
@@ -95,6 +97,5 @@ EOF
     null_resource.login_cluster,
     null_resource.patch_config_self,
     null_resource.patch_config_managed,
-    null_resource.configure_global_pull_secret,
   ]
 }

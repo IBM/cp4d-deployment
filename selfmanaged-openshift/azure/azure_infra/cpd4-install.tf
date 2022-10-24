@@ -27,6 +27,7 @@ module "cpd" {
   storage_option            = var.storage
   cpd_version               = var.cpd_version
   cpd_platform              = var.cpd_platform
+  enable_fips               = var.fips
   data_virtualization       = var.data_virtualization
   analytics_engine          = var.analytics_engine
   watson_knowledge_catalog  = var.watson_knowledge_catalog

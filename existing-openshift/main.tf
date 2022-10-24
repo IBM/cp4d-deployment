@@ -36,6 +36,7 @@ module "cpd" {
   watson_discovery             = var.watson_discovery
   openpages                    = var.openpages
   cluster_type                 = var.cluster_type
+  enable_fips                  = var.enable_fips
   configure_global_pull_secret = var.configure_global_pull_secret
   configure_openshift_nodes    = var.configure_openshift_nodes
 

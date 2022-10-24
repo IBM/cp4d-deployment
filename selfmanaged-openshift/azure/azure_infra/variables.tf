@@ -172,7 +172,7 @@ variable "cpd-external-username" {
   default     = "cp"
 }
 variable "ocp_version" {
-  default = "4.10.15"
+  default = "4.10.34"
 }
 
 variable "openshift_installer_url_prefix" {
@@ -190,11 +190,11 @@ variable "accept-cpd-license" {
 
 variable "cpd_version" {
   type    = string
-  default = "4.5.0"
+  default = "4.5.3"
 }
 
 ##############################
-### CPD4.0 variables
+### CPD4.5 variables
 ##############################
 
 variable "cpd-namespace" {
@@ -225,7 +225,7 @@ variable "rwo_cpd_storageclass" {
   }
 }
 ############################################
-# CPD 4.0 service variables 
+# CPD 4.5 service variables 
 ###########################################
 variable "cpd_platform" {
   type = string

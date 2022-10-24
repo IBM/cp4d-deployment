@@ -42,6 +42,7 @@ variable "accept_cpd_license" {
   default     = "accept"
 }
 
+
 variable "cpd_external_registry" {
   description = "URL to external registry for CPD install. Note: CPD images must already exist in the repo"
   default     = "cp.icr.io"
@@ -92,7 +93,7 @@ variable "rwo_cpd_storageclass" {
 
 variable "cpd_version" {
   type    = string
-  default = "4.5.0"
+  default = "4.5.3"
 }
 
 ###########
@@ -210,4 +211,9 @@ variable "openpages" {
 
 variable "accept-cpd-license" {
   default = "reject"
+}
+
+variable "enable_fips" {
+  type    = bool
+  default = false
 }
