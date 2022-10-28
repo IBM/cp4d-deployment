@@ -102,7 +102,7 @@ variable "private_subnet3_id" {
 # ROSA
 ##########
 variable "openshift_version" {
-  default = "4.10.15"
+  default = "4.10.34"
 }
 
 variable "cluster_name" {
@@ -251,7 +251,7 @@ variable "cpd_namespace" {
 
 variable "cpd_version" {
   type    = string
-  default = "4.5.0"
+  default = "4.5.3"
 }
 
 variable "cpd_platform" {
