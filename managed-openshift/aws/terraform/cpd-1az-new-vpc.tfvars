@@ -31,7 +31,7 @@ storage_option = "efs-ebs" # ocs ,portworx,nfs,efs,efs-ebs , This storage option
 
 cpd_api_key              = "<required>"
 accept_cpd_license       = "accept"
-cpd_version               = "4.5.0"
+cpd_version               = "4.5.3"
  
 ## CPD services
 watson_knowledge_catalog  =  "no"
