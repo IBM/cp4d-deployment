@@ -122,8 +122,18 @@ As part of the deployment, the following services can be enabled:
  - Data Virtualization
  - Watson Openscale
  - Cognos Dashboard
- - Apache Spark
- 
+ - Analytics Engine
+ - DataStage
+ - Decision Optimization
+ - OpenPages
+ - Watson Discovery
+ - MasterDataManagement
+ - Cognos Analytics
+ - SPSS Modeler
+ - Db2OLTP
+ - Db2Warehouse
+ - Planning Anlytics
+
 You can browse the various services that are available for use by navigating to the services catalog page in Cloud Pak for Data.
 
 To get information on various other services that are available, you can visit [Cloud Pak for Data Service Catalog](https://www.ibm.com/support/producthub/icpdata/docs/content/SSQNUZ_current/cpd/svc/services.html)

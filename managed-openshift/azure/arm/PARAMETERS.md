@@ -22,7 +22,17 @@
 | `installWatsonOpenscale` | no | Install Watson AI Openscale service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
 | `installWatsonMachineLearning` | no | Install Watson Machine Learning service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
 | `installCognosDashboard` | no | Install Cognos Dashboard service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
-| `installApacheSpark` | no | Install Apache Spark service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installAnalyticsEngine` | no | Install Analytics Engine service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installDataStage` | no | Install DataStage service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installDecisionOptimization` | no | Install Decision Optimization service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installOpenPages` | no | Install OpenPages service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installWatsonDiscovery` | no | Install Watson Discovery service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installMasterDataManagement` | no | Install Master Data Management service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installCognosAnalytics` | no | Install Cognos Analytics service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installSpssModeler` | no | Install SPSS Modeler service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installDb2oltp` | no | Install Db2OLTP service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installDb2Warehouse` | no | Install Db2 Warehouse service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
+| `installPlanningAnalytics` | no | Install Planning Anlytics service. `cloudPakLicenseAgreement` needs to be accepted to install any CPD service. |
 
 
 ### For Existing VNet 
