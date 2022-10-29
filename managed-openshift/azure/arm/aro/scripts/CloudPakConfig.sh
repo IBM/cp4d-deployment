@@ -34,12 +34,12 @@ runuser -l $SUDOUSER -c "sudo mkdir -p $CPDTEMPLATES"
 # runuser -l $SUDOUSER -c "sudo mv /usr/bin/cloudctl-linux-amd64 /usr/bin/cloudctl"
 
 ### Install Prereqs:  CPD CLI, JQ, and Podman
-## Download & Install CPD CLI
-runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.0.0/cpd-cli-linux-EE-11.0.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0.tgz"
-runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.0.0.tgz"
+## Download & Install CPD CLI      
+runuser -l $SUDOUSER -c "sudo wget https://github.com/IBM/cpd-cli/releases/download/v11.3.0/cpd-cli-linux-EE-11.3.0.tgz -O $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0.tgz"
+runuser -l $SUDOUSER -c "cd $CPDTEMPLATES && sudo tar -xvf cpd-cli-linux-EE-11.3.0.tgz"
 # Move cpd-cli, plugins and license in the CPDTEMPLATES folder
-runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0-20/* $CPDTEMPLATES"
-runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.0.0*"
+runuser -l $SUDOUSER -c "sudo mv $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0-52/* $CPDTEMPLATES"
+runuser -l $SUDOUSER -c "sudo rm -rf $CPDTEMPLATES/cpd-cli-linux-EE-11.3.0*"
 
 # Service Account Token for CPD installation
 runuser -l $SUDOUSER -c "oc new-project $CPDNAMESPACE"
@@ -82,6 +82,9 @@ pull_secret=$(echo -n "$ENTITLEMENT_USER:$ENTITLEMENT_KEY" | base64 -w0)
 oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > $OCPTEMPLATES/dockerconfig.json
 sed -i -e 's|:{|:{"cp.icr.io":{"auth":"'$pull_secret'"\},|' $OCPTEMPLATES/dockerconfig.json
 oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=$OCPTEMPLATES/dockerconfig.json
+
+# Sleep for 2 min then check the status of nodes
+sleep 120
 
 # Check nodestatus if they are ready.
 

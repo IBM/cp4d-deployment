@@ -55,7 +55,37 @@
         "installWatsonOpenscale": {
           "value": "no"
         },
-        "installApacheSpark": {
+        "installAnalyticsEngine": {
+          "value": "no"
+        },
+        "installCognosAnalytics": {
+        "value": "no"
+        },
+        "installSpssModeler": {
+          "value": "no"
+        },
+        "installDb2Warehouse": {
+          "value": "no"
+        },
+        "installDb2oltp": {
+          "value": "no"
+        },
+        "installPlanningAnalytics": {
+          "value": "no"
+        },
+        "installDataStage": {
+          "value": "no"
+        },
+        "installDecisionOptimization": {
+          "value": "no"
+        },
+        "installOpenPages": {
+          "value": "no"
+        },
+        "installWatsonDiscovery": {
+          "value": "no"
+        },
+        "installMasterDataManagement": {
           "value": "no"
         }
     }
