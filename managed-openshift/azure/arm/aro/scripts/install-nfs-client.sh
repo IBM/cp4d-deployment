@@ -79,7 +79,7 @@ objects:
   - kind: StorageClass
     apiVersion: storage.k8s.io/v1
     metadata:
-      name: nfs
+      name: nfs-client
     provisioner: example.com/nfs #must match deployment's env PROVISIONER_NAME'
     parameters:
       archiveOnDelete: \"false\"

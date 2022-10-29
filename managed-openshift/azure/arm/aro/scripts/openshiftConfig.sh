@@ -26,7 +26,7 @@ password: $OPENSHIFTPASSWORD
 EOF"
 
 #setup oc and kubectl binaries
-runuser -l $SUDOUSER -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.15/openshift-client-linux-4.10.15.tar.gz"
+runuser -l $SUDOUSER -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.10.23/openshift-client-linux-4.10.23.tar.gz"
 runuser -l $SUDOUSER -c "sudo tar -xvf openshift-client-linux-*.tar.gz -C /usr/bin"
 runuser -l $SUDOUSER -c "rm -f openshift-client-linux-*.tar.gz"
 chmod +x /usr/bin/kubectl
