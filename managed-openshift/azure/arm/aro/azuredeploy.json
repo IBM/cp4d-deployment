@@ -1961,7 +1961,7 @@
 						"value": "[variables('customDomain')]"
 					},
 					"subscriptionChannel": {
-						"value": "v2.0"
+						"value": "v2.3"
 					},
 					"version": {
 						"value": "4.5.3"

@@ -169,7 +169,7 @@ metadata:
   namespace: openshift-marketplace
   name: ibm-cpd-iis-operator-catalog
 spec:
-  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:cc9d327a0bd8a7701ae10eee05809faacb89a66b88fc62dc5c4c056f7d8e8613
+  image: icr.io/cpopen/ibm-cpd-iis-operator-catalog@sha256:d0aa3d954aba3b03379ac4babef107688bdda9500e55a92dd4e3fafc3e0d7fb8
   displayName: CPD IBM Information Server
   publisher: IBM
   sourceType: grpc
