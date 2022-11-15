@@ -213,314 +213,48 @@ Note: After the nodes are assigned to the Location, either as a control plane or
 
 Every Cloud Pak requires storage, and for our OpenShift cluster on Satellite Locations, we use OpenShift Data Foundation with local disks. In step two above, you configured your VMs with two additional raw unformatted disks that will be used by ODF.
 
-Follow instructions in the Satellite documentation .
-
-- The two optional steps titled **Setting up an IBM Cloud Object Storage backing store** and **Getting the device details for your ODF configuration** are not required.
-
-- We performed the steps under **Creating an OpenShift Data Foundation configuration** in the command line and Assigning your ODF storage configuration to a cluster.
-
+The installation for ODF is now automated via the IBM Cloud Console
   
-
-**Essentially you will create an ODF storage configuration using the following command syntax:**
-
-1. Log in to the IBM Cloud CLI.
-
-```
-
-ibmcloud login
-
-```
-
-2. List your Satellite locations and note the Managed from column.
-
-```
-
-ibmcloud sat location ls
-
-```
-
-3. Target the Managed from region of your Satellite location. For example, for wdc target us-east. For more information, see Satellite regions.
-
-```
-
-ibmcloud target -r us-east
-
-```
-
-4. If you use a resource group other than default, target it.
-
-```
-
-ibmcloud target -g <resource-group>
-
-```
-
-5. List the available templates and versions and review the output. Make a note of the template and version that you want to use. Your storage template version and cluster version must match.
-
-```
-
-ibmcloud sat storage template ls
-
-```
-
-6. Get the template parameters for your cluster version.
-
-```
-
-ibmcloud sat storage template get --name odf-local --version <version>
-
-```
-
-7. Run the following command to create the storage config. You will need your IBM Cloud IAM API Key.
-
-```
-
-ibmcloud sat storage config create --name odf-local-auto --template-name odf-local --template-version 4.8 --location odf-sat-stage-location -p "ocs-cluster-name=ocscluster-auto" -p "auto-discover-devices=true" -p "iam-api-key=<api-key>"
-
-```
-
-**Assigning your ODF storage configuration to a cluster:**
-
-1. List your Satellite storage configurations and make a note of the storage configuration that you want to assign to your clusters.
-
-```
-
-ibmcloud sat storage config ls
-
-```
-
-2. Get the ID of the cluster or cluster group that you want to assign storage to. To make sure that your cluster is registered with Satellite Config or to create groups, see Setting up clusters to use with Satellite Config.
-
+  - Under the Satellite select "Storage" then click on "Create storage configuration":
   
+  ![image](https://media.github.ibm.com/user/12103/files/27575da5-be2e-436b-bf1f-04dbcc8a55af)
+  
+  - Edit preferences to Create Storage Configuration and click "Next":
+  
+  ![image](https://media.github.ibm.com/user/12103/files/954af1a4-f538-4217-bae0-9f717a77d781)
+  
+  - Choose parameters as follows then click "Next": 
+  
+  ![image](https://media.github.ibm.com/user/12103/files/9edaab33-a9f7-44d5-a510-cfd53de45007)
+  
+  - Enter IAM API Key for your IBM Cloud account then click "Next":
+  
+  ![image](https://media.github.ibm.com/user/12103/files/366919db-fae7-4f7a-b663-8ea53d780a79)
+  
+  - Select the openshift storage to assign the ODF configuration to: 
 
-- Group
+  ![image](https://media.github.ibm.com/user/12103/files/4f63ddff-b62b-419b-8073-9c1cc3d9f6c8)
 
-```
-
-ibmcloud sat group ls
-
-```
-
-- Cluster
-
-```
-
-ibmcloud oc cluster ls --provider satellite
-
-```
-
-- Satellite-enabled IBM Cloud service cluster
-
-```
-
-ibmcloud sat service ls --location <location>
-
-```
-
-3. Assign storage to the cluster or group that you retrieved in step 2. Replace <group> with the ID of your cluster group or <cluster> with the ID of your cluster. Replace <config> with the name of your storage config, and <name> with a name for your storage assignment. For more information, see the ibmcloud sat storage assignment create command.
-
-- Group
+  NOTE: Please allow 10-20 minutes for the ODF configuration to be created on the openshift cluster.
+  
+  You can confirm that ODF has been deployed by running the following commands: 
 
 ```
-
-ibmcloud sat storage assignment create --group <group> --config <config> --name <name>
-
+root@crumbs31:~$ oc get sc
+NAME                          PROVISIONER                             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+localblock                    kubernetes.io/no-provisioner            Delete          WaitForFirstConsumer   false                  4d3h
+ocs-storagecluster-ceph-rbd   openshift-storage.rbd.csi.ceph.com      Delete          Immediate              true                   4d3h
+ocs-storagecluster-ceph-rgw   openshift-storage.ceph.rook.io/bucket   Delete          Immediate              false                  4d3h
+ocs-storagecluster-cephfs     openshift-storage.cephfs.csi.ceph.com   Delete          Immediate              true                   4d3h
+openshift-storage.noobaa.io   openshift-storage.noobaa.io/obc         Delete          Immediate              false                  4d3h
+sat-ocs-cephfs-gold           openshift-storage.cephfs.csi.ceph.com   Delete          Immediate              true                   4d4h
+sat-ocs-cephfs-gold-metro     openshift-storage.cephfs.csi.ceph.com   Delete          WaitForFirstConsumer   true                   4d4h
+sat-ocs-cephrbd-gold          openshift-storage.rbd.csi.ceph.com      Delete          Immediate              true                   4d4h
+sat-ocs-cephrbd-gold-metro    openshift-storage.rbd.csi.ceph.com      Delete          WaitForFirstConsumer   true                   4d4h
+sat-ocs-cephrgw-gold          openshift-storage.ceph.rook.io/bucket   Delete          Immediate              false                  4d4h
+sat-ocs-noobaa-gold           openshift-storage.noobaa.io/obc         Delete          Immediate              false                  4d4h
 ```
-
-- Cluster
-
-```
-
-ibmcloud sat storage assignment create --cluster <cluster> --config <config> --name <name>
-
-```
-
-- Satellite-enabled IBM Cloud service cluster
-
-```
-
-ibmcloud sat storage assignment create --service-cluster-id <cluster> --config <config> --name <name>
-
-```
-
-4. Verify that your assignment is created.
-
-```
-
-ibmcloud sat storage assignment ls (--cluster <cluster_id> | --service-cluster-id <cluster_id>) | grep <storage-assignment-name>
-
-```
-
-5. Verify that the storage configuration resources are deployed. Note that this process might take up to 10 minutes to complete.
-
-- Get the storagecluster that you deployed and verify that the phase is Ready.
-
-```
-
-oc get storagecluster -n openshift-storage
-
-```
-
-Example output
-
-```
-
-NAME AGE PHASE EXTERNAL CREATED AT VERSION
-
-ocs-storagecluster 72m Ready 2021-02-10T06:00:20Z 4.6.0
-
-```
-
-- Get a list of pods in the openshift-storage namespace and verify that the status is Running.
-
-```
-
-oc get pods -n openshift-storage
-
-```
-
-Example output
-
-```
-
-NAME READY STATUS RESTARTS AGE
-
-csi-cephfsplugin-9g2d5 3/3 Running 0 8m11s
-
-csi-cephfsplugin-g42wv 3/3 Running 0 8m11s
-
-csi-cephfsplugin-provisioner-7b89766c86-l68sr 5/5 Running 0 8m10s
-
-csi-cephfsplugin-provisioner-7b89766c86-nkmkf 5/5 Running 0 8m10s
-
-csi-cephfsplugin-rlhzv 3/3 Running 0 8m11s
-
-csi-rbdplugin-8dmxc 3/3 Running 0 8m12s
-
-csi-rbdplugin-f8c4c 3/3 Running 0 8m12s
-
-csi-rbdplugin-nkzcd 3/3 Running 0 8m12s
-
-csi-rbdplugin-provisioner-75596f49bd-7mk5g 5/5 Running 0 8m12s
-
-csi-rbdplugin-provisioner-75596f49bd-r2p6g 5/5 Running 0 8m12s
-
-noobaa-core-0 1/1 Running 0 4m37s
-
-noobaa-db-0 1/1 Running 0 4m37s
-
-noobaa-endpoint-7d959fd6fb-dr5x4 1/1 Running 0 2m27s
-
-noobaa-operator-6cbf8c484c-fpwtt 1/1 Running 0 9m41s
-
-ocs-operator-9d6457dff-c4xhh 1/1 Running 0 9m42s
-
-rook-ceph-crashcollector-169.48.170.83-89f6d7dfb-gsglz 1/1 Running 0 5m38s
-
-rook-ceph-crashcollector-169.48.170.88-6f58d6489-b9j49 1/1 Running 0 5m29s
-
-rook-ceph-crashcollector-169.48.170.90-866b9d444d-zk6ft 1/1 Running 0 5m15s
-
-rook-ceph-drain-canary-169.48.170.83-6b885b94db-wvptz 1/1 Running 0 4m41s
-
-rook-ceph-drain-canary-169.48.170.88-769f8b6b7-mtm47 1/1 Running 0 4m39s
-
-rook-ceph-drain-canary-169.48.170.90-84845c98d4-pxpqs 1/1 Running 0 4m40s
-
-rook-ceph-mds-ocs-storagecluster-cephfilesystem-a-6dfbb4fcnqv9g 1/1 Running 0 4m16s
-
-rook-ceph-mds-ocs-storagecluster-cephfilesystem-b-cbc56b8btjhrt 1/1 Running 0 4m15s
-
-rook-ceph-mgr-a-55cc8d96cc-vm5dr 1/1 Running 0 4m55s
-
-rook-ceph-mon-a-5dcc4d9446-4ff5x 1/1 Running 0 5m38s
-
-rook-ceph-mon-b-64dc44f954-w24gs 1/1 Running 0 5m30s
-
-rook-ceph-mon-c-86d4fb86-s8gdz 1/1 Running 0 5m15s
-
-rook-ceph-operator-69c46db9d4-tqdpt 1/1 Running 0 9m42s
-
-rook-ceph-osd-0-6c6cc87d58-79m5z 1/1 Running 0 4m42s
-
-rook-ceph-osd-1-f4cc9c864-fmwgd 1/1 Running 0 4m41s
-
-rook-ceph-osd-2-dd4968b75-lzc6x 1/1 Running 0 4m40s
-
-rook-ceph-osd-prepare-ocs-deviceset-0-data-0-29jgc-kzpgr 0/1 Completed 0 4m51s
-
-rook-ceph-osd-prepare-ocs-deviceset-1-data-0-ckvv2-4jdx5 0/1 Completed 0 4m50s
-
-rook-ceph-osd-prepare-ocs-deviceset-2-data-0-szmjd-49dd4 0/1 Completed 0 4m50s
-
-rook-ceph-rgw-ocs-storagecluster-cephobjectstore-a-7f7f6df9rv6h 1/1 Running 0 3m44s
-
-rook-ceph-rgw-ocs-storagecluster-cephobjectstore-b-554fd9dz6dm8 1/1 Running 0 3m41s
-
-```
-
-- List the ODF storage classes.
-
-```
-
-oc get sc
-
-```
-
-Example output
-
-```
-
-NAME PROVISIONER RECLAIMPOLICY VOLUMEBINDINGMODE ALLOWVOLUMEEXPANSION AGE
-
-localblock kubernetes.io/no-provisioner Delete WaitForFirstConsumer false 107s
-
-localfile kubernetes.io/no-provisioner Delete WaitForFirstConsumer false 107s
-
-ocs-storagecluster-ceph-rbd openshift-storage.rbd.csi.ceph.com Delete Immediate true 87s
-
-ocs-storagecluster-ceph-rgw openshift-storage.ceph.rook.io/bucket Delete Immediate false 87s
-
-ocs-storagecluster-cephfs openshift-storage.cephfs.csi.ceph.com Delete Immediate true 88s
-
-sat-ocs-cephfs-gold openshift-storage.cephfs.csi.ceph.com Delete Immediate true 2m46s
-
-sat-ocs-cephrbd-gold openshift-storage.rbd.csi.ceph.com Delete Immediate true 2m46s
-
-sat-ocs-cephrgw-gold openshift-storage.ceph.rook.io/bucket Delete Immediate false 2m45s
-
-sat-ocs-noobaa-gold openshift-storage.noobaa.io/obc Delete Immediate false 2m45s
-
-```
-
-- List the persistent volumes and verify that your MON and OSD volumes are created.
-
-```
-
-oc get pv
-
-```
-
-Example output
-
-```
-
-NAME CAPACITY ACCESS MODES RECLAIM POLICY STATUS CLAIM STORAGECLASS REASON AGE
-
-local-pv-180cfc58 139Gi RWO Delete Bound openshift-storage/rook-ceph-mon-b localfile 12m
-
-local-pv-67f21982 139Gi RWO Delete Bound openshift-storage/rook-ceph-mon-a localfile 12m
-
-local-pv-80c5166 100Gi RWO Delete Bound openshift-storage/ocs-deviceset-2-data-0-5p6hd localblock 12m
-
-local-pv-9b049705 139Gi RWO Delete Bound openshift-storage/rook-ceph-mon-c localfile 12m
-
-local-pv-b09e0279 100Gi RWO Delete Bound openshift-storage/ocs-deviceset-1-data-0-gcq88 localblock 12m
-
-local-pv-f798e570 100Gi RWO Delete Bound openshift-storage/ocs-deviceset-0-data-0-6fgp6 localblock 12m
-
-```
-
+  
 ### 8. Configuring your cluster pull secret:
 
   
