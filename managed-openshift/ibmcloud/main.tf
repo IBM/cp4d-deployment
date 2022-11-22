@@ -17,7 +17,6 @@ locals {
 provider "ibm" {
   ibmcloud_api_key = var.ibmcloud_api_key
   region           = var.region
-  generation       = 2
 }
 
 data "ibm_resource_group" "this" {
