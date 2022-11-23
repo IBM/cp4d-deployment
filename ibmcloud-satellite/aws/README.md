@@ -159,163 +159,29 @@ Please refer [Accessing clusters from the public network](https://cloud.ibm.com/
 
 ##  Step 3: Configure storage
 
-  
+For our OpenShift cluster on Satellite Locations, we use OpenShift Data Foundation with local disks. The installation for ODF is now automated via the IBM Cloud Console.
+Please follow below steps to configure ODF storage.
 
-We need to complete below steps in order to configure storage on satellite cluster. These steps describes how to install ODF on OCP 4.8.
+- Under the Satellite select "Storage" then click on "Create storage configuration":
+<img width="952" alt="image" src="https://media.github.ibm.com/user/362184/files/39d9539e-6cf4-4f74-b9a7-60350a65b833">
 
-  
+- Edit preferences to Create Storage Configuration and click "Next":
+<img width="951" alt="image" src="https://media.github.ibm.com/user/362184/files/18454243-41fe-46a8-9515-7df48fc5ec4d">
 
-1. Create two volumes for each AWS node and attach them to the node.
+- Choose parameters as follows then click "Next":
+<img width="817" alt="image" src="https://media.github.ibm.com/user/362184/files/f14afec8-fa5c-48e4-842a-7ee0bed6b091">
 
-2. Get the device details for your storage configuration and install ODF.
+- Enter IAM API Key for your IBM Cloud account then click "Next":
+<img width="835" alt="image" src="https://media.github.ibm.com/user/362184/files/23f3fc3f-d375-44ef-bfd9-fa8bba600e61">
 
-  
+- Select the openshift storage to assign the ODF configuration to:
+<img width="828" alt="image" src="https://media.github.ibm.com/user/362184/files/912f760b-9afa-4e2d-bd6f-2fa56c3d660c">
 
-**Create two volumes for each AWS node and attach them to the node**
+- Select the service you want this storage configuration assigned to.
+<img width="879" alt="image" src="https://media.github.ibm.com/user/362184/files/7a8355a7-d4f3-43ce-b81e-4560d45ae3a6">
 
-  
-  
+- Click on Complete and wait for 10-15 mins for the ODF configuration to be created on the openshift cluster.
 
-ODF requires two volumes on each worker node.
-
-  
-
-**Note**: The volumes need to be created in the same zone as of the EC2 Instance that you will to attach them to. To find the availability zone where the instance resides, open each EC2 instance and locate its availability zone. You will need to create the volumes for the instance in that zone.
-
-![](images/determine-az-of-ec2-instance.png)
-
-  
-
-Figure 1: **How to determine the availability zone of an EC2 instance**
-
-  
-
-Create two volumes per EC2 Instance. To work with the Cloud Paks, we created 100 GiB and 500 GiB volumes.
-
-  
-
-**Note**: This step is only required for EC2 instances that serve as worker nodes and is not required for control plane nodes.
-
-  
-  
-
-![](images/create-volume.png)
-
-**Figure 2: Create two storage volume in AWS, 100GiB, 500GiB**
-
-  
-  
-
-![](images/two-storage-volumes.png)
-
-**Figure 3: Two storage volumes, 100 GiB, 500GiB.**
-
-  
-
-After the two volumes are created, attach them to their corresponding EC2 instance:
-
-  
-
-![](images/attach-volumes.png)
-
-  
-
-**Figure 5. Attach volume to EC2 instance.**
-
-  
-
-Search for the EC2 Instance that you want to attach the volume to. As you can see in the screenshot below, only the instances in the associated zone are displayed. Pick your instance and click Attach.
-
-![](images/fetch-device-osd-path.png)
-
-  
-
-**Figure 6. Select which EC2 instance to attach the volume to.**
-
-  
-  
-
-**Get the device details for your storage configuration and install ODF**
-
-  
-
-Now that the storage volumes are configured on the worker nodes on AWS, you can install ODF. The overall process consists of:
-
-  
-
-- Creating a satellite storage configuration that contains the paths to the storage volumes on AWS.
-
-- Creating a satellite storage assignment which uses the storage configuration.
-
-  
-
-**Creating a satellite storage configuration that contains the paths to the storage volumes**
-
-  
-  
-
-Use below command template to create storage configuration
-
-```
-ibmcloud sat storage config create --name odf-local-config --location <location> --template-name odf-local --template-version 4.8 -p "ocs-cluster-name=testocscluster" -p "osd-device-path=/dev/disk/by-id/<device-1>,/dev/disk/by-id/<device-2>,/dev/disk/by-id/<device-3>" -p "num-of-osd=1" -p "worker-nodes=<worker-node-name>,<worker-node-name>,<worker-node-name>" -p "iam-api-key=<iam-api-key>"
-```
-
-  
-
-We used the template-name odf-local because our EC2 instances use local storage. And since our cluster was OCP 4.8, we used template-version 4.8. For our three worker nodes, we plugged in the osd-device-path for each node. If you are using all of your worker nodes, you do not have to specify the worker-nodes parameter but we provide it here for clarity.
-
-  
-
-To fetch osd-device-path please follow below commands:
-
-```
-	oc get nodes
-```
-  
-```
-	oc debug node/<node-name>
-```
-  
-```
-	chroot /host
-```
-  
-```
-	lsblk
-```
-  
-```
-	ls -l /dev/disk/by-id/
-```
-  
-
-  
-
-You can note down the osd-device-path and mount-device-path for each node in same way as above.
-
-  
-
-An enhancement was made to the ODF storage with the addition of a new parameter auto-discover-devices=true. When this parameter is specified, you no longer need to provide the mon-device-path or osd-device-path parameters when you create the satellite storage configuration. Instead the command uses the OCP 4.8 template and contains:
-
-  
-```
-ibmcloud sat storage config create --name <config-name> --template-nameodf-local --template-version 4.8 --location <sat-location> -p " ocs-cluster-name=ocs-cluster " -p " auto-discover-devices = true " -p " iam-api-key=<my_key> "
-```
-  
-  
-
-Once storage configuration is created we need to create satellite storage assignment which uses the storage configuration. Use below commands to create assignment:
-
-  
-```
-	ibmcloud sat storage assignment create --cluster <cluster-id/name> --config <config-name> --name <assignment-name>
-```
-  
-  
-  
-  
-
-After you run this command, it will take a few minutes for the ODF cluster to be ready. Verify it by running below command after 10-15 min:
 ```
 	oc get csv -n openshift-storage
 ```
