@@ -1,4 +1,3 @@
 
 .DS_Store
-managed-openshift/azure/arm/aro/azuredeploy.parameters.json
-managed-openshift/azure/arm/azuredeploy.parameters.json
+

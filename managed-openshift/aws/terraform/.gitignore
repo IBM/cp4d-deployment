@@ -1,6 +1,0 @@
-terraform*
-.terraform*
-input.tfvars
-*DS_*
-pull*
-installer-files
