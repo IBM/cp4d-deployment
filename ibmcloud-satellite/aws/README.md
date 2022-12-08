@@ -299,6 +299,6 @@ The daemonset schedules pod on every worker node and configures every worker nod
 
 **Install Cloud Pak for Data:**
 
-For installation of Cloud Pak for Data please refer to  [Installing  IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=installing)
+For installation of Cloud Pak for Data please refer to  [Installing  IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=installing)
 
 -----------------------------------------------------------------------------
