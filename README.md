@@ -17,7 +17,8 @@ This repository contains deployment steps to get you started on setting up Cloud
 
 Please see  [Updating OpenShift Container Platform](https://docs.openshift.com/container-platform/4.10/updating/index.html) for upgrading RedHat Openshift Container Platform and [Upgrading Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=upgrading) for upgrading IBM Cloud Pak for Data installation.
 
-For Post-Installation activities on the cluster, please refer to the instructions at  [Administering Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=administering)
+For Post-Installation activities on the cluster,please refer to the instructions at  [Administering Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=administering)
+
 
 
 
