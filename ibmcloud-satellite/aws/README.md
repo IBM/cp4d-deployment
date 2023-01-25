@@ -67,7 +67,13 @@ The minimum requirement is 16 CPU X 64GB memory for each worker node on a Cloud 
 
 ![](images/aws-hardware-configuration.png)
 
-  
+**Plan your host systems**
+
+In each of the zones in your infrastructure provider, plan to create compatible hosts to add to Satellite. The host instances in your infrastructure provider become the compute hosts to create your location control plane or to run the services in your Satellite location, similar to the worker nodes in a Red Hat OpenShift cluster.
+Choose your operating system for your hosts. You can choose Red Hat Enterprise Linux 7 or 8. RHEL 7 operating system is supported for Satellite hosts on Red Hat OpenShift version 4.9 or earlier and RHEL 8 is supported for Satellite hosts on Red Hat OpenShift version 4.9 or later and on infrastructure hosts. RHEL 8 is the recommended operating system.
+
+<img width="737" alt="image" src="https://user-images.githubusercontent.com/97834450/214559157-5d93740d-c8cb-452e-9ecb-b5b6f552d7e3.png">
+
 
 **Note**: You do not need to create Object storage as we will configure storage later.
 
@@ -299,6 +305,6 @@ The daemonset schedules pod on every worker node and configures every worker nod
 
 **Install Cloud Pak for Data:**
 
-For installation of Cloud Pak for Data please refer to  [Installing  IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.5.x?topic=installing)
+For installation of Cloud Pak for Data please refer to  [Installing  IBM Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.6.x?topic=installing)
 
 -----------------------------------------------------------------------------
