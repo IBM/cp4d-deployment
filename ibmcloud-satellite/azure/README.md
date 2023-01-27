@@ -4,6 +4,8 @@
 
   This guide provides step-by-step instructions to install Cloud Pak for Data at IBM Cloud Satellite location using Microsoft Azure Infrastructure.  The Red Hat® OpenShift® cluster deployed here uses Red Hat® OpenShift® Data Foundation—previously Red Hat OpenShift Container Storage—which is a software-defined storage for containers.
 
+![](images/CPD_on_Azure_Satellite_Location_Demo.png)
+
 In order to deliver consistent experience across various form factors including Satellite locations, following capabilities have been certified by Cloud Pak for Data team on Cloud Pak for Data clusters deployed on IBM Cloud Satellite locations using Azure Infrastructure and ODF storage.
 
 -   WKC
