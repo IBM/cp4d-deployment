@@ -12,6 +12,9 @@ This repository contains deployment steps to get you started on setting up Cloud
 	- [AWS](./ibmcloud-satellite/aws)
 
 	- [On-Premises](./ibmcloud-satellite/on-premises)
+	
+	- [Azure](./azure/README.md)
+
 
 ## Upgrade and Post-Installation activities
 

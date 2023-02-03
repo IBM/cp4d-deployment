@@ -10,3 +10,4 @@ Follow the documentations below for the detailed steps to install Cloud Pak for 
 
 -   [IBM Cloud Satellite locations on AWS Infrastructure](./aws/README.md)
 -   [IBM Cloud Satellite locations on On-Prem Infrastructure](./on-premises/README.md)
+-   [IBM Cloud Satellite locations on Azure Infrastructure](./azure/README.md)
