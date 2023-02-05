@@ -157,18 +157,11 @@ Finally, you need to refresh the subscription manager. See the Satellite documen
 Login after the reboot and issue the following commands:
 
 ```
-
 subscription-manager refresh
 
-subscription-manager repos --enable rhel-server-rhscl-7-rpms
+subscription-manager repos --enable rhel-8-for-x86_64-appstream-rpms
 
-subscription-manager repos --enable rhel-7-server-optional-rpms
-
-subscription-manager repos --enable rhel-7-server-rh-common-rpms
-
-subscription-manager repos --enable rhel-7-server-supplementary-rpms
-
-subscription-manager repos --enable rhel-7-server-extras-rpms
+subscription-manager repos --enable rhel-8-for-x86_64-baseos-rpms
 
 ```
 
@@ -358,7 +351,7 @@ EOF
 
 To install Cloud Pak for Data starting from Setting Up Projects, follow the steps in the following link
 
-https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=tasks-setting-up-projects-namespaces
+[https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=tasks-setting-up-projects-namespaces](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.6.x?topic=cluster-setting-up-projects-namespaces)
 
   
 
