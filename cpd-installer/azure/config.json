@@ -1,5 +1,6 @@
 {
   "cpd-version" : "4.8.5",
   "cpd-cli-version": "13.1.5",
-  "cpd-cli-build": "176"
+  "cpd-cli-build": "176",
+  "OLM_UTILS_IMAGE_NAME": "icr.io/cpopen/cpd/olm-utils-v2:4.8.5"
 }
