@@ -4,4 +4,3 @@
   "cpd-cli-build": "1650",
   "OLM_UTILS_IMAGE_NAME": "icr.io/cpopen/cpd/olm-utils-v3:5.1.1"
 }
-
