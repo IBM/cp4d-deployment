@@ -1,5 +1,5 @@
 {
-  "cpd-version" : "5.4.o",
+  "cpd-version" : "5.4.0",
   "cpd-cli-version": "14.4.0",
   "cpd-cli-build": "3249",
   "OLM_UTILS_IMAGE_NAME": "icr.io/cpopen/cpd/olm-utils-v4:5.4.0"
